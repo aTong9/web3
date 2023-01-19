@@ -2373,6 +2373,11 @@ footer.main-footer {
   background-color: #fff;
 }
 /* .header-big .s-type-list label:not(.active),.header-big:not(.no-bg) .search-type label{opacity:.5;transition:opacity .3s} */
+.header-big .s-type-list label:not(.active),
+.header-big:not(.no-bg) .search-type label {
+  opacity: 1 !important;
+  transition: opacity 0.3s;
+}
 .header-big .s-type-list label:not(.active):hover,
 .header-big:not(.no-bg) .search-type label:hover {
   opacity: 1;
