@@ -1,5 +1,6 @@
 # web3
-adout web3
+
+[adout web3 nav](https://atong9.github.io/web3/)
 
 - 运行：hugo server
 - 部署：hugo -D
