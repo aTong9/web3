@@ -13,14 +13,14 @@
                 </a> -->
         <!-- 右下角搜索 end -->
 
-        <a href="javascript:" onclick="window.location.href='javascript:switchNightMode()'"
+        <!-- <a href="javascript:" onclick="window.location.href='javascript:switchNightMode()'"
             class="btn rounded-circle switch-dark-mode m-1" id="yejian" data-toggle="tooltip" data-placement="left"
             title="夜间模式">
             <i class="mode-ico iconfont icon-light"></i>
-        </a>
+        </a> -->
     </div>
     <div class="footer-inner">
-        <div class="footer-text">{{ replace $.Site.Params.footer.copyright "{year}" now.Year | markdownify }}</div>
+        <div class="footer-text text-white">{{ replace $.Site.Params.footer.copyright "{year}" now.Year | markdownify }}</div>
     </div>
 </footer>
 </div><!-- main-content end -->
