@@ -2,10 +2,13 @@
 
 [adout web3 nav](https://atong9.github.io/web3/)
 
+- 代碼修改： docs是運行.\hugo -D生成的代碼，不需要改，修改themes文件夾下面的就可
 - 运行：hugo server  或者  .\hugo server
 - 部署：hugo -D  或者  .\hugo -D
   
 [WebStack-Hugo | 一个简洁的静态导航主题](https://www.yuque.com/shenweiyan/cookbook/webstack-hugo) - [语雀](https://www.yuque.com/shenweiyan)
+
+
 
 My bets for Cress' top 10: MU, SCZMD, DB, HUT, PARR, INCY, IBDRY, HDLMY, HRTG, SYF
 预测克雷斯的前十名是：MU、SCZMD、DB、HUT、PARR、INCY、IBDRY、HDLMY、HRTG、SYF（待验证）

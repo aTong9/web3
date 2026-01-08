@@ -161,55 +161,93 @@ footer.main-footer .footer-text a:hover {
   background-size: 15px 15px;
   background-color: #d8d8d8;
 } */
-/* 星空闪烁背景 - 独立闪烁星星效果 */
+/* 修复版星空闪烁效果 - 背景不闪烁 */
 .io-grey-mode .page-container .grid-bg {
   background: 
-    /* 静态星星背景层 */
-    radial-gradient(1.2px, #fff 50%, transparent 0),
-    radial-gradient(1px, #fff 50%, transparent 0),
-    radial-gradient(0.8px, #fff 50%, transparent 0),
-    radial-gradient(0.6px, #fff 50%, transparent 0),
-    /* 动态闪烁星星层 */
-    radial-gradient(1.4px, #fff 30%, transparent 0),
-    radial-gradient(1.1px, #fff 30%, transparent 0),
-    radial-gradient(0.9px, #fff 30%, transparent 0);
+    /* 固定背景层 - 纯黑色 */
+    radial-gradient(0.8px, #fff 60%, transparent 0),
+    radial-gradient(0.6px, #fff 60%, transparent 0),
+    /* 随机闪烁星星1 */
+    radial-gradient(1.2px, #fff 40%, transparent 0),
+    radial-gradient(1px, #fff 40%, transparent 0),
+    /* 随机闪烁星星2 */
+    radial-gradient(1.4px, #fff 35%, transparent 0),
+    radial-gradient(0.9px, #fff 35%, transparent 0),
+    /* 随机闪烁星星3 */
+    radial-gradient(1.6px, #fff 30%, transparent 0),
+    radial-gradient(1.1px, #fff 30%, transparent 0);
   background-size: 
     100px 100px,
     80px 80px,
-    120px 120px,
-    60px 60px,
     110px 110px,
     90px 90px,
-    130px 130px;
+    120px 120px,
+    70px 70px,
+    130px 130px,
+    85px 85px;
   background-color: #000;
-  /* 使用transform来创建星星的缩放效果 */
-  animation: subtleStarPulse 4s infinite alternate ease-in-out;
+  /* 只使用改变大小的动画，不改变透明度 */
+  animation: randomTwinkleSize 5s infinite ease-in-out;
 }
 
-@keyframes subtleStarPulse {
-  0% {
+@keyframes randomTwinkleSize {
+  0%, 100% {
     background-size: 
       100px 100px,
       80px 80px,
-      120px 120px,
-      60px 60px,
       110px 110px,
       90px 90px,
-      130px 130px;
-    opacity: 1;
+      120px 120px,
+      70px 70px,
+      130px 130px,
+      85px 85px;
   }
-  100% {
+  20% {
     background-size: 
       100px 100px,
       80px 80px,
+      115px 115px,
+      90px 90px,
       120px 120px,
-      60px 60px,
+      75px 75px,
+      130px 130px,
+      85px 85px;
+  }
+  40% {
+    background-size: 
+      100px 100px,
+      80px 80px,
+      110px 110px,
+      88px 88px,
+      125px 125px,
+      70px 70px,
+      135px 135px,
+      85px 85px;
+  }
+  60% {
+    background-size: 
+      100px 100px,
+      80px 80px,
+      110px 110px,
+      90px 90px,
+      122px 122px,
+      72px 72px,
+      130px 130px,
+      90px 90px;
+  }
+  80% {
+    background-size: 
+      100px 100px,
+      80px 80px,
       112px 112px,
       92px 92px,
-      132px 132px;
-    opacity: 0.9;
+      120px 120px,
+      70px 70px,
+      132px 132px,
+      85px 85px;
   }
 }
+
 
 #search-bg{
   background-size: 100%;
