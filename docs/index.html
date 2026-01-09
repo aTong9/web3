@@ -184,59 +184,58 @@
     <div>
 <script>
 
-
-
-
-
+async function setBingBackground() {
+  try {
     
-
-
-
+    const response = await fetch('https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1');
     
-
-
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     
-
-
-
-
-
-
-
+    const data = await response.json();
+    const imageUrl = 'https://www.bing.com' + data.images[0].url;
     
-
-
+    const mainbg = document.getElementById('main_bg');
     
-
-
-
-
+    mainbg.classList.remove('grid-bg-default');
+    
+    mainbg.style.backgroundImage = `url(${imageUrl})`;
+    mainbg.style.backgroundSize = 'cover';
+    mainbg.style.backgroundPosition = 'center';
+    
+  } catch (error) {
+    console.error('Direct fetch failed:', error);
+    
+    
+    try {
+      const proxyResponse = await fetch('https://api.allorigins.win/get?url=' + 
+        encodeURIComponent('https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1'));
       
-
-
-
+      if (!proxyResponse.ok) {
+        throw new Error(`Proxy HTTP error! status: ${proxyResponse.status}`);
+      }
       
-
-
-
+      const proxyData = await proxyResponse.json();
+      const parsedData = JSON.parse(proxyData.contents);
+      const imageUrl = 'https://www.bing.com' + parsedData.images[0].url;
       
-
-
-
-
-
+      const mainbg = document.getElementById('main_bg');
       
+      mainbg.classList.remove('grid-bg-default');
+      
+      mainbg.style.backgroundImage = `url(${imageUrl})`;
+      
+    } catch (proxyError) {
+      console.error('Proxy fetch failed:', proxyError);
+      
+      const mainbg = document.getElementById('main_bg');
+      mainbg.style.backgroundImage = 'linear-gradient(135deg, #000, #000)';
+    }
+  }
+}
 
-
-
-
-
-
-
-
-
-
-
+document.addEventListener('DOMContentLoaded', setBingBackground);
 </script>           
 </div>
     <div class="big-header-banner">
