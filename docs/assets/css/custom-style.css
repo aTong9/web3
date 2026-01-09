@@ -1,7 +1,18 @@
 /*调整全局字体大小*/
 body,
 html {
-  font-size: 14px;
+  /* font-family: 'Press Start 2P', 'Courier New', monospace; */
+  font-size: 16px;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges; /* Firefox */
+  image-rendering: crisp-edges;
+  /* zoom: 100%; // 控制像素大小 */
+
+  font-family: 'Courier New', monospace; /* 使用等宽字体模拟像素效果 */
+  -webkit-font-smoothing: none; /* 关闭字体平滑 */
+  -moz-osx-font-smoothing: grayscale; /* Firefox 字体渲染优化 */
+  text-rendering: optimizeSpeed; /* 提高渲染速度 */
+  font-weight: bold; /* 保持字体粗细一致 */
 }
 /*左导航悬浮 sidebar-menu-inner 调整为 100px -- start*/
 .sidebar-popup.sidebar-menu-inner > div > ul > li.sidebar-item > ul {
@@ -251,4 +262,13 @@ footer.main-footer .footer-text a:hover {
 
 #search-bg{
   background-size: 100%;
+}
+
+
+/* 白色背景元素像素化 */
+.bg-white, .card, .container, .panel {
+  border: 1px solid #aaa;
+  border-radius: 0;
+  box-shadow: 3px 3px 0px 0px #888;
+  image-rendering: pixelated;
 }
