@@ -532,6 +532,7 @@ a > i.sidebar-more {
   padding: 10px 15px;
   display: block;
   transition: color 0.2s;
+  color: #fff;
 }
 .navbar .navbar-nav i {
   margin-right: 2px !important;
@@ -674,7 +675,7 @@ a > i.sidebar-more {
 ## mobile menu
 --------------------------------------------------------------*/
 .navbar-menu a {
-  color: #777;
+  color: #fff;
 }
 @media (min-width: 768px) {
   .sidebar-nav {
@@ -2178,21 +2179,21 @@ footer.main-footer {
 }
 .big-header-banner .page-header {
   color: #fff;
-  background: rgba(255, 255, 255, 0);
+  background: rgba(0, 0, 0, 0);
   box-shadow: none;
   transition: color 0.3s, background-color 0.3s;
 }
 .big-header-banner.header-bg .page-header {
   color: initial;
   backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.7);
 }
 .big-header-banner:not(.header-bg) .page-header .navbar-nav > li > a,
 .big-header-banner:not(.header-bg) .navbar-menu a:not(.dropdown-item) {
-  color: #eee;
+  color: #fff;
 }
 .big-header-banner:not(.header-bg) .header-mini-btn path {
-  stroke: #eee;
+  stroke: #fff;
 }
 .big-header-banner:not(.header-bg) .page-header .navbar-nav > li > a:hover,
 .big-header-banner:not(.header-bg) .navbar-menu a:not(.dropdown-item):hover {
@@ -2394,7 +2395,7 @@ footer.main-footer {
   padding: 9px 20px;
   -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
-  background-color: rgba(0, 0, 0, 0.6) !important;
+  /* background-color: rgba(0, 0, 0, 0.6) !important; */
 }
 .header-big #search button {
   position: absolute;

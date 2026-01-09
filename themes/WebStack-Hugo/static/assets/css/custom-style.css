@@ -2,12 +2,12 @@
 body,
 html {
   /* font-family: 'Press Start 2P', 'Courier New', monospace; */
-  font-size: 16px;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges; /* Firefox */
   image-rendering: crisp-edges;
   /* zoom: 100%; // 控制像素大小 */
 
+  font-size: 16px;
   font-family: 'Courier New', monospace; /* 使用等宽字体模拟像素效果 */
   -webkit-font-smoothing: none; /* 关闭字体平滑 */
   -moz-osx-font-smoothing: grayscale; /* Firefox 字体渲染优化 */
@@ -55,6 +55,10 @@ html {
 }
 .big-header-banner:not(.header-bg) .header-mini-btn label:hover path {
   stroke: #fff;
+}
+.text-white-new {
+  color: rgba(255, 255, 255, 0.7);
+  
 }
 /*主页导航栏字体颜色 -- end*/
 /*搜索activate图标颜色 -- start*/
@@ -172,8 +176,15 @@ footer.main-footer .footer-text a:hover {
   background-size: 15px 15px;
   background-color: #d8d8d8;
 } */
+
+.io-grey-mode .page-container .grid-bg{
+  height: 100vh;
+  overflow-y: scroll;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
 /* 修复版星空闪烁效果 - 背景不闪烁 */
-.io-grey-mode .page-container .grid-bg {
+.io-grey-mode .page-container .grid-bg-default {
   background: 
     /* 固定背景层 - 纯黑色 */
     radial-gradient(0.8px, #fff 60%, transparent 0),
@@ -261,14 +272,51 @@ footer.main-footer .footer-text a:hover {
 
 
 #search-bg{
-  background-size: 100%;
+  background-size: 0;
 }
 
 
 /* 白色背景元素像素化 */
 .bg-white, .card, .container, .panel {
-  border: 1px solid #aaa;
+  border: 1px solid #fff;
   border-radius: 0;
-  box-shadow: 3px 3px 0px 0px #888;
+  box-shadow: 3px 3px 0px 0px #444;
+  /* box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 0.8); */
   image-rendering: pixelated;
 }
+
+.card{
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  
+  border: 2px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0;
+  
+  image-rendering: pixelated;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* 轻微阴影保持深度感 */
+  /* box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 0.1); */
+}
+
+/* 导航栏样式 */
+/* .navbar {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.navbar .nav-link {
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+} */
+
+/* .navbar .nav-link:hover,
+.navbar .nav-link.active {
+  color: var(--accent-color);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-color);
+} */
