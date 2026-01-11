@@ -1,1 +1,18 @@
-<div>redbook</div>
+<div>
+    redbook
+    <script>
+            fetch('./redbook/json/allStock/US_Stocks.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('网络响应不正常: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayData(data);
+                })
+                .catch(error => {
+                    console.error('获取数据时出错:', error);
+                });
+    </script>
+</div>
