@@ -12,7 +12,8 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-  base: process.env.NODE_ENV === 'production' ? '/web3/' : '/',
+  // base: process.env.NODE_ENV === 'production' ? '/web3/' : '/',
+  base: '/web3/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

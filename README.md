@@ -46,3 +46,5 @@ npm run build
 ```sh
 npm run lint
 ```
+
+// "deploy": "gh-pages -d dist -m \"Deploy to GitHub Pages\""
