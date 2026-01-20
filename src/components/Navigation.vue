@@ -289,7 +289,7 @@ const getChineseClass = (text: string): string => {
 
 .link-title {
   font-family: 'VT323', 'Courier New', monospace;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: normal;
   margin: 0 0 4px 0;
   color: #ffffff;
@@ -301,7 +301,7 @@ const getChineseClass = (text: string): string => {
 
 .link-description {
   font-family: 'VT323', 'Courier New', monospace;
-  font-size: 16px;
+  font-size: 12px;
   color: #adb5bd;
   margin: 0;
   line-height: 1.3;
@@ -345,11 +345,11 @@ const getChineseClass = (text: string): string => {
   }
 
   .link-title {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .link-description {
-    font-size: 14px;
+    font-size: 12px;
   }
 }
 </style>

@@ -4,7 +4,7 @@
     <div class="header-content">
       <div class="logo-section">
         <img src="/assets/images/favicon6.png" alt="Logo" class="logo" />
-        <h1 class="site-title mixed-pixel-nav">Financial Independence 财务自由</h1>
+        <h1 class="site-title mixed-pixel-nav">Financial Independence</h1>
       </div>
 
       <nav class="nav">
@@ -66,7 +66,6 @@
   width: 32px;
   height: 32px;
   margin-right: 16px;
-  border: 2px solid #4c6ef5;
   image-rendering: pixelated;
 }
 
