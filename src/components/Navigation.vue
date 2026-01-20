@@ -2,7 +2,7 @@
   <div class="navigation-container">
     <div v-for="taxonomy in navigationData" :key="taxonomy.taxonomy" class="taxonomy-section">
       <h2 class="taxonomy-title">
-        <i :class="taxonomy.icon"></i>
+        <span class="pixel-icon">{{ getPixelIcon(taxonomy.icon) }}</span>
         {{ taxonomy.taxonomy }}
       </h2>
 
@@ -38,6 +38,37 @@ const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
   img.src = '/assets/images/logos/default.webp'
 }
+
+const getPixelIcon = (iconClass: string): string => {
+  const iconMap: { [key: string]: string } = {
+    'bi-globe': '🌐',
+    'bi-code-slash': '⌨️',
+    'bi-palette': '🎨',
+    'bi-graph-up': '📈',
+    'bi-book': '📚',
+    'bi-tools': '🔧',
+    'bi-music-note': '🎵',
+    'bi-camera': '📷',
+    'bi-controller': '🎮',
+    'bi-heart': '❤️',
+    'bi-star': '⭐',
+    'bi-lightning': '⚡',
+    'bi-cloud': '☁️',
+    'bi-shield': '🛡️',
+    'bi-rocket': '🚀',
+  }
+
+  const iconClassLower = iconClass.toLowerCase()
+  for (const [key, value] of Object.entries(iconMap)) {
+    if (
+      iconClassLower.includes(key.toLowerCase()) ||
+      iconClassLower.includes(key.replace('bi-', ''))
+    ) {
+      return value
+    }
+  }
+  return '⭐' // 默认图标
+}
 </script>
 
 <style scoped>
@@ -45,6 +76,8 @@ const handleImageError = (event: Event) => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 18px;
 }
 
 .taxonomy-section {
@@ -52,15 +85,38 @@ const handleImageError = (event: Event) => {
 }
 
 .taxonomy-title {
-  font-size: 24px;
-  font-weight: bold;
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: normal;
   margin-bottom: 20px;
-  color: #333;
-  border-bottom: 2px solid #007bff;
-  padding-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  color: #e9ecef;
+  background: #4c6ef5;
+  padding: 12px 16px;
+  display: inline-block;
+  position: relative;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  image-rendering: pixelated;
+}
+
+.taxonomy-title::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -8px;
+  width: 8px;
+  height: 100%;
+  background: #3a5bd9;
+}
+
+.taxonomy-title::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -8px;
+  width: 8px;
+  height: 100%;
+  background: #3a5bd9;
 }
 
 .term-section {
@@ -68,57 +124,81 @@ const handleImageError = (event: Event) => {
 }
 
 .term-title {
-  font-size: 18px;
-  font-weight: 600;
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: normal;
   margin-bottom: 15px;
-  color: #555;
+  color: #adb5bd;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-left: 4px solid #4c6ef5;
+  padding-left: 12px;
 }
 
 .links-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
 }
 
 .link-card {
-  background: white;
-  border-radius: 12px;
+  background: #1a1a1a;
+  border: 2px solid #343a40;
   overflow: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
+  transition: none;
+  position: relative;
+  image-rendering: pixelated;
 }
 
 .link-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transform: translate(-6px, -6px);
+  border-color: #4c6ef5;
+  box-shadow:
+    6px 6px 0 #3a5bd9,
+    12px 12px 0 rgba(58, 91, 217, 0.3);
 }
 
 .link-content {
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 16px;
   text-decoration: none;
-  color: inherit;
+  color: #e9ecef;
   height: 100%;
   min-height: 80px;
+  position: relative;
 }
 
 .link-logo {
-  width: 40px;
-  height: 40px;
-  margin-right: 15px;
+  width: 48px;
+  height: 48px;
+  margin-right: 16px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #2d3748;
+  border: 2px solid #4c6ef5;
+  image-rendering: pixelated;
+  position: relative;
+}
+
+.link-logo::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, transparent 50%, #4c6ef5 50%);
+  z-index: -1;
 }
 
 .link-logo img {
-  width: 100%;
-  height: 100%;
+  width: 32px;
+  height: 32px;
   object-fit: contain;
-  border-radius: 6px;
+  image-rendering: pixelated;
 }
 
 .link-info {
@@ -127,30 +207,42 @@ const handleImageError = (event: Event) => {
 }
 
 .link-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0 0 5px 0;
-  color: #333;
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 20px;
+  font-weight: normal;
+  margin: 0 0 4px 0;
+  color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .link-description {
-  font-size: 14px;
-  color: #666;
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 16px;
+  color: #adb5bd;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
+.pixel-icon {
+  margin-right: 12px;
+  font-size: 18px;
+  display: inline-block;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 0 #3a5bd9);
+}
+
 /* 响应式优化 */
 @media (max-width: 768px) {
   .navigation-container {
-    padding: 15px;
+    padding: 16px;
+    font-size: 16px;
   }
 
   .links-grid {
@@ -159,51 +251,24 @@ const handleImageError = (event: Event) => {
   }
 
   .link-content {
-    padding: 15px;
+    padding: 12px;
   }
 
   .taxonomy-title {
-    font-size: 20px;
+    font-size: 12px;
+    padding: 10px 12px;
   }
 
   .term-title {
-    font-size: 16px;
+    font-size: 11px;
   }
 
   .link-title {
-    font-size: 15px;
+    font-size: 18px;
   }
 
   .link-description {
-    font-size: 13px;
-  }
-}
-
-/* 深色模式支持 */
-@media (prefers-color-scheme: dark) {
-  .taxonomy-title {
-    color: #f8f9fa;
-  }
-
-  .term-title {
-    color: #e9ecef;
-  }
-
-  .link-card {
-    background: #2d3748;
-    border-color: #4a5568;
-  }
-
-  .link-content {
-    color: #f8f9fa;
-  }
-
-  .link-title {
-    color: #f8f9fa;
-  }
-
-  .link-description {
-    color: #cbd5e0;
+    font-size: 14px;
   }
 }
 </style>
