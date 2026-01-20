@@ -13,7 +13,9 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix --cache",
-    "format": "prettier --write --experimental-cli src/"
+    "format": "prettier --write --experimental-cli src/",
+    "deploy": "npm run build && gh-pages -d dist --add --repo https://github.com/yourusername/web3.git --branch vue-vite-ts",
+    "deploy-github": "npm run build && git add dist && git commit -m \"Deploy to GitHub Pages\" && git subtree push --prefix dist origin gh-pages"
   },
   "dependencies": {
     "@types/js-yaml": "^4.0.9",
