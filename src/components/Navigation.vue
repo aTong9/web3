@@ -15,7 +15,7 @@
             <a :href="link.url" target="_blank" rel="noopener noreferrer" class="link-content">
               <div class="link-logo">
                 <img
-                  :src="`/assets/images/logos/${link.logo}`"
+                  :src="`${BASE_URL}assets/images/logos/${link.logo}`"
                   :alt="link.title"
                   @error="handleImageError"
                 />
@@ -42,9 +42,11 @@
 <script setup lang="ts">
 import { navigationData } from '@/utils/data'
 
+const BASE_URL = import.meta.env.BASE_URL
+
 const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
-  img.src = '/assets/images/logos/default.webp'
+  img.src = `${BASE_URL}assets/images/logos/default.webp`
 }
 
 const getPixelIcon = (iconClass: string): string => {
