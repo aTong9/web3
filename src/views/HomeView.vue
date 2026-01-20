@@ -32,7 +32,7 @@
 
     <!-- 霓虹粒子系统 -->
     <div class="neon-particles">
-      <div v-for="i in 40" :key="i" class="neon-particle" :style="getParticleStyle(i)"></div>
+      <div v-for="i in 40" :key="i" class="neon-particle" :style="getParticleStyle()"></div>
     </div>
 
     <!-- 量子光束 -->
@@ -72,12 +72,12 @@
 
     <!-- 像素星光 -->
     <div class="pixel-stars">
-      <div v-for="i in 60" :key="i" class="pixel-star" :style="getStarStyle(i)"></div>
+      <div v-for="i in 60" :key="i" class="pixel-star" :style="getStarStyle()"></div>
     </div>
 
     <!-- 浮动几何形状 -->
     <div class="floating-geometry">
-      <div v-for="i in 12" :key="i" class="geo-shape" :style="getGeoStyle(i)"></div>
+      <div v-for="i in 12" :key="i" class="geo-shape" :style="getGeoStyle()"></div>
     </div>
 
     <!-- 音频可视化条 -->
@@ -88,7 +88,7 @@
     <!-- 电路板纹理层 -->
     <div class="circuit-board">
       <div v-for="i in 30" :key="i" class="circuit-line" :style="getCircuitLineStyle(i)"></div>
-      <div v-for="i in 20" :key="i" class="circuit-node" :style="getCircuitNodeStyle(i)"></div>
+      <div v-for="i in 20" :key="i" class="circuit-node" :style="getCircuitNodeStyle()"></div>
     </div>
 
     <!-- 全息扫描层 -->
@@ -104,7 +104,7 @@
 
     <!-- 脉冲网络层 -->
     <div class="pulse-network">
-      <div v-for="i in 15" :key="i" class="pulse-node" :style="getPulseNodeStyle(i)"></div>
+      <div v-for="i in 15" :key="i" class="pulse-node" :style="getPulseNodeStyle()"></div>
     </div>
 
     <!-- 内容容器 -->
@@ -345,9 +345,9 @@ const getPulseNodeStyle = () => {
 }
 
 // 故障效果和闪电效果
-let glitchInterval: NodeJS.Timeout | null = null
-let lightningInterval: NodeJS.Timeout | null = null
-let plasmaInterval: NodeJS.Timeout | null = null
+let glitchInterval: number | null = null
+let lightningInterval: number | null = null
+let plasmaInterval: number | null = null
 
 onMounted(() => {
   // 故障效果
@@ -365,7 +365,7 @@ onMounted(() => {
       })
     },
     2000 + Math.random() * 3000,
-  )
+  ) as any
 
   // 闪电效果
   lightningInterval = setInterval(
@@ -384,7 +384,7 @@ onMounted(() => {
       }
     },
     4000 + Math.random() * 6000,
-  )
+  ) as any
 
   // 等离子爆发效果
   plasmaInterval = setInterval(
@@ -404,7 +404,7 @@ onMounted(() => {
       }
     },
     5000 + Math.random() * 7000,
-  )
+  ) as any
 })
 
 onUnmounted(() => {
