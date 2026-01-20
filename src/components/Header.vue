@@ -3,16 +3,16 @@
     <div class="header-content">
       <div class="logo-section">
         <img src="/assets/images/favicon6.png" alt="Logo" class="logo" />
-        <h1 class="site-title">Financial Independence, Retire Early</h1>
+        <h1 class="site-title mixed-pixel-nav">Financial Independence 财务自由</h1>
       </div>
 
       <nav class="nav">
-        <RouterLink to="/" class="nav-link">首页</RouterLink>
-        <RouterLink to="/about" class="nav-link">关于</RouterLink>
+        <RouterLink to="/" class="nav-link mixed-pixel-nav">首页</RouterLink>
+        <RouterLink to="/about" class="nav-link mixed-pixel-nav">关于</RouterLink>
         <a
           href="https://www.yuque.com/forms/share/1a1fee15-f7a9-4ee6-9dd4-b0ba9fef1871"
           target="_blank"
-          class="nav-link"
+          class="nav-link mixed-pixel-nav"
         >
           网站提交
         </a>
@@ -77,6 +77,7 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   text-shadow: 2px 2px 0 #3a5bd9;
+  font-display: swap;
 }
 
 .nav {
@@ -98,6 +99,7 @@
   transition: none;
   position: relative;
   image-rendering: pixelated;
+  font-display: swap;
 }
 
 .nav-link:hover {

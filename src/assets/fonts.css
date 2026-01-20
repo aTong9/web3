@@ -1,0 +1,166 @@
+/* 中文字体定义 */
+
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/assets/fonts/ZCOOLKuaiLe-Regular.woff2') format('woff2');
+  font-display: swap;
+}
+
+/* 创建像素化的中文显示效果 */
+@font-face {
+  font-family: 'Pixel Chinese';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Courier New'), local('monospace');
+  font-display: swap;
+}
+
+/* 中英文混合像素字体栈 */
+@font-face {
+  font-family: 'Pixel Mixed';
+  src: local('Courier New'), local('monospace');
+  font-display: swap;
+}
+
+/* 复古点阵中文字体效果 */
+.chinese-pixel {
+  font-family: 'ZCOOL KuaiLe', 'Courier New', monospace;
+  font-weight: 400;
+  letter-spacing: 1px;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  text-shadow:
+    1px 1px 0 #3a5bd9,
+    -1px -1px 0 rgba(77, 171, 247, 0.3);
+}
+
+/* 中文像素大字体 */
+.chinese-pixel-large {
+  font-family: 'ZCOOL KuaiLe', 'Press Start 2P', 'Courier New', monospace;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  image-rendering: pixelated;
+  text-shadow:
+    2px 2px 0 #3a5bd9,
+    -1px -1px 0 rgba(77, 171, 247, 0.3);
+}
+
+/* 中文像素小字体 */
+.chinese-pixel-small {
+  font-family: 'ZCOOL KuaiLe', 'VT323', 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  image-rendering: pixelated;
+  text-shadow: 1px 1px 0 #3a5bd9;
+}
+
+/* 中英混合像素字体栈 */
+.mixed-pixel {
+  font-family:
+    'Press Start 2P',
+    /* 英文像素字体优先 */ 'ZCOOL KuaiLe',
+    /* 中文像素字体 */ 'VT323',
+    /* 英文显示字体 */ 'Courier New',
+    /* 等宽字体回退 */ monospace; /* 系统等宽字体 */
+  font-weight: 400;
+  image-rendering: pixelated;
+  letter-spacing: 1px;
+}
+
+/* 为不同内容类型优化的中文字体 */
+.chinese-title {
+  font-family: 'ZCOOL KuaiLe', 'Press Start 2P', 'Courier New', monospace;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  image-rendering: pixelated;
+  text-shadow:
+    2px 2px 0 #3a5bd9,
+    4px 4px 0 rgba(58, 91, 217, 0.2);
+}
+
+.chinese-content {
+  font-family: 'VT323', 'ZCOOL KuaiLe', 'Courier New', monospace;
+  font-size: 16px;
+  line-height: 1.4;
+  image-rendering: pixelated;
+  letter-spacing: 1px;
+}
+
+/* 像素化中文按钮 */
+.chinese-pixel-btn {
+  font-family: 'ZCOOL KuaiLe', 'Press Start 2P', 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-transform: none; /* 中文不需要大写转换 */
+  image-rendering: pixelated;
+}
+
+/* 中英混合像素导航 */
+.mixed-pixel-nav {
+  font-family:
+    'Press Start 2P',
+    /* 英文导航文字 */ 'ZCOOL KuaiLe',
+    /* 中文导航文字 */ 'Courier New',
+    monospace;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  image-rendering: pixelated;
+  text-transform: uppercase;
+}
+
+/* 当内容包含中文时自动应用像素效果 */
+.has-chinese {
+  font-family: 'ZCOOL KuaiLe', 'VT323', 'Courier New', monospace;
+  image-rendering: pixelated;
+  letter-spacing: 1px;
+}
+
+/* 纯英文内容保持原有像素字体 */
+.english-only {
+  font-family: 'Press Start 2P', 'VT323', 'Courier New', monospace;
+  image-rendering: pixelated;
+}
+
+/* 像素风格logo容器的增强样式 */
+.pixel-logo-enhanced {
+  position: relative;
+  background: #1a1a1a;
+  border: 2px solid #4c6ef5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  image-rendering: pixelated;
+}
+
+/* 像素风格的边框装饰 */
+.pixel-border-fancy {
+  border: 2px solid #4c6ef5;
+  position: relative;
+  background: #1a1a1a;
+}
+
+.pixel-border-fancy::before {
+  content: '◆';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  color: #4c6ef5;
+  font-size: 8px;
+}
+
+.pixel-border-fancy::after {
+  content: '◆';
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  color: #3a5bd9;
+  font-size: 8px;
+}

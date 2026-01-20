@@ -1,13 +1,13 @@
 <template>
   <div class="navigation-container">
     <div v-for="taxonomy in navigationData" :key="taxonomy.taxonomy" class="taxonomy-section">
-      <h2 class="taxonomy-title">
+      <h2 class="taxonomy-title" :class="getChineseClass(taxonomy.taxonomy)">
         <span class="pixel-icon">{{ getPixelIcon(taxonomy.icon) }}</span>
         {{ taxonomy.taxonomy }}
       </h2>
 
       <div v-for="term in taxonomy.list" :key="term.term" class="term-section">
-        <h3 class="term-title">{{ term.term }}</h3>
+        <h3 class="term-title" :class="getChineseClass(term.term)">{{ term.term }}</h3>
 
         <div class="links-grid">
           <div v-for="link in term.links" :key="link.title" class="link-card">
@@ -20,8 +20,14 @@
                 />
               </div>
               <div class="link-info">
-                <h4 class="link-title">{{ link.title }}</h4>
-                <p v-if="link.description" class="link-description">{{ link.description }}</p>
+                <h4 class="link-title" :class="getChineseClass(link.title)">{{ link.title }}</h4>
+                <p
+                  v-if="link.description"
+                  class="link-description"
+                  :class="getChineseClass(link.description)"
+                >
+                  {{ link.description }}
+                </p>
               </div>
             </a>
           </div>
@@ -69,6 +75,25 @@ const getPixelIcon = (iconClass: string): string => {
   }
   return '⭐' // 默认图标
 }
+
+// 中文字体检测
+const hasChinese = (text: string): boolean => {
+  const chineseRegex = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/
+  return chineseRegex.test(text)
+}
+
+// 根据内容返回合适的字体类
+const getChineseClass = (text: string): string => {
+  if (hasChinese(text)) {
+    const hasEnglish = /[a-zA-Z]/.test(text)
+    if (hasEnglish) {
+      return 'mixed-pixel chinese-pixel'
+    } else {
+      return 'chinese-pixel mixed-pixel'
+    }
+  }
+  return ''
+}
 </script>
 
 <style scoped>
@@ -97,6 +122,7 @@ const getPixelIcon = (iconClass: string): string => {
   text-transform: uppercase;
   letter-spacing: 1px;
   image-rendering: pixelated;
+  font-display: swap;
 }
 
 .taxonomy-title::before {
@@ -133,6 +159,7 @@ const getPixelIcon = (iconClass: string): string => {
   letter-spacing: 1px;
   border-left: 4px solid #4c6ef5;
   padding-left: 12px;
+  font-display: swap;
 }
 
 .links-grid {
@@ -158,6 +185,33 @@ const getPixelIcon = (iconClass: string): string => {
     12px 12px 0 rgba(58, 91, 217, 0.3);
 }
 
+/* hover时logo边框的变化 */
+.link-card:hover .link-logo {
+  background: #1a1a2e;
+  border-color: #74c0fc;
+  box-shadow:
+    inset 0 0 0 1px #4c6ef5,
+    0 0 12px rgba(76, 110, 245, 0.4);
+}
+
+.link-card:hover .link-logo::before {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(116, 192, 252, 0.2) 0px,
+      transparent 1px,
+      transparent 4px,
+      rgba(116, 192, 252, 0.2) 5px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(116, 192, 252, 0.2) 0px,
+      transparent 1px,
+      transparent 4px,
+      rgba(116, 192, 252, 0.2) 5px
+    );
+}
+
 .link-content {
   display: flex;
   align-items: center;
@@ -177,28 +231,53 @@ const getPixelIcon = (iconClass: string): string => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #2d3748;
+  background: #1a1a1a;
   border: 2px solid #4c6ef5;
-  image-rendering: pixelated;
   position: relative;
+  image-rendering: pixelated;
+  overflow: hidden;
 }
 
+/* 像素风格的网格背景 */
 .link-logo::before {
   content: '';
   position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, transparent 50%, #4c6ef5 50%);
-  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(76, 110, 245, 0.1) 0px,
+      transparent 1px,
+      transparent 4px,
+      rgba(76, 110, 245, 0.1) 5px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(76, 110, 245, 0.1) 0px,
+      transparent 1px,
+      transparent 4px,
+      rgba(76, 110, 245, 0.1) 5px
+    );
+  z-index: 0;
 }
 
 .link-logo img {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
   image-rendering: pixelated;
+  filter: brightness(1.2) saturate(1.1);
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.link-card:hover .link-logo img {
+  transform: scale(1.05);
+  filter: brightness(1.3) saturate(1.3) drop-shadow(0 0 6px #74c0fc);
 }
 
 .link-info {

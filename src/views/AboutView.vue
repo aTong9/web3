@@ -43,6 +43,16 @@
       </section>
 
       <section class="section">
+        <h2>中文字体展示</h2>
+        <p class="chinese-pixel-large">像素风格中文字体演示</p>
+        <p class="chinese-pixel">这是一个像素风格的中文网站</p>
+        <p class="chinese-pixel-small">小号中文字体效果</p>
+        <p class="mixed-pixel">Mixed English and Chinese 混合显示</p>
+        <button class="chinese-pixel-btn">中文像素按钮</button>
+        <button class="pixel-btn-zh">像素按钮中文</button>
+      </section>
+
+      <section class="section">
         <h2>开源地址</h2>
         <p>
           原主题：<a href="https://github.com/shenweiyan/webstack-hugo" target="_blank"
@@ -121,6 +131,7 @@ h1 {
   letter-spacing: 2px;
   text-shadow: 3px 3px 0 #3a5bd9;
   position: relative;
+  font-display: swap;
 }
 
 h1::before,
