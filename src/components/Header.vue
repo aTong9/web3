@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <header class="header">
     <div class="header-content">
@@ -21,6 +22,7 @@
   </header>
 </template>
 
+<!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 // 组件逻辑
 </script>

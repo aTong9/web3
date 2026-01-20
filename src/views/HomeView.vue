@@ -1,26 +1,26 @@
 <template>
-  <div class="cyber-background">
-    <!-- 像素星空层 -->
-    <div class="pixel-stars"></div>
-
-    <!-- 赛博网格层 -->
-    <div class="cyber-grid"></div>
-
-    <!-- 动态光效层 -->
-    <div class="laser-effects">
-      <div class="laser-beam beam-1"></div>
-      <div class="laser-beam beam-2"></div>
-      <div class="laser-beam beam-3"></div>
+  <div class="modern-glass-bg">
+    <!-- 动态渐变背景 -->
+    <div class="gradient-bg">
+      <div class="gradient-orb orb-1"></div>
+      <div class="gradient-orb orb-2"></div>
+      <div class="gradient-orb orb-3"></div>
     </div>
 
-    <!-- 浮动像素粒子 -->
-    <div class="pixel-particles">
-      <div v-for="i in 20" :key="i" class="pixel-particle" :style="getParticleStyle(i)"></div>
+    <!-- 玻璃态网格 -->
+    <div class="glass-grid">
+      <div class="grid-lines-horizontal"></div>
+      <div class="grid-lines-vertical"></div>
     </div>
 
-    <!-- 内容层 -->
-    <div class="content-layer">
-      <div class="home">
+    <!-- 浮动光点 -->
+    <div class="floating-lights">
+      <div v-for="i in 12" :key="i" class="light-particle" :style="getLightStyle(i)"></div>
+    </div>
+
+    <!-- 内容容器 -->
+    <div class="content-container">
+      <div class="glass-panel">
         <Navigation />
       </div>
     </div>
@@ -28,339 +28,305 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
 import Navigation from '../components/Navigation.vue'
-import CyberBackground from '@/utils/cyber-bg'
 
-let cyberBg: CyberBackground | null = null
+// 生成光点样式
+const getLightStyle = (index: number) => {
+  const size = Math.random() * 3 + 1
+  const colors = ['#667eea', '#764ba2', '#f093fb', '#fecfef', '#a8edea', '#fed6e3']
+  const color = colors[Math.floor(Math.random() * colors.length)]
 
-// 生成随机粒子样式
-const getParticleStyle = (index: number) => {
   return {
     left: `${Math.random() * 100}%`,
     top: `${Math.random() * 100}%`,
-    animationDelay: `${Math.random() * 5}s`,
-    animationDuration: `${3 + Math.random() * 4}s`,
+    width: `${size}px`,
+    height: `${size}px`,
+    backgroundColor: color,
+    animationDelay: `${Math.random() * 10}s`,
+    animationDuration: `${15 + Math.random() * 20}s`,
   }
 }
-
-onMounted(() => {
-  // 初始化赛博朋克背景
-  cyberBg = new CyberBackground('.cyber-background')
-})
-
-onUnmounted(() => {
-  // 清理资源
-  if (cyberBg) {
-    cyberBg.cleanup()
-  }
-})
 </script>
 
 <style scoped>
-.cyber-background {
+.modern-glass-bg {
   min-height: 100vh;
   position: relative;
   overflow: hidden;
-  background: #000;
-  image-rendering: pixelated;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-/* 像素星空背景 */
-.pixel-stars {
+/* 动态渐变背景 */
+.gradient-bg {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
-    /* 大星星 */
-    radial-gradient(2px 2px at 20% 30%, #4c6ef5, transparent),
-    radial-gradient(2px 2px at 60% 70%, #74c0fc, transparent),
-    radial-gradient(1px 1px at 50% 50%, #fff, transparent),
-    radial-gradient(1px 1px at 80% 20%, #4c6ef5, transparent),
-    radial-gradient(2px 2px at 90% 60%, #74c0fc, transparent),
-    /* 小星星 */ radial-gradient(1px 1px at 10% 10%, #fff, transparent),
-    radial-gradient(1px 1px at 30% 80%, #fff, transparent),
-    radial-gradient(1px 1px at 70% 40%, #4c6ef5, transparent),
-    radial-gradient(1px 1px at 40% 20%, #74c0fc, transparent),
-    radial-gradient(1px 1px at 85% 85%, #fff, transparent);
-  background-size:
-    200px 200px,
-    180px 180px,
-    150px 150px,
-    170px 170px,
-    190px 190px,
-    80px 80px,
-    90px 90px,
-    100px 100px,
-    110px 110px,
-    120px 120px;
-  background-position:
-    0% 0%,
-    20% 20%,
-    40% 40%,
-    60% 60%,
-    80% 80%,
-    10% 10%,
-    30% 30%,
-    50% 50%,
-    70% 70%,
-    90% 90%;
-  animation: starMove 200s linear infinite;
-  opacity: 0.8;
+  background: linear-gradient(
+    45deg,
+    #f093fb 0%,
+    #f5576c 25%,
+    #4facfe 50%,
+    #43e97b 75%,
+    #fa709a 100%
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
+  opacity: 0.7;
 }
 
-@keyframes starMove {
+@keyframes gradientShift {
   0% {
-    transform: translate(0, 0);
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
   }
   100% {
-    transform: translate(-200px, -200px);
+    background-position: 0% 50%;
   }
 }
 
-/* 赛博朋克网格 */
-.cyber-grid {
+.gradient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.8;
+  animation: floatOrb 15s ease-in-out infinite;
+}
+
+.orb-1 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, #667eea 0%, transparent 70%);
+  top: -150px;
+  left: -150px;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, #f093fb 0%, transparent 70%);
+  bottom: -125px;
+  right: -125px;
+  animation-delay: 5s;
+}
+
+.orb-3 {
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, #4facfe 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: 10s;
+}
+
+@keyframes floatOrb {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(100px, -50px) scale(1.1);
+  }
+  50% {
+    transform: translate(-50px, 100px) scale(0.9);
+  }
+  75% {
+    transform: translate(-100px, -50px) scale(1.05);
+  }
+}
+
+/* 玻璃态网格 */
+.glass-grid {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background-image:
-    linear-gradient(rgba(76, 110, 245, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(76, 110, 245, 0.1) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
-  animation: gridMove 20s linear infinite;
-  z-index: 1;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
-@keyframes gridMove {
-  0% {
-    transform: translate(0, 0);
-  }
+.grid-lines-horizontal,
+.grid-lines-vertical {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.grid-lines-horizontal::before,
+.grid-lines-vertical::before {
+  content: '';
+  position: absolute;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: gridPulse 8s ease-in-out infinite;
+}
+
+.grid-lines-horizontal::before {
+  width: 100%;
+  height: 1px;
+  top: 50%;
+}
+
+.grid-lines-vertical::before {
+  width: 1px;
+  height: 100%;
+  left: 50%;
+}
+
+@keyframes gridPulse {
+  0%,
   100% {
-    transform: translate(50px, 50px);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
   }
 }
 
-/* 激光束效果 */
-.laser-effects {
+/* 浮动光点 */
+.floating-lights {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  z-index: 2;
 }
 
-.laser-beam {
+.light-particle {
   position: absolute;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #4c6ef5, transparent);
-  opacity: 0;
+  border-radius: 50%;
+  filter: blur(1px);
+  animation: floatLight ease-in-out infinite;
+  box-shadow: 0 0 10px currentColor;
 }
 
-.beam-1 {
-  top: 20%;
-  left: -100%;
-  width: 100%;
-  animation: laserSweep1 8s linear infinite;
-}
-
-.beam-2 {
-  top: 50%;
-  left: -100%;
-  width: 80%;
-  animation: laserSweep2 12s linear infinite;
-}
-
-.beam-3 {
-  top: 80%;
-  left: -100%;
-  width: 60%;
-  animation: laserSweep3 10s linear infinite;
-}
-
-@keyframes laserSweep1 {
+@keyframes floatLight {
   0% {
-    left: -100%;
+    transform: translateY(100vh) rotate(0deg) scale(0);
     opacity: 0;
   }
   10% {
+    transform: translateY(80vh) rotate(36deg) scale(1);
     opacity: 1;
   }
   90% {
+    transform: translateY(20vh) rotate(324deg) scale(1);
     opacity: 1;
   }
   100% {
-    left: 100%;
+    transform: translateY(0vh) rotate(360deg) scale(0);
     opacity: 0;
   }
 }
 
-@keyframes laserSweep2 {
-  0% {
-    left: -100%;
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.7;
-  }
-  90% {
-    opacity: 0.7;
-  }
-  100% {
-    left: 100%;
-    opacity: 0;
-  }
-}
-
-@keyframes laserSweep3 {
-  0% {
-    left: -100%;
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.8;
-  }
-  90% {
-    opacity: 0.8;
-  }
-  100% {
-    left: 100%;
-    opacity: 0;
-  }
-}
-
-/* 浮动像素粒子 */
-.pixel-particles {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 3;
-}
-
-.pixel-particle {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: #4c6ef5;
-  image-rendering: pixelated;
-  animation: floatParticle linear infinite;
-  box-shadow: 0 0 6px #4c6ef5;
-}
-
-@keyframes floatParticle {
-  0% {
-    transform: translateY(100vh) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-100px) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-/* 内容层 */
-.content-layer {
+/* 内容容器 */
+.content-container {
   position: relative;
   z-index: 10;
   min-height: 100vh;
-  background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
-}
-
-.home {
-  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
-  position: relative;
-  font-family: 'VT323', 'Courier New', monospace;
-  font-size: 18px;
 }
 
-/* 像素装饰边角 */
-.home::before {
-  content: '';
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 20px;
-  height: 20px;
-  border-top: 2px solid #4c6ef5;
-  border-left: 2px solid #4c6ef5;
-  image-rendering: pixelated;
-}
-
-.home::after {
-  content: '';
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 20px;
-  height: 20px;
-  border-top: 2px solid #4c6ef5;
-  border-right: 2px solid #4c6ef5;
-  image-rendering: pixelated;
-}
-
-/* 扫描线效果 */
-.content-layer::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(76, 110, 245, 0.6), transparent);
-  animation: scanline 4s linear infinite;
-  z-index: 15;
-  pointer-events: none;
-}
-
-@keyframes scanline {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(100vh);
-  }
+.glass-panel {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  min-width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 响应式优化 */
 @media (max-width: 768px) {
-  .home {
-    padding: 16px;
-    font-size: 16px;
+  .gradient-orb {
+    filter: blur(60px);
   }
 
-  .cyber-grid {
+  .orb-1 {
+    width: 200px;
+    height: 200px;
+    top: -100px;
+    left: -100px;
+  }
+
+  .orb-2 {
+    width: 180px;
+    height: 180px;
+    bottom: -90px;
+    right: -90px;
+  }
+
+  .orb-3 {
+    width: 150px;
+    height: 150px;
+  }
+
+  .glass-grid {
     background-size: 30px 30px;
   }
 
-  .pixel-particle {
-    width: 3px;
-    height: 3px;
+  .glass-panel {
+    padding: 20px;
+    border-radius: 15px;
   }
 }
 
 @media (max-width: 480px) {
-  .home {
-    padding: 12px;
-    font-size: 14px;
+  .gradient-orb {
+    filter: blur(40px);
+    opacity: 0.6;
   }
 
-  .cyber-grid {
+  .orb-1 {
+    width: 150px;
+    height: 150px;
+    top: -75px;
+    left: -75px;
+  }
+
+  .orb-2 {
+    width: 130px;
+    height: 130px;
+    bottom: -65px;
+    right: -65px;
+  }
+
+  .orb-3 {
+    width: 100px;
+    height: 100px;
+  }
+
+  .glass-grid {
     background-size: 20px 20px;
     opacity: 0.5;
+  }
+
+  .glass-panel {
+    padding: 15px;
+    border-radius: 10px;
   }
 }
 </style>

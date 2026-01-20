@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="navigation-container">
     <div v-for="taxonomy in navigationData" :key="taxonomy.taxonomy" class="taxonomy-section">
@@ -37,6 +38,7 @@
   </div>
 </template>
 
+<!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { navigationData } from '@/utils/data'
 
