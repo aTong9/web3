@@ -14,8 +14,7 @@
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
-    "deploy": "npm run build-only && gh-pages -d dist",
-    "deploy-github": "npm run build && git add dist && git commit -m \"Deploy to GitHub Pages\" && git subtree push --prefix dist origin gh-pages"
+    "deploy": "npm run build-only && gh-pages -d dist -m \"Deploy to GitHub Pages\""
   },
   "homepage": "https://github.com/aTong9/web3",
   "dependencies": {
