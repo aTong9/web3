@@ -1,1 +1,0 @@
-### download all stock: https://stockanalysis.com/stocks/
