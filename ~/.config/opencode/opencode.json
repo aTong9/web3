@@ -1,0 +1,14 @@
+{
+  "plugin": ["oh-my-opencode"],
+  "provider": {
+    "ollama": {
+      "baseURL": "http://localhost:11434",
+      "timeout": 300000,
+      "retries": 3
+    }
+  },
+  "model": {
+    "default": "ollama/llama3.1:8b",
+    "fallback": "ollama/llama3.1:8b"
+  }
+}

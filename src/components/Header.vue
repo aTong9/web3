@@ -10,13 +10,13 @@
       <nav class="nav">
         <RouterLink to="/" class="nav-link mixed-pixel-nav">首页</RouterLink>
         <RouterLink to="/about" class="nav-link mixed-pixel-nav">关于</RouterLink>
-        <a
+        <!-- <a
           href="https://www.yuque.com/forms/share/1a1fee15-f7a9-4ee6-9dd4-b0ba9fef1871"
           target="_blank"
           class="nav-link mixed-pixel-nav"
         >
           网站提交
-        </a>
+        </a> -->
       </nav>
     </div>
   </header>

@@ -1,0 +1,35 @@
+{
+  "agents": {
+    "sisyphus": {
+      "model": "ollama/llama3.1:8b",
+      "description": "Multi-purpose coding agent for complex tasks"
+    },
+    "oracle": {
+      "model": "ollama/llama3.1:8b",
+      "description": "Architecture and system design specialist"
+    },
+    "explore": {
+      "model": "ollama/llama3.1:8b",
+      "description": "Code exploration and analysis agent"
+    },
+    "librarian": {
+      "model": "ollama/llama3.1:8b",
+      "description": "Documentation and research agent"
+    }
+  },
+  "hooks": {
+    "enabled": true,
+    "preGeneration": [],
+    "postGeneration": []
+  },
+  "mcp": {
+    "enabled": true,
+    "servers": []
+  },
+  "features": {
+    "autoDetect": true,
+    "continuousMode": true,
+    "errorHandling": "retry",
+    "maxRetries": 3
+  }
+}
