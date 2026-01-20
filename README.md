@@ -1,26 +1,48 @@
-# web3
+# vue-web3-nav
 
-[adout web3 nav](https://atong9.github.io/web3/)
+This template should help get you started developing with Vue 3 in Vite.
 
-- 代碼修改： docs是運行.\hugo -D生成的代碼，不需要改，修改themes文件夾下面的就可
-- 运行：hugo server  或者  .\hugo server
-- 部署：hugo -D  或者  .\hugo -D
-  
-[WebStack-Hugo | 一个简洁的静态导航主题](https://www.yuque.com/shenweiyan/cookbook/webstack-hugo) - [语雀](https://www.yuque.com/shenweiyan)
+## Recommended IDE Setup
 
+[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
+## Recommended Browser Setup
 
-My bets for Cress' top 10: MU, SCZMD, DB, HUT, PARR, INCY, IBDRY, HDLMY, HRTG, SYF
-预测克雷斯的前十名是：MU、SCZMD、DB、HUT、PARR、INCY、IBDRY、HDLMY、HRTG、SYF（待验证）
+- Chromium-based browsers (Chrome, Edge, Brave, etc.):
+  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
+- Firefox:
+  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
+  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
 
-2026 年十大股票（Steven Cress，Seeking Alpha 量化分析师推荐） Cress 选择了以下股票代码作为他 2026 年最看好的量化评级股票：
-• Seeking Alpha Celestica (CLS)
-• Seeking Alpha Micron Technology (MU)
-• Seeking Alpha Advanced Micro Devices (AMD)
-• Seeking Alpha Ciena (CIEN)
-• Seeking Alpha Coherent Corp. (COHR)
-• Seeking Alpha Allstate Corp (ALL)
-• Seeking Alpha Incyte (INCY)
-• Seeking Alpha Barnes Group (B)
-• Seeking Alpha Willdan Group (WLDN)
-• Seeking Alpha Allegheny Technologies (ATI)
+## Type Support for `.vue` Imports in TS
+
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+
+## Customize configuration
+
+See [Vite Configuration Reference](https://vite.dev/config/).
+
+## Project Setup
+
+```sh
+npm install
+```
+
+### Compile and Hot-Reload for Development
+
+```sh
+npm run dev
+```
+
+### Type-Check, Compile and Minify for Production
+
+```sh
+npm run build
+```
+
+### Lint with [ESLint](https://eslint.org/)
+
+```sh
+npm run lint
+```
