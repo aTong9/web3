@@ -4,7 +4,7 @@
     <div class="header-content">
       <div class="logo-section">
         <img src="/assets/images/favicon6.png" alt="Logo" class="logo" />
-        <h1 class="site-title mixed-pixel-nav">Financial Independence</h1>
+        <h1 class="site-title mixed-pixel-nav">Financial Independence Retire Early</h1>
       </div>
 
       <nav class="nav">
