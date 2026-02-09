@@ -219,7 +219,7 @@ const getChineseClass = (text: string): string => {
 .link-content {
   display: flex;
   align-items: center;
-  padding: 16px;
+  padding: 10px;
   text-decoration: none;
   color: #e9ecef;
   height: 100%;
@@ -334,7 +334,7 @@ const getChineseClass = (text: string): string => {
   }
 
   .link-content {
-    padding: 12px;
+    padding: 10px;
   }
 
   .taxonomy-title {
