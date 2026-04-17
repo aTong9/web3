@@ -41,10 +41,10 @@ const allNewsSites = ref<NewsSite[]>([
   },
   {
     id: 'cls',
-    name: '财联社',
+    name: '小红书',
     url: 'https://www.xiaohongshu.com/user/profile/61ba0abd0000000010008ffa?xsec_token=ABYP-ltqZbgdKeOY8Rn2QdgOgyYW_VwU0vEB6WxsyBQjw%3D&xsec_source=pc_search',
     icon: 'bi bi-briefcase',
-    description: '财经新闻和电报',
+    description: '所有的烦恼都源于你穷',
   },
 ])
 
@@ -65,7 +65,6 @@ const refreshSite = (siteId: string) => {
     iframe.src = iframe.src
   }
 }
-
 </script>
 
 <template>
