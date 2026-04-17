@@ -1,344 +1,394 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { BloggerData } from '@/types'
-import { getBloggerData, getStockStatistics, bloggers } from '@/data/bloggers'
 
-// 博主数据
-const bloggerData = ref<BloggerData[]>(getBloggerData())
+// 财经网站配置
+interface NewsSite {
+  id: string
+  name: string
+  url: string
+  icon: string
+  description: string
+}
 
-// 股票统计
-const stockStats = computed(() => getStockStatistics())
+const allNewsSites = ref<NewsSite[]>([
+  {
+    id: 'xueqiu',
+    name: '雪球',
+    url: 'https://xueqiu.com/hot/stock',
+    icon: 'bi bi-graph-up-arrow',
+    description: '投资者社区，实时行情和讨论',
+  },
+  {
+    id: 'eastmoney',
+    name: 'moomoo',
+    url: 'https://www.moomoo.com/hans/quote/us/most-active-stocks?chain_id=SCGY_v2rcSeIHw.1ku422v&global_content=%7B%22promote_id%22%3A13764,%22sub_promote_id%22%3A1,%22f%22%3A%22mm%2Fus%2F%22,%22b%22%3A%22Tab_%E4%B8%89%E7%BA%A7_Features-Tools-Quotes%22%7D',
+    icon: 'bi bi-currency-exchange',
+    description: '综合热度榜单和市场数据',
+  },
+  {
+    id: 'jinshi',
+    name: '金十数据',
+    url: 'https://www.jin10.com',
+    icon: 'bi bi-lightning-charge',
+    description: '全球财经快讯和数据',
+  },
+  {
+    id: 'wallstreetcn',
+    name: '美股财报',
+    url: 'https://longbridge.com/zh-CN/calendar/report',
+    icon: 'bi bi-newspaper',
+    description: '财报日历',
+  },
+  {
+    id: 'cls',
+    name: '财联社',
+    url: 'https://www.xiaohongshu.com/user/profile/61ba0abd0000000010008ffa?xsec_token=ABYP-ltqZbgdKeOY8Rn2QdgOgyYW_VwU0vEB6WxsyBQjw%3D&xsec_source=pc_search',
+    icon: 'bi bi-briefcase',
+    description: '财经新闻和电报',
+  },
+])
 
-// 选中的博主
-const selectedBloggerId = ref<string>('all')
-
-// 过滤后的博主数据
-const filteredBloggers = computed(() => {
-  if (selectedBloggerId.value === 'all') {
-    return bloggerData.value
-  }
-  return bloggerData.value.filter(b => b.blogger.id === selectedBloggerId.value)
+// 左侧网站列表（排除金十数据）
+const leftSites = computed(() => {
+  return allNewsSites.value.filter((site) => site.id !== 'jinshi')
 })
 
-// 获取平台图标
-const getPlatformIcon = (platform: string) => {
-  const icons: Record<string, string> = {
-    youtube: 'bi bi-youtube text-danger',
-    xiaohongshu: 'bi bi-book text-danger',
-    wechat: 'bi bi-wechat text-success'
+// 右侧网站（金十数据）
+const rightSite = computed(() => {
+  return allNewsSites.value.find((site) => site.id === 'jinshi')
+})
+
+// 刷新指定网站
+const refreshSite = (siteId: string) => {
+  const iframe = document.querySelector(`iframe[data-site="${siteId}"]`) as HTMLIFrameElement
+  if (iframe) {
+    iframe.src = iframe.src
   }
-  return icons[platform] || 'bi bi-person-circle'
-}
-
-// 获取平台名称
-const getPlatformName = (platform: string) => {
-  const names: Record<string, string> = {
-    youtube: 'YouTube',
-    xiaohongshu: '小红书',
-    wechat: '微信公众号'
-  }
-  return names[platform] || platform
-}
-
-// 获取内容类型图标
-const getContentTypeIcon = (type: string) => {
-  return type === 'video' ? 'bi bi-camera-video' : 'bi bi-file-text'
-}
-
-// 获取股票市场标签颜色
-const getMarketBadgeClass = (market: string) => {
-  const classes: Record<string, string> = {
-    'A 股': 'badge bg-primary',
-    '港股': 'badge bg-warning text-dark',
-    '美股': 'badge bg-success'
-  }
-  return classes[market] || 'badge bg-secondary'
-}
-
-// 获取股票信息辅助函数
-const getStockInfo = (key: string) => {
-  const [market, code] = key.split('-')
-  const allStocks = bloggers.flatMap(b => b.contents).flatMap(c => c.stocks)
-  const stock = allStocks.find(s => `${s.market}-${s.stockCode}` === key)
-  return stock || { stockName: 'Unknown', stockCode: code, market: market || 'Unknown' }
 }
 
 </script>
 
 <template>
-  <div class="blogger-container">
-    <div class="container-fluid py-4">
-      <!-- 页面标题 -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <h1 class="h3 mb-3">
-            <i class="bi bi-bar-chart-line"></i> 博主监控看板
-          </h1>
-          <p class="text-muted">
-            实时监控博主发布的文章和视频，自动识别其中提及的股票
-          </p>
+  <div class="news-container">
+    <!-- 顶部导航栏 -->
+    <div class="news-header">
+      <div class="container-fluid">
+        <div class="d-flex align-items-center py-3">
+          <h2 class="mb-0"><i class="bi bi-newspaper text-primary"></i> 财经新闻聚合看板</h2>
+
+          <!-- 全部刷新按钮 -->
+          <button
+            class="btn btn-outline-primary btn-sm ms-auto"
+            @click="allNewsSites.forEach((site) => refreshSite(site.id))"
+            title="刷新所有网站"
+          >
+            <i class="bi bi-arrow-clockwise"></i> 全部刷新
+          </button>
         </div>
       </div>
+    </div>
 
-      <!-- 统计卡片 -->
-      <div class="row mb-4">
-        <div class="col-md-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
+    <!-- 左右分栏布局 -->
+    <div class="news-layout">
+      <!-- 左侧区域（70%） -->
+      <div class="left-panel">
+        <div class="sites-grid">
+          <div v-for="site in leftSites" :key="site.id" class="news-card">
+            <!-- 卡片头部 -->
+            <div class="news-card-header">
               <div class="d-flex align-items-center">
-                <div class="flex-shrink-0 bg-primary bg-opacity-10 p-3 rounded">
-                  <i class="bi bi-people fs-3 text-primary"></i>
-                </div>
-                <div class="flex-grow-1 ms-3">
-                  <h6 class="mb-0">监控博主</h6>
-                  <h3 class="mb-0">{{ bloggerData.length }}</h3>
-                </div>
+                <i :class="site.icon" class="me-2 fs-5"></i>
+                <h5 class="mb-0">{{ site.name }}</h5>
+                <small class="text-muted ms-2">{{ site.description }}</small>
               </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="flex-shrink-0 bg-info bg-opacity-10 p-3 rounded">
-                  <i class="bi bi-file-text fs-3 text-info"></i>
-                </div>
-                <div class="flex-grow-1 ms-3">
-                  <h6 class="mb-0">内容总数</h6>
-                  <h3 class="mb-0">{{ bloggerData.reduce((acc, b) => acc + b.contents.length, 0) }}</h3>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="flex-shrink-0 bg-warning bg-opacity-10 p-3 rounded">
-                  <i class="bi bi-graph-up fs-3 text-warning"></i>
-                </div>
-                <div class="flex-grow-1 ms-3">
-                  <h6 class="mb-0">提及股票</h6>
-                  <h3 class="mb-0">{{ Object.keys(stockStats).length }}</h3>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="flex-shrink-0 bg-success bg-opacity-10 p-3 rounded">
-                  <i class="bi bi-trophy fs-3 text-success"></i>
-                </div>
-                <div class="flex-grow-1 ms-3">
-                  <h6 class="mb-0">热门股票</h6>
-                  <h3 class="mb-0">
-                    {{ 
-                      Object.entries(stockStats)
-                        .sort((a, b) => b[1] - a[1])[0]?.[1] || 0 
-                    }}
-                  </h3>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 博主筛选 -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <div class="btn-group" role="group">
-            <button 
-              type="button" 
-              class="btn btn-outline-primary"
-              :class="{ active: selectedBloggerId === 'all' }"
-              @click="selectedBloggerId = 'all'"
-            >
-              全部博主
-            </button>
-            <button 
-              v-for="blogger in bloggerData" 
-              :key="blogger.blogger.id"
-              type="button" 
-              class="btn btn-outline-primary"
-              :class="{ active: selectedBloggerId === blogger.blogger.id }"
-              @click="selectedBloggerId = blogger.blogger.id"
-            >
-              <i :class="getPlatformIcon(blogger.blogger.platform)"></i>
-              {{ blogger.blogger.name }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 博主内容列表 -->
-      <div class="row">
-        <div class="col-12" v-for="bloggerData in filteredBloggers" :key="bloggerData.blogger.id">
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white border-bottom">
-              <div class="d-flex align-items-center">
-                <i :class="getPlatformIcon(bloggerData.blogger.platform)" class="fs-4 me-2"></i>
-                <h5 class="mb-0">{{ bloggerData.blogger.name }}</h5>
-                <span class="badge bg-secondary ms-2">{{ getPlatformName(bloggerData.blogger.platform) }}</span>
-                <a :href="bloggerData.blogger.url" target="_blank" class="ms-auto btn btn-sm btn-outline-primary">
-                  <i class="bi bi-box-arrow-up-right"></i> 访问主页
+              <div class="header-actions">
+                <button
+                  class="btn btn-sm btn-outline-secondary"
+                  @click="refreshSite(site.id)"
+                  title="刷新"
+                >
+                  <i class="bi bi-arrow-clockwise"></i>
+                </button>
+                <a
+                  :href="site.url"
+                  target="_blank"
+                  class="btn btn-sm btn-outline-primary"
+                  title="新窗口打开"
+                >
+                  <i class="bi bi-box-arrow-up-right"></i>
                 </a>
               </div>
             </div>
-            <div class="card-body p-0">
-              <div class="list-group list-group-flush">
-                <div 
-                  v-for="content in bloggerData.contents" 
-                  :key="content.id"
-                  class="list-group-item list-group-item-action"
-                >
-                  <div class="d-flex w-100 justify-content-between align-items-start mb-2">
-                    <div>
-                      <h6 class="mb-1">
-                        <i :class="getContentTypeIcon(content.type)" class="me-2 text-muted"></i>
-                        {{ content.title }}
-                      </h6>
-                      <small class="text-muted">
-                        <i class="bi bi-calendar3"></i> {{ content.publishDate }}
-                      </small>
-                    </div>
-                    <a :href="content.url" target="_blank" class="btn btn-sm btn-outline-primary">
-                      <i class="bi bi-link-45deg"></i> 查看
-                    </a>
-                  </div>
-                  <p class="text-muted mb-2 small">{{ content.content.substring(0, 200) }}...</p>
-                  
-                  <!-- 提及的股票 -->
-                  <div v-if="content.stocks.length > 0" class="mt-2">
-                    <div class="d-flex flex-wrap gap-2">
-                      <span class="badge bg-light text-dark">
-                        <i class="bi bi-tag"></i> 提及股票:
-                      </span>
-                      <span 
-                        v-for="stock in content.stocks" 
-                        :key="stock.stockCode"
-                        class="badge cursor-pointer"
-                        :class="getMarketBadgeClass(stock.market)"
-                        :title="`置信度：${(stock.confidence * 100).toFixed(0)}%`"
-                      >
-                        <i class="bi bi-graph-up"></i>
-                        {{ stock.stockName }} ({{ stock.stockCode }})
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+
+            <!-- iframe 内容 -->
+            <div class="news-card-body">
+              <iframe
+                :data-site="site.id"
+                :src="site.url"
+                :title="site.name"
+                frameborder="0"
+                allowfullscreen
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                loading="lazy"
+              ></iframe>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 股票统计表格 -->
-      <div class="row mt-4">
-        <div class="col-12">
-          <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom">
-              <h5 class="mb-0">
-                <i class="bi bi-pie-chart"></i> 股票提及频次统计
-              </h5>
+      <!-- 右侧区域（30%）- 金十数据 -->
+      <div class="right-panel" v-if="rightSite">
+        <div class="news-card fixed-height">
+          <!-- 卡片头部 -->
+          <div class="news-card-header jinshi-header">
+            <div class="d-flex align-items-center">
+              <i :class="rightSite.icon" class="me-2 fs-5"></i>
+              <h5 class="mb-0">{{ rightSite.name }}</h5>
             </div>
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                  <thead class="table-light">
-                    <tr>
-                      <th>排名</th>
-                      <th>市场</th>
-                      <th>股票名称</th>
-                      <th>股票代码</th>
-                      <th>提及次数</th>
-                      <th>热度</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr 
-                      v-for="(stat, index) in Object.entries(stockStats).sort((a, b) => b[1] - a[1])" 
-                      :key="stat[0]"
-                    >
-                      <td>
-                        <span v-if="index === 0" class="badge bg-warning text-dark">🥇 1</span>
-                        <span v-else-if="index === 1" class="badge bg-secondary">🥈 2</span>
-                        <span v-else-if="index === 2" class="badge bg-danger">🥉 3</span>
-                        <span v-else>{{ index + 1 }}</span>
-                      </td>
-                      <td>
-                        <span 
-                          class="badge"
-                          :class="getMarketBadgeClass(getStockInfo(stat[0]).market)"
-                        >
-                          {{ getStockInfo(stat[0]).market }}
-                        </span>
-                      </td>
-                      <td>
-                        {{ getStockInfo(stat[0]).stockName }}
-                      </td>
-                      <td>
-                        <code>{{ getStockInfo(stat[0]).stockCode }}</code>
-                      </td>
-                      <td>
-                        <strong>{{ stat[1] }}</strong>
-                      </td>
-                      <td>
-                        <div class="progress" style="height: 20px; width: 150px;">
-                          <div 
-                            class="progress-bar bg-primary"
-                            :style="{ width: `${(stat[1] / Math.max(...Object.values(stockStats))) * 100}%` }"
-                          ></div>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <div class="header-actions">
+              <button
+                class="btn btn-sm btn-outline-light"
+                @click="refreshSite(rightSite.id)"
+                title="刷新"
+              >
+                <i class="bi bi-arrow-clockwise"></i>
+              </button>
+              <a
+                :href="rightSite.url"
+                target="_blank"
+                class="btn btn-sm btn-outline-light"
+                title="新窗口打开"
+              >
+                <i class="bi bi-box-arrow-up-right"></i>
+              </a>
             </div>
           </div>
+
+          <!-- iframe 内容 -->
+          <div class="news-card-body">
+            <iframe
+              :data-site="rightSite.id"
+              :src="rightSite.url"
+              :title="rightSite.name"
+              frameborder="0"
+              allowfullscreen
+              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+              loading="lazy"
+            ></iframe>
+          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- 底部提示 -->
+    <div class="news-footer">
+      <div class="container-fluid">
+        <small class="text-muted">
+          <i class="bi bi-info-circle"></i>
+          提示：部分网站可能因安全策略限制无法在 iframe
+          中显示。如遇此情况，请点击右上角的"新窗口打开"按钮。
+        </small>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.blogger-container {
+.news-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 60px);
   background-color: #f8f9fa;
-  min-height: 100vh;
 }
 
-.card {
+.news-header {
+  background: white;
+  border-bottom: 2px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+}
+
+.news-layout {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  gap: 0;
+}
+
+.left-panel {
+  flex: 8;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #f8f9fa;
+  height: calc(100vh - 140px);
+}
+
+.right-panel {
+  flex: 2;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #e9ecef;
+  border-left: 2px solid #dee2e6;
+  height: calc(100vh - 140px);
+}
+
+.sites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 20px;
+  align-content: start;
+}
+
+.news-card {
+  background: white;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 700px;
 }
 
-.card:hover {
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+.news-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  border-color: #4c6ef5;
 }
 
-.list-group-item {
-  transition: all 0.2s ease;
+.news-card.fixed-height {
+  position: sticky;
+  top: 20px;
+  height: calc(100vh - 140px);
+  display: flex;
+  flex-direction: column;
 }
 
-.list-group-item:hover {
-  background-color: #f8f9fa;
+.news-card-header {
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #dee2e6;
 }
 
-.cursor-pointer {
-  cursor: pointer;
+.news-card-header.jinshi-header {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
-.badge {
-  font-weight: 500;
+.news-card-header h5 {
+  font-weight: 600;
+  margin: 0;
 }
 
-.progress {
-  border-radius: 10px;
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.header-actions .btn {
+  padding: 4px 8px;
+  border-width: 1px;
+}
+
+.news-card-body {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 650px;
+}
+
+.news-card-body iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 650px;
+  border: none;
+  display: block;
+}
+
+.news-footer {
+  background: white;
+  border-top: 2px solid #dee2e6;
+  padding: 10px 0;
+  flex-shrink: 0;
+}
+
+/* 响应式调整 */
+@media (max-width: 1200px) {
+  .news-layout {
+    flex-direction: column;
+  }
+
+  .left-panel,
+  .right-panel {
+    flex: none;
+    width: 100%;
+    border-left: none;
+  }
+
+  .right-panel {
+    border-top: 2px solid #dee2e6;
+  }
+
+  .news-card.fixed-height {
+    position: static;
+    min-height: 450px;
+  }
+
+  .sites-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .news-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .left-panel,
+  .right-panel {
+    padding: 10px;
+  }
+
+  .sites-grid {
+    gap: 10px;
+  }
+
+  .news-card {
+    min-height: 400px;
+  }
+
+  .news-card-body iframe {
+    min-height: 350px;
+  }
+
+  .news-card-header small {
+    display: none;
+  }
+}
+
+/* 滚动条样式 */
+.left-panel::-webkit-scrollbar,
+.right-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.left-panel::-webkit-scrollbar-track,
+.right-panel::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.left-panel::-webkit-scrollbar-thumb,
+.right-panel::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.left-panel::-webkit-scrollbar-thumb:hover,
+.right-panel::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 </style>
