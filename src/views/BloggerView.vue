@@ -21,7 +21,7 @@ const allNewsSites = ref<NewsSite[]>([
   {
     id: 'eastmoney',
     name: 'moomoo',
-    url: 'https://www.moomoo.com/hans/quote/us/most-active-stocks?chain_id=SCGY_v2rcSeIHw.1ku422v&global_content=%7B%22promote_id%22%3A13764,%22sub_promote_id%22%3A1,%22f%22%3A%22mm%2Fus%2F%22,%22b%22%3A%22Tab_%E4%B8%89%E7%BA%A7_Features-Tools-Quotes%22%7D',
+    url: 'https://www.futunn.com/quote/us/most-active-stocks?chain_id=AyJZw--hDyOg-Z.1ku4g7u&global_content=%7B%22promote_id%22%3A13766,%22sub_promote_id%22%3A2,%22f%22%3A%22nn%2Fquote%2Fhk%22,%22b%22%3A%22Tab_%E4%B8%80%E7%BA%A7_Markets%22%7D',
     icon: 'bi bi-currency-exchange',
     description: '综合热度榜单和市场数据',
   },
