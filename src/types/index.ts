@@ -145,6 +145,39 @@ export interface AShareSectorDataset {
   funds: AShareFund[]
 }
 
+export interface HotStock {
+  rank: number
+  code: string
+  name: string
+  price: number | null
+  dayChangePct: number | null
+  weekChangePct: number | null
+  activityValue: number | null
+  activityLabel: string
+  turnoverRatePct: number | null
+  sector?: string | null
+  url: string
+}
+
+export interface HotStockMarket {
+  status: 'ok' | 'stale' | 'failed'
+  statusMessage?: string
+  source: string
+  sourceUrl: string
+  dailyMethod: string
+  weeklyMethod: string
+  daily: HotStock[]
+  weekly: HotStock[]
+}
+
+export interface HotStockDataset {
+  updatedAt: string
+  markets: {
+    aShare: HotStockMarket
+    us: HotStockMarket
+  }
+}
+
 export type KolPlatform =
   | 'youtube'
   | 'xiaohongshu'

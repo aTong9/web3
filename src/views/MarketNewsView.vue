@@ -187,7 +187,7 @@ onUnmounted(() => window.clearInterval(refreshTimer))
 .news-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 58px clamp(20px, 4vw, 64px) 80px;
+  padding: 40px clamp(20px, 3.5vw, 52px) 80px;
 }
 .page-heading {
   display: flex;
@@ -206,8 +206,8 @@ onUnmounted(() => window.clearInterval(refreshTimer))
 h1 {
   margin: 0 0 12px;
   font-family: Georgia, 'Songti SC', serif;
-  font-size: clamp(42px, 7vw, 72px);
-  font-weight: 400;
+  font-size: clamp(36px, 4.5vw, 54px);
+  font-weight: 500;
   letter-spacing: -0.04em;
 }
 .page-heading > div > span {
@@ -236,7 +236,7 @@ h1 {
 }
 .freshness i.error {
   background: var(--danger);
-  box-shadow: 0 0 0 4px #f3e6e3;
+  box-shadow: 0 0 0 4px var(--danger-soft);
 }
 .freshness strong,
 .freshness small {
@@ -282,8 +282,8 @@ h1 {
 }
 .notice {
   padding: 13px 16px;
-  border-left: 3px solid #b87a30;
-  background: #f5eee3;
+  border-left: 3px solid var(--warning);
+  background: var(--warning-soft);
   display: flex;
   gap: 10px;
   font-size: 12px;
@@ -300,6 +300,7 @@ h1 {
 .filters {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 select,
 input {
@@ -347,8 +348,8 @@ time {
   color: white;
 }
 .impact.high {
-  background: #f0dfc7;
-  color: #7d4c13;
+  background: var(--warning-soft);
+  color: var(--warning);
 }
 .copy strong,
 .copy small {

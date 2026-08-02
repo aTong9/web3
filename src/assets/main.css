@@ -2,12 +2,30 @@
   --paper: #f7f7f4;
   --surface: #ffffff;
   --surface-soft: #efefea;
+  --surface-elevated: #fafaf7;
   --ink: #171815;
   --muted: #6f716b;
   --border: #dedfd8;
   --accent: #18634b;
   --accent-soft: #e5f0ea;
   --danger: #9b493b;
+  --danger-soft: #f3e2df;
+  --positive: #b45043;
+  --negative: #28765d;
+  --warning: #8b621e;
+  --warning-soft: #f5eee3;
+  --inverse: #172019;
+  --inverse-text: #eef4f1;
+  --code-bg: #20211e;
+  --shadow: 0 8px 28px rgba(25, 30, 27, 0.08);
+  --sidebar-bg: #151a21;
+  --sidebar-surface: #202731;
+  --sidebar-hover: #202731;
+  --sidebar-active: #243c35;
+  --sidebar-border: #29313b;
+  --sidebar-text: #aeb7c0;
+  --sidebar-muted: #74808d;
+  --sidebar-active-text: #aee1cc;
   color: var(--ink);
   background: var(--paper);
   font-family:
@@ -15,6 +33,37 @@
     "Microsoft YaHei", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+:root[data-theme='dark'] {
+  --paper: #101419;
+  --surface: #171c22;
+  --surface-soft: #20262d;
+  --surface-elevated: #1b2128;
+  --ink: #ecf0f2;
+  --muted: #9ca7af;
+  --border: #303841;
+  --accent: #72c5a4;
+  --accent-soft: #19382f;
+  --danger: #e08b7c;
+  --danger-soft: #3b2524;
+  --positive: #ed9385;
+  --negative: #69c49e;
+  --warning: #e2b76c;
+  --warning-soft: #3a3122;
+  --inverse: #0b0f13;
+  --inverse-text: #e7eeeb;
+  --code-bg: #0c1014;
+  --shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
+  --sidebar-bg: #0b0f14;
+  --sidebar-surface: #151b22;
+  --sidebar-hover: #171e26;
+  --sidebar-active: #17352c;
+  --sidebar-border: #242d37;
+  --sidebar-text: #b2bcc5;
+  --sidebar-muted: #75818d;
+  --sidebar-active-text: #8bd4b7;
 }
 
 * {
@@ -23,6 +72,9 @@
 
 html {
   background: var(--paper);
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 }
 
 body {
@@ -30,11 +82,39 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background: var(--paper);
+  color: var(--ink);
+}
+
+strong,
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
+table,
+[class*='metric'],
+[class*='price'],
+[class*='change'] {
+  font-variant-numeric: tabular-nums;
 }
 
 button,
 input {
   font: inherit;
+}
+
+button {
+  min-height: 40px;
+}
+
+button:active {
+  transform: scale(0.97);
 }
 
 button,
@@ -44,15 +124,43 @@ a {
 
 button:focus-visible,
 input:focus-visible,
+summary:focus-visible,
 a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: #cce1d6;
+  background: var(--accent-soft);
+}
+
+button,
+input,
+select,
+textarea {
+  color: inherit;
+}
+
+summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+summary::-webkit-details-marker {
+  display: none;
 }
 
 .app-shell {
   min-height: 100vh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

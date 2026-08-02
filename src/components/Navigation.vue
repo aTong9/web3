@@ -348,7 +348,7 @@ watch(
 }
 
 .link-row:hover {
-  background: #fafbf8;
+  background: var(--surface-elevated);
 }
 
 .link-copy {
@@ -392,7 +392,7 @@ watch(
   border: 0;
   border-left: 1px solid transparent;
   background: transparent;
-  color: #a7a89f;
+  color: var(--muted);
   cursor: pointer;
   font-size: 19px;
 }
@@ -403,7 +403,7 @@ watch(
 }
 
 .star-button.saved {
-  color: #9a7420;
+  color: var(--warning);
 }
 
 .empty-state {

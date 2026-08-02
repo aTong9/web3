@@ -9,6 +9,7 @@ import type {
   CrossAssetItem,
   MarketNewsDataset,
 } from '@/types'
+import { useTheme } from '@/utils/use-theme'
 
 const dataset = crossAssetData as CrossAssetDataset
 const newsDataset = marketNewsData as MarketNewsDataset
@@ -17,6 +18,24 @@ const chainStatus = ref<'all' | 'confirming' | 'diverging' | 'dormant' | 'contex
   'all',
 )
 const selectedBriefId = ref(dataset.marketBrief.markets[0]?.id ?? 'sp500')
+const { theme } = useTheme()
+const chartPalette = computed(() =>
+  theme.value === 'dark'
+    ? {
+        text: '#c7d0d7',
+        split: '#303841',
+        neutral: '#20262d',
+        positive: '#ed9385',
+        negative: '#69c49e',
+      }
+    : {
+        text: '#4f554f',
+        split: '#e5e5df',
+        neutral: '#f5f1e9',
+        positive: '#b45043',
+        negative: '#28765d',
+      },
+)
 
 const categoryNames: Record<CrossAssetCategory, string> = {
   stocks: '股票',
@@ -184,13 +203,13 @@ const heatmapOption = computed(() => ({
     type: 'category',
     data: matrixNames.value,
     position: 'top',
-    axisLabel: { rotate: 38, fontSize: 10 },
+    axisLabel: { rotate: 38, fontSize: 10, color: chartPalette.value.text },
     splitArea: { show: true },
   },
   yAxis: {
     type: 'category',
     data: matrixNames.value,
-    axisLabel: { fontSize: 10 },
+    axisLabel: { fontSize: 10, color: chartPalette.value.text },
     splitArea: { show: true },
   },
   visualMap: {
@@ -199,9 +218,11 @@ const heatmapOption = computed(() => ({
     orient: 'horizontal',
     left: 'center',
     top: 4,
-    inRange: { color: ['#a44d3f', '#f5f1e9', '#1d7459'] },
+    inRange: {
+      color: [chartPalette.value.positive, chartPalette.value.neutral, chartPalette.value.negative],
+    },
     text: ['同向', '反向'],
-    textStyle: { fontSize: 9 },
+    textStyle: { fontSize: 9, color: chartPalette.value.text },
   },
   series: [
     {
@@ -237,20 +258,25 @@ const performanceOption = computed(() => ({
   grid: { left: 105, right: 35, top: 18, bottom: 26 },
   xAxis: {
     type: 'value',
-    axisLabel: { formatter: '{value}%', fontSize: 9 },
-    splitLine: { lineStyle: { color: '#e5e5df' } },
+    axisLabel: { formatter: '{value}%', fontSize: 9, color: chartPalette.value.text },
+    splitLine: { lineStyle: { color: chartPalette.value.split } },
   },
   yAxis: {
     type: 'category',
     data: performanceAssets.map((id) => assetById(id)?.name),
-    axisLabel: { fontSize: 10 },
+    axisLabel: { fontSize: 10, color: chartPalette.value.text },
   },
   series: [
     {
       type: 'bar',
       data: performanceAssets.map((id) => {
         const value = assetById(id)?.changes.month ?? 0
-        return { value, itemStyle: { color: value >= 0 ? '#b45043' : '#28765d' } }
+        return {
+          value,
+          itemStyle: {
+            color: value >= 0 ? chartPalette.value.positive : chartPalette.value.negative,
+          },
+        }
       }),
       barMaxWidth: 18,
       label: {
@@ -302,18 +328,21 @@ const formatUpdatedAt = (value: string) =>
             <span>DAILY MARKET BRIEF · {{ dataset.marketBrief.asOfDate }}</span>
             <h3>{{ dataset.marketBrief.regime.title }}</h3>
             <p>{{ dataset.marketBrief.regime.summary }}</p>
-            <p>
-              <b>{{ dataset.marketBrief.rateRegime.title }}</b> ·
-              {{ dataset.marketBrief.rateRegime.summary }}
-            </p>
-            <p>
-              <b>{{ dataset.marketBrief.cryptoRegime.title }}</b> ·
-              {{ dataset.marketBrief.cryptoRegime.summary }}
-            </p>
-            <p>
-              <b>{{ dataset.marketBrief.breadth.title }}</b> ·
-              {{ dataset.marketBrief.breadth.summary }}
-            </p>
+            <details class="regime-context">
+              <summary>展开利率、加密与市场广度背景 <i aria-hidden="true">⌄</i></summary>
+              <p>
+                <b>{{ dataset.marketBrief.rateRegime.title }}</b> ·
+                {{ dataset.marketBrief.rateRegime.summary }}
+              </p>
+              <p>
+                <b>{{ dataset.marketBrief.cryptoRegime.title }}</b> ·
+                {{ dataset.marketBrief.cryptoRegime.summary }}
+              </p>
+              <p>
+                <b>{{ dataset.marketBrief.breadth.title }}</b> ·
+                {{ dataset.marketBrief.breadth.summary }}
+              </p>
+            </details>
           </div>
           <small>{{ dataset.marketBrief.disclaimer }}</small>
         </header>
@@ -424,7 +453,12 @@ const formatUpdatedAt = (value: string) =>
                 }}
               </small>
             </div>
-            <div class="backtest-line">
+            <details class="backtest-line">
+              <summary>
+                <b>模型验证明细</b>
+                <span>样本、基线、消融与真实运行账本</span>
+                <i aria-hidden="true">⌄</i>
+              </summary>
               <b>历史方向检验</b>
               <span>
                 {{ selectedBrief.outlook.backtest.samples }}个样本 ·
@@ -592,7 +626,7 @@ const formatUpdatedAt = (value: string) =>
                 }}
               </span>
               <small>{{ selectedBrief.outlook.backtest.note }}</small>
-            </div>
+            </details>
             <div
               class="direction-gate"
               :class="{ passed: selectedBrief.outlook.directionGate.eligible }"
@@ -650,8 +684,13 @@ const formatUpdatedAt = (value: string) =>
         </button>
       </div>
       <div class="chain-grid">
-        <article v-for="chain in visibleChains" :key="chain.title">
-          <header>
+        <details
+          v-for="(chain, index) in visibleChains"
+          :key="chain.title"
+          class="chain-card"
+          :open="index < 3"
+        >
+          <summary>
             <div>
               <small>{{ chain.group }}</small>
               <h3>{{ chain.title }}</h3>
@@ -662,7 +701,8 @@ const formatUpdatedAt = (value: string) =>
                 chain.signal === null ? '—' : `ρ ${chain.signal.toFixed(2)}`
               }}</strong>
             </div>
-          </header>
+            <i aria-hidden="true">⌄</i>
+          </summary>
           <div class="steps">
             <template v-for="(step, index) in chain.steps" :key="step"
               ><span>{{ step }}</span
@@ -712,7 +752,7 @@ const formatUpdatedAt = (value: string) =>
           <a :href="chain.sourceUrl" target="_blank" rel="noopener noreferrer">
             {{ chain.sourceTitle }} ↗
           </a>
-        </article>
+        </details>
       </div>
     </section>
 
@@ -825,7 +865,7 @@ const formatUpdatedAt = (value: string) =>
 .dashboard-page {
   max-width: 1320px;
   margin: 0 auto;
-  padding: 58px clamp(20px, 4vw, 64px) 80px;
+  padding: 40px clamp(20px, 3.5vw, 52px) 80px;
 }
 .page-heading {
   display: flex;
@@ -844,8 +884,8 @@ const formatUpdatedAt = (value: string) =>
 h1 {
   margin: 0 0 12px;
   font-family: Georgia, 'Songti SC', serif;
-  font-size: clamp(42px, 6vw, 70px);
-  font-weight: 400;
+  font-size: clamp(36px, 4.5vw, 54px);
+  font-weight: 500;
   letter-spacing: -0.045em;
 }
 .page-heading > div > span {
@@ -889,7 +929,7 @@ h1 {
   grid-template-columns: repeat(4, 1fr);
 }
 .top-chains {
-  margin-top: 42px;
+  margin-top: 32px;
 }
 .chart-panel,
 .matrix-wrap {
@@ -991,7 +1031,7 @@ section + section {
   border: 0;
 }
 .asset-header {
-  background: #fafaf7;
+  background: var(--surface-elevated);
   color: var(--muted);
   font-size: 9px;
   text-transform: uppercase;
@@ -1009,13 +1049,13 @@ section + section {
   font-size: 9px;
 }
 .flow b.proxy {
-  color: #8b621e;
+  color: var(--warning);
 }
 .positive {
-  color: #b33c2e;
+  color: var(--positive);
 }
 .negative {
-  color: #187555;
+  color: var(--negative);
 }
 .matrix-wrap {
   overflow-x: auto;
@@ -1062,14 +1102,14 @@ tbody th {
 }
 .daily-brief > header {
   padding: 18px 20px;
-  background: #172019;
+  background: var(--inverse);
   color: white;
   display: flex;
   justify-content: space-between;
   gap: 24px;
 }
 .daily-brief > header span {
-  color: #83b8a2;
+  color: var(--accent);
   font-size: 8px;
   letter-spacing: 0.12em;
 }
@@ -1083,12 +1123,35 @@ tbody th {
 .daily-brief > header p,
 .daily-brief > header small {
   margin: 0;
-  color: #aab5af;
-  font-size: 10px;
-  line-height: 1.6;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
 }
 .daily-brief > header small {
   max-width: 290px;
+}
+.regime-context {
+  margin-top: 10px;
+}
+.regime-context summary {
+  min-height: 40px;
+  padding: 8px 0;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.regime-context summary i {
+  font-style: normal;
+  transition: transform 0.18s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.regime-context[open] summary i {
+  transform: rotate(180deg);
+}
+.regime-context p + p {
+  margin-top: 6px;
 }
 .movers {
   padding: 12px 18px;
@@ -1125,15 +1188,17 @@ tbody th {
   padding: 12px 16px 0;
   display: flex;
   gap: 5px;
-  flex-wrap: wrap;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 .brief-tabs button {
   padding: 6px 9px;
   border: 1px solid var(--border);
   border-radius: 5px;
-  background: white;
+  background: var(--surface);
   color: var(--muted);
-  font-size: 9px;
+  font-size: 10px;
+  white-space: nowrap;
   cursor: pointer;
 }
 .brief-tabs button.active {
@@ -1144,7 +1209,7 @@ tbody th {
 .brief-detail {
   padding: 17px 18px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 28px;
 }
 .brief-detail > div > span {
@@ -1154,14 +1219,14 @@ tbody th {
 }
 .brief-current h4 {
   margin: 8px 0 12px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.55;
 }
 .brief-detail ul {
   margin: 7px 0 12px;
   padding-left: 17px;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 10px;
   line-height: 1.65;
 }
 .brief-current li.tailwind::marker {
@@ -1221,11 +1286,11 @@ tbody th {
 }
 .probability-summary {
   color: var(--muted);
-  font-size: 8px;
+  font-size: 10px;
   line-height: 1.5;
 }
 .brief-outlook > div strong.bullish {
-  background: #f3e2df;
+  background: var(--danger-soft);
   color: var(--danger);
 }
 .brief-outlook > div strong.bearish {
@@ -1242,29 +1307,61 @@ tbody th {
 }
 .backtest-line {
   margin: -3px 0 13px;
-  padding: 9px 10px;
+  padding: 0;
+  border: 1px solid var(--border);
   border-radius: 5px;
   background: var(--surface-soft);
+  font-size: 10px;
+  overflow: hidden;
+}
+.backtest-line summary {
+  min-height: 48px;
+  padding: 10px 12px;
   display: grid;
-  grid-template-columns: auto repeat(3, 1fr);
-  gap: 3px 9px;
-  font-size: 9px;
+  grid-template-columns: auto minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 10px;
+}
+.backtest-line summary span {
+  color: var(--muted);
+  font-weight: 400;
+}
+.backtest-line summary i {
+  color: var(--muted);
+  font-style: normal;
+  transition: transform 0.18s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.backtest-line[open] summary i {
+  transform: rotate(180deg);
+}
+.backtest-line > b,
+.backtest-line > span,
+.backtest-line > small {
+  margin-inline: 12px;
+  display: block;
+}
+.backtest-line > b {
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.backtest-line > span {
+  margin-top: 6px;
 }
 .backtest-line span {
   color: var(--accent);
   font-weight: 700;
 }
 .backtest-line small {
-  grid-column: 1 / -1;
+  padding: 8px 0 12px;
   color: var(--muted);
-  font-size: 8px;
+  font-size: 9px;
 }
 .brief-outlook > .direction-gate {
   margin: -4px 0 13px;
   padding: 8px 10px;
-  border: 1px solid #ead2ce;
+  border: 1px solid var(--danger);
   border-radius: 5px;
-  background: #f8edeb;
+  background: var(--danger-soft);
   display: grid;
   align-items: start;
   gap: 3px;
@@ -1272,7 +1369,7 @@ tbody th {
   font-size: 8px;
 }
 .brief-outlook > .direction-gate.passed {
-  border-color: #cce2d9;
+  border-color: var(--accent);
   background: var(--accent-soft);
   color: var(--accent);
 }
@@ -1298,11 +1395,6 @@ tbody th {
   color: var(--muted);
   line-height: 1.45;
 }
-@media (max-width: 900px) {
-  .backtest-line {
-    grid-template-columns: auto 1fr;
-  }
-}
 .daily-brief > footer {
   padding: 10px 18px;
   border-top: 1px solid var(--border);
@@ -1323,18 +1415,27 @@ tbody th {
   background: var(--ink);
   color: white;
 }
-.chain-grid article {
+.chain-grid .chain-card {
   padding: 18px;
   border: 1px solid var(--border);
   border-radius: 9px;
   background: var(--surface);
 }
-.chain-grid header {
+.chain-grid summary {
   display: flex;
   justify-content: space-between;
   gap: 12px;
+  align-items: center;
 }
-.chain-grid header small {
+.chain-grid summary > i {
+  color: var(--muted);
+  font-style: normal;
+  transition: transform 0.2s ease;
+}
+.chain-grid details[open] summary > i {
+  transform: rotate(180deg);
+}
+.chain-grid summary small {
   color: var(--muted);
   font-size: 8px;
 }
@@ -1357,12 +1458,12 @@ tbody th {
   color: var(--accent);
 }
 .chain-signal em.diverging {
-  background: #f3e2df;
+  background: var(--danger-soft);
   color: var(--danger);
 }
 .chain-signal em.context {
-  background: #f3ead9;
-  color: #86601d;
+  background: var(--warning-soft);
+  color: var(--warning);
 }
 .chain-grid h3 {
   margin: 0;
@@ -1407,7 +1508,7 @@ tbody th {
   color: var(--accent);
 }
 .chain-windows b.mixed {
-  background: #f3e2df;
+  background: var(--danger-soft);
   color: var(--danger);
 }
 .chain-windows b.evidence-strong,
@@ -1416,8 +1517,8 @@ tbody th {
   color: var(--accent);
 }
 .chain-windows b.evidence-uncertain {
-  background: #f3ead9;
-  color: #86601d;
+  background: var(--warning-soft);
+  color: var(--warning);
 }
 .chain-grid p {
   margin: 0;
@@ -1425,7 +1526,7 @@ tbody th {
   font-size: 10px;
   line-height: 1.6;
 }
-.chain-grid article > a {
+.chain-grid .chain-card > a {
   margin-top: 12px;
   color: var(--accent);
   display: inline-block;
@@ -1435,8 +1536,8 @@ tbody th {
 .coverage-note {
   margin-top: 42px;
   padding: 17px 20px;
-  border-left: 3px solid #9a7420;
-  background: #f5eee3;
+  border-left: 3px solid var(--warning);
+  background: var(--warning-soft);
   font-size: 11px;
 }
 .coverage-note ul {
@@ -1446,6 +1547,9 @@ tbody th {
   line-height: 1.8;
 }
 @media (max-width: 760px) {
+  .dashboard-page {
+    padding: 24px 14px 60px;
+  }
   .page-heading,
   .section-heading {
     align-items: flex-start;

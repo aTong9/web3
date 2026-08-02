@@ -275,7 +275,7 @@ const addSubscription = async () => {
 .kol-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 58px clamp(20px, 4vw, 64px) 80px;
+  padding: 40px clamp(20px, 3.5vw, 52px) 80px;
 }
 .page-heading {
   display: flex;
@@ -294,8 +294,8 @@ const addSubscription = async () => {
 h1 {
   margin: 0;
   font-family: Georgia, 'Songti SC', serif;
-  font-size: clamp(46px, 7vw, 76px);
-  font-weight: 400;
+  font-size: clamp(36px, 4.5vw, 54px);
+  font-weight: 500;
   letter-spacing: -0.04em;
 }
 .freshness {
@@ -404,10 +404,10 @@ h1 {
   font-size: 11px;
 }
 .update-message.error {
-  color: #a8483e;
+  color: var(--danger);
 }
 .update-message.success {
-  color: #28765d;
+  color: var(--negative);
 }
 .runtime-note {
   margin: 9px 0 0;
@@ -504,7 +504,7 @@ h1 {
 .platform-tabs button.active {
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
 }
 .toolbar input {
   min-width: 240px;
@@ -570,11 +570,11 @@ h1 {
 }
 .status.partial,
 .status.stale {
-  background: #f4ecd9;
-  color: #8b681e;
+  background: var(--warning-soft);
+  color: var(--warning);
 }
 .status.failed {
-  background: #f5e4e1;
+  background: var(--danger-soft);
   color: var(--danger);
 }
 .arrow {
@@ -686,8 +686,8 @@ h1 {
   padding: 14px;
   overflow-x: auto;
   border-radius: 7px;
-  background: #20211e;
-  color: #f1f2ec;
+  background: var(--code-bg);
+  color: var(--inverse-text);
   font-size: 11px;
   line-height: 1.6;
 }

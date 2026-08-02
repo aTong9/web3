@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import fundData from '@/data/us-funds.json'
 import type { FundVenue, UsFund, UsFundDataset } from '@/types'
+import HotStocksPanel from '@/components/HotStocksPanel.vue'
 
 type SortKey = 'scale' | 'fee' | 'premium' | 'firstYearCost'
 
@@ -62,7 +63,7 @@ const formatLimit = (fund: UsFund) => {
     <header class="page-heading">
       <div>
         <p>US equity funds · 中国市场</p>
-        <h1>美股基金</h1>
+        <h1>美股市场</h1>
       </div>
       <div class="freshness">
         <span class="live-dot"></span>
@@ -80,6 +81,8 @@ const formatLimit = (fund: UsFund) => {
       </p>
       <p>{{ dataset.source }}</p>
     </section>
+
+    <HotStocksPanel market="us" />
 
     <div class="controls">
       <div class="segmented" aria-label="交易场所">
@@ -207,7 +210,7 @@ const formatLimit = (fund: UsFund) => {
 .fund-page {
   max-width: 1320px;
   margin: 0 auto;
-  padding: 58px clamp(20px, 4vw, 64px) 80px;
+  padding: 40px clamp(20px, 3.5vw, 52px) 80px;
 }
 
 .page-heading {
@@ -229,8 +232,8 @@ const formatLimit = (fund: UsFund) => {
 h1 {
   margin: 0;
   font-family: Georgia, 'Songti SC', serif;
-  font-size: clamp(46px, 7vw, 76px);
-  font-weight: 400;
+  font-size: clamp(36px, 4.5vw, 54px);
+  font-weight: 500;
   letter-spacing: -0.04em;
 }
 
@@ -312,12 +315,14 @@ h1 {
 .segmented button.active {
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .filter-row {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 label {
@@ -388,7 +393,7 @@ td {
 
 th {
   color: var(--muted);
-  background: #fafaf7;
+  background: var(--surface-elevated);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -401,7 +406,7 @@ tbody tr:last-child td {
 }
 
 tbody tr:hover {
-  background: #fbfcfa;
+  background: var(--surface-elevated);
 }
 
 td a {

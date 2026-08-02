@@ -114,7 +114,11 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks(id) {
+          if (id.includes('node_modules/echarts') || id.includes('node_modules/zrender'))
+            return 'chart-vendor'
+          if (id.includes('node_modules/vue')) return 'vue-vendor'
+        },
       },
     },
   },

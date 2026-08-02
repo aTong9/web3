@@ -2,9 +2,11 @@
 import { computed } from 'vue'
 import marketHomeData from '@/data/market-home.json'
 import type { MarketHomeDataset } from '@/types'
+import DisclosureCard from '@/components/DisclosureCard.vue'
 
 const dataset = marketHomeData as MarketHomeDataset
 const markets = computed(() => dataset.marketBrief.markets)
+const leadMarket = computed(() => markets.value[0])
 
 const formatMove = (value: number | null) =>
   value === null ? '—' : (value > 0 ? '+' : '') + value.toFixed(2) + '%'
@@ -40,43 +42,79 @@ const formatUpdatedAt = (value: string) =>
 <template>
   <main class="market-home">
     <header class="home-heading">
-      <div>
+      <div class="heading-copy">
         <p>MARKET NOW & NEXT</p>
         <h1>市场今日结论</h1>
         <span>仅使用跨资产市场驾驶舱已经生成的因子，不混入新闻、KOL或主观判断。</span>
+        <small>数据更新 {{ formatUpdatedAt(dataset.updatedAt) }}</small>
       </div>
-      <small>{{ formatUpdatedAt(dataset.updatedAt) }}</small>
+      <section v-if="leadMarket" class="market-pulse" aria-label="市场方向脉冲">
+        <div class="pulse-heading">
+          <span>基准市场脉冲</span>
+          <strong>{{ leadMarket.name }}</strong>
+          <b :class="{ up: (leadMarket.dailyMove ?? 0) >= 0, down: (leadMarket.dailyMove ?? 0) < 0 }">
+            {{ formatMove(leadMarket.dailyMove) }}
+          </b>
+        </div>
+        <div class="pulse-track" aria-hidden="true">
+          <i
+            v-for="horizon in leadMarket.horizonOutlooks"
+            :key="horizon.id"
+            :class="horizon.direction"
+          ></i>
+        </div>
+        <div class="pulse-horizons">
+          <span v-for="horizon in leadMarket.horizonOutlooks" :key="horizon.id">
+            <small>{{ horizon.label.replace('未来', '') }}</small>
+            <strong :class="horizon.direction">{{ directionName(horizon.direction) }}</strong>
+          </span>
+        </div>
+      </section>
     </header>
 
     <section class="global-factors">
-      <article>
-        <span>宏观与流动性</span>
-        <h2>{{ dataset.marketBrief.regime.title }}</h2>
+      <DisclosureCard
+        class="primary-factor"
+        eyebrow="宏观与流动性"
+        :title="dataset.marketBrief.regime.title"
+        description="点击查看当前宏观与流动性因子"
+        default-open
+      >
         <p>{{ dataset.marketBrief.regime.summary }}</p>
-      </article>
-      <article>
-        <span>长端利率来源</span>
-        <h2>{{ dataset.marketBrief.rateRegime.title }}</h2>
+      </DisclosureCard>
+      <DisclosureCard
+        eyebrow="长端利率来源"
+        :title="dataset.marketBrief.rateRegime.title"
+        description="期限溢价与政策路径分解"
+      >
         <p>{{ dataset.marketBrief.rateRegime.summary }}</p>
-      </article>
-      <article>
-        <span>市场参与度</span>
-        <h2>{{ dataset.marketBrief.breadth.title }}</h2>
+      </DisclosureCard>
+      <DisclosureCard
+        eyebrow="市场参与度"
+        :title="dataset.marketBrief.breadth.title"
+        description="全球股指与风险资产参与率"
+      >
         <p>{{ dataset.marketBrief.breadth.summary }}</p>
-      </article>
+      </DisclosureCard>
     </section>
 
     <section class="market-grid">
-      <article v-for="market in markets" :key="market.id" class="market-card">
-        <header>
-          <div>
-            <span>{{ market.date }}</span>
-            <h2>{{ market.name }}</h2>
-          </div>
-          <strong :class="{ up: (market.dailyMove ?? 0) >= 0, down: (market.dailyMove ?? 0) < 0 }">
+      <DisclosureCard
+        v-for="market in markets"
+        :key="market.id"
+        class="market-card"
+        :eyebrow="market.date ?? '日期未知'"
+        :title="market.name"
+        description="展开查看涨跌因子与四周期方向"
+        :default-open="false"
+      >
+        <template #metric>
+          <strong
+            :class="{ up: (market.dailyMove ?? 0) >= 0, down: (market.dailyMove ?? 0) < 0 }"
+          >
             {{ formatMove(market.dailyMove) }}
           </strong>
-        </header>
+        </template>
 
         <div class="cause">
           <b>当前涨跌的跨资产因素</b>
@@ -105,7 +143,7 @@ const formatUpdatedAt = (value: string) =>
             <small :class="{ validated: horizon.validated }">{{ validationText(horizon) }}</small>
           </section>
         </div>
-      </article>
+      </DisclosureCard>
     </section>
 
     <footer>
@@ -116,19 +154,17 @@ const formatUpdatedAt = (value: string) =>
 
 <style scoped>
 .market-home {
-  max-width: 1460px;
+  max-width: 1380px;
   margin: 0 auto;
-  padding: 52px clamp(20px, 4vw, 60px) 80px;
+  padding: 40px clamp(20px, 3.5vw, 52px) 80px;
 }
 .home-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 30px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
+  align-items: stretch;
+  gap: 24px;
 }
-.home-heading p,
-.global-factors span,
-.market-card > header span {
+.home-heading p {
   margin: 0 0 9px;
   color: var(--accent);
   font-size: 9px;
@@ -137,71 +173,113 @@ const formatUpdatedAt = (value: string) =>
 }
 .home-heading h1 {
   margin: 0;
-  font: 400 clamp(44px, 6vw, 72px) Georgia, 'Songti SC', serif;
-  letter-spacing: -0.04em;
+  font: 500 clamp(34px, 4vw, 52px) Georgia, 'Songti SC', serif;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
 }
 .home-heading > div > span,
-.home-heading > small {
+.heading-copy > small {
+  display: block;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
+  line-height: 1.6;
+  text-wrap: pretty;
 }
-.global-factors {
-  margin: 34px 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-  background: var(--surface);
+.heading-copy > small {
+  margin-top: 20px;
+  font-size: 10px;
 }
-.global-factors article {
+.market-pulse {
   padding: 20px;
-  border-right: 1px solid var(--border);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
 }
-.global-factors article:last-child {
-  border-right: 0;
+.pulse-heading {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 4px 16px;
 }
-.global-factors h2 {
-  margin: 0 0 9px;
-  font-size: 16px;
-}
-.global-factors p {
-  margin: 0;
+.pulse-heading span {
+  grid-column: 1 / -1;
   color: var(--muted);
   font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.pulse-heading strong {
+  font: 500 22px Georgia, 'Songti SC', serif;
+}
+.pulse-heading b {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+.pulse-track {
+  height: 4px;
+  margin: 18px 0 14px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.pulse-track i {
+  border-radius: 999px;
+  background: var(--muted);
+  opacity: 0.35;
+}
+.pulse-track i.bullish {
+  background: var(--positive);
+  opacity: 1;
+}
+.pulse-track i.bearish {
+  background: var(--negative);
+  opacity: 1;
+}
+.pulse-horizons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.pulse-horizons span {
+  display: grid;
+  gap: 4px;
+}
+.pulse-horizons small {
+  color: var(--muted);
+  font-size: 10px;
+}
+.pulse-horizons strong {
+  font-size: 13px;
+}
+.global-factors {
+  margin: 24px 0 32px;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 1fr;
+  gap: 12px;
+}
+.global-factors p {
+  margin: 15px 0 0;
+  color: var(--muted);
+  font-size: 12px;
   line-height: 1.7;
 }
 .market-grid {
   display: grid;
-  gap: 18px;
+  gap: 10px;
 }
 .market-card {
-  padding: 22px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface);
-}
-.market-card > header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.market-card h2 {
-  margin: 0;
-  font: 400 27px Georgia, 'Songti SC', serif;
-}
-.market-card > header > strong {
-  font-size: 24px;
+  box-shadow: none;
 }
 .up,
 .bullish,
 .tailwind {
-  color: #b45043;
+  color: var(--positive);
 }
 .down,
 .bearish,
 .headwind {
-  color: #28765d;
+  color: var(--negative);
 }
 .cause {
   margin: 18px 0;
@@ -210,7 +288,7 @@ const formatUpdatedAt = (value: string) =>
   background: var(--accent-soft);
 }
 .cause b {
-  font-size: 11px;
+  font-size: 12px;
 }
 .cause ul,
 .cause p {
@@ -218,7 +296,7 @@ const formatUpdatedAt = (value: string) =>
   padding: 0;
   list-style: none;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.65;
 }
 .cause li + li {
@@ -245,7 +323,7 @@ const formatUpdatedAt = (value: string) =>
   gap: 8px;
 }
 .horizons header span {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
 }
 .horizons header strong {
@@ -254,48 +332,54 @@ const formatUpdatedAt = (value: string) =>
 .probability {
   margin-top: 7px;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
 }
 .horizons ul {
   min-height: 68px;
   margin: 10px 0;
   padding-left: 15px;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 10px;
   line-height: 1.55;
 }
 .horizons small {
   display: block;
   padding-top: 9px;
   border-top: 1px solid var(--border);
-  color: #9a7346;
-  font-size: 8px;
+  color: var(--warning);
+  font-size: 9px;
   line-height: 1.5;
 }
 .horizons small.validated {
-  color: #28765d;
+  color: var(--negative);
 }
 .market-home > footer {
   margin-top: 20px;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 10px;
 }
 @media (max-width: 1050px) {
+  .home-heading {
+    grid-template-columns: 1fr;
+  }
   .horizons {
     grid-template-columns: repeat(2, 1fr);
   }
   .global-factors {
     grid-template-columns: 1fr;
   }
-  .global-factors article {
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
-  }
 }
 @media (max-width: 620px) {
-  .home-heading {
-    align-items: start;
-    flex-direction: column;
+  .market-home {
+    padding: 24px 14px 60px;
+  }
+  .market-pulse {
+    padding: 16px;
+  }
+  .pulse-heading strong,
+  .pulse-heading b {
+    font-size: 18px;
   }
   .horizons {
     grid-template-columns: 1fr;

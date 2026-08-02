@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import sectorData from '@/data/a-share-sectors.json'
 import type { AShareFund, AShareSectorDataset, SectorKind, SectorPeriod } from '@/types'
+import HotStocksPanel from '@/components/HotStocksPanel.vue'
 
 type Scope = 'all' | SectorKind
 
@@ -117,6 +118,8 @@ const formatUpdatedAt = (value: string) =>
       </div>
     </section>
 
+    <HotStocksPanel market="aShare" />
+
     <div class="toolbar">
       <div class="period-tabs" aria-label="涨幅周期">
         <button
@@ -228,7 +231,7 @@ const formatUpdatedAt = (value: string) =>
 .sector-page {
   max-width: 1240px;
   margin: 0 auto;
-  padding: 58px clamp(20px, 4vw, 64px) 80px;
+  padding: 40px clamp(20px, 3.5vw, 52px) 80px;
 }
 
 .page-heading {
@@ -250,8 +253,8 @@ const formatUpdatedAt = (value: string) =>
 h1 {
   margin: 0;
   font-family: Georgia, 'Songti SC', serif;
-  font-size: clamp(46px, 7vw, 76px);
-  font-weight: 400;
+  font-size: clamp(36px, 4.5vw, 54px);
+  font-weight: 500;
   letter-spacing: -0.04em;
 }
 
@@ -274,8 +277,8 @@ h1 {
 }
 
 .market-state > span.holiday {
-  background: #9a7420;
-  box-shadow: 0 0 0 4px #f4ecd9;
+  background: var(--warning);
+  box-shadow: 0 0 0 4px var(--warning-soft);
 }
 
 .market-state strong,
@@ -357,12 +360,15 @@ h1 {
 .period-tabs button.active {
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .filters {
   display: flex;
   gap: 8px;
+  flex: 1;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .commission-field {
@@ -486,11 +492,11 @@ summary:hover {
 }
 
 .positive {
-  color: #b33c2e;
+  color: var(--positive);
 }
 
 .negative {
-  color: #187555;
+  color: var(--negative);
 }
 
 .disclosure {

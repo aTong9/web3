@@ -55,8 +55,8 @@ const dataset = marketHomeData as MarketHomeDataset
 }
 .alert-layer header {
   padding: 13px 18px;
-  background: #172019;
-  color: #b7d8ca;
+  background: var(--inverse);
+  color: var(--inverse-text);
   display: flex;
   justify-content: space-between;
   font-size: 9px;

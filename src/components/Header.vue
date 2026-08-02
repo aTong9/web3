@@ -31,7 +31,7 @@ import { RouterLink } from 'vue-router'
   height: 72px;
   padding: 0 clamp(20px, 4vw, 64px);
   border-bottom: 1px solid var(--border);
-  background: rgba(247, 247, 244, 0.92);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
   backdrop-filter: blur(14px);
   display: flex;
   align-items: center;

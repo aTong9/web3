@@ -18,8 +18,8 @@ const groups = [
     title: '市场监控',
     icon: '⌁',
     items: [
-      { title: 'A股行业', to: '/a-share' },
-      { title: '美股基金', to: '/funds' },
+      { title: 'A股市场', to: '/a-share' },
+      { title: '美股市场', to: '/funds' },
     ],
   },
   {
@@ -54,7 +54,9 @@ const toggleGroup = (title: string) => {
       <RouterLink to="/" @click="$emit('close')"
         ><b>F.</b><span><strong>市场研究台</strong><small>MARKET DESK</small></span></RouterLink
       >
-      <button aria-label="关闭菜单" @click="$emit('close')">×</button>
+      <div class="brand-actions">
+        <button class="close-menu" aria-label="关闭菜单" @click="$emit('close')">×</button>
+      </div>
     </div>
     <nav aria-label="系统主菜单">
       <section v-for="group in groups" :key="group.title">
@@ -89,9 +91,9 @@ const toggleGroup = (title: string) => {
   width: 248px;
   height: 100vh;
   padding: 0 14px 18px;
-  border-right: 1px solid #27303b;
-  background: #151a21;
-  color: #eef1f3;
+  border-right: 1px solid var(--sidebar-border);
+  background: var(--sidebar-bg);
+  color: var(--inverse-text);
   position: fixed;
   inset: 0 auto 0 0;
   z-index: 50;
@@ -101,7 +103,7 @@ const toggleGroup = (title: string) => {
 .brand {
   height: 76px;
   padding: 0 8px;
-  border-bottom: 1px solid #29313b;
+  border-bottom: 1px solid var(--sidebar-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -117,8 +119,8 @@ const toggleGroup = (title: string) => {
   width: 34px;
   height: 34px;
   border-radius: 8px;
-  background: #d9efe6;
-  color: #175b46;
+  background: var(--accent-soft);
+  color: var(--accent);
   display: grid;
   place-items: center;
   font:
@@ -134,11 +136,16 @@ const toggleGroup = (title: string) => {
 }
 .brand small {
   margin-top: 3px;
-  color: #74808d;
+  color: var(--sidebar-muted);
   font-size: 8px;
   letter-spacing: 0.15em;
 }
-.brand button {
+.brand-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.brand .close-menu {
   display: none;
   border: 0;
   background: none;
@@ -158,7 +165,7 @@ nav section {
   padding: 8px 9px;
   border: 0;
   background: none;
-  color: #8d98a4;
+  color: var(--sidebar-muted);
   display: flex;
   justify-content: space-between;
   cursor: pointer;
@@ -171,7 +178,7 @@ nav section {
 }
 .group-title i {
   width: 17px;
-  color: #b8c3cc;
+  color: var(--sidebar-text);
   font-style: normal;
 }
 .group-title b {
@@ -188,21 +195,21 @@ nav section {
 .children a {
   padding: 9px 12px 9px 35px;
   border-radius: 6px;
-  color: #aeb7c0;
+  color: var(--sidebar-text);
   font-size: 12px;
   text-decoration: none;
 }
 .children a:hover {
-  background: #202731;
+  background: var(--sidebar-hover);
   color: white;
 }
 .children a.router-link-active {
-  background: #243c35;
-  color: #aee1cc;
+  background: var(--sidebar-active);
+  color: var(--sidebar-active-text);
 }
 footer {
   padding: 13px 10px;
-  border: 1px solid #29313b;
+  border: 1px solid var(--sidebar-border);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -224,7 +231,7 @@ footer strong {
 }
 footer small {
   margin-top: 3px;
-  color: #71808c;
+  color: var(--sidebar-muted);
   font-size: 8px;
 }
 .backdrop {
@@ -238,7 +245,7 @@ footer small {
   .sidebar.open {
     transform: translateX(0);
   }
-  .brand button {
+  .brand .close-menu {
     display: block;
   }
   .backdrop {
