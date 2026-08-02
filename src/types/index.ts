@@ -743,3 +743,21 @@ export interface MarketHomeDataset {
     >
   }
 }
+
+export interface DailyReportConfig {
+  authorName: string
+  email: string
+  xHandle: string
+  titlePrefix: string
+  selectedMarketIds: string[]
+  chainCount: number
+  includeDisclaimer: boolean
+}
+
+export interface DailyMarketReport {
+  title: string
+  asOfDate: string
+  markdown: string
+  socialText: string
+  emailSubject: string
+}

@@ -53,6 +53,12 @@ const router = createRouter({
       meta: { pageTitle: 'KOL监控', pageDescription: '跨平台与RSS订阅情报' },
     },
     {
+      path: '/report',
+      name: 'report',
+      component: () => import('../views/ReportSettingsView.vue'),
+      meta: { pageTitle: '日报与发布', pageDescription: '市场报告导出与发布配置' },
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting

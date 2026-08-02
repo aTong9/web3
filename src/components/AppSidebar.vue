@@ -36,6 +36,7 @@ const groups = [
     icon: '◇',
     items: [
       { title: '资源导航', to: '/resources' },
+      { title: '日报与发布', to: '/report' },
       { title: '系统说明', to: '/about' },
     ],
   },
