@@ -10,6 +10,7 @@ import type {
   MarketNewsDataset,
 } from '@/types'
 import { useTheme } from '@/utils/use-theme'
+import { useI18n } from '@/composables/use-i18n'
 
 const dataset = crossAssetData as CrossAssetDataset
 const newsDataset = marketNewsData as MarketNewsDataset
@@ -19,6 +20,7 @@ const chainStatus = ref<'all' | 'confirming' | 'diverging' | 'dormant' | 'contex
 )
 const selectedBriefId = ref(dataset.marketBrief.markets[0]?.id ?? 'sp500')
 const { theme } = useTheme()
+const { t, locale } = useI18n()
 const chartPalette = computed(() =>
   theme.value === 'dark'
     ? {
@@ -38,19 +40,19 @@ const chartPalette = computed(() =>
 )
 
 const categoryNames: Record<CrossAssetCategory, string> = {
-  stocks: '股票',
-  bonds: '债券',
-  fx: '外汇',
-  commodities: '大宗商品',
-  crypto: '加密货币',
-  macro: '宏观流动性',
+  stocks: t('crossAsset.category.stocks'),
+  bonds: t('crossAsset.category.bonds'),
+  fx: t('crossAsset.category.fx'),
+  commodities: t('crossAsset.category.commodities'),
+  crypto: t('crossAsset.category.crypto'),
+  macro: t('crossAsset.category.macro'),
 }
 const periods = [
-  ['day', '日'],
-  ['week', '周'],
-  ['month', '月'],
-  ['quarter', '季度'],
-  ['yearToDate', '今年'],
+  ['day', t('crossAsset.periodLabel.day')],
+  ['week', t('crossAsset.periodLabel.week')],
+  ['month', t('crossAsset.periodLabel.month')],
+  ['quarter', t('crossAsset.periodLabel.quarter')],
+  ['yearToDate', t('crossAsset.periodLabel.yearToDate')],
 ] as const
 
 const visibleAssets = computed(() =>
@@ -123,12 +125,14 @@ const selectedCatalysts = computed(() => {
         matchScore,
         ageHours,
         matchReason: primaryAssetMatch
-          ? `直接涉及${targets[0]}`
+          ? t('crossAsset.matchReason.direct', { market: translateAssetName(targets[0] ?? t('crossAsset.noMarket')) })
           : directAssets.length
-            ? `二级关联${directAssets.join('、')}`
+            ? t('crossAsset.matchReason.related', {
+                markets: directAssets.map((market) => translateAssetName(market)).join('、'),
+              })
             : categoryMatch
-              ? `匹配${article.category}主题`
-              : '全市场紧急事件',
+              ? t('crossAsset.matchReason.category', { category: categoryLabel(article.category) })
+              : t('crossAsset.matchReason.critical'),
       }
     })
     .filter(
@@ -146,31 +150,61 @@ const selectedCatalysts = computed(() => {
     )
     .slice(0, 3)
 })
-const biasNames = { bullish: '偏多', bearish: '偏空', neutral: '中性' } as const
-const confidenceNames = { low: '低置信度', medium: '中置信度' } as const
+const biasNames = {
+  bullish: t('crossAsset.confidence.bullish'),
+  bearish: t('crossAsset.confidence.bearish'),
+  neutral: t('crossAsset.confidence.neutral'),
+} as const
+const confidenceNames = {
+  low: t('crossAsset.confidenceName.low'),
+  medium: t('crossAsset.confidenceName.medium'),
+} as const
 const formatNewsAge = (hours: number) =>
   hours < 1
-    ? '1小时内'
-    : hours < 24
-      ? `${Math.round(hours)}小时前`
-      : `${Math.round(hours / 24)}天前`
+  ? t('crossAsset.hourAgo')
+  : hours < 24
+      ? `${Math.round(hours)}${t('crossAsset.hourAgo')}`
+      : `${Math.round(hours / 24)}${t('crossAsset.dayAgo')}`
+const translateAssetName = (value: string) => {
+  const map: Record<string, string> = {
+    美股: t('crossAsset.tagLabels.us'),
+    A股: t('crossAsset.tagLabels.aShare'),
+    港股: t('crossAsset.tagLabels.hk'),
+    债券: t('crossAsset.tagLabels.bond'),
+    美元: t('crossAsset.tagLabels.usd'),
+    原油: t('crossAsset.tagLabels.oil'),
+    黄金: t('crossAsset.tagLabels.gold'),
+    加密: t('crossAsset.tagLabels.crypto'),
+  }
+  return map[value] ?? value
+}
 const chainStatusNames = {
-  confirming: '当前确认',
-  diverging: '当前背离',
-  dormant: '低相关/休眠',
-  context: '情景依赖',
-  unavailable: '数据不足',
+  confirming: t('crossAsset.chainStatus.confirming'),
+  diverging: t('crossAsset.chainStatus.diverging'),
+  context: t('crossAsset.chainStatus.context'),
+  dormant: t('crossAsset.chainStatus.dormant'),
+  unavailable: t('crossAsset.chainStatus.unavailable'),
 } as const
 const stabilityNames = {
-  stable: '跨周期稳定',
-  mixed: '周期分歧',
-  insufficient: '样本/强度不足',
+  stable: t('crossAsset.stability.stable'),
+  mixed: t('crossAsset.stability.mixed'),
+  insufficient: t('crossAsset.stability.insufficient'),
 } as const
 const evidenceNames = {
-  strong: '强证据',
-  supported: '有支持',
-  uncertain: '区间跨零',
+  strong: t('crossAsset.evidence.strong'),
+  supported: t('crossAsset.evidence.supported'),
+  uncertain: t('crossAsset.evidence.uncertain'),
 } as const
+const categoryLabel = (value: 'macro' | 'geopolitics' | 'equities' | 'commodities' | 'technology') =>
+  value === 'macro'
+    ? t('marketNews.categories.macro')
+    : value === 'geopolitics'
+      ? t('marketNews.categories.geopolitics')
+      : value === 'equities'
+        ? t('marketNews.categories.equities')
+        : value === 'commodities'
+          ? t('marketNews.categories.commodities')
+          : t('marketNews.categories.technology')
 const assetById = (id: string) => dataset.assets.find((asset) => asset.id === id)
 const curveSpread = computed(() => {
   const two = assetById('us2y')?.value
@@ -185,7 +219,7 @@ const formatValue = (asset: CrossAssetItem) => {
 }
 const formatChange = (value: number | null, mode: CrossAssetItem['mode'] = 'return') => {
   if (value === null) return '—'
-  return `${value > 0 ? '+' : ''}${value.toFixed(2)}${mode === 'difference' ? 'bp' : mode === 'absolute' ? '点' : '%'}`
+  return `${value > 0 ? '+' : ''}${value.toFixed(2)}${mode === 'difference' ? t('crossAsset.modeBp') : mode === 'absolute' ? t('crossAsset.modePoints') : t('crossAsset.modePercent')}`
 }
 const valueClass = (value: number | null) => ({
   positive: value !== null && value > 0,
@@ -195,8 +229,8 @@ const matrixNames = computed(() => dataset.matrix.ids.map((id) => assetById(id)?
 const heatmapOption = computed(() => ({
   animation: false,
   tooltip: {
-    formatter: (params: { value: [number, number, number] }) =>
-      `相关系数：${params.value[2].toFixed(2)}`,
+  formatter: (params: { value: [number, number, number] }) =>
+      `${t('crossAsset.corrLabel')}${params.value[2].toFixed(2)}`,
   },
   grid: { left: 116, right: 24, top: 76, bottom: 28 },
   xAxis: {
@@ -221,7 +255,7 @@ const heatmapOption = computed(() => ({
     inRange: {
       color: [chartPalette.value.positive, chartPalette.value.neutral, chartPalette.value.negative],
     },
-    text: ['同向', '反向'],
+    text: [t('crossAsset.heatmapTextSame'), t('crossAsset.heatmapTextOpposite')],
     textStyle: { fontSize: 9, color: chartPalette.value.text },
   },
   series: [
@@ -290,7 +324,7 @@ const performanceOption = computed(() => ({
   ],
 }))
 const formatUpdatedAt = (value: string) =>
-  new Intl.DateTimeFormat('zh-CN', {
+  new Intl.DateTimeFormat(locale.value === 'en' ? 'en-US' : 'zh-CN', {
     timeZone: 'Asia/Shanghai',
     dateStyle: 'medium',
     timeStyle: 'short',
@@ -301,15 +335,15 @@ const formatUpdatedAt = (value: string) =>
   <main class="dashboard-page">
     <header class="page-heading">
       <div>
-        <p>Cross-asset regime monitor · 多资产联动</p>
-        <h1>跨资产市场驾驶舱</h1>
-        <span>先看资产之间如何传导，再看单一市场涨跌。</span>
+        <p>{{ t('crossAsset.description') }}</p>
+        <h1>{{ t('crossAsset.title') }}</h1>
+        <span>{{ t('crossAsset.summaryLabel') }}</span>
       </div>
       <a :href="dataset.sourceUrl" target="_blank" rel="noopener noreferrer" class="freshness">
         <i></i
         ><span
-          ><strong>交易日自动更新</strong
-          ><small>{{ formatUpdatedAt(dataset.updatedAt) }} · 数据来源 ↗</small></span
+          ><strong>{{ t('crossAsset.update') }}</strong
+          ><small>{{ formatUpdatedAt(dataset.updatedAt) }} · {{ t('crossAsset.sourceLabel') }}</small></span
         >
       </a>
     </header>
@@ -318,18 +352,18 @@ const formatUpdatedAt = (value: string) =>
       <header class="section-heading">
         <div>
           <span>01</span>
-          <h2>市场传导链</h2>
+          <h2>{{ t('crossAsset.rulesTitle') }}</h2>
         </div>
-        <p>{{ dataset.transmissionChains.length }}条核心规则 · 当前实测会确认、背离或休眠</p>
+        <p>{{ t('crossAsset.coreRules', { count: dataset.transmissionChains.length }) }}</p>
       </header>
       <div class="daily-brief">
         <header>
           <div>
-            <span>DAILY MARKET BRIEF · {{ dataset.marketBrief.asOfDate }}</span>
+            <span>{{ t('crossAsset.dailyBriefBadge') }} · {{ dataset.marketBrief.asOfDate }}</span>
             <h3>{{ dataset.marketBrief.regime.title }}</h3>
             <p>{{ dataset.marketBrief.regime.summary }}</p>
             <details class="regime-context">
-              <summary>展开利率、加密与市场广度背景 <i aria-hidden="true">⌄</i></summary>
+              <summary>{{ t('crossAsset.regimes') }} <i aria-hidden="true">⌄</i></summary>
               <p>
                 <b>{{ dataset.marketBrief.rateRegime.title }}</b> ·
                 {{ dataset.marketBrief.rateRegime.summary }}
@@ -348,13 +382,13 @@ const formatUpdatedAt = (value: string) =>
         </header>
         <div class="movers">
           <div>
-            <b>领涨</b>
+            <b>{{ t('crossAsset.leaders') }}</b>
             <span v-for="market in dataset.marketBrief.leaders" :key="market.id">
               {{ market.name }} <em>+{{ market.move?.toFixed(2) }}%</em>
             </span>
           </div>
           <div>
-            <b>领跌</b>
+            <b>{{ t('crossAsset.laggards') }}</b>
             <span v-for="market in dataset.marketBrief.laggards" :key="market.id">
               {{ market.name }} <em>{{ market.move?.toFixed(2) }}%</em>
             </span>
@@ -372,7 +406,7 @@ const formatUpdatedAt = (value: string) =>
         </div>
         <article v-if="selectedBrief" class="brief-detail">
           <div class="brief-current">
-            <span>最近交易日归因</span>
+            <span>{{ t('crossAsset.attributionTitle') }}</span>
             <h4>{{ selectedBrief.dailySummary }}</h4>
             <ul>
               <li
@@ -382,15 +416,15 @@ const formatUpdatedAt = (value: string) =>
               >
                 {{ driver.text }}
               </li>
-              <li v-if="!selectedBrief.drivers.length">没有足够强的跨资产线索，不强行归因。</li>
+              <li v-if="!selectedBrief.drivers.length">{{ t('crossAsset.emptyDrivers') }}</li>
             </ul>
             <div class="event-catalysts">
               <b>{{
                 selectedBrief.dailyAttribution.alignment === 'diverging'
-                  ? '共振解释缺口 · 优先核对事件'
-                  : '候选事件催化剂'
+                  ? t('crossAsset.alertGap')
+                  : t('crossAsset.candidate')
               }}</b>
-              <small>按资产、主题、影响等级与新鲜度排序；候选事件不是已证明的上涨/下跌原因。</small>
+              <small>{{ t('crossAsset.catalystSortHint') }}</small>
               <a
                 v-for="article in selectedCatalysts"
                 :key="article.id"
@@ -401,42 +435,42 @@ const formatUpdatedAt = (value: string) =>
                 <span
                   >{{
                     article.impact === 'critical'
-                      ? '紧急'
+                      ? t('crossAsset.eventLabels.critical')
                       : article.impact === 'high'
-                        ? '高影响'
-                        : '中影响'
+                        ? t('crossAsset.eventLabels.high')
+                        : t('crossAsset.eventLabels.medium')
                   }}
-                  · {{ article.source }} · 匹配{{ article.matchScore }} ·
+                  · {{ article.source }} · {{ t('crossAsset.matchScoreLabel') }} {{ article.matchScore }} ·
                   {{ article.matchReason }} · {{ formatNewsAge(article.ageHours) }}</span
                 >
                 <strong
-                  >{{ article.translatedTitle ? '译文：' : ''
+                  >{{ article.translatedTitle ? t('crossAsset.translatedTitle') : ''
                   }}{{ article.translatedTitle ?? article.title }}</strong
                 >
-                <em v-if="article.translatedTitle">原文核对：{{ article.title }}</em>
+                <em v-if="article.translatedTitle">{{ t('crossAsset.sourceTitle') }}{{ article.title }}</em>
               </a>
-              <p v-if="!selectedCatalysts.length">当前没有匹配的中高影响快讯。</p>
+              <p v-if="!selectedCatalysts.length">{{ t('crossAsset.noImpactNews') }}</p>
             </div>
           </div>
           <div class="brief-outlook">
-            <span>{{ selectedBrief.outlook.horizon }}情景展望</span>
+            <span>{{ selectedBrief.outlook.horizon }}{{ t('crossAsset.scenarioSuffix') }}</span>
             <div>
               <strong :class="selectedBrief.outlook.bias">
                 {{ biasNames[selectedBrief.outlook.bias] }}
               </strong>
               <em>
-                {{ confidenceNames[selectedBrief.outlook.confidence] }} · 得分
+                {{ confidenceNames[selectedBrief.outlook.confidence] }} · {{ t('crossAsset.confidenceLabel') }}
                 {{ selectedBrief.outlook.score.toFixed(2) }}
-                · 标准化动量 5日
-                {{ selectedBrief.outlook.momentumSignals.week.toFixed(2) }} / 1月
+                · {{ t('crossAsset.momentum5d') }}
+                {{ selectedBrief.outlook.momentumSignals.week.toFixed(2) }} / {{ t('crossAsset.regimeWindow') }}
                 {{ selectedBrief.outlook.momentumSignals.month.toFixed(2) }}
               </em>
               <small class="probability-summary">
-                训练条件上涨概率
+                {{ t('crossAsset.upProb') }}
                 {{ selectedBrief.outlook.probability.upProbabilityPct.toFixed(1) }}%（95%
                 {{ selectedBrief.outlook.probability.intervalPct.low?.toFixed(1) ?? '—' }}–{{
                   selectedBrief.outlook.probability.intervalPct.high?.toFixed(1) ?? '—'
-                }}%）· 留出Brier技能
+                }}%）· {{ t('crossAsset.brierLabel') }}
                 {{
                   selectedBrief.outlook.probability.validationBrierSkillPct === null
                     ? '—'
@@ -448,20 +482,20 @@ const formatUpdatedAt = (value: string) =>
                 }}） · {{ selectedBrief.outlook.probability.macroRegime
                 }}{{
                   selectedBrief.outlook.probability.source === 'macro-regime'
-                    ? '状态内概率'
-                    : '样本不足，使用全状态概率'
+                    ? t('crossAsset.insideProbability')
+                    : t('crossAsset.outsideProbability')
                 }}
               </small>
             </div>
             <details class="backtest-line">
               <summary>
-                <b>模型验证明细</b>
-                <span>样本、基线、消融与真实运行账本</span>
+                <b>{{ t('crossAsset.validationTitle') }}</b>
+                <span>{{ t('crossAsset.validationDesc') }}</span>
                 <i aria-hidden="true">⌄</i>
               </summary>
-              <b>历史方向检验</b>
+              <b>{{ t('crossAsset.historicalValidateTitle') }}</b>
               <span>
-                {{ selectedBrief.outlook.backtest.samples }}个样本 ·
+                {{ selectedBrief.outlook.backtest.samples }}{{ t('crossAsset.samplesSuffix') }} ·
                 {{ selectedBrief.outlook.backtest.directionalAccuracyPct?.toFixed(1) ?? '—' }}%
                 （95% [{{
                   selectedBrief.outlook.backtest.accuracyIntervalPct.low?.toFixed(1) ?? '—'
@@ -469,21 +503,23 @@ const formatUpdatedAt = (value: string) =>
                 {{ selectedBrief.outlook.backtest.accuracyIntervalPct.high?.toFixed(1) ?? '—' }}]）
               </span>
               <span>
-                真实运行账本（{{ selectedBrief.outlook.liveEvaluation.modelVersion }}）：已保存
-                {{ selectedBrief.outlook.liveEvaluation.totalSnapshots }}期 · 已到期
-                {{ selectedBrief.outlook.liveEvaluation.resolvedSamples }}期
+                {{ t('crossAsset.liveLedger', {
+                  model: selectedBrief.outlook.liveEvaluation.modelVersion,
+                  total: selectedBrief.outlook.liveEvaluation.totalSnapshots,
+                  resolved: selectedBrief.outlook.liveEvaluation.resolvedSamples,
+                }) }}
                 <template v-if="selectedBrief.outlook.liveEvaluation.resolvedSamples">
-                  · 方向样本 {{ selectedBrief.outlook.liveEvaluation.directionalSamples }}期 · 命中
+                  · {{ t('crossAsset.directionalSamples') }} {{ selectedBrief.outlook.liveEvaluation.directionalSamples }}{{ t('crossAsset.samplesSuffix') }} · {{ t('crossAsset.hitRate') }}
                   {{
                     selectedBrief.outlook.liveEvaluation.directionalAccuracyPct?.toFixed(1) ?? '—'
                   }}% · Brier
-                  {{ selectedBrief.outlook.liveEvaluation.brierScore?.toFixed(4) ?? '—' }} · 截至
+                  {{ selectedBrief.outlook.liveEvaluation.brierScore?.toFixed(4) ?? '—' }}
                   {{ selectedBrief.outlook.liveEvaluation.latestOutcomeDate }}</template
-                ><template v-else> · 满5个后续观测日后自动结算</template>
+                ><template v-else> · {{ t('crossAsset.untilSettled') }}</template>
               </span>
               <span>
-                动量基线
-                {{ selectedBrief.outlook.backtest.baselineAccuracyPct?.toFixed(1) ?? '—' }}% · 增量
+                {{ t('crossAsset.momentumBaseLabel') }}
+                {{ selectedBrief.outlook.backtest.baselineAccuracyPct?.toFixed(1) ?? '—' }}% · {{ t('crossAsset.boostLabel') }}
                 {{
                   selectedBrief.outlook.backtest.liftPct === null
                     ? '—'
@@ -491,9 +527,9 @@ const formatUpdatedAt = (value: string) =>
                 }}
               </span>
               <span>
-                多数方向基线
+                {{ t('crossAsset.baselineLabel') }}
                 {{ selectedBrief.outlook.backtest.majorityBaselineAccuracyPct?.toFixed(1) ?? '—' }}%
-                · 相对最佳基线增量
+                · {{ t('crossAsset.baselineGapLabel') }}
                 {{
                   selectedBrief.outlook.backtest.liftVsBestBaselinePct === null
                     ? '—'
@@ -501,39 +537,39 @@ const formatUpdatedAt = (value: string) =>
                 }}
               </span>
               <span>
-                选定规则 {{ selectedBrief.outlook.backtest.selectivity.selectedRule.name }}（5日/{{
+                {{ t('crossAsset.selectedRuleLabel') }} {{ selectedBrief.outlook.backtest.selectivity.selectedRule.name }}（5日/{{
                   selectedBrief.outlook.backtest.selectivity.selectedRule.weekWeight.toFixed(2)
-                }}、1月/{{
+                }}、{{ t('crossAsset.month') }}/{{
                   selectedBrief.outlook.backtest.selectivity.selectedRule.monthWeight.toFixed(2)
-                }}、跨资产/{{
+                }}、{{ t('crossAsset.assetsTag') }}/{{
                   selectedBrief.outlook.backtest.selectivity.selectedRule.driverWeight.toFixed(2)
-                }}）· 门槛 ±{{
+                }}）· {{ t('crossAsset.thresholdLabel') }} ±{{
                   selectedBrief.outlook.backtest.selectivity.selectedThreshold.toFixed(2)
                 }}
-                · 训练95%保守优势
+                · {{ t('crossAsset.conservativeAdvantageLabel') }}
                 {{
                   selectedBrief.outlook.backtest.selectivity.selectedConservativeEdgePct === null
                     ? '—'
                     : `${selectedBrief.outlook.backtest.selectivity.selectedConservativeEdgePct > 0 ? '+' : ''}${selectedBrief.outlook.backtest.selectivity.selectedConservativeEdgePct.toFixed(1)}%`
                 }}
-                · 留出期覆盖
+                · {{ t('crossAsset.validationCoverageLabel') }}
                 {{
                   selectedBrief.outlook.backtest.selectivity.validationCoveragePct?.toFixed(1) ??
                   '—'
                 }}%
               </span>
               <span>
-                跨资产驱动消融：完整模型
+                {{ t('crossAsset.ablationLabel') }}
                 {{
                   selectedBrief.outlook.backtest.selectivity.driverAblation.fullAccuracyPct?.toFixed(
                     1,
                   ) ?? '—'
-                }}% · 纯动量
+                }}% · {{ t('crossAsset.momentumOnlyLabel') }}
                 {{
                   selectedBrief.outlook.backtest.selectivity.driverAblation.momentumOnlyAccuracyPct?.toFixed(
                     1,
                   ) ?? '—'
-                }}% · 配对胜负
+                }}% · {{ t('crossAsset.pairedWinsLabel') }}
                 {{ selectedBrief.outlook.backtest.selectivity.driverAblation.fullWins }}/{{
                   selectedBrief.outlook.backtest.selectivity.driverAblation.momentumWins
                 }}
@@ -545,20 +581,20 @@ const formatUpdatedAt = (value: string) =>
                 ·
                 {{
                   selectedBrief.outlook.backtest.selectivity.selectedRule.driverWeight === 0
-                    ? '选中纯动量规则'
+                    ? t('crossAsset.driverPassLabel')
                     : selectedBrief.outlook.backtest.selectivity.driverAblation.allowed
-                      ? '允许跨资产贡献进入评分'
-                      : '未证明增量，跨资产贡献已归零'
+                      ? t('crossAsset.driverWeightsLabel')
+                      : t('crossAsset.noDriverLabel')
                 }}
               </span>
               <span>
-                训练强信号 {{ selectedBrief.outlook.backtest.selectivity.training.samples }}个 ·
-                命中
+                {{ t('crossAsset.trainingLabel') }} {{ selectedBrief.outlook.backtest.selectivity.training.samples }}{{ t('crossAsset.samplesSuffix') }} ·
+                {{ t('crossAsset.hitRate') }}
                 {{
                   selectedBrief.outlook.backtest.selectivity.training.directionalAccuracyPct?.toFixed(
                     1,
                   ) ?? '—'
-                }}% · 相对最佳基线
+                }}% · {{ t('crossAsset.baselineGapLabel') }}
                 {{
                   selectedBrief.outlook.backtest.selectivity.training.liftVsBestBaselinePct === null
                     ? '—'
@@ -566,13 +602,13 @@ const formatUpdatedAt = (value: string) =>
                 }}
               </span>
               <span>
-                留出强信号 {{ selectedBrief.outlook.backtest.selectivity.validation.samples }}个 ·
-                命中
+                {{ t('crossAsset.validationLabel') }} {{ selectedBrief.outlook.backtest.selectivity.validation.samples }}{{ t('crossAsset.samplesSuffix') }} ·
+                {{ t('crossAsset.hitRate') }}
                 {{
                   selectedBrief.outlook.backtest.selectivity.validation.directionalAccuracyPct?.toFixed(
                     1,
                   ) ?? '—'
-                }}% · 相对最佳基线
+                }}% · {{ t('crossAsset.baselineGapLabel') }}
                 {{
                   selectedBrief.outlook.backtest.selectivity.validation.liftVsBestBaselinePct ===
                   null
@@ -581,15 +617,15 @@ const formatUpdatedAt = (value: string) =>
                 }}
               </span>
               <span>
-                当前宏观状态：{{ selectedBrief.outlook.backtest.selectivity.macroRegime.name }} ·
-                状态内留出样本
-                {{ selectedBrief.outlook.backtest.selectivity.macroRegime.validation.samples }}个 ·
-                命中
+                {{ t('crossAsset.macroRegimeLabel') }}{{ selectedBrief.outlook.backtest.selectivity.macroRegime.name }} ·
+                {{ t('crossAsset.regimeSamplesLabel') }}
+                {{ selectedBrief.outlook.backtest.selectivity.macroRegime.validation.samples }}{{ t('crossAsset.samplesSuffix') }} ·
+                {{ t('crossAsset.hitRate') }}
                 {{
                   selectedBrief.outlook.backtest.selectivity.macroRegime.validation.directionalAccuracyPct?.toFixed(
                     1,
                   ) ?? '—'
-                }}% · 相对最佳基线
+                }}% · {{ t('crossAsset.baselineGapLabel') }}
                 {{
                   selectedBrief.outlook.backtest.selectivity.macroRegime.validation
                     .liftVsBestBaselinePct === null
@@ -598,7 +634,7 @@ const formatUpdatedAt = (value: string) =>
                 }}
               </span>
               <span>
-                规则共识
+                {{ t('crossAsset.consensusLabel') }}
                 {{ selectedBrief.outlook.consensus.aligned }}/{{
                   selectedBrief.outlook.consensus.total
                 }}
@@ -606,7 +642,7 @@ const formatUpdatedAt = (value: string) =>
               </span>
               <span>
                 {{ selectedBrief.outlook.backtest.regime }}
-                {{ selectedBrief.outlook.backtest.regimeSamples }}样本 · 增量
+                {{ selectedBrief.outlook.backtest.regimeSamples }}{{ t('crossAsset.samplesSuffix') }} · {{ t('crossAsset.boostLabel') }}
                 {{
                   selectedBrief.outlook.backtest.regimeLiftPct === null
                     ? '—'
@@ -614,11 +650,11 @@ const formatUpdatedAt = (value: string) =>
                 }}
               </span>
               <span>
-                留出验证 {{ selectedBrief.outlook.backtest.validation.samples }}样本 · 命中
+                {{ t('crossAsset.regimeLabel') }} {{ selectedBrief.outlook.backtest.validation.samples }}{{ t('crossAsset.samplesSuffix') }} · {{ t('crossAsset.hitRate') }}
                 {{
                   selectedBrief.outlook.backtest.validation.directionalAccuracyPct?.toFixed(1) ??
                   '—'
-                }}% · 相对最佳基线增量
+                }}% · {{ t('crossAsset.baselineGapLabel') }}
                 {{
                   selectedBrief.outlook.backtest.validation.liftVsBestBaselinePct === null
                     ? '—'
@@ -632,37 +668,39 @@ const formatUpdatedAt = (value: string) =>
               :class="{ passed: selectedBrief.outlook.directionGate.eligible }"
             >
               <b
-                >方向闸门：{{ selectedBrief.outlook.directionGate.eligible ? '通过' : '未通过' }}</b
+                >{{ t('crossAsset.gateTitle') }} {{ selectedBrief.outlook.directionGate.eligible ? t('crossAsset.gatePassed') : t('crossAsset.gateFailed') }}</b
               >
               <span v-if="selectedBrief.outlook.directionGate.eligible">
-                样本、命中率与相对基线增量均达到最低门槛。
+                {{ t('crossAsset.gatePassTip') }}
               </span>
               <span v-for="reason in selectedBrief.outlook.directionGate.reasons" :key="reason">
                 {{ reason }}
               </span>
             </div>
             <div v-if="selectedBrief.outlook.scenario" class="scenario-range">
-              <b>同方向历史情景</b>
+              <b>{{ t('crossAsset.historyScenario') }}</b>
               <span>
                 {{
-                  selectedBrief.outlook.scenario.direction === 'bullish' ? '历史偏多' : '历史偏空'
+                  selectedBrief.outlook.scenario.direction === 'bullish'
+                    ? t('crossAsset.historicalDirectionBullish')
+                    : t('crossAsset.historicalDirectionBearish')
                 }}
-                {{ selectedBrief.outlook.scenario.samples }}次 · 命中率
+                {{ selectedBrief.outlook.scenario.samples }}{{ t('crossAsset.samplesSuffix') }} · {{ t('crossAsset.hitRate') }}
                 {{ selectedBrief.outlook.scenario.directionalAccuracyPct?.toFixed(1) ?? '—' }}%
               </span>
               <span>
-                未来5日中位收益
+                {{ t('crossAsset.future5d') }}
                 {{ selectedBrief.outlook.scenario.medianReturnPct?.toFixed(2) ?? '—' }}% · 25%–75%
                 [{{ selectedBrief.outlook.scenario.q25ReturnPct?.toFixed(2) ?? '—' }}%,
                 {{ selectedBrief.outlook.scenario.q75ReturnPct?.toFixed(2) ?? '—' }}%]
               </span>
-              <small> 这是历史条件分布，不是保证区间；方向闸门未通过时仅作参考。 </small>
+              <small>{{ t('crossAsset.interlude') }}</small>
             </div>
-            <b>支持理由</b>
+            <b>{{ t('crossAsset.supportReasonsLabel') }}</b>
             <ul>
               <li v-for="reason in selectedBrief.outlook.reasons" :key="reason">{{ reason }}</li>
             </ul>
-            <b>反向风险</b>
+            <b>{{ t('crossAsset.oppositeRisks') }}</b>
             <ul class="risks">
               <li v-for="risk in selectedBrief.outlook.risks" :key="risk">{{ risk }}</li>
             </ul>
@@ -672,7 +710,7 @@ const formatUpdatedAt = (value: string) =>
       </div>
       <div class="chain-filters">
         <button :class="{ active: chainStatus === 'all' }" @click="chainStatus = 'all'">
-          全部
+          {{ t('crossAsset.allLabel') }}
         </button>
         <button
           v-for="(name, key) in chainStatusNames"
@@ -710,21 +748,21 @@ const formatUpdatedAt = (value: string) =>
             >
           </div>
           <div class="chain-windows">
-            <span>20日 {{ chain.windows.short?.toFixed(2) ?? '—' }}</span>
-            <span>60日 {{ chain.windows.medium?.toFixed(2) ?? '—' }}</span>
-            <span>120日 {{ chain.windows.long?.toFixed(2) ?? '—' }}</span>
+            <span>{{ t('crossAsset.regimeWindow') }} {{ chain.windows.short?.toFixed(2) ?? '—' }}</span>
+            <span>{{ t('crossAsset.regimeWindowMedium') }} {{ chain.windows.medium?.toFixed(2) ?? '—' }}</span>
+            <span>{{ t('crossAsset.regimeWindowLong') }} {{ chain.windows.long?.toFixed(2) ?? '—' }}</span>
             <b :class="chain.stability">
-              {{ stabilityNames[chain.stability] }}{{ chain.regimeShift ? ' · 结构突变' : '' }}
+              {{ stabilityNames[chain.stability] }}{{ chain.regimeShift ? t('crossAsset.regimeShift') : '' }}
             </b>
             <b :class="`evidence-${chain.evidence}`">
-              {{ evidenceNames[chain.evidence] }} · 60日95% [{{
+              {{ evidenceNames[chain.evidence] }} · {{ t('crossAsset.regimeWindowMedium') }}95% [{{
                 chain.statistics.medium.ciLow?.toFixed(2) ?? '—'
-              }}, {{ chain.statistics.medium.ciHigh?.toFixed(2) ?? '—' }}] · 120日95% [{{
+              }}, {{ chain.statistics.medium.ciHigh?.toFixed(2) ?? '—' }}] · {{ t('crossAsset.regimeWindowLong') }}95% [{{
                 chain.statistics.long.ciLow?.toFixed(2) ?? '—'
               }}, {{ chain.statistics.long.ciHigh?.toFixed(2) ?? '—' }}]
             </b>
             <b :class="`evidence-${chain.predictive.evidence}`">
-              领先5日（非重叠） ρ={{ chain.predictive.value?.toFixed(2) ?? '—' }} · n={{
+              {{ t('crossAsset.predictiveLabel') }} ρ={{ chain.predictive.value?.toFixed(2) ?? '—' }} · {{ t('crossAsset.samplesLabel') }} {{
                 chain.predictive.samples
               }}
               · FDR q={{ chain.predictive.qValue?.toFixed(3) ?? '—' }} · 95% [{{
@@ -732,18 +770,18 @@ const formatUpdatedAt = (value: string) =>
               }}, {{ chain.predictive.ciHigh?.toFixed(2) ?? '—' }}]
             </b>
             <b :class="`evidence-${chain.shock.evidence}`">
-              上尾10%冲击{{ chain.shock.triggered ? '已触发' : '未触发' }} · n={{
+              {{ t('crossAsset.upperShockLabel') }}{{ chain.shock.triggered ? t('crossAsset.triggered') : t('crossAsset.notTriggered') }} · {{ t('crossAsset.samplesLabel') }} {{
                 chain.shock.eventSamples
               }}
-              · 后续5日上涨率增量 {{ chain.shock.liftPct?.toFixed(1) ?? '—' }}pp · FDR q={{
+              · {{ t('crossAsset.liftLabel') }} {{ chain.shock.liftPct?.toFixed(1) ?? '—' }}{{ t('crossAsset.allPeriodLift') }} · FDR q={{
                 chain.shock.qValue?.toFixed(3) ?? '—'
               }}
             </b>
             <b :class="`evidence-${chain.lowerShock.evidence}`">
-              下尾10%冲击{{ chain.lowerShock.triggered ? '已触发' : '未触发' }} · n={{
+              {{ t('crossAsset.lowerShockLabel') }}{{ chain.lowerShock.triggered ? t('crossAsset.triggered') : t('crossAsset.notTriggered') }} · {{ t('crossAsset.samplesLabel') }} {{
                 chain.lowerShock.eventSamples
               }}
-              · 后续5日上涨率增量 {{ chain.lowerShock.liftPct?.toFixed(1) ?? '—' }}pp · FDR q={{
+              · {{ t('crossAsset.liftLabel') }} {{ chain.lowerShock.liftPct?.toFixed(1) ?? '—' }}{{ t('crossAsset.allPeriodLift') }} · FDR q={{
                 chain.lowerShock.qValue?.toFixed(3) ?? '—'
               }}
             </b>
@@ -757,14 +795,14 @@ const formatUpdatedAt = (value: string) =>
     </section>
 
     <section class="regime-strip">
-      <div>
-        <span>10Y–2Y曲线</span
+        <div>
+        <span>{{ t('crossAsset.trendTitle') }}</span
         ><strong>{{
           curveSpread === null ? '—' : `${curveSpread > 0 ? '+' : ''}${curveSpread}bp`
         }}</strong>
       </div>
       <div>
-        <span>高收益利差</span
+        <span>{{ t('crossAsset.hyLabel') }}</span
         ><strong>{{ assetById('hyspread')?.value?.toFixed(2) ?? '—' }}%</strong>
       </div>
       <div>
@@ -780,9 +818,9 @@ const formatUpdatedAt = (value: string) =>
       <header class="section-heading">
         <div>
           <span>02</span>
-          <h2>全球资产月度强弱</h2>
+          <h2>{{ t('crossAsset.monthStrength') }}</h2>
         </div>
-        <p>用于快速识别风险偏好与轮动方向</p>
+        <p>{{ t('crossAsset.strengthHint') }}</p>
       </header>
       <div class="chart-panel"><EChart :option="performanceOption" /></div>
     </section>
@@ -791,13 +829,13 @@ const formatUpdatedAt = (value: string) =>
       <header class="section-heading">
         <div>
           <span>03</span>
-          <h2>五类资产分舱</h2>
+          <h2>{{ t('crossAsset.podsTitle') }}</h2>
         </div>
-        <p>核心标的 · 相对价格 · 相关性 · 流向状态</p>
+        <p>{{ t('crossAsset.podsHint') }}</p>
       </header>
       <div class="tabs">
         <button :class="{ active: activeCategory === 'all' }" @click="activeCategory = 'all'">
-          全部
+          {{ t('crossAsset.allLabel') }}
         </button>
         <button
           v-for="(name, key) in categoryNames"
@@ -810,18 +848,20 @@ const formatUpdatedAt = (value: string) =>
       </div>
       <div class="asset-table">
         <div class="asset-row asset-header">
-          <span>核心标的</span><span>最新值</span
+          <span>{{ t('crossAsset.coreTarget') }}</span><span>{{ t('crossAsset.latestValue') }}</span
           ><span v-for="[, label] in periods" :key="label">{{ label }}</span
-          ><span>资金流向</span>
+          ><span>{{ t('crossAsset.flowLabel') }}</span>
         </div>
         <div v-for="asset in visibleAssets" :key="asset.id" class="asset-row">
           <span class="asset-name"
             ><b>{{ asset.name }}</b
             ><small
-              >{{ categoryNames[asset.category] }} · 观察 {{ asset.date ?? '待更新'
-              }}<template v-if="asset.availableDate && asset.availableDate !== asset.date">
-                · 可用 {{ asset.availableDate }}</template
-              ><template v-if="asset.stale"> · 数据过期，仅供历史研究</template></small
+              >{{ categoryNames[asset.category] }} · {{ t('crossAsset.observePrefix') }}
+              {{ asset.date ?? t('crossAsset.noData') }}<template
+                v-if="asset.availableDate && asset.availableDate !== asset.date"
+              >
+                · {{ t('crossAsset.availablePrefix') }} {{ asset.availableDate }}</template
+              ><template v-if="asset.stale"> · {{ t('crossAsset.staleNote') }}</template></small
             ></span
           >
           <strong>{{ formatValue(asset) }}</strong>
@@ -843,9 +883,9 @@ const formatUpdatedAt = (value: string) =>
       <header class="section-heading">
         <div>
           <span>04</span>
-          <h2>跨资产相关性矩阵</h2>
+          <h2>{{ t('crossAsset.matrixTitle') }}</h2>
         </div>
-        <p>{{ dataset.correlationWindow }} · 日收益/收益率日变化 · 绿色同向 / 红色反向</p>
+        <p>{{ dataset.correlationWindow }} · {{ t('crossAsset.matrixHint') }}</p>
       </header>
       <div class="matrix-wrap">
         <EChart :option="heatmapOption" />
@@ -853,7 +893,7 @@ const formatUpdatedAt = (value: string) =>
     </section>
 
     <aside class="coverage-note">
-      <strong>数据覆盖说明</strong>
+      <strong>{{ t('crossAsset.dataCover') }}</strong>
       <ul>
         <li v-for="item in dataset.limitations" :key="item">{{ item }}</li>
       </ul>

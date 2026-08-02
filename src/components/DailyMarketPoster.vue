@@ -2,6 +2,7 @@
 import { computed, nextTick, ref } from 'vue'
 import html2canvas from 'html2canvas'
 import type { CrossAssetDataset, MarketHomeDataset } from '@/types'
+import { useI18n } from '@/composables/use-i18n'
 
 const props = defineProps<{
   home: MarketHomeDataset
@@ -11,6 +12,7 @@ const props = defineProps<{
 const poster = ref<HTMLElement | null>(null)
 const exporting = ref(false)
 const exportMessage = ref('')
+const { t } = useI18n()
 const markets = computed(() => props.home.marketBrief.markets)
 const chains = computed(() =>
   props.crossAsset.transmissionChains
@@ -30,9 +32,10 @@ const formatMove = (value: number | null) =>
 const formatSignal = (value: number | null) =>
   value === null ? 'ρ —' : `ρ ${value > 0 ? '' : '−'}${Math.abs(value).toFixed(2)}`
 const directionName = (direction: 'bullish' | 'bearish') =>
-  direction === 'bullish' ? '偏涨' : '偏跌'
+  direction === 'bullish' ? t('direction.bullish') : t('direction.bearish')
 const directionClass = (direction: 'bullish' | 'bearish') =>
   direction === 'bullish' ? 'bullish' : 'bearish'
+const posterHorizonIds = ['day', 'week', 'month', 'quarter'] as const
 const getHorizonDirection = (
   horizonId: 'day' | 'week' | 'month' | 'quarter',
   market: (typeof markets.value)[number],
@@ -50,7 +53,7 @@ const formatUpdatedAt = (value: string) =>
 const downloadPoster = async () => {
   if (!poster.value || exporting.value) return
   exporting.value = true
-  exportMessage.value = '正在生成高清图片…'
+  exportMessage.value = t('poster.export.generating')
 
   try {
     await nextTick()
@@ -66,13 +69,16 @@ const downloadPoster = async () => {
       windowHeight: poster.value.scrollHeight,
     })
     const link = document.createElement('a')
-    link.download = `全球市场每日报告-${props.home.marketBrief.asOfDate ?? 'latest'}.png`
+    link.download = `${t('poster.titleHeader')}-${props.home.marketBrief.asOfDate ?? 'latest'}.png`
     link.href = canvas.toDataURL('image/png')
     link.click()
-    exportMessage.value = `已生成 ${canvas.width} × ${canvas.height} PNG`
+    exportMessage.value = t('poster.export.generated', {
+      width: canvas.width,
+      height: canvas.height,
+    })
   } catch (error) {
     console.error('Daily market poster export failed:', error)
-    exportMessage.value = '图片生成失败，请稍后重试'
+    exportMessage.value = t('poster.export.fail')
   } finally {
     exporting.value = false
   }
@@ -83,26 +89,26 @@ const downloadPoster = async () => {
   <section class="poster-export" aria-labelledby="poster-title">
     <header class="export-heading">
       <div>
-        <p>SHAREABLE MARKET BRIEF</p>
-        <h2 id="poster-title">每日市场长图</h2>
-        <span>将首页全部市场、四周期方向、驱动因素和传导链绘制为高清 PNG。</span>
+        <p>{{ t('poster.badge') }}</p>
+        <h2 id="poster-title">{{ t('poster.title') }}</h2>
+        <span>{{ t('poster.desc') }}</span>
       </div>
       <div class="export-actions">
-        <small aria-live="polite">{{ exportMessage || '图片数据随首页同步更新' }}</small>
+        <small aria-live="polite">{{ exportMessage || t('poster.syncHint') }}</small>
         <button type="button" :disabled="exporting" @click="downloadPoster">
-          {{ exporting ? '生成中…' : '下载高清 PNG' }}
+          {{ exporting ? t('poster.export.generating') : t('poster.export.button') }}
         </button>
       </div>
     </header>
 
-    <div class="poster-viewport" tabindex="0" aria-label="每日市场报告图片预览，可横向滚动">
+    <div class="poster-viewport" tabindex="0" :aria-label="t('poster.marketWithDirection')">
       <article ref="poster" class="market-poster">
         <header class="poster-heading">
           <div>
-            <h3>全球市场每日报告</h3>
-            <b>{{ home.marketBrief.asOfDate ?? '日期待更新' }}</b>
+            <h3>{{ t('poster.titleHeader') }}</h3>
+            <b>{{ home.marketBrief.asOfDate ?? t('poster.dateUnknown') }}</b>
           </div>
-          <span>系统更新：{{ formatUpdatedAt(home.updatedAt) }}</span>
+          <span>{{ t('poster.syncLabel') }}{{ formatUpdatedAt(home.updatedAt) }}</span>
         </header>
 
         <div class="poster-columns">
@@ -110,23 +116,23 @@ const downloadPoster = async () => {
             <section class="poster-card regime-card">
               <div class="card-title">
                 <span>01</span>
-                <h4>今日市场状态</h4>
+                <h4>{{ t('marketHome.heading') }}</h4>
                 <b>{{ home.marketBrief.regime.title }}</b>
               </div>
               <p>{{ home.marketBrief.regime.summary }}</p>
               <div class="factor-grid">
                 <section>
-                  <small>利率环境</small>
+                  <small>{{ t('marketHome.coreFactors.termRate') }}</small>
                   <strong>{{ home.marketBrief.rateRegime.title }}</strong>
                   <p>{{ home.marketBrief.rateRegime.summary }}</p>
                 </section>
                 <section>
-                  <small>市场广度</small>
+                  <small>{{ t('marketHome.coreFactors.liquidity') }}</small>
                   <strong>{{ home.marketBrief.breadth.title }}</strong>
                   <p>{{ home.marketBrief.breadth.summary }}</p>
                 </section>
                 <section>
-                  <small>加密结构</small>
+                  <small>{{ t('marketHome.coreFactors.marketParticipation') }}</small>
                   <strong>{{ crossAsset.marketBrief.cryptoRegime.title }}</strong>
                   <p>{{ crossAsset.marketBrief.cryptoRegime.summary }}</p>
                 </section>
@@ -136,17 +142,16 @@ const downloadPoster = async () => {
             <section class="poster-card market-table-card">
               <div class="card-title">
                 <span>02</span>
-                <h4>主要市场与未来方向</h4>
+                <h4>{{ t('poster.marketWithDirection') }}</h4>
               </div>
               <table>
                 <thead>
                   <tr>
-                    <th>市场</th>
-                    <th>最新涨跌</th>
-                    <th v-for="label in ['1日', '1周', '1月', '1季度']" :key="label">
-                      {{ label }}
+                    <th>{{ t('poster.column.market') }}</th>
+                    <th>{{ t('poster.column.move') }}</th>
+                    <th v-for="label in posterHorizonIds" :key="label">
+                      {{ t(`poster.horizon.${label}`) }}
                     </th>
-                    <th>方向</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -156,7 +161,7 @@ const downloadPoster = async () => {
                     {{ formatMove(market.dailyMove) }}
                   </td>
                     <td
-                      v-for="horizonId in ['day', 'week', 'month', 'quarter']"
+                      v-for="horizonId in posterHorizonIds"
                       :key="`${market.id}-${horizonId}`"
                       :class="directionClass(getHorizonDirection(horizonId, market))"
                     >
@@ -170,14 +175,14 @@ const downloadPoster = async () => {
             <section class="poster-card drivers-card">
               <div class="card-title">
                 <span>03</span>
-                <h4>全部市场驱动因素</h4>
+                <h4>{{ t('poster.marketFactors.title') }}</h4>
               </div>
               <section v-for="market in markets" :key="market.id" class="driver-row">
                 <strong>{{ market.name }}</strong>
                 <p v-if="market.drivers.length">
                   {{ market.drivers.map((driver) => driver.text).join('；') }}
                 </p>
-                <p v-else>当前没有足够强且稳定的跨资产共振因子。</p>
+                <p v-else>{{ t('poster.marketFactors.noData') }}</p>
               </section>
             </section>
           </div>
@@ -186,12 +191,12 @@ const downloadPoster = async () => {
             <section class="poster-card chain-card">
               <div class="card-title">
                 <span>04</span>
-                <h4>当前最强市场传导链</h4>
-                <b>共 {{ chains.length }} 条</b>
+                <h4>{{ t('poster.chain.title') }}</h4>
+                <b>{{ t('poster.chain.count', { count: chains.length }) }}</b>
               </div>
               <section v-for="chain in chains" :key="`${chain.left}-${chain.right}-${chain.title}`" class="chain-row">
                 <header>
-                  <span :class="chain.status">{{ chain.status === 'confirming' ? '确认' : chain.status === 'diverging' ? '背离' : chain.status === 'context' ? '情景' : chain.status === 'dormant' ? '休眠' : '不足' }}</span>
+                  <span :class="chain.status">{{ t(`poster.chainStatus.${chain.status}`) }}</span>
                   <strong>{{ chain.title }}</strong>
                   <b>{{ formatSignal(chain.signal) }}</b>
                 </header>
@@ -203,8 +208,8 @@ const downloadPoster = async () => {
         </div>
 
         <footer class="poster-footer">
-          <span>数据日期：{{ home.marketBrief.asOfDate ?? '—' }}</span>
-          <p>{{ crossAsset.marketBrief.disclaimer }} 相关性不代表因果，偏涨/偏跌不是确定预测。</p>
+          <span>{{ `${t('marketHome.updated')}：${home.marketBrief.asOfDate ?? '—'}` }}</span>
+          <p>{{ crossAsset.marketBrief.disclaimer }} {{ t('poster.footerDisclaimer') }}</p>
         </footer>
       </article>
     </div>

@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import Navigation from '@/components/Navigation.vue'
+import { useI18n } from '@/composables/use-i18n'
+
+const { t } = useI18n()
 </script>
 
 <template>
   <div class="home-view">
     <section class="intro">
       <div>
-        <p class="eyebrow">Daily dashboard · 个人使用</p>
-        <h1>把市场信息，放回一个安静的工作台。</h1>
+        <p class="eyebrow">{{ t('home.eyebrow') }}</p>
+        <h1>{{ t('home.heading') }}</h1>
       </div>
-      <p class="intro-copy">
-        收拢宏观、股票、加密资产与研究工具。这里不提供投资建议，只负责让常用入口更容易找到。
-      </p>
+      <p class="intro-copy">{{ t('home.intro') }}</p>
     </section>
     <Navigation />
   </div>

@@ -1,40 +1,44 @@
+<script setup lang="ts">
+import { useI18n } from '@/composables/use-i18n'
+
+const { t } = useI18n()
+</script>
+
 <template>
   <article class="about-page">
-    <p class="eyebrow">About this desk</p>
-    <h1>一个为日常研究服务的个人金融入口。</h1>
+    <p class="eyebrow">{{ t('about.eyebrow') }}</p>
+    <h1>{{ t('about.heading') }}</h1>
 
     <div class="lede">
-      <p>
-        这个工作台收集宏观数据、股票研究、加密资产、新闻与常用工具。它优先保留信息本身，而不是图片、行情噪音或复杂视觉效果。
-      </p>
-      <p>所有资源链接均指向第三方网站，请自行判断信息质量与投资风险。</p>
+      <p>{{ t('about.intro1') }}</p>
+      <p>{{ t('about.intro2') }}</p>
     </div>
 
     <section>
       <span>01</span>
       <div>
-        <h2>资源台</h2>
-        <p>按主题浏览全部网址，也可以搜索标题、描述和域名。点击站点会在新标签页打开。</p>
+        <h2>{{ t('about.section1Title') }}</h2>
+        <p>{{ t('about.section1Desc') }}</p>
       </div>
     </section>
 
     <section>
       <span>02</span>
       <div>
-        <h2>本地星标</h2>
-        <p>常用网址可以加星，记录仅保存在当前浏览器，不会上传任何个人数据。</p>
+        <h2>{{ t('about.section2Title') }}</h2>
+        <p>{{ t('about.section2Desc') }}</p>
       </div>
     </section>
 
     <section>
       <span>03</span>
       <div>
-        <h2>资讯台</h2>
-        <p>集中存放高频阅读入口，以原站跳转替代 iframe 嵌入，减少加载问题和第三方追踪面。</p>
+        <h2>{{ t('about.section3Title') }}</h2>
+        <p>{{ t('about.section3Desc') }}</p>
       </div>
     </section>
 
-    <footer>内容仅供个人研究使用，不构成任何投资建议。</footer>
+    <footer>{{ t('about.footer') }}</footer>
   </article>
 </template>
 

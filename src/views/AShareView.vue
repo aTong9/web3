@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import sectorData from '@/data/a-share-sectors.json'
 import type { AShareFund, AShareSectorDataset, SectorKind, SectorPeriod } from '@/types'
 import HotStocksPanel from '@/components/HotStocksPanel.vue'
+import { useI18n } from '@/composables/use-i18n'
 
 type Scope = 'all' | SectorKind
 
@@ -12,14 +13,15 @@ const activeScope = ref<Scope>('all')
 const direction = ref<'desc' | 'asc'>('desc')
 const query = ref('')
 const brokerageFeePct = ref(0.03)
+const { t, locale } = useI18n()
 
 const periodOptions: Array<{ value: SectorPeriod; label: string }> = [
-  { value: 'day', label: '日' },
-  { value: 'week', label: '周' },
-  { value: 'month', label: '月' },
-  { value: 'quarter', label: '季度' },
-  { value: 'yearToDate', label: '今年' },
-  { value: 'year', label: '近一年' },
+  { value: 'day', label: t('aShare.day') },
+  { value: 'week', label: t('aShare.week') },
+  { value: 'month', label: t('aShare.month') },
+  { value: 'quarter', label: t('aShare.quarter') },
+  { value: 'yearToDate', label: t('aShare.yearToDate') },
+  { value: 'year', label: t('aShare.year') },
 ]
 
 const rankedSectors = computed(() => {
@@ -76,7 +78,7 @@ const returnClass = (value: number | null) => ({
 })
 
 const formatUpdatedAt = (value: string) =>
-  new Intl.DateTimeFormat('zh-CN', {
+  new Intl.DateTimeFormat(locale.value === 'en' ? 'en-US' : 'zh-CN', {
     timeZone: 'Asia/Shanghai',
     month: 'numeric',
     day: 'numeric',
@@ -89,15 +91,20 @@ const formatUpdatedAt = (value: string) =>
   <div class="sector-page">
     <header class="page-heading">
       <div>
-        <p>A-share sector monitor · 收盘数据</p>
-        <h1>A股行业</h1>
+        <p>{{ t('aShare.eyebrow') }}</p>
+        <h1>{{ t('aShare.title') }}</h1>
       </div>
       <div class="market-state">
         <span :class="dataset.marketStatus"></span>
         <div>
-          <strong>{{ dataset.marketStatus === 'closed' ? '今日已收盘' : '非交易日' }}</strong>
+          <strong>
+            {{
+              dataset.marketStatus === 'closed' ? t('aShare.marketClosed') : t('aShare.marketOpen')
+            }}
+          </strong>
           <small
-            >交易日 {{ dataset.tradingDate }} · {{ formatUpdatedAt(dataset.updatedAt) }} 更新</small
+            >{{ t('aShare.tradingDay') }} {{ dataset.tradingDate }} ·
+            {{ formatUpdatedAt(dataset.updatedAt) }} {{ t('aShare.closeText') }}</small
           >
         </div>
       </div>
@@ -105,23 +112,23 @@ const formatUpdatedAt = (value: string) =>
 
     <section class="market-summary">
       <div>
-        <span>覆盖分类</span><strong>{{ dataset.sectors.length }}</strong>
+        <span>{{ t('aShare.covered') }}</span><strong>{{ dataset.sectors.length }}</strong>
       </div>
       <div>
-        <span>上涨</span><strong class="positive">{{ upCount }}</strong>
+        <span>{{ t('aShare.rising') }}</span><strong class="positive">{{ upCount }}</strong>
       </div>
       <div>
-        <span>下跌</span><strong class="negative">{{ downCount }}</strong>
+        <span>{{ t('aShare.falling') }}</span><strong class="negative">{{ downCount }}</strong>
       </div>
       <div>
-        <span>当前口径</span><strong>{{ dataset.periods[activePeriod] }}</strong>
+        <span>{{ t('aShare.currentPeriod') }}</span><strong>{{ dataset.periods[activePeriod] }}</strong>
       </div>
     </section>
 
     <HotStocksPanel market="aShare" />
 
     <div class="toolbar">
-      <div class="period-tabs" aria-label="涨幅周期">
+      <div class="period-tabs" :aria-label="t('aShare.filterRange')">
         <button
           v-for="option in periodOptions"
           :key="option.value"
@@ -132,25 +139,30 @@ const formatUpdatedAt = (value: string) =>
         </button>
       </div>
       <div class="filters">
-        <select v-model="activeScope" aria-label="分类范围">
-          <option value="all">全部分类</option>
-          <option value="industry">标准行业</option>
-          <option value="theme">主题赛道</option>
+        <select v-model="activeScope" :aria-label="t('aShare.allScope')">
+          <option value="all">{{ t('aShare.allScope') }}</option>
+          <option value="industry">{{ t('aShare.scopeIndustry') }}</option>
+          <option value="theme">{{ t('aShare.scopeTheme') }}</option>
         </select>
-        <select v-model="direction" aria-label="排序方向">
-          <option value="desc">涨幅从高到低</option>
-          <option value="asc">涨幅从低到高</option>
+        <select v-model="direction" :aria-label="t('aShare.filterRange')">
+          <option value="desc">{{ t('aShare.sortDesc') }}</option>
+          <option value="asc">{{ t('aShare.sortAsc') }}</option>
         </select>
-        <input v-model="query" type="search" placeholder="搜索行业…" aria-label="搜索行业" />
+        <input
+          v-model="query"
+          type="search"
+          :placeholder="t('aShare.searchPlaceholder')"
+          :aria-label="t('aShare.searchPlaceholder')"
+        />
         <label class="commission-field">
-          单边佣金
+          {{ t('aShare.singleCommission') }}
           <span><input v-model.number="brokerageFeePct" type="number" min="0" step="0.01" />%</span>
         </label>
       </div>
     </div>
 
     <div class="ranking-head">
-      <span>排名 / 行业</span><span>代表基金</span><span>{{ dataset.periods[activePeriod] }}</span>
+      <span>{{ t('aShare.rankHead') }}</span><span>{{ t('aShare.fundHead') }}</span><span>{{ dataset.periods[activePeriod] }}</span>
     </div>
 
     <div class="ranking-list">
@@ -159,7 +171,7 @@ const formatUpdatedAt = (value: string) =>
           <span class="rank">{{ String(index + 1).padStart(2, '0') }}</span>
           <span class="sector-name">
             <strong>{{ sector.name }}</strong>
-            <small>{{ sector.kind === 'industry' ? '标准行业' : '主题赛道' }}</small>
+            <small>{{ sector.kind === 'industry' ? t('aShare.scopeIndustry') : t('aShare.scopeTheme') }}</small>
           </span>
           <span class="representative">
             <strong>{{ getRepresentative(sector.representativeFundCode)?.name }}</strong>
@@ -183,8 +195,8 @@ const formatUpdatedAt = (value: string) =>
 
           <div class="fund-table">
             <div class="fund-row fund-header">
-              <span>相关基金</span><span>规模</span><span>年运作费</span><span>溢折价</span
-              ><span>首年成本估算</span><span>最新收盘</span>
+              <span>{{ t('aShare.fundHead') }}</span><span>{{ t('aShare.fundScale') }}</span><span>{{ t('aShare.managementFee') }}</span><span>{{ t('aShare.premium') }}</span
+              ><span>{{ t('aShare.firstYear') }}</span><span>{{ t('aShare.latestClose') }}</span>
             </div>
             <a
               v-for="fund in getSectorFunds(sector.name)"
@@ -199,17 +211,19 @@ const formatUpdatedAt = (value: string) =>
                 ><small>{{ fund.code }} ↗</small></span
               >
               <span>
-                <strong>{{ fund.scaleBillionCny?.toFixed(2) ?? '—' }} 亿</strong>
-                <small>{{ fund.scaleDate ?? '数据待更新' }}</small>
+                <strong
+                  >{{ fund.scaleBillionCny?.toFixed(2) ?? '—' }} {{ t('aShare.fundScaleUnit') }}</strong
+                >
+                <small>{{ fund.scaleDate ?? t('aShare.fundScalePending') }}</small>
               </span>
               <span>{{ totalFee(fund) === null ? '—' : `${totalFee(fund)?.toFixed(2)}%` }}</span>
               <span
                 >{{ formatCost(fund.premiumRatePct)
-                }}<small>净值 {{ fund.navDate ?? '—' }}</small></span
+                }}<small>{{ t('aShare.navLabel') }} {{ fund.navDate ?? '—' }}</small></span
               >
               <span
                 >{{ formatCost(firstYearCost(fund))
-                }}<small>含 {{ brokerageFeePct.toFixed(2) }}% 买入佣金</small></span
+                }}<small>{{ t('funds.row.feeFormula') }} {{ t('funds.row.buyFee') }} {{ brokerageFeePct.toFixed(2) }}%</small></span
               >
               <span>{{ fund.latestClose.toFixed(3) }}</span>
             </a>
@@ -219,10 +233,9 @@ const formatUpdatedAt = (value: string) =>
     </div>
 
     <footer>
-      {{
-        dataset.source
-      }}。ETF价格可能受流动性、溢折价和分红影响，排行榜仅用于市场观察，不构成投资建议。
-      首年成本估算为年运作费、买入佣金和最近溢折价之和，不含卖出佣金、买卖价差、跟踪误差和税费。
+      {{ dataset.source }}
+      {{ t('aShare.footerNotice') }}{{ t('aShare.footerNoticeDelimiter') }}
+      {{ t('aShare.footerCost') }}
     </footer>
   </div>
 </template>

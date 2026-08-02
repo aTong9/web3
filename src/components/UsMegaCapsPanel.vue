@@ -2,12 +2,14 @@
 import { computed, ref } from 'vue'
 import megaCapData from '@/data/us-megacaps.json'
 import type { UsMegaCapDataset, UsMegaCapStock } from '@/types'
+import { useI18n } from '@/composables/use-i18n'
 
 type SortKey = 'trailingPe' | 'marketCapUsd' | 'historicalPeMedian5y' | 'forwardPe'
 
 const dataset = megaCapData as UsMegaCapDataset
 const forwardPeThreshold = 35
 const sortKey = ref<SortKey>('forwardPe')
+const { t } = useI18n()
 const rows = computed(() =>
   [...dataset.stocks].sort((left, right) => {
     const leftValue = left[sortKey.value]
@@ -21,8 +23,8 @@ const rows = computed(() =>
 const formatMarketCap = (value: number | null) => {
   if (value === null) return '—'
   return value >= 1_000_000_000_000
-    ? `$${(value / 1_000_000_000_000).toFixed(2)}万亿`
-    : `$${(value / 1_000_000_000).toFixed(0)}亿`
+    ? `$${(value / 1_000_000_000_000).toFixed(2)}${t('mega.unitTrillion')}`
+    : `$${(value / 1_000_000_000).toFixed(0)}${t('mega.unitBillion')}`
 }
 const formatPe = (value: number | null) => (value === null ? '—' : `${value.toFixed(1)}×`)
 const valuationGap = (stock: UsMegaCapStock) => {
@@ -30,10 +32,10 @@ const valuationGap = (stock: UsMegaCapStock) => {
   return ((stock.trailingPe / stock.historicalPeMedian5y - 1) * 100).toFixed(0)
 }
 const forwardSignal = (value: number | null) => {
-  if (value === null) return { level: 'unavailable', label: '数据不足' }
-  if (value > forwardPeThreshold) return { level: 'reduce', label: '减仓观察' }
-  if (value < forwardPeThreshold) return { level: 'watch', label: '估值观察' }
-  return { level: 'neutral', label: '临界观察' }
+  if (value === null) return { level: 'unavailable', label: t('mega.discipline.unavailable') }
+  if (value > forwardPeThreshold) return { level: 'reduce', label: t('mega.discipline.reduce') }
+  if (value < forwardPeThreshold) return { level: 'watch', label: t('mega.discipline.watch') }
+  return { level: 'neutral', label: t('mega.labels.neutral') }
 }
 const signalSummary = computed(() => ({
   reduce: dataset.stocks.filter((stock) => stock.forwardPe !== null && stock.forwardPe > forwardPeThreshold)
@@ -54,44 +56,46 @@ const formatUpdatedAt = (value: string) =>
   <section class="mega-panel">
     <header>
       <div>
-        <span>US MEGA CAPS · TOP 10</span>
-        <h2>美股市值前十估值</h2>
-        <p>默认按市场预期 Forward PE 从低到高排列；长期中枢取最近5个可用年度正 PE 的中位数。</p>
+        <span>{{ t('mega.heading') }}</span>
+        <h2>{{ t('mega.title') }}</h2>
+        <p>{{ t('mega.desc') }}</p>
       </div>
       <label>
-        排序口径
+        {{ t('mega.sortLabel') }}
         <select v-model="sortKey">
-          <option value="trailingPe">当前PE：低到高</option>
-          <option value="historicalPeMedian5y">5年PE中枢：低到高</option>
-          <option value="forwardPe">市场预期PE：低到高</option>
-          <option value="marketCapUsd">市值：高到低</option>
+          <option value="trailingPe">{{ t('mega.sortOptions.trailingPe') }}</option>
+          <option value="historicalPeMedian5y">{{ t('mega.sortOptions.historicalPeMedian5y') }}</option>
+          <option value="forwardPe">{{ t('mega.sortOptions.forwardPe') }}</option>
+          <option value="marketCapUsd">{{ t('mega.sortOptions.marketCapUsd') }}</option>
         </select>
       </label>
     </header>
 
     <p v-if="dataset.status !== 'ok'" class="status-message">
-      {{ dataset.statusMessage ?? '估值数据本次未能更新，正在展示上次有效版本。' }}
+      {{ dataset.statusMessage ?? t('mega.statusFallback') }}
     </p>
 
-    <div class="discipline-bar" aria-label="Forward PE 35倍估值纪律">
+    <div class="discipline-bar" :aria-label="t('mega.discipline.title')">
       <div>
-        <b>Forward PE 35× 纪律</b>
-        <span>高于35×减仓观察；低于35×进入估值观察，仍需结合历史中枢与盈利质量（TSLA，SPCX除外，靠ELON人格魅力）。</span>
+        <b>{{ t('mega.discipline.title') }}</b>
+        <span>
+          {{ t('mega.discipline.body') }}{{ t('mega.discipline.tips') }}
+        </span>
       </div>
-      <span class="reduce">减仓观察 {{ signalSummary.reduce }}</span>
-      <span class="watch">估值观察 {{ signalSummary.watch }}</span>
+      <span class="reduce">{{ t('mega.discipline.reduce') }} {{ signalSummary.reduce }}</span>
+      <span class="watch">{{ t('mega.discipline.watch') }} {{ signalSummary.watch }}</span>
       <span v-if="signalSummary.unavailable" class="unavailable">
-        数据不足 {{ signalSummary.unavailable }}
+        {{ t('mega.discipline.unavailable') }} {{ signalSummary.unavailable }}
       </span>
     </div>
 
     <div class="valuation-table">
       <div class="valuation-row table-head" aria-hidden="true">
-        <span>PE排名 / 股票</span>
-        <span>市值</span>
-        <span>当前PE</span>
-        <span>5年PE中枢</span>
-        <span>市场预期PE</span>
+        <span>{{ t('mega.table.rank') }}</span>
+        <span>{{ t('mega.table.marketCap') }}</span>
+        <span>{{ t('mega.table.currentPe') }}</span>
+        <span>{{ t('mega.table.historicalPe') }}</span>
+        <span>{{ t('mega.table.forwardPe') }}</span>
       </div>
       <a
         v-for="(stock, index) in rows"
@@ -105,21 +109,21 @@ const formatUpdatedAt = (value: string) =>
           <b>{{ (index + 1).toString().padStart(2, '0') }}</b>
           <span><strong>{{ stock.symbol }}</strong><small>{{ stock.name }}</small></span>
         </span>
-        <span data-label="市值">
+        <span :data-label="t('mega.table.marketCap')">
           <strong>{{ formatMarketCap(stock.marketCapUsd) }}</strong>
-          <small>市值第 {{ stock.marketCapRank }}</small>
+          <small>{{ t('mega.table.rankLabel', { value: stock.marketCapRank }) }}</small>
         </span>
-        <span data-label="当前PE" class="pe-value">
+        <span :data-label="t('mega.table.currentPe')" class="pe-value">
           <strong>{{ formatPe(stock.trailingPe) }}</strong>
           <small v-if="valuationGap(stock) !== null">
-            较5年中枢 {{ Number(valuationGap(stock)) > 0 ? '+' : '' }}{{ valuationGap(stock) }}%
+            {{ t('mega.gap') }} {{ Number(valuationGap(stock)) > 0 ? '+' : '' }}{{ valuationGap(stock) }}%
           </small>
         </span>
-        <span data-label="5年PE中枢">
+        <span :data-label="t('mega.table.historicalPe')">
           <strong>{{ formatPe(stock.historicalPeMedian5y) }}</strong>
-          <small>历史估值锚</small>
+          <small>{{ t('mega.table.history') }}</small>
         </span>
-        <span data-label="市场预期PE">
+        <span :data-label="t('mega.table.forwardPe')">
           <strong>{{ formatPe(stock.forwardPe) }}</strong>
           <small>Forward PE</small>
           <em :class="forwardSignal(stock.forwardPe).level">
@@ -130,7 +134,7 @@ const formatUpdatedAt = (value: string) =>
     </div>
 
     <footer>
-      <span>更新于 {{ formatUpdatedAt(dataset.updatedAt) }}</span>
+      <span>{{ t('marketHome.updated') }} {{ formatUpdatedAt(dataset.updatedAt) }}</span>
       <span>
         <a
           v-for="source in dataset.sources"
@@ -142,7 +146,7 @@ const formatUpdatedAt = (value: string) =>
         >
       </span>
     </footer>
-    <p class="methodology">{{ dataset.methodology }} PE 受一次性损益与预期变化影响，不应脱离盈利质量单独判断。</p>
+    <p class="methodology">{{ dataset.methodology }}</p>
   </section>
 </template>
 

@@ -3,12 +3,15 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { navigationData } from '@/utils/data'
 import type { NavLink, NavTerm } from '@/types'
+import { useI18n } from '@/composables/use-i18n'
 
 const FAVORITES_KEY = 'finance-desk-favorites'
 const query = ref('')
-const activeTerm = ref('全部')
+const ACTIVE_ALL_TERM = 'all'
+const activeTerm = ref(ACTIVE_ALL_TERM)
 const favoritesOnly = ref(false)
 const favoriteUrls = ref<string[]>([])
+const { t } = useI18n()
 
 const terms = computed(() => navigationData.flatMap((taxonomy) => taxonomy.list))
 const linkCount = computed(() => terms.value.reduce((total, term) => total + term.links.length, 0))
@@ -17,7 +20,7 @@ const visibleTerms = computed(() => {
   const needle = query.value.trim().toLocaleLowerCase()
 
   return terms.value
-    .filter((term) => activeTerm.value === '全部' || term.term === activeTerm.value)
+    .filter((term) => activeTerm.value === ACTIVE_ALL_TERM || term.term === activeTerm.value)
     .map((term) => ({
       ...term,
       links: term.links.filter((link) => {
@@ -46,7 +49,7 @@ const toggleFavorite = (link: NavLink) => {
 }
 
 const selectTerm = (term: NavTerm | null) => {
-  activeTerm.value = term?.term ?? '全部'
+  activeTerm.value = term?.term ?? ACTIVE_ALL_TERM
 }
 
 const getHost = (url: string) => {
@@ -79,13 +82,16 @@ watch(
   <section class="workspace">
     <aside class="sidebar">
       <div class="sidebar-heading">
-        <span>资源视图</span>
-        <small>{{ linkCount }} 个站点</small>
+        <span>{{ t('ui.navigation.resourceView') }}</span>
+        <small>{{ t('ui.navigation.allSites', { count: linkCount }) }}</small>
       </div>
 
-      <button :class="{ active: activeTerm === '全部' }" @click="selectTerm(null)">
-        <span>全部资源</span><em>{{ linkCount }}</em>
-      </button>
+        <button
+          :class="{ active: activeTerm === ACTIVE_ALL_TERM }"
+          @click="selectTerm(null)"
+        >
+          <span>{{ t('ui.navigation.allResources') }}</span><em>{{ linkCount }}</em>
+        </button>
       <button
         v-for="term in terms"
         :key="term.term"
@@ -97,31 +103,31 @@ watch(
       </button>
 
       <div class="sidebar-note">
-        <strong>使用提示</strong>
-        <p>搜索名称、描述或域名。星标保存在当前浏览器中。</p>
+        <strong>{{ t('ui.navigation.tipTitle') }}</strong>
+        <p>{{ t('ui.navigation.tipText') }}</p>
       </div>
     </aside>
 
     <div class="content">
       <div class="toolbar">
         <label class="search-box">
-          <span>搜索</span>
-          <input v-model="query" type="search" placeholder="输入站点、用途或域名…" />
+          <span>{{ t('ui.navigation.searchLabel') }}</span>
+          <input v-model="query" type="search" :placeholder="t('ui.navigation.searchPlaceholder')" />
         </label>
         <button
           class="favorite-filter"
           :class="{ active: favoritesOnly }"
           @click="favoritesOnly = !favoritesOnly"
-        >
+          >
           <span aria-hidden="true">☆</span>
-          只看星标
+          {{ t('ui.navigation.favoriteOnly') }}
           <b>{{ favoriteUrls.length }}</b>
         </button>
       </div>
 
       <div class="result-meta">
-        <span>{{ activeTerm }}</span>
-        <span>{{ resultCount }} 项结果</span>
+        <span>{{ activeTerm === ACTIVE_ALL_TERM ? t('ui.navigation.all') : activeTerm }}</span>
+        <span>{{ t('ui.navigation.resultCount', { count: resultCount }) }}</span>
       </div>
 
       <div v-if="visibleTerms.length" class="term-list">
@@ -155,8 +161,8 @@ watch(
       </div>
 
       <div v-else class="empty-state">
-        <strong>没有匹配的资源</strong>
-        <p>换个关键词，或关闭“只看星标”。</p>
+        <strong>{{ t('ui.navigation.noMatch') }}</strong>
+        <p>{{ t('ui.navigation.noMatchTips') }}</p>
       </div>
     </div>
   </section>

@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import hotStockData from '@/data/hot-stocks.json'
 import type { HotStockDataset } from '@/types'
+import { useI18n } from '@/composables/use-i18n'
 
 const props = defineProps<{ market: 'aShare' | 'us' }>()
 const dataset = hotStockData as HotStockDataset
@@ -15,17 +16,18 @@ const rows = computed(() => {
 const method = computed(() =>
   period.value === 'daily' ? marketData.value.dailyMethod : marketData.value.weeklyMethod,
 )
+const { t } = useI18n()
 const formatChange = (value: number | null) =>
   value === null ? '—' : (value > 0 ? '+' : '') + value.toFixed(2) + '%'
 const formatActivity = (value: number | null) => {
   if (value === null) return '—'
   if (props.market === 'aShare')
     return value >= 100_000_000
-      ? (value / 100_000_000).toFixed(1) + '亿元'
-      : (value / 10_000).toFixed(0) + '万元'
+      ? `${(value / 100_000_000).toFixed(1)}${t('hotStocks.unitBillionCny')}`
+      : `${(value / 10_000).toFixed(0)}${t('hotStocks.unitTenThousands')}`
   return value >= 100_000_000
-    ? (value / 100_000_000).toFixed(1) + '亿股'
-    : (value / 10_000).toFixed(0) + '万股'
+    ? `${(value / 100_000_000).toFixed(1)}${t('hotStocks.unitSharesBillion')}`
+    : `${(value / 10_000).toFixed(0)}${t('hotStocks.unitSharesTenThousand')}`
 }
 const formatUpdatedAt = (value: string) =>
   new Intl.DateTimeFormat('zh-CN', {
@@ -39,20 +41,24 @@ const formatUpdatedAt = (value: string) =>
   <section class="hot-panel">
     <header>
       <div>
-        <span>HOT STOCKS · TOP 20</span>
-        <h2>热门股票</h2>
+        <span>{{ t('hotStocks.badge') }}</span>
+        <h2>{{ t('hotStocks.title') }}</h2>
         <p>{{ method }}</p>
       </div>
       <div class="actions">
         <div class="period-tabs">
-          <button :class="{ active: period === 'daily' }" @click="period = 'daily'">每日</button>
-          <button :class="{ active: period === 'weekly' }" @click="period = 'weekly'">每周</button>
+          <button :class="{ active: period === 'daily' }" @click="period = 'daily'">
+            {{ t('hotStocks.periodDaily') }}
+          </button>
+          <button :class="{ active: period === 'weekly' }" @click="period = 'weekly'">
+            {{ t('hotStocks.periodWeekly') }}
+          </button>
         </div>
         <small>{{ formatUpdatedAt(dataset.updatedAt) }}</small>
       </div>
     </header>
     <p v-if="marketData.status !== 'ok'" class="status-message">
-      {{ marketData.statusMessage ?? '当前榜单更新失败' }}
+      {{ marketData.statusMessage ?? t('hotStocks.statusFallback') }}
     </p>
     <div class="stock-grid">
       <a
@@ -84,7 +90,7 @@ const formatUpdatedAt = (value: string) =>
         {{ marketData.source }} ↗
       </a>
       <button v-if="marketData[period].length > 8" @click="expanded = !expanded">
-        {{ expanded ? '收起' : '展开全部20只' }}
+        {{ expanded ? t('hotStocks.collapse') : t('hotStocks.expand') }}
       </button>
     </footer>
   </section>

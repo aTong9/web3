@@ -5,32 +5,34 @@ import marketHomeData from '@/data/market-home.json'
 import type { CrossAssetDataset, DailyReportConfig, MarketHomeDataset } from '@/types'
 import { buildDailyMarketReport } from '@/utils/daily-report'
 import { useReportConfig } from '@/utils/report-config'
+import { useI18n } from '@/composables/use-i18n'
 
 const home = marketHomeData as MarketHomeDataset
 const crossAsset = crossAssetData as CrossAssetDataset
-const { config, save, reset, defaultConfig } = useReportConfig()
+const { t, locale } = useI18n()
+const { config, save, reset, defaultConfig } = useReportConfig(() => t('report.defaultTitle'))
 const draft = reactive<DailyReportConfig>({
   ...config.value,
   selectedMarketIds: [...config.value.selectedMarketIds],
 })
 const feedback = ref('')
-const report = computed(() => buildDailyMarketReport(home, crossAsset, draft))
+const report = computed(() => buildDailyMarketReport(home, crossAsset, draft, t))
 
 const saveConfig = () => {
   save({ ...draft, selectedMarketIds: [...draft.selectedMarketIds] })
-  feedback.value = '配置已保存在当前浏览器'
+  feedback.value = t('report.feedback.saved')
 }
 const resetConfig = () => {
   reset()
   Object.assign(draft, { ...defaultConfig, selectedMarketIds: [...defaultConfig.selectedMarketIds] })
-  feedback.value = '已恢复默认配置'
+  feedback.value = t('report.feedback.reset')
 }
 const copyText = async (value: string, message: string) => {
   try {
     await navigator.clipboard.writeText(value)
     feedback.value = message
   } catch {
-    feedback.value = '复制失败，请从预览框手动复制'
+    feedback.value = t('report.feedback.copyFail')
   }
 }
 const downloadMarkdown = () => {
@@ -41,7 +43,7 @@ const downloadMarkdown = () => {
   anchor.download = `${report.value.asOfDate}-market-report.md`
   anchor.click()
   URL.revokeObjectURL(url)
-  feedback.value = 'Markdown报告已下载'
+  feedback.value = t('report.feedback.download')
 }
 const emailUrl = computed(
   () =>
@@ -56,31 +58,31 @@ const xUrl = computed(
   <main class="report-page">
     <header class="page-heading">
       <div>
-        <p>DAILY REPORT · PUBLISHING</p>
-        <h1>日报与发布配置</h1>
-        <span>只使用市场首页与跨资产驾驶舱已经生成的数据，生成可核对、可复用的发布稿。</span>
+        <p>{{ t('report.badge') }}</p>
+        <h1>{{ t('report.title') }}</h1>
+        <span>{{ t('report.intro') }}</span>
       </div>
       <div class="freshness">
         <i></i>
-        <span><strong>报告数据已就绪</strong><small>{{ report.asOfDate }}</small></span>
+        <span><strong>{{ t('report.ready') }}</strong><small>{{ report.asOfDate }}</small></span>
       </div>
     </header>
 
     <section class="security-note">
-      <b>安全边界</b>
-      <span>邮箱地址与发布偏好仅保存在当前浏览器；邮箱密码、SMTP密钥和X API Token不得填入此页面或提交到公开仓库。</span>
+      <b>{{ t('report.securityTitle') }}</b>
+      <span>{{ t('report.securityText') }}</span>
     </section>
 
     <div class="report-layout">
       <section class="config-panel">
-        <header><span>01</span><h2>发布配置</h2></header>
+        <header><span>01</span><h2>{{ t('report.configTitle') }}</h2></header>
         <form @submit.prevent="saveConfig">
           <label>
-            报告署名
-            <input v-model="draft.authorName" autocomplete="name" placeholder="例如：FIRE研究台" />
+            {{ t('report.author') }}
+            <input v-model="draft.authorName" autocomplete="name" placeholder="FIRE Research" />
           </label>
           <label>
-            收件邮箱
+            {{ t('report.email') }}
             <input
               v-model="draft.email"
               type="email"
@@ -89,24 +91,24 @@ const xUrl = computed(
             />
           </label>
           <label>
-            X / Twitter账号
-            <input v-model="draft.xHandle" placeholder="不需要填写@" />
+            {{ t('report.xHandle') }}
+            <input v-model="draft.xHandle" :placeholder="t('report.xHandlePlaceholder')" />
           </label>
           <label>
-            报告标题
-            <input v-model="draft.titlePrefix" placeholder="全球市场每日报告" />
+            {{ t('report.reportTitle') }}
+            <input v-model="draft.titlePrefix" :placeholder="t('report.defaultTitle')" />
           </label>
           <label>
-            传导链数量
+            {{ t('report.chainCount') }}
             <select v-model.number="draft.chainCount">
-              <option :value="1">1条</option>
-              <option :value="3">3条</option>
-              <option :value="5">5条</option>
+              <option :value="1">{{ t('report.chainOpt1') }}</option>
+              <option :value="3">{{ t('report.chainOpt3') }}</option>
+              <option :value="5">{{ t('report.chainOpt5') }}</option>
             </select>
           </label>
 
           <fieldset>
-            <legend>纳入报告的市场</legend>
+            <legend>{{ t('report.includeMarkets') }}</legend>
             <label v-for="market in home.marketBrief.markets" :key="market.id" class="check-option">
               <input v-model="draft.selectedMarketIds" type="checkbox" :value="market.id" />
               <span>{{ market.name }}</span>
@@ -115,46 +117,52 @@ const xUrl = computed(
 
           <label class="check-option disclaimer-option">
             <input v-model="draft.includeDisclaimer" type="checkbox" />
-            <span>报告末尾保留风险提示</span>
+            <span>{{ t('report.riskDisclaimer') }}</span>
           </label>
 
           <div class="form-actions">
-            <button type="submit" class="primary">保存配置</button>
-            <button type="button" @click="resetConfig">恢复默认</button>
+            <button type="submit" class="primary">{{ t('report.save') }}</button>
+            <button type="button" @click="resetConfig">{{ t('report.reset') }}</button>
           </div>
         </form>
 
         <details class="automation-note">
-          <summary>后台自动发送需要什么？ <i aria-hidden="true">⌄</i></summary>
+          <summary>{{ t('report.automation') }} <i aria-hidden="true">⌄</i></summary>
           <div>
-            <p>静态GitHub Pages不能安全保存发送凭据。自动化时应在GitHub Secrets配置：</p>
+            <p>{{ t('report.automationIntro') }}</p>
             <ul>
-              <li>邮件：SMTP或邮件服务商密钥，以及收件邮箱。</li>
-              <li>X：开发者应用的OAuth凭据；是否可自动发帖取决于X当前API权限。</li>
+              <li>{{ t('report.automationEmail') }}</li>
+              <li>{{ t('report.automationX') }}</li>
             </ul>
-            <p>当前页面已完成报告生成与手动发布闭环，后续发送adapter可以直接复用同一报告内容。</p>
+            <p>{{ t('report.automationDone') }}</p>
           </div>
         </details>
       </section>
 
       <section class="preview-panel">
         <header>
-          <div><span>02</span><h2>实时报告预览</h2></div>
-          <small>{{ report.markdown.length.toLocaleString('zh-CN') }} 字符</small>
+          <div><span>02</span><h2>{{ t('report.previewTitle') }}</h2></div>
+          <small>{{ t('report.charCount', { count: report.markdown.length.toLocaleString(locale.value === 'en' ? 'en-US' : 'zh-CN') }) }}</small>
         </header>
         <pre>{{ report.markdown }}</pre>
         <div class="publish-actions">
-          <button class="primary" @click="copyText(report.markdown, '完整报告已复制')">复制完整报告</button>
-          <button @click="downloadMarkdown">下载 Markdown</button>
-          <a :href="emailUrl">打开邮件草稿</a>
+          <button class="primary" @click="copyText(report.markdown, t('report.feedback.copyFull'))">
+            {{ t('report.copyFull') }}
+          </button>
+          <button @click="downloadMarkdown">{{ t('report.downloaded') }}</button>
+          <a :href="emailUrl">{{ t('report.openMail') }}</a>
         </div>
 
         <div class="social-preview">
-          <header><strong>X / Twitter短帖</strong><small>{{ Array.from(report.socialText).length }}/280</small></header>
+          <header>
+            <strong>{{ t('report.xHandle') }}</strong><small>{{ Array.from(report.socialText).length }}/280</small>
+          </header>
           <p>{{ report.socialText }}</p>
           <div>
-            <button @click="copyText(report.socialText, '短帖已复制')">复制短帖</button>
-            <a :href="xUrl" target="_blank" rel="noopener noreferrer">打开X发布窗口 ↗</a>
+            <button @click="copyText(report.socialText, t('report.feedback.copyShort'))">
+              {{ t('report.copyShort') }}
+            </button>
+            <a :href="xUrl" target="_blank" rel="noopener noreferrer">{{ t('report.openX') }}</a>
           </div>
         </div>
       </section>

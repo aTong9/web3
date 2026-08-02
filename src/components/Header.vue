@@ -1,27 +1,30 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import { useI18n } from '@/composables/use-i18n'
+
+const { t } = useI18n()
 </script>
 
 <template>
   <header class="app-header">
-    <RouterLink to="/" class="brand" aria-label="个人金融工作台首页">
+    <RouterLink to="/" class="brand" :aria-label="t('ui.app.title')">
       <span class="brand-mark">F.</span>
       <span>
-        <strong>个人金融工作台</strong>
+        <strong>{{ t('ui.header.brand') }}</strong>
         <small>Personal Finance Desk</small>
       </span>
     </RouterLink>
 
-    <nav aria-label="主导航">
-      <RouterLink to="/">资源台</RouterLink>
-      <RouterLink to="/a-share">A股行业</RouterLink>
-      <RouterLink to="/funds">美股基金</RouterLink>
-      <RouterLink to="/kols">KOL监控</RouterLink>
-      <RouterLink to="/cross-asset">跨资产</RouterLink>
-      <RouterLink to="/market-news">全球快讯</RouterLink>
-      <RouterLink to="/blogger">资讯台</RouterLink>
-      <RouterLink to="/about">说明</RouterLink>
+    <nav aria-label="{{ t('ui.app.navigation') }}">
+      <RouterLink to="/">{{ t('ui.header.home') }}</RouterLink>
+      <RouterLink to="/a-share">{{ t('ui.header.aShare') }}</RouterLink>
+      <RouterLink to="/funds">{{ t('ui.header.usFund') }}</RouterLink>
+      <RouterLink to="/kols">{{ t('ui.header.kol') }}</RouterLink>
+      <RouterLink to="/cross-asset">{{ t('ui.header.crossAsset') }}</RouterLink>
+      <RouterLink to="/market-news">{{ t('ui.header.news') }}</RouterLink>
+      <RouterLink to="/blogger">{{ t('ui.header.briefing') }}</RouterLink>
+      <RouterLink to="/about">{{ t('ui.header.about') }}</RouterLink>
     </nav>
   </header>
 </template>

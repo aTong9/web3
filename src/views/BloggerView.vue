@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from '@/composables/use-i18n'
 
 interface NewsSite {
   id: string
@@ -10,6 +11,7 @@ interface NewsSite {
 }
 
 const query = ref('')
+const { t } = useI18n()
 
 const newsSites: NewsSite[] = [
   {
@@ -65,11 +67,16 @@ const getHost = (url: string) => new URL(url).hostname.replace(/^www\./, '')
 <template>
   <div class="desk-page">
     <header class="page-heading">
-      <p>Reading desk · 外部信息源</p>
-      <h1>资讯台</h1>
+      <p>{{ t('blogger.badge') }}</p>
+      <h1>{{ t('blogger.heading') }}</h1>
       <div class="heading-row">
-        <span>直接打开原始站点，避免嵌入页面带来的加载与安全限制。</span>
-        <input v-model="query" type="search" placeholder="筛选资讯源…" aria-label="筛选资讯源" />
+        <span>{{ t('blogger.desc') }}</span>
+        <input
+          v-model="query"
+          type="search"
+          :placeholder="t('blogger.searchPlaceholder')"
+          aria-label="筛选资讯源"
+        />
       </div>
     </header>
 

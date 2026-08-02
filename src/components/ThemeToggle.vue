@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import { useTheme } from '@/utils/use-theme'
+import { useI18n } from '@/composables/use-i18n'
 
 const { theme, toggleTheme } = useTheme()
+const { t } = useI18n()
 </script>
 
 <template>
   <button
     class="theme-toggle"
     type="button"
-    :aria-label="theme === 'light' ? '切换到深色模式' : '切换到浅色模式'"
-    :title="theme === 'light' ? '深色模式' : '浅色模式'"
+    :aria-label="theme === 'light' ? t('ui.theme.darkMode') : t('ui.theme.lightMode')"
+    :title="theme === 'light' ? t('ui.theme.darkLabel') : t('ui.theme.lightLabel')"
     @click="toggleTheme"
   >
     <span aria-hidden="true">{{ theme === 'light' ? '☾' : '☀' }}</span>
-    <small>{{ theme === 'light' ? 'Dark' : 'Light' }}</small>
+    <small>{{ theme === 'light' ? t('ui.theme.darkLabel') : t('ui.theme.lightLabel') }}</small>
   </button>
 </template>
 
