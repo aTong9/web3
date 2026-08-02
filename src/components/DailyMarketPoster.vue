@@ -31,6 +31,15 @@ const formatSignal = (value: number | null) =>
   value === null ? 'ρ —' : `ρ ${value > 0 ? '' : '−'}${Math.abs(value).toFixed(2)}`
 const directionName = (direction: 'bullish' | 'bearish') =>
   direction === 'bullish' ? '偏涨' : '偏跌'
+const directionClass = (direction: 'bullish' | 'bearish') =>
+  direction === 'bullish' ? 'bullish' : 'bearish'
+const getHorizonDirection = (
+  horizonId: 'day' | 'week' | 'month' | 'quarter',
+  market: (typeof markets.value)[number],
+) => {
+  const item = market.horizonOutlooks.find((entry) => entry.id === horizonId)
+  return item?.direction ?? 'bearish'
+}
 const formatUpdatedAt = (value: string) =>
   new Intl.DateTimeFormat('zh-CN', {
     timeZone: 'Asia/Shanghai',
@@ -141,16 +150,17 @@ const downloadPoster = async () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="market in markets" :key="market.id">
-                    <th>{{ market.name }}</th>
-                    <td :class="{ gain: (market.dailyMove ?? 0) >= 0, loss: (market.dailyMove ?? 0) < 0 }">
-                      {{ formatMove(market.dailyMove) }}
-                    </td>
-                    <td v-for="horizon in market.horizonOutlooks" :key="horizon.id">
-                      {{ horizon.upProbabilityPct.toFixed(1) }}
-                    </td>
-                    <td :class="market.horizonOutlooks[0]?.direction">
-                      {{ directionName(market.horizonOutlooks[0]?.direction ?? 'bearish') }}
+                <tr v-for="market in markets" :key="market.id">
+                  <th>{{ market.name }}</th>
+                  <td :class="{ gain: (market.dailyMove ?? 0) >= 0, loss: (market.dailyMove ?? 0) < 0 }">
+                    {{ formatMove(market.dailyMove) }}
+                  </td>
+                    <td
+                      v-for="horizonId in ['day', 'week', 'month', 'quarter']"
+                      :key="`${market.id}-${horizonId}`"
+                      :class="directionClass(getHorizonDirection(horizonId, market))"
+                    >
+                      {{ directionName(getHorizonDirection(horizonId, market)) }}
                     </td>
                   </tr>
                 </tbody>
