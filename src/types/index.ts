@@ -178,6 +178,28 @@ export interface HotStockDataset {
   }
 }
 
+export interface UsMegaCapStock {
+  marketCapRank: number
+  symbol: string
+  name: string
+  marketCapUsd: number | null
+  price: number | null
+  trailingPe: number | null
+  historicalPeMedian5y: number | null
+  forwardPe: number | null
+  historicalYears: Array<{ year: number; pe: number }>
+  url: string
+}
+
+export interface UsMegaCapDataset {
+  updatedAt: string
+  status: 'ok' | 'stale'
+  statusMessage?: string
+  methodology: string
+  sources: Array<{ name: string; url: string }>
+  stocks: UsMegaCapStock[]
+}
+
 export type KolPlatform =
   | 'youtube'
   | 'xiaohongshu'

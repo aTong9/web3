@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 import { spawn } from 'node:child_process'
 import { readFile, writeFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 
 import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -98,9 +99,19 @@ const kolSubscriptionPlugin = (): Plugin => {
   }
 }
 
+const githubPagesFallbackPlugin = (): Plugin => ({
+  name: 'github-pages-spa-fallback',
+  apply: 'build',
+  async closeBundle() {
+    const outputDirectory = fileURLToPath(new URL('./dist/', import.meta.url))
+    const index = await readFile(resolve(outputDirectory, 'index.html'))
+    await writeFile(resolve(outputDirectory, '404.html'), index)
+  },
+})
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue(), vueDevTools(), kolSubscriptionPlugin()],
+  plugins: [vue(), vueDevTools(), kolSubscriptionPlugin(), githubPagesFallbackPlugin()],
   publicDir: false,
   resolve: {
     alias: {

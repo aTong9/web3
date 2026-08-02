@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import fundData from '@/data/us-funds.json'
 import type { FundVenue, UsFund, UsFundDataset } from '@/types'
 import HotStocksPanel from '@/components/HotStocksPanel.vue'
+import UsMegaCapsPanel from '@/components/UsMegaCapsPanel.vue'
 
 type SortKey = 'scale' | 'fee' | 'premium' | 'firstYearCost'
 
@@ -82,6 +83,7 @@ const formatLimit = (fund: UsFund) => {
       <p>{{ dataset.source }}</p>
     </section>
 
+    <UsMegaCapsPanel />
     <HotStocksPanel market="us" />
 
     <div class="controls">

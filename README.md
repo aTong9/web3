@@ -2,6 +2,17 @@
 
 一个文字优先的个人金融研究入口，用来集中管理宏观、股票、加密资产、新闻与常用工具。
 
+模块	更新频率
+全球市场快讯	每15分钟
+KOL监控	每6小时，约02:15、08:15、14:15、20:15
+美股/A股热门股票	工作日18:20、次日06:30
+美股市值前十与PE	跟随热门股票，工作日18:20、次日06:30
+A股行业基金	每天18:30
+美股基金与定投额度	每天09:15
+跨资产驾驶舱	工作日数据次日07:20更新
+GitHub Pages部署	main/master每次提交后；上述数据任务成功后也会自动部署
+
+
 ## 当前功能
 
 - 按主题浏览 `src/data/webstack.yml` 中的全部网站资源
@@ -38,8 +49,9 @@ npm run lint
 npm run build
 ```
 
-项目通过 GitHub Pages 部署，Vite 基础路径为 `/web3/`。推送或合并提交到 `main` 后，
+项目通过 GitHub Pages 部署，Vite 基础路径为 `/web3/`。推送或合并提交到 `main` 或 `master` 后，
 `.github/workflows/deploy.yml` 会先执行类型检查和生产构建，通过后自动发布；也支持手动触发。
+构建会生成与入口相同的 `404.html` 作为 Vue Router 回退，因此直接刷新子路由不会落到 Pages 的404页面。
 
 ## 数据维护
 
@@ -90,6 +102,11 @@ npm run update:a-share
 - 两个市场均展示日榜与周榜前20名；抓取失败时保留上一版市场数据并标记为过期，避免空榜覆盖。
 
 `.github/workflows/update-hot-stocks.yml` 在交易日自动刷新，榜单是市场关注度代理，不代表投资建议。
+
+美股市值前十估值数据位于 `src/data/us-megacaps.json`，运行 `npm run update:us-megacaps`
+可以手动刷新。股票范围与市值来自 Nasdaq，当前和市场预期 Forward PE 来自 StockAnalysis，
+长期 PE 中枢为 CompaniesMarketCap 最近5个可用年度正 PE 的中位数。第三方字段缺失时页面显示“—”，
+不会用估算值填充。
 
 ## KOL监控
 
