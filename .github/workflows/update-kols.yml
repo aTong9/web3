@@ -1,0 +1,33 @@
+name: Update KOL monitor
+
+on:
+  schedule:
+    - cron: '15 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Fetch latest KOL content
+        run: npm run update:kols
+      - name: Commit changed data
+        run: |
+          if git diff --quiet -- src/data/kol-monitor.json; then
+            echo "No KOL data changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/kol-monitor.json
+          git commit -m "chore: update KOL monitor"
+          git push

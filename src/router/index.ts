@@ -9,10 +9,30 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
     },
-     {
+    {
+      path: '/market-news',
+      name: 'market-news',
+      component: () => import('../views/MarketNewsView.vue'),
+    },
+    {
       path: '/blogger',
       name: 'news',
       component: () => import('../views/BloggerView.vue'),
+    },
+    {
+      path: '/funds',
+      name: 'funds',
+      component: () => import('../views/FundView.vue'),
+    },
+    {
+      path: '/a-share',
+      name: 'a-share',
+      component: () => import('../views/AShareView.vue'),
+    },
+    {
+      path: '/kols',
+      name: 'kols',
+      component: () => import('../views/KolView.vue'),
     },
     {
       path: '/about',

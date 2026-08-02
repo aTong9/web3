@@ -1,153 +1,123 @@
 <!-- eslint-disable vue/multi-word-component-names -->
-<template>
-  <header class="header">
-    <div class="header-content">
-      <div class="logo-section">
-        <img src="/assets/images/favicon6.png" alt="Logo" class="logo" />
-        <h1 class="site-title mixed-pixel-nav">Financial Independence Retire Early</h1>
-      </div>
+<script setup lang="ts">
+import { RouterLink } from 'vue-router'
+</script>
 
-      <nav class="nav">
-        <RouterLink to="/" class="nav-link mixed-pixel-nav">首页</RouterLink>
-        <RouterLink to="/blogger" class="nav-link mixed-pixel-nav">财经新闻</RouterLink>
-        <RouterLink to="/about" class="nav-link mixed-pixel-nav">关于</RouterLink>
-        <!-- <a
-          href="https://www.yuque.com/forms/share/1a1fee15-f7a9-4ee6-9dd4-b0ba9fef1871"
-          target="_blank"
-          class="nav-link mixed-pixel-nav"
-        >
-          网站提交
-        </a> -->
-      </nav>
-    </div>
+<template>
+  <header class="app-header">
+    <RouterLink to="/" class="brand" aria-label="个人金融工作台首页">
+      <span class="brand-mark">F.</span>
+      <span>
+        <strong>个人金融工作台</strong>
+        <small>Personal Finance Desk</small>
+      </span>
+    </RouterLink>
+
+    <nav aria-label="主导航">
+      <RouterLink to="/">资源台</RouterLink>
+      <RouterLink to="/a-share">A股行业</RouterLink>
+      <RouterLink to="/funds">美股基金</RouterLink>
+      <RouterLink to="/kols">KOL监控</RouterLink>
+      <RouterLink to="/market-news">全球快讯</RouterLink>
+      <RouterLink to="/blogger">资讯台</RouterLink>
+      <RouterLink to="/about">说明</RouterLink>
+    </nav>
   </header>
 </template>
 
-<!-- eslint-disable vue/multi-word-component-names -->
-<script setup lang="ts">
-// 组件逻辑
-</script>
-
 <style scoped>
-.header {
-  background: #1a1a2e;
-  color: #e9ecef;
-  padding: 16px 0;
-  border-bottom: 4px solid #4c6ef5;
-  position: relative;
-  image-rendering: pixelated;
-}
-
-.header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 8px;
-  background: repeating-linear-gradient(90deg, #4c6ef5 0px, #4c6ef5 8px, #3a5bd9 8px, #3a5bd9 16px);
-}
-
-.header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+.app-header {
+  height: 72px;
+  padding: 0 clamp(20px, 4vw, 64px);
+  border-bottom: 1px solid var(--border);
+  background: rgba(247, 247, 244, 0.92);
+  backdrop-filter: blur(14px);
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  font-family: 'VT323', 'Courier New', monospace;
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
 
-.logo-section {
+.brand {
+  color: var(--ink);
   display: flex;
   align-items: center;
-}
-
-.logo {
-  width: 32px;
-  height: 32px;
-  margin-right: 16px;
-  image-rendering: pixelated;
-}
-
-.site-title {
-  font-family: 'Press Start 2P', 'Courier New', monospace;
-  font-size: 12px;
-  font-weight: normal;
-  margin: 0;
-  color: #4dabf7;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow: 2px 2px 0 #3a5bd9;
-  font-display: swap;
-}
-
-.nav {
-  display: flex;
-  gap: 8px;
-}
-
-.nav-link {
-  color: #e9ecef;
+  gap: 12px;
   text-decoration: none;
-  font-family: 'Press Start 2P', 'Courier New', monospace;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-family: Georgia, serif;
+  font-size: 18px;
+}
+
+.brand strong,
+.brand small {
+  display: block;
+}
+
+.brand strong {
+  font-size: 15px;
+  letter-spacing: 0.04em;
+}
+
+.brand small {
+  margin-top: 2px;
+  color: var(--muted);
   font-size: 10px;
-  font-weight: normal;
-  padding: 8px 12px;
-  background: #2d3748;
-  border: 2px solid #343a40;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: none;
-  position: relative;
-  image-rendering: pixelated;
-  font-display: swap;
 }
 
-.nav-link:hover {
-  background: #4c6ef5;
-  border-color: #4dabf7;
-  transform: translate(-2px, -2px);
-  box-shadow:
-    2px 2px 0 #3a5bd9,
-    4px 4px 0 rgba(58, 91, 217, 0.3);
-  color: #ffffff;
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
 }
 
-.nav-link.router-link-active {
-  background: #4c6ef5;
-  border-color: #4dabf7;
-  color: #ffffff;
-  box-shadow:
-    2px 2px 0 #3a5bd9,
-    4px 4px 0 rgba(58, 91, 217, 0.3);
+nav a {
+  padding: 8px 13px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  text-decoration: none;
 }
 
-@media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    text-align: center;
-    gap: 16px;
+nav a:hover,
+nav a.router-link-active {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .app-header {
+    height: auto;
+    padding: 14px 18px;
+    align-items: flex-start;
+    gap: 12px;
   }
 
-  .site-title {
-    font-size: 10px;
+  nav {
+    max-width: 68%;
   }
 
-  .nav {
-    gap: 4px;
-    flex-wrap: wrap;
-    justify-content: center;
+  .brand small {
+    display: none;
   }
 
-  .nav-link {
-    padding: 6px 10px;
-    font-size: 9px;
-  }
-
-  .logo {
-    width: 28px;
-    height: 28px;
+  nav a {
+    padding: 7px 8px;
+    font-size: 13px;
   }
 }
 </style>

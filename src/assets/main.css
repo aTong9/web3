@@ -1,393 +1,58 @@
-@import './base.css';
-@import 'bootstrap/dist/css/bootstrap.min.css';
-@import 'bootstrap-icons/font/bootstrap-icons.css';
-@import './fonts.css';
-
-/* 本地像素风格字体定义 */
-@font-face {
-  font-family: 'Press Start 2P';
-  font-style: normal;
-  font-weight: 400;
-  src: url('/assets/fonts/PressStart2P-Regular.woff2') format('woff2');
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'VT323';
-  font-style: normal;
-  font-weight: 400;
-  src: url('/assets/fonts/VT323-Regular.woff2') format('woff2');
-  font-display: swap;
+:root {
+  --paper: #f7f7f4;
+  --surface: #ffffff;
+  --surface-soft: #efefea;
+  --ink: #171815;
+  --muted: #6f716b;
+  --border: #dedfd8;
+  --accent: #18634b;
+  --accent-soft: #e5f0ea;
+  --danger: #9b493b;
+  color: var(--ink);
+  background: var(--paper);
+  font-family:
+    Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
 }
 
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
-  image-rendering: pixelated;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: crisp-edges;
+}
+
+html {
+  background: var(--paper);
 }
 
 body {
-  font-family:
-    'Inter',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
-  color: #ffffff;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* 为中文内容优化字体显示 */
-:lang(zh),
-.has-chinese {
-  font-family: 'VT323', 'ZCOOL KuaiLe', 'Courier New', monospace;
-  letter-spacing: 1px;
-}
-
-/* Flex utility classes */
-.flex-fill {
-  flex: 1 1 auto;
-}
-
-/* 现代字体工具类 */
-.modern-font {
-  font-family:
-    'Inter',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-}
-
-.modern-font-light {
-  font-family:
-    'Inter',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
-  font-weight: 300;
-  letter-spacing: -0.02em;
-}
-
-.modern-font-medium {
-  font-family:
-    'Inter',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
-  font-weight: 500;
-  letter-spacing: 0;
-}
-
-.modern-font-bold {
-  font-family:
-    'Inter',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
-
-/* 现代按钮样式 */
-.modern-btn {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  font-family:
-    'Inter',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 12px 24px;
-  cursor: pointer;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.modern-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.modern-btn:active {
-  transform: translateY(0);
-}
-
-/* 现代玻璃态样式 */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-.modern-shadow {
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-}
-
-.modern-shadow-lg {
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-}
-
-/* 像素闪烁效果 */
-@keyframes pixelBlink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-.pixel-blink {
-  animation: pixelBlink 2s ease-in-out infinite;
-}
-
-/* 像素故障效果 */
-@keyframes pixelGlitch {
-  0%,
-  100% {
-    text-shadow:
-      2px 2px 0 #3a5bd9,
-      -1px -1px 0 #4dabf7;
-  }
-  25% {
-    text-shadow:
-      -2px 2px 0 #3a5bd9,
-      1px -1px 0 #4dabf7;
-  }
-  50% {
-    text-shadow:
-      2px -2px 0 #3a5bd9,
-      -1px 1px 0 #4dabf7;
-  }
-  75% {
-    text-shadow:
-      -2px -2px 0 #3a5bd9,
-      1px 1px 0 #4dabf7;
-  }
-}
-
-.pixel-glitch {
-  animation: pixelGlitch 3s ease-in-out infinite;
-}
-
-/* 像素输入框样式 */
-input,
-textarea,
-select {
-  font-family: 'VT323', 'Courier New', monospace;
-  font-size: 16px;
-  background: #1a1a1a;
-  border: 2px solid #343a40;
-  color: #e9ecef;
-  padding: 8px 12px;
-  image-rendering: pixelated;
-  transition: none;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  outline: none;
-  border-color: #4c6ef5;
-  box-shadow:
-    0 0 0 2px rgba(76, 110, 245, 0.3),
-    4px 4px 0 #3a5bd9,
-    8px 8px 0 rgba(58, 91, 217, 0.2);
-  transform: translate(-2px, -2px);
-}
-
-input.zh,
-textarea.zh,
-select.zh {
-  font-family: 'VT323', 'ZCOOL KuaiLe', 'Courier New', monospace;
-  letter-spacing: 1px;
-}
-
-/* 字体加载状态 */
-.font-loading {
-  font-family: 'Courier New', monospace;
-}
-
-.font-loaded {
-  font-family: 'Press Start 2P', 'VT323', 'Courier New', monospace;
-}
-
-/* 基础样式 */
-#app {
+  margin: 0;
+  min-width: 320px;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  background: var(--paper);
 }
 
+button,
+input {
+  font: inherit;
+}
+
+button,
 a {
-  color: #4dabf7;
-  text-decoration: none;
-  transition: color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-a:hover {
-  color: #74c0fc;
+button:focus-visible,
+input:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+::selection {
+  background: #cce1d6;
 }
 
-/* 现代按钮样式 */
-.btn-primary {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #ffffff;
-  font-family:
-    'Inter',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
-  font-weight: 500;
-  font-size: 14px;
-  padding: 12px 24px;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.btn-primary:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  color: #ffffff;
-  text-decoration: none;
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-/* 现代卡片样式 */
-.card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  transition: all 0.3s ease;
-  position: relative;
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-/* 滚动条样式 */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #1a1a1a;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #495057;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #6c757d;
-}
-
-/* 响应式优化 */
-@media (max-width: 768px) {
-  body {
-    font-size: 14px;
-  }
-
-  .container {
-    padding: 0 15px;
-  }
-
-  .pixel-font {
-    font-size: 10px;
-  }
-
-  .pixel-btn {
-    font-size: 8px;
-    padding: 6px 8px;
-  }
-
-  .pixel-border {
-    box-shadow:
-      2px 2px 0 #3a5bd9,
-      4px 4px 0 rgba(60, 91, 217, 0.3);
-  }
-
-  .pixel-shadow {
-    box-shadow:
-      3px 3px 0 #3a5bd9,
-      6px 6px 0 rgba(58, 91, 217, 0.2);
-  }
-}
-
-@media (max-width: 480px) {
-  body {
-    font-size: 12px;
-  }
-
-  .pixel-font {
-    font-size: 8px;
-    letter-spacing: 0.5px;
-  }
-
-  .pixel-btn {
-    font-size: 7px;
-    padding: 4px 6px;
-  }
+.app-shell {
+  min-height: 100vh;
 }

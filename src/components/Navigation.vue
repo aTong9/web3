@@ -1,357 +1,467 @@
 <!-- eslint-disable vue/multi-word-component-names -->
-<template>
-  <div class="navigation-container">
-    <div v-for="taxonomy in navigationData" :key="taxonomy.taxonomy" class="taxonomy-section">
-      <h2 class="taxonomy-title" :class="getChineseClass(taxonomy.taxonomy)">
-        <span class="pixel-icon">{{ getPixelIcon(taxonomy.icon) }}</span>
-        {{ taxonomy.taxonomy }}
-      </h2>
-
-      <div v-for="term in taxonomy.list" :key="term.term" class="term-section">
-        <h3 class="term-title" :class="getChineseClass(term.term)">{{ term.term }}</h3>
-
-        <div class="links-grid">
-          <div v-for="link in term.links" :key="link.title" class="link-card">
-            <a :href="link.url" target="_blank" rel="noopener noreferrer" class="link-content">
-              <div class="link-logo">
-                <img
-                  :src="`${BASE_URL}assets/images/logos/${link.logo}`"
-                  :alt="link.title"
-                  @error="handleImageError"
-                />
-              </div>
-              <div class="link-info">
-                <h4 class="link-title" :class="getChineseClass(link.title)">{{ link.title }}</h4>
-                <p
-                  v-if="link.description"
-                  class="link-description"
-                  :class="getChineseClass(link.description)"
-                >
-                  {{ link.description }}
-                </p>
-              </div>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
-<!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
+import { computed, onMounted, ref, watch } from 'vue'
 import { navigationData } from '@/utils/data'
+import type { NavLink, NavTerm } from '@/types'
 
-const BASE_URL = import.meta.env.BASE_URL
+const FAVORITES_KEY = 'finance-desk-favorites'
+const query = ref('')
+const activeTerm = ref('全部')
+const favoritesOnly = ref(false)
+const favoriteUrls = ref<string[]>([])
 
-const handleImageError = (event: Event) => {
-  const img = event.target as HTMLImageElement
-  img.src = `${BASE_URL}assets/images/logos/default.webp`
+const terms = computed(() => navigationData.flatMap((taxonomy) => taxonomy.list))
+const linkCount = computed(() => terms.value.reduce((total, term) => total + term.links.length, 0))
+
+const visibleTerms = computed(() => {
+  const needle = query.value.trim().toLocaleLowerCase()
+
+  return terms.value
+    .filter((term) => activeTerm.value === '全部' || term.term === activeTerm.value)
+    .map((term) => ({
+      ...term,
+      links: term.links.filter((link) => {
+        const matchesQuery =
+          !needle ||
+          [link.title, link.description, link.url].some((value) =>
+            value?.toLocaleLowerCase().includes(needle),
+          )
+        const matchesFavorite = !favoritesOnly.value || favoriteUrls.value.includes(link.url)
+        return matchesQuery && matchesFavorite
+      }),
+    }))
+    .filter((term) => term.links.length > 0)
+})
+
+const resultCount = computed(() =>
+  visibleTerms.value.reduce((total, term) => total + term.links.length, 0),
+)
+
+const isFavorite = (link: NavLink) => favoriteUrls.value.includes(link.url)
+
+const toggleFavorite = (link: NavLink) => {
+  favoriteUrls.value = isFavorite(link)
+    ? favoriteUrls.value.filter((url) => url !== link.url)
+    : [...favoriteUrls.value, link.url]
 }
 
-const getPixelIcon = (iconClass: string): string => {
-  const iconMap: { [key: string]: string } = {
-    'bi-globe': '🌐',
-    'bi-code-slash': '⌨️',
-    'bi-palette': '🎨',
-    'bi-graph-up': '📈',
-    'bi-book': '📚',
-    'bi-tools': '🔧',
-    'bi-music-note': '🎵',
-    'bi-camera': '📷',
-    'bi-controller': '🎮',
-    'bi-heart': '❤️',
-    'bi-star': '⭐',
-    'bi-lightning': '⚡',
-    'bi-cloud': '☁️',
-    'bi-shield': '🛡️',
-    'bi-rocket': '🚀',
+const selectTerm = (term: NavTerm | null) => {
+  activeTerm.value = term?.term ?? '全部'
+}
+
+const getHost = (url: string) => {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return url
   }
+}
 
-  const iconClassLower = iconClass.toLowerCase()
-  for (const [key, value] of Object.entries(iconMap)) {
-    if (
-      iconClassLower.includes(key.toLowerCase()) ||
-      iconClassLower.includes(key.replace('bi-', ''))
-    ) {
-      return value
-    }
+onMounted(() => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(FAVORITES_KEY) ?? '[]')
+    favoriteUrls.value = Array.isArray(saved) ? saved : []
+  } catch {
+    favoriteUrls.value = []
   }
-  return '⭐' // 默认图标
-}
+})
 
-// 中文字体检测
-const hasChinese = (text: string): boolean => {
-  const chineseRegex = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/
-  return chineseRegex.test(text)
-}
-
-// 根据内容返回合适的字体类
-const getChineseClass = (text: string): string => {
-  if (hasChinese(text)) {
-    const hasEnglish = /[a-zA-Z]/.test(text)
-    if (hasEnglish) {
-      return 'mixed-pixel chinese-pixel'
-    } else {
-      return 'chinese-pixel mixed-pixel'
-    }
-  }
-  return ''
-}
+watch(
+  favoriteUrls,
+  (urls) => {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(urls))
+  },
+  { deep: true },
+)
 </script>
 
+<template>
+  <section class="workspace">
+    <aside class="sidebar">
+      <div class="sidebar-heading">
+        <span>资源视图</span>
+        <small>{{ linkCount }} 个站点</small>
+      </div>
+
+      <button :class="{ active: activeTerm === '全部' }" @click="selectTerm(null)">
+        <span>全部资源</span><em>{{ linkCount }}</em>
+      </button>
+      <button
+        v-for="term in terms"
+        :key="term.term"
+        :class="{ active: activeTerm === term.term }"
+        @click="selectTerm(term)"
+      >
+        <span>{{ term.term }}</span
+        ><em>{{ term.links.length }}</em>
+      </button>
+
+      <div class="sidebar-note">
+        <strong>使用提示</strong>
+        <p>搜索名称、描述或域名。星标保存在当前浏览器中。</p>
+      </div>
+    </aside>
+
+    <div class="content">
+      <div class="toolbar">
+        <label class="search-box">
+          <span>搜索</span>
+          <input v-model="query" type="search" placeholder="输入站点、用途或域名…" />
+        </label>
+        <button
+          class="favorite-filter"
+          :class="{ active: favoritesOnly }"
+          @click="favoritesOnly = !favoritesOnly"
+        >
+          <span aria-hidden="true">☆</span>
+          只看星标
+          <b>{{ favoriteUrls.length }}</b>
+        </button>
+      </div>
+
+      <div class="result-meta">
+        <span>{{ activeTerm }}</span>
+        <span>{{ resultCount }} 项结果</span>
+      </div>
+
+      <div v-if="visibleTerms.length" class="term-list">
+        <section v-for="term in visibleTerms" :key="term.term" class="term-section">
+          <header>
+            <h2>{{ term.term }}</h2>
+            <span>{{ term.links.length }}</span>
+          </header>
+
+          <div class="link-list">
+            <article v-for="link in term.links" :key="link.url" class="link-row">
+              <a :href="link.url" target="_blank" rel="noopener noreferrer">
+                <span class="link-copy">
+                  <strong>{{ link.title }}</strong>
+                  <small>{{ link.description || getHost(link.url) }}</small>
+                </span>
+                <span class="link-host">{{ getHost(link.url) }}</span>
+                <span class="open-mark" aria-hidden="true">↗</span>
+              </a>
+              <button
+                class="star-button"
+                :class="{ saved: isFavorite(link) }"
+                :aria-label="isFavorite(link) ? `取消收藏 ${link.title}` : `收藏 ${link.title}`"
+                @click="toggleFavorite(link)"
+              >
+                {{ isFavorite(link) ? '★' : '☆' }}
+              </button>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <div v-else class="empty-state">
+        <strong>没有匹配的资源</strong>
+        <p>换个关键词，或关闭“只看星标”。</p>
+      </div>
+    </div>
+  </section>
+</template>
+
 <style scoped>
-.navigation-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: 'VT323', 'Courier New', monospace;
-  font-size: 18px;
-}
-
-.taxonomy-section {
-  margin-bottom: 40px;
-}
-
-.taxonomy-title {
-  font-family: 'Press Start 2P', 'Courier New', monospace;
-  font-size: 14px;
-  font-weight: normal;
-  margin-bottom: 20px;
-  color: #e9ecef;
-  background: #4c6ef5;
-  padding: 12px 16px;
-  display: inline-block;
-  position: relative;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  image-rendering: pixelated;
-  font-display: swap;
-}
-
-.taxonomy-title::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -8px;
-  width: 8px;
-  height: 100%;
-  background: #3a5bd9;
-}
-
-.taxonomy-title::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -8px;
-  width: 8px;
-  height: 100%;
-  background: #3a5bd9;
-}
-
-.term-section {
-  margin-bottom: 30px;
-}
-
-.term-title {
-  font-family: 'Press Start 2P', 'Courier New', monospace;
-  font-size: 12px;
-  font-weight: normal;
-  margin-bottom: 15px;
-  color: #adb5bd;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border-left: 4px solid #4c6ef5;
-  padding-left: 12px;
-  font-display: swap;
-}
-
-.links-grid {
+.workspace {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: 220px minmax(0, 1fr);
+  max-width: 1440px;
+  margin: 0 auto;
+  min-height: calc(100vh - 72px);
 }
 
-.link-card {
-  background: #1a1a1a;
-  border: 2px solid #343a40;
-  overflow: hidden;
-  transition: none;
-  position: relative;
-  image-rendering: pixelated;
+.sidebar {
+  padding: 32px 20px;
+  border-right: 1px solid var(--border);
 }
 
-.link-card:hover {
-  transform: translate(-6px, -6px);
-  border-color: #4c6ef5;
-  box-shadow:
-    6px 6px 0 #3a5bd9,
-    12px 12px 0 rgba(58, 91, 217, 0.3);
+.sidebar-heading {
+  padding: 0 10px 18px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-/* hover时logo边框的变化 */
-.link-card:hover .link-logo {
-  background: #1a1a2e;
-  border-color: #74c0fc;
-  box-shadow:
-    inset 0 0 0 1px #4c6ef5,
-    0 0 12px rgba(76, 110, 245, 0.4);
+.sidebar-heading small {
+  letter-spacing: normal;
+  text-transform: none;
 }
 
-.link-card:hover .link-logo::before {
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      rgba(116, 192, 252, 0.2) 0px,
-      transparent 1px,
-      transparent 4px,
-      rgba(116, 192, 252, 0.2) 5px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgba(116, 192, 252, 0.2) 0px,
-      transparent 1px,
-      transparent 4px,
-      rgba(116, 192, 252, 0.2) 5px
-    );
+.sidebar > button {
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
 }
 
-.link-content {
+.sidebar > button:hover,
+.sidebar > button.active {
+  background: var(--surface-soft);
+  color: var(--ink);
+}
+
+.sidebar em {
+  font-size: 11px;
+  font-style: normal;
+}
+
+.sidebar-note {
+  margin: 30px 10px 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.sidebar-note strong {
+  color: var(--ink);
+}
+
+.content {
+  min-width: 0;
+  padding: 32px clamp(20px, 4vw, 60px) 72px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 12px;
+}
+
+.search-box {
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
   display: flex;
   align-items: center;
-  padding: 10px;
-  text-decoration: none;
-  color: #e9ecef;
-  height: 100%;
-  min-height: 80px;
-  position: relative;
-}
-
-.link-logo {
-  width: 48px;
-  height: 48px;
-  margin-right: 16px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #1a1a1a;
-  border: 2px solid #4c6ef5;
-  position: relative;
-  image-rendering: pixelated;
-  overflow: hidden;
-}
-
-/* 像素风格的网格背景 */
-.link-logo::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      rgba(76, 110, 245, 0.1) 0px,
-      transparent 1px,
-      transparent 4px,
-      rgba(76, 110, 245, 0.1) 5px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgba(76, 110, 245, 0.1) 0px,
-      transparent 1px,
-      transparent 4px,
-      rgba(76, 110, 245, 0.1) 5px
-    );
-  z-index: 0;
-}
-
-.link-logo img {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-  image-rendering: pixelated;
-  filter: brightness(1.2) saturate(1.1);
-  transition: all 0.2s ease;
-  position: relative;
-  z-index: 1;
-}
-
-.link-card:hover .link-logo img {
-  transform: scale(1.05);
-  filter: brightness(1.3) saturate(1.3) drop-shadow(0 0 6px #74c0fc);
-}
-
-.link-info {
+  gap: 12px;
   flex: 1;
+}
+
+.search-box > span {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.search-box input {
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  flex: 1;
+}
+
+.favorite-filter {
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.favorite-filter.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.favorite-filter b {
+  margin-left: 7px;
+  font-size: 11px;
+}
+
+.result-meta {
+  padding: 22px 2px 12px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.term-list {
+  display: grid;
+  gap: 30px;
+}
+
+.term-section > header {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.term-section h2 {
+  margin: 0;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.term-section header span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.link-list {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.link-row {
+  min-height: 72px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: stretch;
+}
+
+.link-row:last-child {
+  border-bottom: 0;
+}
+
+.link-row > a {
+  min-width: 0;
+  padding: 14px 16px;
+  color: var(--ink);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 220px) 20px;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  text-decoration: none;
+}
+
+.link-row:hover {
+  background: #fafbf8;
+}
+
+.link-copy {
   min-width: 0;
 }
 
-.link-title {
-  font-family: 'VT323', 'Courier New', monospace;
-  font-size: 16px;
-  font-weight: normal;
-  margin: 0 0 4px 0;
-  color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
+.link-copy strong,
+.link-copy small {
+  display: block;
 }
 
-.link-description {
-  font-family: 'VT323', 'Courier New', monospace;
+.link-copy strong {
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.link-copy small {
+  overflow: hidden;
+  color: var(--muted);
   font-size: 12px;
-  color: #adb5bd;
-  margin: 0;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link-host {
   overflow: hidden;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.pixel-icon {
-  margin-right: 12px;
-  font-size: 18px;
-  display: inline-block;
-  image-rendering: pixelated;
-  filter: drop-shadow(2px 2px 0 #3a5bd9);
+.open-mark {
+  color: var(--muted);
 }
 
-/* 响应式优化 */
-@media (max-width: 768px) {
-  .navigation-container {
-    padding: 16px;
-    font-size: 16px;
+.star-button {
+  width: 48px;
+  border: 0;
+  border-left: 1px solid transparent;
+  background: transparent;
+  color: #a7a89f;
+  cursor: pointer;
+  font-size: 19px;
+}
+
+.star-button:hover {
+  border-left-color: var(--border);
+  background: var(--surface-soft);
+}
+
+.star-button.saved {
+  color: #9a7420;
+}
+
+.empty-state {
+  padding: 72px 24px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.empty-state strong {
+  color: var(--ink);
+}
+
+@media (max-width: 760px) {
+  .workspace {
+    display: block;
   }
 
-  .links-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
+  .sidebar {
+    padding: 14px 18px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
   }
 
-  .link-content {
-    padding: 10px;
+  .sidebar-heading,
+  .sidebar-note {
+    display: none;
   }
 
-  .taxonomy-title {
-    font-size: 12px;
-    padding: 10px 12px;
+  .sidebar > button {
+    width: auto;
+    flex: 0 0 auto;
+    gap: 8px;
   }
 
-  .term-title {
-    font-size: 11px;
+  .content {
+    padding-top: 20px;
   }
 
-  .link-title {
-    font-size: 16px;
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
   }
 
-  .link-description {
-    font-size: 12px;
+  .favorite-filter {
+    height: 40px;
+  }
+
+  .link-row > a {
+    grid-template-columns: minmax(0, 1fr) 18px;
+  }
+
+  .link-host {
+    display: none;
   }
 }
 </style>

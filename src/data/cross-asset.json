@@ -1,0 +1,601 @@
+{
+  "updatedAt": "2026-08-02T05:03:01.703Z",
+  "correlationWindow": "最近60个共同观测日",
+  "source": "Federal Reserve Economic Data (FRED)",
+  "sourceUrl": "https://fred.stlouisfed.org/",
+  "limitations": [
+    "资金流当前使用5日价格或收益率变化代理，不等同于真实净申购或净持仓。",
+    "估值分位、市场广度、稳定币市值、ETH主导率和链上数据等待可靠数据适配器。",
+    "月度序列（例如铜）在短周期可能显示为空，相关性只在至少30个共同观测值时计算。",
+    "黄金暂用FRED收录的Credit Suisse NASDAQ Gold FLOWS103价格指数作为相关性代理，并非黄金现货报价。"
+  ],
+  "assets": [
+    {
+      "id": "sp500",
+      "name": "标普500",
+      "category": "stocks",
+      "series": "SP500",
+      "unit": "点",
+      "mode": "return",
+      "value": 7489.72,
+      "date": "2026-07-31",
+      "changes": {
+        "day": 0.7,
+        "week": 1.05,
+        "month": 0.09,
+        "quarter": 3.18,
+        "yearToDate": 9.41
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日价格动量代理",
+        "value": 1.05,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "nasdaq",
+      "name": "纳斯达克综合",
+      "category": "stocks",
+      "series": "NASDAQCOM",
+      "unit": "点",
+      "mode": "return",
+      "value": 25373.85,
+      "date": "2026-07-31",
+      "changes": {
+        "day": 1,
+        "week": 1.59,
+        "month": -1.78,
+        "quarter": 0.19,
+        "yearToDate": 9.17
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日价格动量代理",
+        "value": 1.59,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "nikkei",
+      "name": "日经225",
+      "category": "stocks",
+      "series": "NIKKEI225",
+      "unit": "点",
+      "mode": "return",
+      "value": 64362.02,
+      "date": "2026-07-31",
+      "changes": {
+        "day": 4.03,
+        "week": -0.39,
+        "month": -6.36,
+        "quarter": null,
+        "yearToDate": null
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日价格动量代理",
+        "value": -0.39,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "us2y",
+      "name": "美债2Y",
+      "category": "bonds",
+      "series": "DGS2",
+      "unit": "%",
+      "mode": "difference",
+      "value": 4.23,
+      "date": "2026-07-30",
+      "changes": {
+        "day": 1,
+        "week": -14,
+        "month": 6,
+        "quarter": 28,
+        "yearToDate": 76
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日水平变化代理",
+        "value": -14,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "us10y",
+      "name": "美债10Y",
+      "category": "bonds",
+      "series": "DGS10",
+      "unit": "%",
+      "mode": "difference",
+      "value": 4.68,
+      "date": "2026-07-30",
+      "changes": {
+        "day": 1,
+        "week": -3,
+        "month": 20,
+        "quarter": 23,
+        "yearToDate": 50
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日水平变化代理",
+        "value": -3,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "us30y",
+      "name": "美债30Y",
+      "category": "bonds",
+      "series": "DGS30",
+      "unit": "%",
+      "mode": "difference",
+      "value": 5.21,
+      "date": "2026-07-30",
+      "changes": {
+        "day": 1,
+        "week": 4,
+        "month": 24,
+        "quarter": 19,
+        "yearToDate": 37
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日水平变化代理",
+        "value": 4,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "igspread",
+      "name": "美国投资级利差",
+      "category": "bonds",
+      "series": "BAMLC0A0CM",
+      "unit": "%",
+      "mode": "difference",
+      "value": 0.8,
+      "date": "2026-07-30",
+      "changes": {
+        "day": -1,
+        "week": 1,
+        "month": 4,
+        "quarter": 1,
+        "yearToDate": 1
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日水平变化代理",
+        "value": 1,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "hyspread",
+      "name": "美国高收益利差",
+      "category": "bonds",
+      "series": "BAMLH0A0HYM2",
+      "unit": "%",
+      "mode": "difference",
+      "value": 2.84,
+      "date": "2026-07-30",
+      "changes": {
+        "day": -3,
+        "week": 7,
+        "month": 10,
+        "quarter": 7,
+        "yearToDate": 3
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日水平变化代理",
+        "value": 7,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "usd",
+      "name": "美元广义指数",
+      "category": "fx",
+      "series": "DTWEXBGS",
+      "unit": "点",
+      "mode": "return",
+      "value": 120.7105,
+      "date": "2026-07-24",
+      "changes": {
+        "day": -0.16,
+        "week": 0.15,
+        "month": -0.29,
+        "quarter": 1.63,
+        "yearToDate": 0.81
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日价格动量代理",
+        "value": 0.15,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "eurusd",
+      "name": "EUR/USD",
+      "category": "fx",
+      "series": "DEXUSEU",
+      "unit": "",
+      "mode": "return",
+      "value": 1.1385,
+      "date": "2026-07-24",
+      "changes": {
+        "day": 0.11,
+        "week": -0.48,
+        "month": 0,
+        "quarter": -2.82,
+        "yearToDate": -2.99
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日价格动量代理",
+        "value": -0.48,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "usdjpy",
+      "name": "USD/JPY",
+      "category": "fx",
+      "series": "DEXJPUS",
+      "unit": "",
+      "mode": "return",
+      "value": 163.71,
+      "date": "2026-07-24",
+      "changes": {
+        "day": -0.05,
+        "week": 0.79,
+        "month": 1.26,
+        "quarter": 2.62,
+        "yearToDate": 4.41
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日价格动量代理",
+        "value": 0.79,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "usdcny",
+      "name": "USD/CNY",
+      "category": "fx",
+      "series": "DEXCHUS",
+      "unit": "",
+      "mode": "return",
+      "value": 6.7719,
+      "date": "2026-07-24",
+      "changes": {
+        "day": 0.03,
+        "week": -0.06,
+        "month": -0.38,
+        "quarter": -0.96,
+        "yearToDate": -3.16
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日价格动量代理",
+        "value": -0.06,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "wti",
+      "name": "WTI原油",
+      "category": "commodities",
+      "series": "DCOILWTICO",
+      "unit": "美元",
+      "mode": "return",
+      "value": 84.25,
+      "date": "2026-07-27",
+      "changes": {
+        "day": -8.16,
+        "week": -0.15,
+        "month": 19.84,
+        "quarter": -23.73,
+        "yearToDate": 47.14
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日价格动量代理",
+        "value": -0.15,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "brent",
+      "name": "Brent原油",
+      "category": "commodities",
+      "series": "DCOILBRENTEU",
+      "unit": "美元",
+      "mode": "return",
+      "value": 91.82,
+      "date": "2026-07-27",
+      "changes": {
+        "day": -8.46,
+        "week": 5.55,
+        "month": 30.87,
+        "quarter": -26.05,
+        "yearToDate": 49.67
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日价格动量代理",
+        "value": 5.55,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "gold",
+      "name": "黄金策略指数",
+      "category": "commodities",
+      "series": "NASDAQNQXAUGLD",
+      "unit": "点",
+      "mode": "return",
+      "value": 3919.38,
+      "date": "2026-07-31",
+      "changes": {
+        "day": -2.85,
+        "week": -1.23,
+        "month": -5.19,
+        "quarter": -14.53,
+        "yearToDate": -14.48
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日价格动量代理",
+        "value": -1.23,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "copper",
+      "name": "铜",
+      "category": "commodities",
+      "series": "PCOPPUSDM",
+      "unit": "美元/吨",
+      "mode": "return",
+      "value": 13552.04090909091,
+      "date": "2026-06-01",
+      "changes": {
+        "day": 0.3,
+        "week": 4.35,
+        "month": 46.36,
+        "quarter": null,
+        "yearToDate": 14.94
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日价格动量代理",
+        "value": 4.35,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "natgas",
+      "name": "美国天然气",
+      "category": "commodities",
+      "series": "DHHNGSP",
+      "unit": "美元",
+      "mode": "return",
+      "value": 2.63,
+      "date": "2026-07-27",
+      "changes": {
+        "day": -8.36,
+        "week": -6.07,
+        "month": -19.33,
+        "quarter": 1.15,
+        "yearToDate": -34.25
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日价格动量代理",
+        "value": -6.07,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "btc",
+      "name": "比特币",
+      "category": "crypto",
+      "series": "CBBTCUSD",
+      "unit": "美元",
+      "mode": "return",
+      "value": 62835,
+      "date": "2026-08-01",
+      "changes": {
+        "day": -0.08,
+        "week": -1.35,
+        "month": -1.56,
+        "quarter": -14.81,
+        "yearToDate": -28.35
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日价格动量代理",
+        "value": -1.35,
+        "note": "不是申赎或净买入数据"
+      }
+    }
+  ],
+  "matrix": {
+    "ids": [
+      "sp500",
+      "nasdaq",
+      "us10y",
+      "hyspread",
+      "usd",
+      "usdjpy",
+      "wti",
+      "gold",
+      "btc"
+    ],
+    "correlations": [
+      {
+        "id": "sp500",
+        "values": [
+          1,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": "nasdaq",
+        "values": [
+          null,
+          1,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": "us10y",
+        "values": [
+          null,
+          null,
+          1,
+          -0.06,
+          null,
+          null,
+          null,
+          -0.06,
+          -0.1
+        ]
+      },
+      {
+        "id": "hyspread",
+        "values": [
+          null,
+          null,
+          -0.06,
+          1,
+          null,
+          null,
+          null,
+          -0.34,
+          -0.15
+        ]
+      },
+      {
+        "id": "usd",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          1,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": "usdjpy",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          1,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": "wti",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          1,
+          null,
+          null
+        ]
+      },
+      {
+        "id": "gold",
+        "values": [
+          null,
+          null,
+          -0.06,
+          -0.34,
+          null,
+          null,
+          null,
+          1,
+          0.46
+        ]
+      },
+      {
+        "id": "btc",
+        "values": [
+          null,
+          null,
+          -0.1,
+          -0.15,
+          null,
+          null,
+          null,
+          0.46,
+          1
+        ]
+      }
+    ]
+  },
+  "transmissionChains": [
+    {
+      "title": "日元套息链",
+      "steps": [
+        "日元走强（USD/JPY下跌）",
+        "套息头寸去杠杆",
+        "全球高估值资产波动"
+      ],
+      "signal": null,
+      "interpretation": "USD/JPY与纳指60个共同交易日收益相关性"
+    },
+    {
+      "title": "利率—科技股链",
+      "steps": [
+        "美债10Y收益率变化",
+        "贴现率重估",
+        "纳斯达克估值敏感度"
+      ],
+      "signal": null,
+      "interpretation": "10Y收益率日变化与纳指收益相关性"
+    },
+    {
+      "title": "风险偏好链",
+      "steps": [
+        "高收益信用利差变化",
+        "风险承受度变化",
+        "美股与BTC波动"
+      ],
+      "signal": -0.15,
+      "interpretation": "高收益利差日变化与BTC收益相关性"
+    }
+  ]
+}

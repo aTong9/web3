@@ -1,56 +1,109 @@
-# vue-web3-nav
+# 个人金融工作台
 
-This template should help get you started developing with Vue 3 in Vite.
+一个文字优先的个人金融研究入口，用来集中管理宏观、股票、加密资产、新闻与常用工具。
 
-## Recommended IDE Setup
+## 当前功能
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- 按主题浏览 `src/data/webstack.yml` 中的全部网站资源
+- 搜索站点名称、描述和域名
+- 按分组筛选资源
+- 使用浏览器本地存储收藏常用站点
+- 比较中国市场的美股场内 ETF 与场外基金，可按规模和综合费率排序
+- 每天自动更新场外基金的申购、定投状态和参考额度
+- 监控A股行业与主题 ETF，按日、周、月、季度、今年以来和近一年涨幅排序
+- 对美股基金与A股行业 ETF 展示年运作费、购买手续费、佣金假设、溢折价和首年成本估算
+- 跨平台监控 KOL 公开内容并自动识别内容中的股票提及
+- 聚合全球市场新闻与央行、监管机构公告，按市场影响和发布时间筛选
+- 通过资讯台快速打开常用市场信息源
+- 响应式布局，支持桌面端和移动端
 
-## Recommended Browser Setup
+网站清单由 YAML 文件统一维护。界面不依赖站点 Logo 或内容图片，所有外部网站均在新标签页打开。
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+## 开发
 
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-youtube: <https://www.youtube.com/@HenrySlowFIRE/videos>
-小红书：<https://www.xiaohongshu.com/user/profile/61ba0abd0000000010008ffa?xsec_token=ABYP-ltqZbgdKeOY8Rn2QdgOgyYW_VwU0vEB6WxsyBQjw%3D&xsec_source=pc_search>
-微信公众号：所有的烦恼都源于你穷（其中一篇文章：<https://mp.weixin.qq.com/s/a63aQFbWTtnMe3aSo1qp6A）>
-
-我需要在BloggerView页面增加对以上博主的监控（文章，视频等都有），我需要你来分析然后给出我其中涉及的股票  
-
-## Project Setup
-
-```sh
+```bash
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+开发服务器默认运行于 `http://localhost:3000`。
 
-```sh
+## 验证与构建
+
+```bash
+npm run type-check
+npm run lint
 npm run build
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+项目通过 GitHub Pages 部署，Vite 基础路径为 `/web3/`。
 
-```sh
-npm run lint
+## 数据维护
+
+资源数据位于 `src/data/webstack.yml`，结构为：
+
+```yaml
+- taxonomy: 分类
+  list:
+    - term: 分组
+      links:
+        - title: 网站名称
+          url: https://example.com
+          description: 网站用途
 ```
 
-// "deploy": "gh-pages -d dist -m \"Deploy to GitHub Pages\""
+历史 `logo` 字段可以继续保留，但当前文字界面不会读取它。
+
+## 美股基金数据
+
+基金清单位于 `src/data/us-funds.json`，覆盖纳斯达克 100 与标普 500 的主流境内 QDII
+产品。运行以下命令可以手动刷新：
+
+```bash
+npm run update:funds
+```
+
+`.github/workflows/update-us-funds.yml` 每天北京时间 09:15 自动更新数据。额度采用天天基金销售
+渠道展示值，并保留来源页面链接；实际可购买额度仍以基金公司公告和下单渠道为准。
+
+## A股行业数据
+
+行业榜数据位于 `src/data/a-share-sectors.json`。当前使用行业内规模最大的 ETF 作为代表，运行
+以下命令可手动更新：
+
+```bash
+npm run update:a-share
+```
+
+`.github/workflows/update-a-share-sectors.yml` 每天北京时间 18:30 更新收盘数据。更新过程会同时
+检查全部基金，任何一只抓取失败都不会覆盖上一版完整数据。
+
+## KOL监控
+
+在 `src/data/kols.yml` 中增加名称和主页 URL，即可加入监控：
+
+```yaml
+- name: KOL名称
+  url: https://平台主页地址
+  enabled: true
+  # feedUrl: https://可选的RSS或Atom地址
+  # tags: [美股, 宏观]
+```
+
+运行 `npm run update:kols` 可手动解析；GitHub Actions 每6小时自动执行一次。YouTube 和标准
+RSS/Atom 支持内容列表同步，普通网页支持公开元数据解析。小红书、微信和B站可能限制自动抓取，
+此时页面会明确显示降级状态；配置可访问的 `feedUrl` 后可恢复完整内容同步。
+
+## 全球市场快讯
+
+运行 `npm run update:news` 可手动刷新 `src/data/market-news.json`。GitHub Actions 每15分钟聚合
+GDELT、CNBC、华尔街日报、美联储、欧洲央行和美国证监会公开信息，自动去重、识别影响资产并分为紧急、高、中、低四级。
+页面打开后每2分钟检查一次仓库中的最新版数据。定时任务可能因 GitHub Actions 排队而延迟，本模块不是
+交易所级实时行情或完整新闻数据库。
+
+英文标题通过可替换的翻译适配器生成中文译文，同时永久保留原文供核对。默认使用 MyMemory，已有译文会
+按新闻 ID 缓存，只有新增标题需要调用翻译服务；可设置 `MYMEMORY_EMAIL` 提高公开 API 的使用配额。
+
+## 免责声明
+
+本站内容仅供个人研究与资料整理，不构成任何投资建议。第三方链接的内容和可用性由对应网站负责。
