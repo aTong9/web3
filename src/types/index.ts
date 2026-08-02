@@ -220,3 +220,426 @@ export interface MarketNewsDataset {
   sourceStatus: Array<{ source: string; status: 'ok' | 'failed'; message: string }>
   articles: MarketNewsArticle[]
 }
+
+export type CrossAssetCategory = 'stocks' | 'bonds' | 'fx' | 'commodities' | 'crypto' | 'macro'
+
+export interface CrossAssetItem {
+  id: string
+  name: string
+  category: CrossAssetCategory
+  series: string
+  unit: string
+  mode: 'return' | 'difference' | 'absolute'
+  releaseLagDays?: number
+  maxStaleDays?: number
+  value: number | null
+  date: string | null
+  availableDate: string | null
+  stale: boolean
+  changes: Record<'day' | 'week' | 'month' | 'quarter' | 'yearToDate', number | null>
+  flow: {
+    status: 'proxy' | 'actual' | 'unavailable'
+    label: string
+    value: number | null
+    note: string
+  }
+}
+
+export interface CrossAssetDataset {
+  updatedAt: string
+  correlationWindow: string
+  source: string
+  sourceUrl: string
+  limitations: string[]
+  assets: CrossAssetItem[]
+  matrix: { ids: string[]; correlations: Array<{ id: string; values: Array<number | null> }> }
+  transmissionChains: Array<{
+    group: string
+    title: string
+    left: string
+    right: string
+    expectedSign: 'positive' | 'negative' | 'context'
+    steps: string[]
+    signal: number | null
+    windows: { short: number | null; medium: number | null; long: number | null }
+    statistics: Record<
+      'short' | 'medium' | 'long',
+      {
+        value: number | null
+        samples: number
+        ciLow: number | null
+        ciHigh: number | null
+        pValue: number | null
+      }
+    >
+    stability: 'stable' | 'mixed' | 'insufficient'
+    regimeShift: boolean
+    evidence: 'strong' | 'supported' | 'uncertain'
+    predictive: {
+      horizon: number
+      overlapping: boolean
+      value: number | null
+      samples: number
+      ciLow: number | null
+      ciHigh: number | null
+      pValue: number | null
+      qValue: number | null
+      evidence: 'supported' | 'uncertain'
+    }
+    shock: {
+      tail: 'upper10pct'
+      horizon: number
+      threshold: number | null
+      currentMove: number | null
+      triggered: boolean
+      eventSamples: number
+      controlSamples: number
+      eventUpRatePct: number | null
+      baselineUpRatePct: number | null
+      liftPct: number | null
+      medianOutcome: number | null
+      pValue: number | null
+      qValue: number | null
+      evidence: 'supported' | 'uncertain'
+    }
+    lowerShock: {
+      tail: 'lower10pct'
+      horizon: number
+      threshold: number | null
+      currentMove: number | null
+      triggered: boolean
+      eventSamples: number
+      controlSamples: number
+      eventUpRatePct: number | null
+      baselineUpRatePct: number | null
+      liftPct: number | null
+      medianOutcome: number | null
+      pValue: number | null
+      qValue: number | null
+      evidence: 'supported' | 'uncertain'
+    }
+    strength: 'strong' | 'medium' | 'weak' | 'unavailable'
+    status: 'confirming' | 'diverging' | 'dormant' | 'context' | 'unavailable'
+    interpretation: string
+    sourceTitle: string
+    sourceUrl: string
+  }>
+  marketBrief: {
+    asOfDate: string | null
+    methodology: string
+    disclaimer: string
+    regime: { title: string; summary: string }
+    rateRegime: {
+      title: string
+      dominant: 'term-premium' | 'expected-rate' | 'unknown'
+      yieldMoveBp: number | null
+      termPremiumMoveBp: number | null
+      expectedRateMoveBp: number | null
+      summary: string
+    }
+    cryptoRegime: { title: string; summary: string }
+    breadth: { title: string; summary: string }
+    leaders: Array<{ id: string; name: string; move: number | null }>
+    laggards: Array<{ id: string; name: string; move: number | null }>
+    markets: Array<{
+      id: string
+      name: string
+      date: string | null
+      dailyMove: number | null
+      dailySummary: string
+      dailyAttribution: {
+        alignment: 'confirming' | 'diverging' | 'insufficient'
+        netContribution: number
+        alignedDrivers: number
+        totalDrivers: number
+      }
+      drivers: Array<{
+        chain: string
+        driver: string
+        driverMove: number | null
+        driverZ: number | null
+        correlation: number
+        contribution: number
+        effect: 'tailwind' | 'headwind' | 'neutral'
+        text: string
+      }>
+      outlook: {
+        horizon: string
+        bias: 'bullish' | 'bearish' | 'neutral'
+        confidence: 'low' | 'medium'
+        score: number
+        momentumSignals: { week: number; month: number }
+        probability: {
+          upProbabilityPct: number
+          downProbabilityPct: number
+          intervalPct: { low: number | null; high: number | null }
+          trainingSamples: number
+          signalDirection: 'bullish' | 'bearish'
+          source: 'macro-regime' | 'all-regimes'
+          macroRegime: string
+          validationBrierScore: number | null
+          validationClimatologyBrierScore: number | null
+          validationBrierSkillPct: number | null
+          validationBrierAdvantagePValue: number | null
+          validated: boolean
+        }
+        liveEvaluation: {
+          modelVersion: string
+          totalSnapshots: number
+          allVersionSnapshots: number
+          resolvedSamples: number
+          directionalSamples: number
+          directionalAccuracyPct: number | null
+          brierScore: number | null
+          latestOutcomeDate: string | null
+        }
+        directionGate: { eligible: boolean; reasons: string[] }
+        consensus: { aligned: number; total: number; pct: number | null }
+        predictiveDrivers: Array<{
+          chain: string
+          driver: string
+          driverMove: number | null
+          driverZ: number | null
+          correlation: number
+          contribution: number
+          effect: 'tailwind' | 'headwind' | 'neutral'
+          text: string
+        }>
+        reasons: string[]
+        risks: string[]
+        backtest: {
+          horizon: string
+          samples: number
+          directionalAccuracyPct: number | null
+          accuracyIntervalPct: { low: number | null; high: number | null }
+          baselineAccuracyPct: number | null
+          majorityBaselineAccuracyPct: number | null
+          bestBaselineAccuracyPct: number
+          liftPct: number | null
+          liftVsBestBaselinePct: number | null
+          regime: string
+          regimeSamples: number
+          regimeAccuracyPct: number | null
+          regimeBaselineAccuracyPct: number | null
+          regimeLiftPct: number | null
+          directionalBuckets: Record<
+            'bullish' | 'bearish',
+            {
+              direction: 'bullish' | 'bearish'
+              samples: number
+              directionalAccuracyPct: number | null
+              accuracyIntervalPct: { low: number | null; high: number | null }
+              medianReturnPct: number | null
+              q25ReturnPct: number | null
+              q75ReturnPct: number | null
+            }
+          >
+          validation: {
+            split: string
+            startDate: string | null
+            endDate: string | null
+            samples: number
+            directionalAccuracyPct: number | null
+            accuracyIntervalPct: { low: number | null; high: number | null }
+            baselineAccuracyPct: number | null
+            majorityBaselineAccuracyPct: number | null
+            bestBaselineAccuracyPct: number
+            liftPct: number | null
+            liftVsBestBaselinePct: number | null
+            directionalBuckets: Record<
+              'bullish' | 'bearish',
+              {
+                direction: 'bullish' | 'bearish'
+                samples: number
+                directionalAccuracyPct: number | null
+                accuracyIntervalPct: { low: number | null; high: number | null }
+                medianReturnPct: number | null
+                q25ReturnPct: number | null
+                q75ReturnPct: number | null
+              }
+            >
+          }
+          selectivity: {
+            candidateCount: number
+            selectedThreshold: number
+            selectedConservativeEdgePct: number | null
+            selectedRule: {
+              id: string
+              name: string
+              featureMode: 'normalized' | 'direction'
+              weekWeight: number
+              monthWeight: number
+              driverWeight: number
+            }
+            driverAblation: {
+              selectedUsesCrossAsset: boolean
+              samples: number
+              fullAccuracyPct: number | null
+              momentumOnlyAccuracyPct: number | null
+              liftPct: number | null
+              fullWins: number
+              momentumWins: number
+              pairedAdvantagePValue: number | null
+              allowed: boolean
+            }
+            probabilityValidation: {
+              trainingProbabilities: Record<
+                'bullish' | 'bearish',
+                {
+                  direction: 'bullish' | 'bearish'
+                  samples: number
+                  upProbabilityPct: number
+                  intervalPct: { low: number | null; high: number | null }
+                }
+              >
+              trainingClimatologyUpPct: number
+              samples: number
+              meanForecastUpPct: number | null
+              observedUpPct: number | null
+              brierScore: number | null
+              climatologyBrierScore: number | null
+              brierSkillPct: number | null
+              brierAdvantagePValue: number | null
+            }
+            macroRegime: {
+              id: string
+              name: string
+              training: {
+                samples: number
+                directionalAccuracyPct: number | null
+                accuracyIntervalPct: { low: number | null; high: number | null }
+                momentumBaselineAccuracyPct: number | null
+                majorityBaselineAccuracyPct: number | null
+                bestBaselineAccuracyPct: number
+                liftVsBestBaselinePct: number | null
+                directionalBuckets: Record<
+                  'bullish' | 'bearish',
+                  {
+                    direction: 'bullish' | 'bearish'
+                    samples: number
+                    directionalAccuracyPct: number | null
+                    accuracyIntervalPct: { low: number | null; high: number | null }
+                    medianReturnPct: number | null
+                    q25ReturnPct: number | null
+                    q75ReturnPct: number | null
+                  }
+                >
+              }
+              validation: {
+                samples: number
+                directionalAccuracyPct: number | null
+                accuracyIntervalPct: { low: number | null; high: number | null }
+                momentumBaselineAccuracyPct: number | null
+                majorityBaselineAccuracyPct: number | null
+                bestBaselineAccuracyPct: number
+                liftVsBestBaselinePct: number | null
+                directionalBuckets: Record<
+                  'bullish' | 'bearish',
+                  {
+                    direction: 'bullish' | 'bearish'
+                    samples: number
+                    directionalAccuracyPct: number | null
+                    accuracyIntervalPct: { low: number | null; high: number | null }
+                    medianReturnPct: number | null
+                    q25ReturnPct: number | null
+                    q75ReturnPct: number | null
+                  }
+                >
+              }
+              trainingProbabilities: Record<
+                'bullish' | 'bearish',
+                {
+                  direction: 'bullish' | 'bearish'
+                  samples: number
+                  upProbabilityPct: number
+                  intervalPct: { low: number | null; high: number | null }
+                }
+              >
+              probabilityValidation: {
+                samples: number
+                brierScore: number | null
+                climatologyBrierScore: number | null
+                brierSkillPct: number | null
+                brierAdvantagePValue: number | null
+              }
+            }
+            overall: {
+              samples: number
+              directionalAccuracyPct: number | null
+              accuracyIntervalPct: { low: number | null; high: number | null }
+              momentumBaselineAccuracyPct: number | null
+              majorityBaselineAccuracyPct: number | null
+              bestBaselineAccuracyPct: number
+              liftVsBestBaselinePct: number | null
+              directionalBuckets: Record<
+                'bullish' | 'bearish',
+                {
+                  direction: 'bullish' | 'bearish'
+                  samples: number
+                  directionalAccuracyPct: number | null
+                  accuracyIntervalPct: { low: number | null; high: number | null }
+                  medianReturnPct: number | null
+                  q25ReturnPct: number | null
+                  q75ReturnPct: number | null
+                }
+              >
+            }
+            training: {
+              samples: number
+              directionalAccuracyPct: number | null
+              accuracyIntervalPct: { low: number | null; high: number | null }
+              momentumBaselineAccuracyPct: number | null
+              majorityBaselineAccuracyPct: number | null
+              bestBaselineAccuracyPct: number
+              liftVsBestBaselinePct: number | null
+              directionalBuckets: Record<
+                'bullish' | 'bearish',
+                {
+                  direction: 'bullish' | 'bearish'
+                  samples: number
+                  directionalAccuracyPct: number | null
+                  accuracyIntervalPct: { low: number | null; high: number | null }
+                  medianReturnPct: number | null
+                  q25ReturnPct: number | null
+                  q75ReturnPct: number | null
+                }
+              >
+            }
+            validation: {
+              samples: number
+              directionalAccuracyPct: number | null
+              accuracyIntervalPct: { low: number | null; high: number | null }
+              momentumBaselineAccuracyPct: number | null
+              majorityBaselineAccuracyPct: number | null
+              bestBaselineAccuracyPct: number
+              liftVsBestBaselinePct: number | null
+              directionalBuckets: Record<
+                'bullish' | 'bearish',
+                {
+                  direction: 'bullish' | 'bearish'
+                  samples: number
+                  directionalAccuracyPct: number | null
+                  accuracyIntervalPct: { low: number | null; high: number | null }
+                  medianReturnPct: number | null
+                  q25ReturnPct: number | null
+                  q75ReturnPct: number | null
+                }
+              >
+            }
+            validationCoveragePct: number | null
+          }
+          note: string
+        }
+        scenario: {
+          direction: 'bullish' | 'bearish'
+          samples: number
+          directionalAccuracyPct: number | null
+          accuracyIntervalPct: { low: number | null; high: number | null }
+          medianReturnPct: number | null
+          q25ReturnPct: number | null
+          q75ReturnPct: number | null
+        } | null
+      }
+    }>
+  }
+}

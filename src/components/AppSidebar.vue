@@ -1,0 +1,250 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { RouterLink } from 'vue-router'
+
+defineProps<{ mobileOpen: boolean }>()
+defineEmits<{ close: [] }>()
+
+const groups = [
+  {
+    title: '总览',
+    icon: '◫',
+    items: [{ title: '跨资产驾驶舱', to: '/' }],
+  },
+  {
+    title: '市场监控',
+    icon: '⌁',
+    items: [
+      { title: 'A股行业', to: '/a-share' },
+      { title: '美股基金', to: '/funds' },
+    ],
+  },
+  {
+    title: '市场情报',
+    icon: '◎',
+    items: [
+      { title: '全球市场快讯', to: '/market-news' },
+      { title: 'KOL监控', to: '/kols' },
+      { title: '资讯台', to: '/blogger' },
+    ],
+  },
+  {
+    title: '工具与资源',
+    icon: '◇',
+    items: [
+      { title: '资源导航', to: '/resources' },
+      { title: '系统说明', to: '/about' },
+    ],
+  },
+]
+const collapsed = ref<string[]>([])
+const toggleGroup = (title: string) => {
+  collapsed.value = collapsed.value.includes(title)
+    ? collapsed.value.filter((item) => item !== title)
+    : [...collapsed.value, title]
+}
+</script>
+
+<template>
+  <aside class="sidebar" :class="{ open: mobileOpen }">
+    <div class="brand">
+      <RouterLink to="/" @click="$emit('close')"
+        ><b>F.</b><span><strong>市场研究台</strong><small>MARKET DESK</small></span></RouterLink
+      >
+      <button aria-label="关闭菜单" @click="$emit('close')">×</button>
+    </div>
+    <nav aria-label="系统主菜单">
+      <section v-for="group in groups" :key="group.title">
+        <button class="group-title" @click="toggleGroup(group.title)">
+          <span
+            ><i>{{ group.icon }}</i
+            >{{ group.title }}</span
+          >
+          <b :class="{ collapsed: collapsed.includes(group.title) }">⌄</b>
+        </button>
+        <div v-show="!collapsed.includes(group.title)" class="children">
+          <RouterLink
+            v-for="item in group.items"
+            :key="item.to"
+            :to="item.to"
+            @click="$emit('close')"
+            >{{ item.title }}</RouterLink
+          >
+        </div>
+      </section>
+    </nav>
+    <footer>
+      <span></span>
+      <div><strong>数据任务运行中</strong><small>自动更新 · 来源可追溯</small></div>
+    </footer>
+  </aside>
+  <button v-if="mobileOpen" class="backdrop" aria-label="关闭菜单" @click="$emit('close')"></button>
+</template>
+
+<style scoped>
+.sidebar {
+  width: 248px;
+  height: 100vh;
+  padding: 0 14px 18px;
+  border-right: 1px solid #27303b;
+  background: #151a21;
+  color: #eef1f3;
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+}
+.brand {
+  height: 76px;
+  padding: 0 8px;
+  border-bottom: 1px solid #29313b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand a {
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-decoration: none;
+}
+.brand a > b {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #d9efe6;
+  color: #175b46;
+  display: grid;
+  place-items: center;
+  font:
+    700 17px Georgia,
+    serif;
+}
+.brand strong,
+.brand small {
+  display: block;
+}
+.brand strong {
+  font-size: 14px;
+}
+.brand small {
+  margin-top: 3px;
+  color: #74808d;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+}
+.brand button {
+  display: none;
+  border: 0;
+  background: none;
+  color: white;
+  font-size: 24px;
+}
+nav {
+  padding-top: 18px;
+  flex: 1;
+  overflow-y: auto;
+}
+nav section {
+  margin-bottom: 12px;
+}
+.group-title {
+  width: 100%;
+  padding: 8px 9px;
+  border: 0;
+  background: none;
+  color: #8d98a4;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  font-size: 11px;
+}
+.group-title span {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+.group-title i {
+  width: 17px;
+  color: #b8c3cc;
+  font-style: normal;
+}
+.group-title b {
+  font-weight: 400;
+  transition: transform 0.2s;
+}
+.group-title b.collapsed {
+  transform: rotate(-90deg);
+}
+.children {
+  display: grid;
+  gap: 3px;
+}
+.children a {
+  padding: 9px 12px 9px 35px;
+  border-radius: 6px;
+  color: #aeb7c0;
+  font-size: 12px;
+  text-decoration: none;
+}
+.children a:hover {
+  background: #202731;
+  color: white;
+}
+.children a.router-link-active {
+  background: #243c35;
+  color: #aee1cc;
+}
+footer {
+  padding: 13px 10px;
+  border: 1px solid #29313b;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+footer > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #62c99e;
+  box-shadow: 0 0 0 4px #20372e;
+}
+footer strong,
+footer small {
+  display: block;
+}
+footer strong {
+  font-size: 10px;
+}
+footer small {
+  margin-top: 3px;
+  color: #71808c;
+  font-size: 8px;
+}
+.backdrop {
+  display: none;
+}
+@media (max-width: 900px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.22s;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .brand button {
+    display: block;
+  }
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    border: 0;
+    background: rgba(10, 14, 18, 0.55);
+  }
+}
+</style>

@@ -57,8 +57,8 @@ const parseGdeltDate = (value) => {
 }
 
 const classifyCategory = (title) => {
-  if (/war|attack|sanction|tariff|blockade|coup/i.test(title)) return 'geopolitics'
-  if (/oil|opec|gold|copper|gas|shipping/i.test(title)) return 'commodities'
+  if (/\bwar\b|attack|sanction|tariff|blockade|\bcoup\b/i.test(title)) return 'geopolitics'
+  if (/\boil\b|\bopec\b|\bgold\b|\bcopper\b|\bgas\b|shipping/i.test(title)) return 'commodities'
   if (/semiconductor|artificial intelligence|\bai\b|antitrust|export control/i.test(title))
     return 'technology'
   if (/stock|share|earnings|bankruptcy|default|merger|acquisition/i.test(title)) return 'equities'
@@ -110,13 +110,14 @@ const fetchMediaFeed = async ([feedName, url, category]) => {
   return [...xml.matchAll(/<item(?:\s[^>]*)?>([\s\S]*?)<\/item>/gi)].slice(0, 30).map((match) => {
     const item = match[1]
     const publishedAt = extractTag(item, 'pubDate')
+    const title = extractTag(item, 'title').replace(/\s+-\s+[^-]+$/, '')
     return {
-      title: extractTag(item, 'title').replace(/\s+-\s+[^-]+$/, ''),
+      title,
       url: extractTag(item, 'link'),
       publishedAt: publishedAt ? new Date(publishedAt).toISOString() : null,
       source: extractTag(item, 'source') || feedName,
       sourceType: 'media',
-      category,
+      category: category === 'global' ? classifyCategory(title) : category,
       language: 'English',
     }
   })
@@ -140,7 +141,7 @@ const assetRules = [
   ['美股', /wall street|nasdaq|s&p|stock|shares|earnings|sec\b/i],
   ['债券', /bond|treasury|yield|interest rate|central bank/i],
   ['美元', /dollar|federal reserve|fed\b|payroll/i],
-  ['黄金', /gold|bullion/i],
+  ['黄金', /\bgold\b|bullion/i],
   ['原油', /oil|opec|crude/i],
   ['加密', /bitcoin|crypto|ethereum/i],
 ]
@@ -244,11 +245,19 @@ for (const article of rawRankedArticles) {
   }
   await new Promise((resolve) => setTimeout(resolve, 150))
 }
+const articleFingerprint = (article) =>
+  JSON.stringify({
+    id: article.id,
+    title: article.title,
+    translatedTitle: article.translatedTitle,
+    category: article.category,
+    impact: article.impact,
+    impactScore: article.impactScore,
+    affectedAssets: article.affectedAssets,
+  })
 const unchanged =
-  previous?.articles
-    ?.map((article) => `${article.id}:${article.translatedTitle ?? ''}`)
-    .join(',') ===
-  articles.map((article) => `${article.id}:${article.translatedTitle ?? ''}`).join(',')
+  previous?.articles?.map(articleFingerprint).join('\n') ===
+  articles.map(articleFingerprint).join('\n')
 
 if (unchanged) {
   console.log(`No article changes (${articles.length} retained)`)

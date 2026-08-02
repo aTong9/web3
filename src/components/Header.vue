@@ -18,6 +18,7 @@ import { RouterLink } from 'vue-router'
       <RouterLink to="/a-share">A股行业</RouterLink>
       <RouterLink to="/funds">美股基金</RouterLink>
       <RouterLink to="/kols">KOL监控</RouterLink>
+      <RouterLink to="/cross-asset">跨资产</RouterLink>
       <RouterLink to="/market-news">全球快讯</RouterLink>
       <RouterLink to="/blogger">资讯台</RouterLink>
       <RouterLink to="/about">说明</RouterLink>
