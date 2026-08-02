@@ -9,7 +9,10 @@ const groups = [
   {
     title: '总览',
     icon: '◫',
-    items: [{ title: '跨资产驾驶舱', to: '/' }],
+    items: [
+      { title: '市场首页', to: '/' },
+      { title: '跨资产驾驶舱', to: '/cross-asset' },
+    ],
   },
   {
     title: '市场监控',

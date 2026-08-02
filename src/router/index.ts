@@ -7,11 +7,12 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('../views/CrossAssetView.vue'),
+      component: () => import('../views/MarketHomeView.vue'),
     },
     {
       path: '/cross-asset',
-      redirect: '/',
+      name: 'cross-asset',
+      component: () => import('../views/CrossAssetView.vue'),
     },
     {
       path: '/resources',

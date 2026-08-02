@@ -7,6 +7,9 @@ const dataset = kolData as KolMonitorDataset
 const query = ref('')
 const activePlatform = ref<'all' | KolPlatform>('all')
 const expandedKols = ref<string[]>(dataset.kols.map((kol) => kol.id))
+const subscription = ref({ name: '', url: '', feedUrl: '', tags: '' })
+const updateState = ref<'idle' | 'updating' | 'success' | 'error'>('idle')
+const updateMessage = ref('')
 
 const platformNames: Record<KolPlatform, string> = {
   youtube: 'YouTube',
@@ -78,6 +81,37 @@ const formatUpdatedAt = (value: string) =>
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(value))
+
+const addSubscription = async () => {
+  updateState.value = 'updating'
+  updateMessage.value = '正在保存订阅并抓取最新内容…'
+  try {
+    const response = await fetch('/api/kols/subscriptions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: subscription.value.name,
+        url: subscription.value.url,
+        feedUrl: subscription.value.feedUrl,
+        tags: subscription.value.tags
+          .split(/[,，]/)
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+      }),
+    })
+    const contentType = response.headers.get('content-type') ?? ''
+    const result = contentType.includes('application/json')
+      ? await response.json()
+      : { error: '当前是静态部署环境，无法写入本地订阅配置' }
+    if (!response.ok || !result.ok) throw new Error(result.error ?? '更新失败')
+    updateState.value = 'success'
+    updateMessage.value = '订阅已保存并完成同步，正在载入最新数据…'
+    window.setTimeout(() => window.location.reload(), 700)
+  } catch (error) {
+    updateState.value = 'error'
+    updateMessage.value = error instanceof Error ? error.message : '更新失败'
+  }
+}
 </script>
 
 <template>
@@ -94,6 +128,54 @@ const formatUpdatedAt = (value: string) =>
         </div>
       </div>
     </header>
+
+    <section class="subscription-panel">
+      <header>
+        <div>
+          <span>ADD & SYNC</span>
+          <h2>添加 KOL / RSS 订阅</h2>
+        </div>
+        <small>提交后立即写入订阅配置，并调用 RSS 解析器刷新内容。</small>
+      </header>
+      <form @submit.prevent="addSubscription">
+        <label>
+          <span>名称 *</span>
+          <input v-model.trim="subscription.name" required placeholder="例如：某宏观研究员" />
+        </label>
+        <label>
+          <span>主页地址</span>
+          <input v-model.trim="subscription.url" type="url" placeholder="https://example.com" />
+        </label>
+        <label>
+          <span>RSS / Atom 地址</span>
+          <input
+            v-model.trim="subscription.feedUrl"
+            type="url"
+            placeholder="https://example.com/feed.xml"
+          />
+        </label>
+        <label>
+          <span>标签</span>
+          <input v-model.trim="subscription.tags" placeholder="美股, 宏观, 科技" />
+        </label>
+        <button
+          type="submit"
+          :disabled="
+            updateState === 'updating' ||
+            !subscription.name ||
+            (!subscription.url && !subscription.feedUrl)
+          "
+        >
+          {{ updateState === 'updating' ? '同步中…' : '保存并立即更新' }}
+        </button>
+      </form>
+      <p v-if="updateMessage" class="update-message" :class="updateState">
+        {{ updateMessage }}
+      </p>
+      <p class="runtime-note">
+        本地管理系统可直接更新；GitHub Pages 等纯静态部署没有服务器写权限，需要由自动任务更新。
+      </p>
+    </section>
 
     <section class="summary">
       <div>
@@ -183,24 +265,6 @@ const formatUpdatedAt = (value: string) =>
       </section>
     </div>
 
-    <aside class="add-guide">
-      <div>
-        <span>自行添加</span>
-        <h2>只需编辑一个 YAML 文件。</h2>
-      </div>
-      <div>
-        <code>src/data/kols.yml</code>
-        <pre>
-- name: KOL名称
-  url: https://平台主页地址
-  enabled: true
-  # 可选：feedUrl: https://example.com/feed.xml
-  # 可选：tags: [美股, 宏观]</pre
-        >
-        <p>保存后运行 <code>npm run update:kols</code>，系统会自动识别平台并更新页面。</p>
-      </div>
-    </aside>
-
     <footer>
       {{ dataset.source }}。股票提及来自关键词匹配，仅表示内容中出现，不代表持仓或推荐。
     </footer>
@@ -267,6 +331,86 @@ h1 {
   border-block: 1px solid var(--border);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+}
+.subscription-panel {
+  margin-top: 34px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.subscription-panel > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: end;
+}
+.subscription-panel header span {
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+.subscription-panel h2 {
+  margin: 5px 0 0;
+  font: 400 25px Georgia, 'Songti SC', serif;
+}
+.subscription-panel header small,
+.runtime-note {
+  color: var(--muted);
+  font-size: 10px;
+}
+.subscription-panel form {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr 1.2fr 0.8fr auto;
+  gap: 10px;
+  align-items: end;
+}
+.subscription-panel label span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 9px;
+}
+.subscription-panel input {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--background);
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+}
+.subscription-panel button {
+  padding: 11px 15px;
+  border: 0;
+  border-radius: 7px;
+  background: var(--accent);
+  color: white;
+  white-space: nowrap;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+}
+.subscription-panel button:disabled {
+  opacity: 0.45;
+  cursor: wait;
+}
+.update-message {
+  margin: 12px 0 0;
+  font-size: 11px;
+}
+.update-message.error {
+  color: #a8483e;
+}
+.update-message.success {
+  color: #28765d;
+}
+.runtime-note {
+  margin: 9px 0 0;
 }
 .summary div {
   padding: 18px 16px;
@@ -564,6 +708,13 @@ footer {
   }
   .freshness {
     align-self: flex-start;
+  }
+  .subscription-panel > header {
+    align-items: start;
+    flex-direction: column;
+  }
+  .subscription-panel form {
+    grid-template-columns: 1fr;
   }
   .summary {
     grid-template-columns: 1fr 1fr;

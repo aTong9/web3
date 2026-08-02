@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import crossAssetData from '@/data/cross-asset.json'
-import type { CrossAssetDataset } from '@/types'
+import marketHomeData from '@/data/market-home.json'
+import type { MarketHomeDataset } from '@/types'
 
 defineEmits<{ close: [] }>()
-const dataset = crossAssetData as CrossAssetDataset
+const dataset = marketHomeData as MarketHomeDataset
 </script>
 
 <template>
@@ -29,7 +29,7 @@ const dataset = crossAssetData as CrossAssetDataset
       </div>
       <footer>
         <small>数据更新 {{ new Date(dataset.updatedAt).toLocaleString('zh-CN') }}</small
-        ><button @click="$emit('close')">进入驾驶舱</button>
+        ><button @click="$emit('close')">查看首页结论</button>
       </footer>
     </section>
   </div>

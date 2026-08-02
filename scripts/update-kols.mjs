@@ -2,11 +2,19 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { load } from 'js-yaml'
+import Parser from 'rss-parser'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const configPath = resolve(root, 'src/data/kols.yml')
 const outputPath = resolve(root, 'src/data/kol-monitor.json')
 const MAX_ITEMS = 12
+const feedParser = new Parser({
+  timeout: 25_000,
+  headers: {
+    'User-Agent': 'Mozilla/5.0 finance-desk/1.0',
+    Accept: 'application/rss+xml, application/atom+xml, application/xml, text/xml',
+  },
+})
 
 const stockDictionary = [
   { code: '600519', name: '贵州茅台', market: 'A股', aliases: ['贵州茅台', '茅台'] },
@@ -88,32 +96,24 @@ const extractStocks = (text) => {
   return stocks
 }
 
-const parseFeed = (xml) => {
-  const blocks = [...xml.matchAll(/<(?:entry|item)(?:\s[^>]*)?>([\s\S]*?)<\/(?:entry|item)>/gi)]
-  return blocks.slice(0, MAX_ITEMS).map(([, block], index) => {
-    const title = stripHtml(match(block, /<title(?:\s[^>]*)?>([\s\S]*?)<\/title>/i))
+const parseFeed = async (xml) => {
+  const feed = await feedParser.parseString(xml)
+  return (feed.items ?? []).slice(0, MAX_ITEMS).map((item, index) => {
+    const title = stripHtml(item.title ?? '')
     const description = stripHtml(
-      match(
-        block,
-        /<(?:media:description|description|summary|content)(?:\s[^>]*)?>([\s\S]*?)<\/(?:media:description|description|summary|content)>/i,
-      ),
+      item.contentSnippet ?? item.content ?? item.summary ?? item.description ?? '',
     )
-    const link =
-      match(block, /<link[^>]+href=["']([^"']+)["']/i) ||
-      stripHtml(match(block, /<link(?:\s[^>]*)?>([\s\S]*?)<\/link>/i))
-    const publishedAt = stripHtml(
-      match(block, /<(?:published|updated|pubDate)>([\s\S]*?)<\/(?:published|updated|pubDate)>/i),
-    )
-    const id = stripHtml(
-      match(block, /<(?:yt:videoId|guid|id)>([\s\S]*?)<\/(?:yt:videoId|guid|id)>/i),
-    )
+    const link = item.link ?? ''
+    const rawDate = item.isoDate ?? item.pubDate ?? null
+    const parsedDate = rawDate ? new Date(rawDate) : null
+    const publishedAt = parsedDate && Number.isFinite(parsedDate.valueOf()) ? parsedDate.toISOString() : null
     const combined = `${title} ${description}`
     return {
-      id: id || link || `${index}-${title}`,
+      id: item.guid ?? item.id ?? link ?? `${index}-${title}`,
       title: title || '未命名内容',
       description: description.slice(0, 260),
       url: link,
-      publishedAt: publishedAt ? new Date(publishedAt).toISOString() : null,
+      publishedAt,
       stocks: extractStocks(combined),
     }
   })
@@ -149,7 +149,7 @@ const readYouTube = async (config) => {
     match(page, /<meta[^>]+itemprop=["']channelId["'][^>]+content=["']([^"']+)["']/i) ||
     match(page, /["']channelId["']\s*:\s*["']([^"']+)["']/i)
   if (!channelId) throw new Error('无法解析 YouTube channelId')
-  const items = parseFeed(
+  const items = await parseFeed(
     await fetchText(`https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`),
   )
   return { status: 'ok', statusMessage: `已通过 YouTube Feed 同步 ${items.length} 条`, items }
@@ -159,7 +159,7 @@ const readKol = async (config) => {
   const platform = detectPlatform(config.url, config.feedUrl)
   try {
     if (config.feedUrl) {
-      const items = parseFeed(await fetchText(config.feedUrl))
+      const items = await parseFeed(await fetchText(config.feedUrl))
       return { platform, status: 'ok', statusMessage: `已通过 Feed 同步 ${items.length} 条`, items }
     }
     if (platform === 'youtube') return { platform, ...(await readYouTube(config)) }

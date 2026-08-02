@@ -363,6 +363,33 @@ export interface CrossAssetDataset {
         effect: 'tailwind' | 'headwind' | 'neutral'
         text: string
       }>
+      horizonOutlooks: Array<{
+        id: 'day' | 'week' | 'month' | 'quarter'
+        label: string
+        observations: number
+        direction: 'bullish' | 'bearish'
+        score: number
+        validated: boolean
+        confidence: 'validated' | 'watch'
+        upProbabilityPct: number
+        ruleName: string
+        threshold: number
+        training: {
+          samples: number
+          accuracyPct: number | null
+          accuracyIntervalPct: { low: number | null; high: number | null }
+          bestBaselinePct: number | null
+          liftPct: number | null
+        }
+        validation: {
+          samples: number
+          accuracyPct: number | null
+          accuracyIntervalPct: { low: number | null; high: number | null }
+          bestBaselinePct: number | null
+          liftPct: number | null
+        }
+        factors: Array<{ name: string; value: number; text: string }>
+      }>
       outlook: {
         horizon: string
         bias: 'bullish' | 'bearish' | 'neutral'
@@ -641,5 +668,23 @@ export interface CrossAssetDataset {
         } | null
       }
     }>
+  }
+}
+
+export interface MarketHomeDataset {
+  updatedAt: string
+  transmissionChains: CrossAssetDataset['transmissionChains']
+  marketBrief: {
+    asOfDate: string | null
+    disclaimer: string
+    regime: CrossAssetDataset['marketBrief']['regime']
+    rateRegime: CrossAssetDataset['marketBrief']['rateRegime']
+    breadth: CrossAssetDataset['marketBrief']['breadth']
+    markets: Array<
+      Pick<
+        CrossAssetDataset['marketBrief']['markets'][number],
+        'id' | 'name' | 'date' | 'dailyMove' | 'drivers' | 'horizonOutlooks'
+      >
+    >
   }
 }

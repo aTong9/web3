@@ -4,8 +4,10 @@ import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const outputPath = resolve(root, 'src/data/cross-asset.json')
+const homeOutputPath = resolve(root, 'src/data/market-home.json')
 const forecastHistoryPath = resolve(root, 'src/data/cross-asset-forecast-history.json')
 const modelVersion = 'cross-asset-v1.5-rate-decomposition'
+const homeModelVersion = 'cross-asset-home-v1.0-multi-horizon'
 const retiredModelVersions = new Set(['cross-asset-v1.2-risk-stress-resonance'])
 
 let liveForecastHistory = []
@@ -3037,8 +3039,186 @@ const backtestMarket = (id) => {
   }
 }
 
+const horizonDefinitions = [
+  { id: 'day', label: '未来1日', horizon: 1, shortWindow: 1, longWindow: 5 },
+  { id: 'week', label: '未来1周', horizon: 5, shortWindow: 5, longWindow: 21 },
+  { id: 'month', label: '未来1月', horizon: 21, shortWindow: 21, longWindow: 63 },
+  { id: 'quarter', label: '未来1季度', horizon: 63, shortWindow: 63, longWindow: 126 },
+]
+const pureMomentumRules = ruleFamilies.filter((rule) => rule.driverWeight === 0)
+const buildHorizonMomentumOutlook = (id, horizonDefinition) => {
+  const target = definitions.find((item) => item.id === id)
+  const history = histories[target.series]
+  const records = []
+  const start = Math.max(horizonDefinition.longWindow + 1, history.length - 2000)
+  let knownUp = 0
+  let knownDown = 0
+  for (
+    let index = start;
+    index < history.length - horizonDefinition.horizon;
+    index += horizonDefinition.horizon
+  ) {
+    const shortSignal = momentumSignalAtIndex(
+      target,
+      history,
+      index,
+      horizonDefinition.shortWindow,
+    )
+    const longSignal = momentumSignalAtIndex(
+      target,
+      history,
+      index,
+      horizonDefinition.longWindow,
+    )
+    const forward = historicalMove(
+      target,
+      history,
+      index,
+      index + horizonDefinition.horizon,
+    )
+    const majorityDirection = knownUp >= knownDown ? 1 : -1
+    records.push({
+      date: history[index].date,
+      forward,
+      baselineCorrect: sign(shortSignal) === sign(forward),
+      majorityCorrect: majorityDirection === sign(forward),
+      scores: Object.fromEntries(
+        pureMomentumRules.map((rule) => [
+          rule.id,
+          ruleScore(rule, shortSignal, longSignal, 0),
+        ]),
+      ),
+    })
+    if (forward > 0) knownUp += 1
+    else knownDown += 1
+  }
+  const boundary = Math.floor(records.length * 0.7)
+  const trainingPool = records.slice(0, boundary)
+  const validationPool = records.slice(boundary)
+  const summarize = (rows) => {
+    const correct = rows.filter((row) => row.correct).length
+    const momentumCorrect = rows.filter((row) => row.baselineCorrect).length
+    const majorityCorrect = rows.filter((row) => row.majorityCorrect).length
+    const accuracyPct = rows.length ? round((correct / rows.length) * 100) : null
+    const bestBaselinePct = rows.length
+      ? round((Math.max(momentumCorrect, majorityCorrect) / rows.length) * 100)
+      : null
+    return {
+      samples: rows.length,
+      accuracyPct,
+      accuracyIntervalPct: wilsonIntervalPct(correct, rows.length),
+      bestBaselinePct,
+      liftPct:
+        accuracyPct === null || bestBaselinePct === null
+          ? null
+          : round(accuracyPct - bestBaselinePct),
+    }
+  }
+  const materialize = (pool, rule, threshold) =>
+    pool
+      .map((row) => ({
+        ...row,
+        score: row.scores[rule.id],
+        prediction: row.scores[rule.id] >= 0 ? 'bullish' : 'bearish',
+        correct: sign(row.scores[rule.id]) === sign(row.forward),
+      }))
+      .filter((row) => Math.abs(row.score) >= threshold)
+  const minimumTrainingSamples = horizonDefinition.horizon >= 63 ? 8 : 15
+  const candidates = pureMomentumRules.flatMap((rule) =>
+    [0.2, 0.35, 0.5].map((threshold) => {
+      const training = summarize(materialize(trainingPool, rule, threshold))
+      return {
+        rule,
+        threshold,
+        training,
+        conservativeEdgePct:
+          training.accuracyIntervalPct.low === null || training.bestBaselinePct === null
+            ? null
+            : round(training.accuracyIntervalPct.low - training.bestBaselinePct),
+      }
+    }),
+  )
+  const selected =
+    candidates
+      .filter((candidate) => candidate.training.samples >= minimumTrainingSamples)
+      .toSorted(
+        (left, right) =>
+          (right.conservativeEdgePct ?? -100) - (left.conservativeEdgePct ?? -100) ||
+          (right.training.liftPct ?? -100) - (left.training.liftPct ?? -100) ||
+          right.training.samples - left.training.samples,
+      )[0] ?? candidates[0]
+  const trainingRows = materialize(trainingPool, selected.rule, selected.threshold)
+  const validationRows = materialize(validationPool, selected.rule, selected.threshold)
+  const training = summarize(trainingRows)
+  const validation = summarize(validationRows)
+  const currentIndex = history.length - 1
+  const shortSignal = momentumSignalAtIndex(
+    target,
+    history,
+    currentIndex,
+    horizonDefinition.shortWindow,
+  )
+  const longSignal = momentumSignalAtIndex(
+    target,
+    history,
+    currentIndex,
+    horizonDefinition.longWindow,
+  )
+  const score = ruleScore(selected.rule, shortSignal, longSignal, 0)
+  const direction = score >= 0 ? 'bullish' : 'bearish'
+  const directionRows = trainingRows.filter((row) => row.prediction === direction)
+  const upCount = directionRows.filter((row) => row.forward > 0).length
+  const upProbabilityPct = round(((upCount + 1) / (directionRows.length + 2)) * 100)
+  const minimumValidationSamples = horizonDefinition.horizon >= 63 ? 4 : 8
+  const validated =
+    Math.abs(score) >= selected.threshold &&
+    training.samples >= minimumTrainingSamples &&
+    (training.liftPct ?? 0) > 0 &&
+    validation.samples >= minimumValidationSamples &&
+    (validation.accuracyPct ?? 0) >= 50 &&
+    (validation.liftPct ?? 0) > 0
+  const shortMove = historicalMove(
+    target,
+    history,
+    Math.max(0, currentIndex - horizonDefinition.shortWindow),
+    currentIndex,
+  )
+  const longMove = historicalMove(
+    target,
+    history,
+    Math.max(0, currentIndex - horizonDefinition.longWindow),
+    currentIndex,
+  )
+  return {
+    id: horizonDefinition.id,
+    label: horizonDefinition.label,
+    observations: horizonDefinition.horizon,
+    direction,
+    score: round(score),
+    validated,
+    confidence: validated ? 'validated' : 'watch',
+    upProbabilityPct,
+    ruleName: selected.rule.name,
+    threshold: selected.threshold,
+    training,
+    validation,
+    factors: [
+      {
+        name: `${horizonDefinition.shortWindow}观测动量`,
+        value: round(shortSignal),
+        text: `${horizonDefinition.shortWindow}个观测期变化${directionText(round(shortMove), target.mode)}，波动调整信号${shortSignal >= 0 ? '+' : ''}${shortSignal.toFixed(2)}`,
+      },
+      {
+        name: `${horizonDefinition.longWindow}观测趋势`,
+        value: round(longSignal),
+        text: `${horizonDefinition.longWindow}个观测期变化${directionText(round(longMove), target.mode)}，波动调整信号${longSignal >= 0 ? '+' : ''}${longSignal.toFixed(2)}`,
+      },
+    ],
+  }
+}
+
 liveForecastHistory = liveForecastHistory.map((record) => {
-  if (record.resolvedAt || record.horizonObservations !== 5) return record
+  if (record.resolvedAt || !Number.isInteger(record.horizonObservations)) return record
   const definition = definitions.find((item) => item.id === record.marketId)
   const history = definition ? histories[definition.series] : null
   const originIndex = history?.findIndex((item) => item.date === record.marketDate) ?? -1
@@ -3414,6 +3594,9 @@ const marketOutlooks = forecastIds.map((id) => {
         : '当前驱动方向分化，突破前不宜给出强方向',
     '突发政策、地缘事件和数据意外可能使历史相关性失效',
   ]
+  const horizonOutlooks = horizonDefinitions.map((definition) =>
+    buildHorizonMomentumOutlook(id, definition),
+  )
   return {
     id,
     name: target.name,
@@ -3422,6 +3605,7 @@ const marketOutlooks = forecastIds.map((id) => {
     dailySummary: `${target.name}最近交易日${directionText(target.changes.day, target.mode)}。${attributionAlignment === 'confirming' ? `标准化共振贡献同向（净贡献${netAttributionContribution >= 0 ? '+' : ''}${netAttributionContribution.toFixed(2)}），主要来自${drivers.map((driver) => driver.driver).join('、')}。` : attributionAlignment === 'diverging' ? `现有跨资产贡献与价格方向相反（净贡献${netAttributionContribution >= 0 ? '+' : ''}${netAttributionContribution.toFixed(2)}），本次涨跌更可能由品种自身事件、新闻或尚未覆盖的驱动造成。` : '当前跨资产贡献不足，无法可靠解释本次涨跌。'}`,
     dailyAttribution,
     drivers,
+    horizonOutlooks,
     outlook: {
       horizon: '未来5个交易日',
       bias,
@@ -3567,6 +3751,39 @@ for (const market of marketOutlooks) {
   })
   forecastKeys.add(key)
 }
+for (const market of marketOutlooks) {
+  for (const horizon of market.horizonOutlooks) {
+    const key = `${market.id}:${market.date}:${horizon.observations}:${homeModelVersion}`
+    if (!market.date || forecastKeys.has(key)) continue
+    liveForecastHistory.push({
+      marketId: market.id,
+      marketName: market.name,
+      marketDate: market.date,
+      recordedAt: new Date().toISOString(),
+      modelVersion: homeModelVersion,
+      forecastTrack: 'homepage-momentum',
+      horizonId: horizon.id,
+      horizonObservations: horizon.observations,
+      bias: horizon.direction,
+      score: horizon.score,
+      upProbabilityPct: horizon.upProbabilityPct,
+      probabilityValidated: horizon.validated,
+      directionGateEligible: horizon.validated,
+      ruleId: horizon.ruleName,
+      ruleName: horizon.ruleName,
+      threshold: horizon.threshold,
+      macroRegime: market.outlook.backtest.selectivity.macroRegime.name,
+      probabilitySource: 'horizon-momentum',
+      predictiveDrivers: horizon.factors.map((factor) => ({
+        chain: factor.name,
+        driver: factor.name,
+        driverZ: factor.value,
+        contribution: factor.value,
+      })),
+    })
+    forecastKeys.add(key)
+  }
+}
 liveForecastHistory = liveForecastHistory.slice(-2000)
 
 for (const market of marketOutlooks) {
@@ -3616,9 +3833,29 @@ const output = {
   transmissionChains,
   marketBrief,
 }
+const homeOutput = {
+  updatedAt: output.updatedAt,
+  transmissionChains: transmissionChains.slice(0, 3),
+  marketBrief: {
+    asOfDate: marketBrief.asOfDate,
+    disclaimer: marketBrief.disclaimer,
+    regime: marketBrief.regime,
+    rateRegime: marketBrief.rateRegime,
+    breadth: marketBrief.breadth,
+    markets: marketOutlooks.map((market) => ({
+      id: market.id,
+      name: market.name,
+      date: market.date,
+      dailyMove: market.dailyMove,
+      drivers: market.drivers,
+      horizonOutlooks: market.horizonOutlooks,
+    })),
+  },
+}
 
 await mkdir(dirname(outputPath), { recursive: true })
 await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`)
+await writeFile(homeOutputPath, `${JSON.stringify(homeOutput, null, 2)}\n`)
 await writeFile(
   forecastHistoryPath,
   `${JSON.stringify({ updatedAt: new Date().toISOString(), records: liveForecastHistory }, null, 2)}\n`,
