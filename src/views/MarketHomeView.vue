@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import marketHomeData from '@/data/market-home.json'
-import type { MarketHomeDataset } from '@/types'
+import crossAssetData from '@/data/cross-asset.json'
+import type { CrossAssetDataset, MarketHomeDataset } from '@/types'
+import DailyMarketPoster from '@/components/DailyMarketPoster.vue'
 import DisclosureCard from '@/components/DisclosureCard.vue'
 
 const dataset = marketHomeData as MarketHomeDataset
+const crossAssetDataset = crossAssetData as CrossAssetDataset
 const markets = computed(() => dataset.marketBrief.markets)
 const leadMarket = computed(() => markets.value[0])
 
@@ -149,6 +152,8 @@ const formatUpdatedAt = (value: string) =>
     <footer>
       “偏涨/偏跌”是规则模型方向，不是确定结果；标记为“观察信号”时，方向尚未通过留出样本增量门槛。
     </footer>
+
+    <DailyMarketPoster :home="dataset" :cross-asset="crossAssetDataset" />
   </main>
 </template>
 
