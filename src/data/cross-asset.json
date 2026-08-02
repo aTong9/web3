@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-02T08:45:13.306Z",
+  "updatedAt": "2026-08-02T08:49:35.996Z",
   "correlationWindow": "20/60/120个共同观测日",
   "source": "FRED、新浪、腾讯、DefiLlama、Coin Metrics公开数据及透明派生指标",
   "sourceUrl": "https://fred.stlouisfed.org/",
@@ -7,6 +7,7 @@
     "资金流当前使用5日价格或收益率变化代理，不等同于真实净申购或净持仓。",
     "市场广度使用跟踪池上涨参与率，并在传导检验中剔除被预测目标；不等同于交易所全部成分股涨跌家数。",
     "全球风险压力共振指数是VIX、美国HY利差、美元广义指数和10Y实际利率日冲击的等权标准化合成值；它衡量同步压力而非可交易价格，也不证明单向因果。",
+    "10Y期限溢价来自Kim–Wright研究模型并可能修订；“预期短率成分”以10Y恒定期限收益率减该期限溢价构造，仅作透明近似。两者发布日期不同，单日变化不应被视为严格会计分解。",
     "BTC/ETH核心份额仅以BTC市值、ETH市值和稳定币供应构造，不等同于全加密市场官方主导率；过期链上数据会被新鲜度门控排除。",
     "估值分位仍等待覆盖全球市场且许可稳定的数据适配器。",
     "月度序列（例如铜）在短周期可能显示为空，相关性只在至少30个共同观测值时计算。",
@@ -373,6 +374,61 @@
         "status": "proxy",
         "label": "5日水平变化代理",
         "value": -2,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "termpremium10y",
+      "name": "美国10Y期限溢价",
+      "category": "bonds",
+      "series": "THREEFYTP10",
+      "unit": "%",
+      "mode": "difference",
+      "releaseLagDays": 4,
+      "maxStaleDays": 10,
+      "value": 0.8376,
+      "date": "2026-07-24",
+      "availableDate": "2026-07-28",
+      "stale": false,
+      "changes": {
+        "day": -1.01,
+        "week": 5.89,
+        "month": 12.01,
+        "quarter": 17.8,
+        "yearToDate": 26.66
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日水平变化代理",
+        "value": 5.89,
+        "note": "不是申赎或净买入数据"
+      }
+    },
+    {
+      "id": "expectedrate10y",
+      "name": "美国10Y预期短率成分代理",
+      "category": "bonds",
+      "series": "EXPECTED_RATE_10Y_PROXY",
+      "source": "derived",
+      "unit": "%",
+      "mode": "difference",
+      "releaseLagDays": 4,
+      "maxStaleDays": 10,
+      "value": 3.8324,
+      "date": "2026-07-29",
+      "availableDate": "2026-08-02",
+      "stale": false,
+      "changes": {
+        "day": 6,
+        "week": -0.67,
+        "month": 13.06,
+        "quarter": 14.71,
+        "yearToDate": 22.34
+      },
+      "flow": {
+        "status": "proxy",
+        "label": "5日水平变化代理",
+        "value": -0.67,
         "note": "不是申赎或净买入数据"
       }
     },
@@ -1567,7 +1623,7 @@
         "ciLow": -0.01,
         "ciHigh": 0.23,
         "pValue": 0.079768,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -1583,7 +1639,7 @@
         "liftPct": 2.13,
         "medianOutcome": 0.007344,
         "pValue": 0.770723,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -1659,7 +1715,7 @@
         "ciLow": -0.02,
         "ciHigh": 0.22,
         "pValue": 0.106553,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -1675,7 +1731,7 @@
         "liftPct": -0.64,
         "medianOutcome": 0.004791,
         "pValue": 0.929108,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -1691,7 +1747,7 @@
         "liftPct": -7.18,
         "medianOutcome": 0.005363,
         "pValue": 0.318232,
-        "qValue": 0.893858,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -1751,7 +1807,7 @@
         "ciLow": -0.08,
         "ciHigh": 0.17,
         "pValue": 0.451311,
-        "qValue": 0.853652,
+        "qValue": 0.826218,
         "evidence": "uncertain"
       },
       "shock": {
@@ -1767,7 +1823,7 @@
         "liftPct": 7.91,
         "medianOutcome": 0.008225,
         "pValue": 0.264638,
-        "qValue": 0.824747,
+        "qValue": 0.856714,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -1783,7 +1839,7 @@
         "liftPct": 1.49,
         "medianOutcome": 0.012326,
         "pValue": 0.83357,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -1843,7 +1899,7 @@
         "ciLow": -0.13,
         "ciHigh": 0.12,
         "pValue": 0.921719,
-        "qValue": 0.975172,
+        "qValue": 0.979855,
         "evidence": "uncertain"
       },
       "shock": {
@@ -1859,7 +1915,7 @@
         "liftPct": -4.91,
         "medianOutcome": -0.004546,
         "pValue": 0.501181,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -1875,7 +1931,7 @@
         "liftPct": 7.91,
         "medianOutcome": 0.011378,
         "pValue": 0.278538,
-        "qValue": 0.826451,
+        "qValue": 0.860064,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -1951,7 +2007,7 @@
         "liftPct": -6.03,
         "medianOutcome": 0.002665,
         "pValue": 0.39978,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -1967,7 +2023,7 @@
         "liftPct": -1.66,
         "medianOutcome": 0.005071,
         "pValue": 0.816695,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -2027,7 +2083,7 @@
         "ciLow": -0.09,
         "ciHigh": 0.16,
         "pValue": 0.571739,
-        "qValue": 0.878324,
+        "qValue": 0.861321,
         "evidence": "uncertain"
       },
       "shock": {
@@ -2043,7 +2099,7 @@
         "liftPct": -1.35,
         "medianOutcome": 0.001555,
         "pValue": 0.851749,
-        "qValue": 0.990312,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -2059,7 +2115,7 @@
         "liftPct": 4.63,
         "medianOutcome": 0.010623,
         "pValue": 0.5147,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -2119,7 +2175,7 @@
         "ciLow": -0.11,
         "ciHigh": 0.14,
         "pValue": 0.827234,
-        "qValue": 0.967182,
+        "qValue": 0.973752,
         "evidence": "uncertain"
       },
       "shock": {
@@ -2135,7 +2191,7 @@
         "liftPct": 11.84,
         "medianOutcome": 0.009727,
         "pValue": 0.100147,
-        "qValue": 0.721364,
+        "qValue": 0.726585,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -2151,7 +2207,7 @@
         "liftPct": -5.25,
         "medianOutcome": 0.002755,
         "pValue": 0.465981,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -2211,7 +2267,7 @@
         "ciLow": -0.15,
         "ciHigh": 0.09,
         "pValue": 0.605463,
-        "qValue": 0.903931,
+        "qValue": 0.889034,
         "evidence": "uncertain"
       },
       "shock": {
@@ -2227,7 +2283,7 @@
         "liftPct": -6.41,
         "medianOutcome": 0.002118,
         "pValue": 0.37148,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -2303,7 +2359,7 @@
         "ciLow": -0.1,
         "ciHigh": 0.14,
         "pValue": 0.743514,
-        "qValue": 0.961128,
+        "qValue": 0.958307,
         "evidence": "uncertain"
       },
       "shock": {
@@ -2319,7 +2375,7 @@
         "liftPct": -1.5,
         "medianOutcome": 0.003096,
         "pValue": 0.834706,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -2335,7 +2391,7 @@
         "liftPct": -5.77,
         "medianOutcome": 0.00497,
         "pValue": 0.422159,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -2395,7 +2451,7 @@
         "ciLow": -0.11,
         "ciHigh": 0.14,
         "pValue": 0.820639,
-        "qValue": 0.967182,
+        "qValue": 0.973752,
         "evidence": "uncertain"
       },
       "shock": {
@@ -2411,7 +2467,7 @@
         "liftPct": 1.55,
         "medianOutcome": 0.006931,
         "pValue": 0.829403,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -2427,7 +2483,7 @@
         "liftPct": -2.82,
         "medianOutcome": 0.005281,
         "pValue": 0.69505,
-        "qValue": 0.976136,
+        "qValue": 0.984265,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -2487,7 +2543,7 @@
         "ciLow": -0.17,
         "ciHigh": 0.07,
         "pValue": 0.40258,
-        "qValue": 0.85347,
+        "qValue": 0.80516,
         "evidence": "uncertain"
       },
       "shock": {
@@ -2503,7 +2559,7 @@
         "liftPct": -15.17,
         "medianOutcome": -0.003949,
         "pValue": 0.034286,
-        "qValue": 0.473735,
+        "qValue": 0.488451,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -2519,7 +2575,7 @@
         "liftPct": 4.06,
         "medianOutcome": 0.005172,
         "pValue": 0.571055,
-        "qValue": 0.926974,
+        "qValue": 0.92481,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -2579,7 +2635,7 @@
         "ciLow": -0.14,
         "ciHigh": 0.18,
         "pValue": 0.82318,
-        "qValue": 0.967182,
+        "qValue": 0.973752,
         "evidence": "uncertain"
       },
       "shock": {
@@ -2595,7 +2651,7 @@
         "liftPct": -18.19,
         "medianOutcome": -0.008559,
         "pValue": 0.160389,
-        "qValue": 0.733991,
+        "qValue": 0.743278,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -2611,7 +2667,7 @@
         "liftPct": 30.78,
         "medianOutcome": 0.010117,
         "pValue": 0.017532,
-        "qValue": 0.461138,
+        "qValue": 0.488451,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -2671,7 +2727,7 @@
         "ciLow": -0.16,
         "ciHigh": 0.17,
         "pValue": 0.962969,
-        "qValue": 0.991017,
+        "qValue": 0.988535,
         "evidence": "uncertain"
       },
       "shock": {
@@ -2687,7 +2743,7 @@
         "liftPct": -6.25,
         "medianOutcome": -0.009742,
         "pValue": 0.636753,
-        "qValue": 0.948715,
+        "qValue": 0.952108,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -2703,7 +2759,7 @@
         "liftPct": 0.76,
         "medianOutcome": 0.000842,
         "pValue": 0.954207,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -2763,7 +2819,7 @@
         "ciLow": -0.15,
         "ciHigh": 0.1,
         "pValue": 0.669672,
-        "qValue": 0.934016,
+        "qValue": 0.924785,
         "evidence": "uncertain"
       },
       "shock": {
@@ -2779,7 +2835,7 @@
         "liftPct": -8.97,
         "medianOutcome": 0.001119,
         "pValue": 0.21364,
-        "qValue": 0.824747,
+        "qValue": 0.850529,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -2795,7 +2851,7 @@
         "liftPct": 5.98,
         "medianOutcome": 0.006719,
         "pValue": 0.40706,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -2855,7 +2911,7 @@
         "ciLow": -0.03,
         "ciHigh": 0.21,
         "pValue": 0.150741,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -2871,7 +2927,7 @@
         "liftPct": -3,
         "medianOutcome": 0,
         "pValue": 0.681386,
-        "qValue": 0.976136,
+        "qValue": 0.984265,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -2887,7 +2943,7 @@
         "liftPct": -11.54,
         "medianOutcome": -0.04,
         "pValue": 0.114259,
-        "qValue": 0.721364,
+        "qValue": 0.726585,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -2947,7 +3003,7 @@
         "ciLow": -0.1,
         "ciHigh": 0.15,
         "pValue": 0.690322,
-        "qValue": 0.940747,
+        "qValue": 0.935906,
         "evidence": "uncertain"
       },
       "shock": {
@@ -2963,7 +3019,7 @@
         "liftPct": -8.12,
         "medianOutcome": -0.015906,
         "pValue": 0.266348,
-        "qValue": 0.824747,
+        "qValue": 0.856714,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -2979,7 +3035,7 @@
         "liftPct": -5.99,
         "medianOutcome": -0.003855,
         "pValue": 0.412247,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -3039,7 +3095,7 @@
         "ciLow": -0.14,
         "ciHigh": 0.18,
         "pValue": 0.769545,
-        "qValue": 0.967182,
+        "qValue": 0.971463,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3071,7 +3127,7 @@
         "liftPct": 38.48,
         "medianOutcome": 0.007143,
         "pValue": 0.002292,
-        "qValue": 0.145924,
+        "qValue": 0.161204,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -3131,7 +3187,7 @@
         "ciLow": -0.14,
         "ciHigh": 0.18,
         "pValue": 0.790066,
-        "qValue": 0.967182,
+        "qValue": 0.971463,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3147,7 +3203,7 @@
         "liftPct": 0.74,
         "medianOutcome": 0.006215,
         "pValue": 0.955858,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -3163,7 +3219,7 @@
         "liftPct": 32.6,
         "medianOutcome": 0.011422,
         "pValue": 0.009977,
-        "qValue": 0.438918,
+        "qValue": 0.484878,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -3223,7 +3279,7 @@
         "ciLow": -0.16,
         "ciHigh": 0.08,
         "pValue": 0.530656,
-        "qValue": 0.857055,
+        "qValue": 0.836514,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3239,7 +3295,7 @@
         "liftPct": -3.85,
         "medianOutcome": 0.005947,
         "pValue": 0.59085,
-        "qValue": 0.940436,
+        "qValue": 0.937364,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -3255,7 +3311,7 @@
         "liftPct": 13.62,
         "medianOutcome": 0.006931,
         "pValue": 0.057189,
-        "qValue": 0.5749,
+        "qValue": 0.587117,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -3315,7 +3371,7 @@
         "ciLow": -0.18,
         "ciHigh": 0.06,
         "pValue": 0.333762,
-        "qValue": 0.775681,
+        "qValue": 0.738821,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3331,7 +3387,7 @@
         "liftPct": 3.37,
         "medianOutcome": 0.006394,
         "pValue": 0.636117,
-        "qValue": 0.948715,
+        "qValue": 0.952108,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -3347,7 +3403,7 @@
         "liftPct": -1.71,
         "medianOutcome": 0.003765,
         "pValue": 0.811838,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -3407,7 +3463,7 @@
         "ciLow": -0.11,
         "ciHigh": 0.13,
         "pValue": 0.908543,
-        "qValue": 0.975172,
+        "qValue": 0.979855,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3423,7 +3479,7 @@
         "liftPct": -0.42,
         "medianOutcome": 0.002769,
         "pValue": 0.95401,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -3439,7 +3495,7 @@
         "liftPct": 1.71,
         "medianOutcome": 0.007783,
         "pValue": 0.814359,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -3499,7 +3555,7 @@
         "ciLow": -0.18,
         "ciHigh": 0.06,
         "pValue": 0.314008,
-        "qValue": 0.774066,
+        "qValue": 0.738821,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3515,7 +3571,7 @@
         "liftPct": -5.56,
         "medianOutcome": -0.00872,
         "pValue": 0.4467,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -3531,7 +3587,7 @@
         "liftPct": -3.42,
         "medianOutcome": -0.003742,
         "pValue": 0.639747,
-        "qValue": 0.948715,
+        "qValue": 0.952108,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -3591,7 +3647,7 @@
         "ciLow": -0.1,
         "ciHigh": 0.21,
         "pValue": 0.458689,
-        "qValue": 0.853652,
+        "qValue": 0.826218,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3607,7 +3663,7 @@
         "liftPct": 19.11,
         "medianOutcome": 0.04,
         "pValue": 0.137821,
-        "qValue": 0.733991,
+        "qValue": 0.743278,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -3623,7 +3679,7 @@
         "liftPct": -8.75,
         "medianOutcome": -0.055,
         "pValue": 0.496843,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -3683,7 +3739,7 @@
         "ciLow": -0.16,
         "ciHigh": 0.09,
         "pValue": 0.565975,
-        "qValue": 0.878324,
+        "qValue": 0.861321,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3699,7 +3755,7 @@
         "liftPct": -14.75,
         "medianOutcome": -0.012007,
         "pValue": 0.043454,
-        "qValue": 0.488218,
+        "qValue": 0.509377,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -3775,7 +3831,7 @@
         "ciLow": -0.23,
         "ciHigh": 0.02,
         "pValue": 0.087091,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3791,7 +3847,7 @@
         "liftPct": -1.71,
         "medianOutcome": 0.004787,
         "pValue": 0.811838,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -3807,7 +3863,7 @@
         "liftPct": 4.7,
         "medianOutcome": 0.006122,
         "pValue": 0.512915,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -3867,7 +3923,7 @@
         "ciLow": -0.08,
         "ciHigh": 0.16,
         "pValue": 0.533638,
-        "qValue": 0.857055,
+        "qValue": 0.836514,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3883,7 +3939,7 @@
         "liftPct": -10.25,
         "medianOutcome": -0.011315,
         "pValue": 0.160593,
-        "qValue": 0.733991,
+        "qValue": 0.743278,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -3899,7 +3955,7 @@
         "liftPct": -8.12,
         "medianOutcome": -0.004866,
         "pValue": 0.266348,
-        "qValue": 0.824747,
+        "qValue": 0.856714,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -3959,7 +4015,7 @@
         "ciLow": -0.04,
         "ciHigh": 0.2,
         "pValue": 0.202472,
-        "qValue": 0.725111,
+        "qValue": 0.661264,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3975,7 +4031,7 @@
         "liftPct": -8.34,
         "medianOutcome": -0.004959,
         "pValue": 0.252563,
-        "qValue": 0.824747,
+        "qValue": 0.856714,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -3991,7 +4047,7 @@
         "liftPct": -4.06,
         "medianOutcome": -0.000365,
         "pValue": 0.577539,
-        "qValue": 0.926974,
+        "qValue": 0.92481,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -4051,7 +4107,7 @@
         "ciLow": -0.05,
         "ciHigh": 0.19,
         "pValue": 0.228194,
-        "qValue": 0.744117,
+        "qValue": 0.689037,
         "evidence": "uncertain"
       },
       "shock": {
@@ -4067,7 +4123,7 @@
         "liftPct": 4.48,
         "medianOutcome": 0.008679,
         "pValue": 0.538818,
-        "qValue": 0.910745,
+        "qValue": 0.909825,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -4083,7 +4139,7 @@
         "liftPct": -6.19,
         "medianOutcome": -0.00154,
         "pValue": 0.395774,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -4143,7 +4199,7 @@
         "ciLow": -0.18,
         "ciHigh": 0.06,
         "pValue": 0.309932,
-        "qValue": 0.774066,
+        "qValue": 0.738821,
         "evidence": "uncertain"
       },
       "shock": {
@@ -4159,7 +4215,7 @@
         "liftPct": -5.11,
         "medianOutcome": 0.006118,
         "pValue": 0.458522,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -4175,7 +4231,7 @@
         "liftPct": 5.01,
         "medianOutcome": 0.006931,
         "pValue": 0.457197,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -4235,7 +4291,7 @@
         "ciLow": -0.21,
         "ciHigh": 0.03,
         "pValue": 0.148974,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -4251,7 +4307,7 @@
         "liftPct": -8.34,
         "medianOutcome": -0.004206,
         "pValue": 0.252563,
-        "qValue": 0.824747,
+        "qValue": 0.856714,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -4267,7 +4323,7 @@
         "liftPct": -4.06,
         "medianOutcome": -0.000563,
         "pValue": 0.577539,
-        "qValue": 0.926974,
+        "qValue": 0.92481,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -4327,7 +4383,7 @@
         "ciLow": -0.17,
         "ciHigh": 0.07,
         "pValue": 0.447206,
-        "qValue": 0.853652,
+        "qValue": 0.826218,
         "evidence": "uncertain"
       },
       "shock": {
@@ -4343,7 +4399,7 @@
         "liftPct": 6.62,
         "medianOutcome": 0.019042,
         "pValue": 0.364778,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -4359,7 +4415,7 @@
         "liftPct": -8.33,
         "medianOutcome": -0.00781,
         "pValue": 0.254119,
-        "qValue": 0.824747,
+        "qValue": 0.856714,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -4419,7 +4475,7 @@
         "ciLow": -0.24,
         "ciHigh": 0,
         "pValue": 0.056716,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -4435,7 +4491,7 @@
         "liftPct": -8.82,
         "medianOutcome": -0.00424,
         "pValue": 0.207777,
-        "qValue": 0.824747,
+        "qValue": 0.843095,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -4451,7 +4507,7 @@
         "liftPct": 1.56,
         "medianOutcome": 0.003202,
         "pValue": 0.817227,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -4511,7 +4567,7 @@
         "ciLow": -0.19,
         "ciHigh": 0.06,
         "pValue": 0.288842,
-        "qValue": 0.765431,
+        "qValue": 0.728384,
         "evidence": "uncertain"
       },
       "shock": {
@@ -4527,7 +4583,7 @@
         "liftPct": 2.65,
         "medianOutcome": 0.006151,
         "pValue": 0.675885,
-        "qValue": 0.976136,
+        "qValue": 0.983529,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -4543,7 +4599,7 @@
         "liftPct": 10.56,
         "medianOutcome": 0.005226,
         "pValue": 0.146124,
-        "qValue": 0.733991,
+        "qValue": 0.743278,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -4603,7 +4659,7 @@
         "ciLow": -0.13,
         "ciHigh": 0.11,
         "pValue": 0.861049,
-        "qValue": 0.975172,
+        "qValue": 0.979855,
         "evidence": "uncertain"
       },
       "shock": {
@@ -4619,7 +4675,7 @@
         "liftPct": -4.4,
         "medianOutcome": 0,
         "pValue": 0.49602,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -4635,7 +4691,7 @@
         "liftPct": 1.79,
         "medianOutcome": 0.01,
         "pValue": 0.800216,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -4695,7 +4751,7 @@
         "ciLow": -0.23,
         "ciHigh": 0.01,
         "pValue": 0.083265,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -4711,7 +4767,7 @@
         "liftPct": 10.5,
         "medianOutcome": 0.009624,
         "pValue": 0.144775,
-        "qValue": 0.733991,
+        "qValue": 0.743278,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -4727,7 +4783,7 @@
         "liftPct": 6.14,
         "medianOutcome": 0.01114,
         "pValue": 0.393814,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -4787,7 +4843,7 @@
         "ciLow": -0.34,
         "ciHigh": 0.1,
         "pValue": 0.282116,
-        "qValue": 0.765431,
+        "qValue": 0.728384,
         "evidence": "uncertain"
       },
       "shock": {
@@ -4879,7 +4935,7 @@
         "ciLow": -0.25,
         "ciHigh": -0.01,
         "pValue": 0.03066,
-        "qValue": 0.54166,
+        "qValue": 0.44457,
         "evidence": "uncertain"
       },
       "shock": {
@@ -4895,7 +4951,7 @@
         "liftPct": -1.81,
         "medianOutcome": 0.003479,
         "pValue": 0.789941,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -4911,7 +4967,7 @@
         "liftPct": 5.48,
         "medianOutcome": 0.005846,
         "pValue": 0.441673,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -4971,7 +5027,7 @@
         "ciLow": -0.37,
         "ciHigh": 0.06,
         "pValue": 0.146824,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -4987,7 +5043,7 @@
         "liftPct": 1.61,
         "medianOutcome": 0.001273,
         "pValue": 0.91738,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -5003,7 +5059,7 @@
         "liftPct": 14.93,
         "medianOutcome": 0.00907,
         "pValue": 0.372847,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -5063,7 +5119,7 @@
         "ciLow": -0.16,
         "ciHigh": 0.09,
         "pValue": 0.554643,
-        "qValue": 0.877495,
+        "qValue": 0.857848,
         "evidence": "uncertain"
       },
       "shock": {
@@ -5079,7 +5135,7 @@
         "liftPct": 13.03,
         "medianOutcome": 0.018345,
         "pValue": 0.073847,
-        "qValue": 0.641126,
+        "qValue": 0.649238,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -5095,7 +5151,7 @@
         "liftPct": -6.19,
         "medianOutcome": -0.00341,
         "pValue": 0.395774,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -5155,7 +5211,7 @@
         "ciLow": -0.06,
         "ciHigh": 0.18,
         "pValue": 0.343934,
-        "qValue": 0.775681,
+        "qValue": 0.738821,
         "evidence": "uncertain"
       },
       "shock": {
@@ -5171,7 +5227,7 @@
         "liftPct": -5.88,
         "medianOutcome": 0.000674,
         "pValue": 0.390693,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -5187,7 +5243,7 @@
         "liftPct": -5.32,
         "medianOutcome": 0.003052,
         "pValue": 0.451915,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -5247,7 +5303,7 @@
         "ciLow": -0.22,
         "ciHigh": 0.03,
         "pValue": 0.122464,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -5263,7 +5319,7 @@
         "liftPct": -17.47,
         "medianOutcome": -0.00105,
         "pValue": 0.015878,
-        "qValue": 0.461138,
+        "qValue": 0.488451,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -5279,7 +5335,7 @@
         "liftPct": 16.15,
         "medianOutcome": 0.00192,
         "pValue": 0.025782,
-        "qValue": 0.473735,
+        "qValue": 0.488451,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -5339,7 +5395,7 @@
         "ciLow": -0.25,
         "ciHigh": -0.01,
         "pValue": 0.028374,
-        "qValue": 0.54166,
+        "qValue": 0.44457,
         "evidence": "uncertain"
       },
       "shock": {
@@ -5355,7 +5411,7 @@
         "liftPct": -28.41,
         "medianOutcome": -0.011538,
         "pValue": 0.000095,
-        "qValue": 0.018145,
+        "qValue": 0.020045,
         "evidence": "supported"
       },
       "lowerShock": {
@@ -5371,7 +5427,7 @@
         "liftPct": 10.04,
         "medianOutcome": 0.00825,
         "pValue": 0.167867,
-        "qValue": 0.733991,
+        "qValue": 0.743278,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -5431,7 +5487,7 @@
         "ciLow": -0.17,
         "ciHigh": 0.07,
         "pValue": 0.446845,
-        "qValue": 0.853652,
+        "qValue": 0.826218,
         "evidence": "uncertain"
       },
       "shock": {
@@ -5447,7 +5503,7 @@
         "liftPct": 0.76,
         "medianOutcome": 0.007793,
         "pValue": 0.916209,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -5463,7 +5519,7 @@
         "liftPct": 1.92,
         "medianOutcome": 0.006584,
         "pValue": 0.792121,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -5523,7 +5579,7 @@
         "ciLow": -0.21,
         "ciHigh": 0.03,
         "pValue": 0.15188,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -5555,7 +5611,7 @@
         "liftPct": 6.41,
         "medianOutcome": 0.006561,
         "pValue": 0.377279,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -5615,7 +5671,7 @@
         "ciLow": -0.19,
         "ciHigh": 0.06,
         "pValue": 0.288555,
-        "qValue": 0.765431,
+        "qValue": 0.728384,
         "evidence": "uncertain"
       },
       "shock": {
@@ -5631,7 +5687,7 @@
         "liftPct": 1.98,
         "medianOutcome": 0.003318,
         "pValue": 0.782794,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -5647,7 +5703,7 @@
         "liftPct": 11.85,
         "medianOutcome": 0.014934,
         "pValue": 0.093627,
-        "qValue": 0.71531,
+        "qValue": 0.726585,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -5707,7 +5763,7 @@
         "ciLow": -0.08,
         "ciHigh": 0.16,
         "pValue": 0.488228,
-        "qValue": 0.853652,
+        "qValue": 0.828925,
         "evidence": "uncertain"
       },
       "shock": {
@@ -5723,7 +5779,7 @@
         "liftPct": 6.04,
         "medianOutcome": 0.003652,
         "pValue": 0.342832,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -5739,7 +5795,7 @@
         "liftPct": 1.07,
         "medianOutcome": 0.00618,
         "pValue": 0.870764,
-        "qValue": 0.990312,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -5799,7 +5855,7 @@
         "ciLow": -0.21,
         "ciHigh": 0.23,
         "pValue": 0.947782,
-        "qValue": 0.98495,
+        "qValue": 0.981631,
         "evidence": "uncertain"
       },
       "shock": {
@@ -5891,7 +5947,7 @@
         "ciLow": -0.11,
         "ciHigh": 0.14,
         "pValue": 0.789884,
-        "qValue": 0.967182,
+        "qValue": 0.971463,
         "evidence": "uncertain"
       },
       "shock": {
@@ -5907,7 +5963,7 @@
         "liftPct": -0.42,
         "medianOutcome": 0.001871,
         "pValue": 0.95401,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -5923,11 +5979,103 @@
         "liftPct": 8.12,
         "medianOutcome": 0.010383,
         "pValue": 0.264857,
-        "qValue": 0.824747,
+        "qValue": 0.856714,
         "evidence": "uncertain"
       },
       "strength": "medium",
       "status": "context"
+    },
+    {
+      "group": "美债利率来源分解",
+      "title": "预期短率成分—纳指链",
+      "steps": [
+        "预期政策路径抬升",
+        "区分期限风险补偿与预期政策路径",
+        "长久期科技股现金流折现压力提高"
+      ],
+      "interpretation": "10Y恒定期限收益率减Kim–Wright期限溢价的透明代理；不是可直接观测的政策预期",
+      "sourceTitle": "Federal Reserve · Three-Factor Nominal Term Structure Model",
+      "sourceUrl": "https://www.federalreserve.gov/data/three-factor-nominal-term-structure-model.htm",
+      "left": "expectedrate10y",
+      "right": "nasdaq",
+      "expectedSign": "negative",
+      "signal": -0.27,
+      "windows": {
+        "short": -0.59,
+        "medium": -0.14,
+        "long": -0.22
+      },
+      "statistics": {
+        "short": {
+          "value": -0.59,
+          "samples": 20,
+          "ciLow": -0.82,
+          "ciHigh": -0.19,
+          "pValue": 0.005646
+        },
+        "medium": {
+          "value": -0.14,
+          "samples": 60,
+          "ciLow": -0.38,
+          "ciHigh": 0.12,
+          "pValue": 0.299503
+        },
+        "long": {
+          "value": -0.22,
+          "samples": 120,
+          "ciLow": -0.38,
+          "ciHigh": -0.04,
+          "pValue": 0.015532
+        }
+      },
+      "stability": "stable",
+      "regimeShift": true,
+      "evidence": "supported",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": -0.06,
+        "samples": 260,
+        "ciLow": -0.18,
+        "ciHigh": 0.07,
+        "pValue": 0.362157,
+        "qValue": 0.750182,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 0.03895,
+        "currentMove": 0.06,
+        "triggered": true,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 55.77,
+        "baselineUpRatePct": 60.47,
+        "liftPct": -4.7,
+        "medianOutcome": 0.002403,
+        "pValue": 0.511619,
+        "qValue": 0.899507,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -0.03921,
+        "currentMove": 0.06,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 59.62,
+        "baselineUpRatePct": 60.04,
+        "liftPct": -0.42,
+        "medianOutcome": 0.009135,
+        "pValue": 0.953231,
+        "qValue": 0.993527,
+        "evidence": "uncertain"
+      },
+      "strength": "medium",
+      "status": "confirming"
     },
     {
       "group": "全球市场广度",
@@ -5983,7 +6131,7 @@
         "ciLow": -0.11,
         "ciHigh": 0.13,
         "pValue": 0.839441,
-        "qValue": 0.967182,
+        "qValue": 0.973752,
         "evidence": "uncertain"
       },
       "shock": {
@@ -5999,7 +6147,7 @@
         "liftPct": -4.38,
         "medianOutcome": 0.001897,
         "pValue": 0.520094,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -6015,7 +6163,7 @@
         "liftPct": 2.18,
         "medianOutcome": 0.003643,
         "pValue": 0.747057,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -6075,7 +6223,7 @@
         "ciLow": -0.24,
         "ciHigh": 0,
         "pValue": 0.047793,
-        "qValue": 0.633257,
+        "qValue": 0.554399,
         "evidence": "uncertain"
       },
       "shock": {
@@ -6091,7 +6239,7 @@
         "liftPct": -7.92,
         "medianOutcome": -0.014592,
         "pValue": 0.270277,
-        "qValue": 0.824747,
+        "qValue": 0.856714,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -6107,10 +6255,194 @@
         "liftPct": -4.68,
         "medianOutcome": -0.005124,
         "pValue": 0.504692,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "medium",
+      "status": "confirming"
+    },
+    {
+      "group": "美债利率来源分解",
+      "title": "预期短率成分—标普500链",
+      "steps": [
+        "预期政策路径抬升",
+        "区分期限风险补偿与预期政策路径",
+        "股票融资与贴现成本提高"
+      ],
+      "interpretation": "10Y恒定期限收益率减Kim–Wright期限溢价的透明代理；不是可直接观测的政策预期",
+      "sourceTitle": "Federal Reserve · Three-Factor Nominal Term Structure Model",
+      "sourceUrl": "https://www.federalreserve.gov/data/three-factor-nominal-term-structure-model.htm",
+      "left": "expectedrate10y",
+      "right": "sp500",
+      "expectedSign": "negative",
+      "signal": -0.25,
+      "windows": {
+        "short": -0.6,
+        "medium": -0.1,
+        "long": -0.22
+      },
+      "statistics": {
+        "short": {
+          "value": -0.6,
+          "samples": 20,
+          "ciLow": -0.82,
+          "ciHigh": -0.21,
+          "pValue": 0.004622
+        },
+        "medium": {
+          "value": -0.1,
+          "samples": 60,
+          "ciLow": -0.34,
+          "ciHigh": 0.16,
+          "pValue": 0.465278
+        },
+        "long": {
+          "value": -0.22,
+          "samples": 120,
+          "ciLow": -0.39,
+          "ciHigh": -0.05,
+          "pValue": 0.014335
+        }
+      },
+      "stability": "stable",
+      "regimeShift": true,
+      "evidence": "supported",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": -0.06,
+        "samples": 260,
+        "ciLow": -0.18,
+        "ciHigh": 0.06,
+        "pValue": 0.333722,
+        "qValue": 0.738821,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 0.0389,
+        "currentMove": 0.06,
+        "triggered": true,
+        "eventSamples": 49,
+        "controlSamples": 432,
+        "eventUpRatePct": 48.98,
+        "baselineUpRatePct": 60.42,
+        "liftPct": -11.44,
+        "medianOutcome": -0.000353,
+        "pValue": 0.122467,
+        "qValue": 0.730722,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -0.0392,
+        "currentMove": 0.06,
+        "triggered": false,
+        "eventSamples": 49,
+        "controlSamples": 432,
+        "eventUpRatePct": 61.22,
+        "baselineUpRatePct": 59.03,
+        "liftPct": 2.19,
+        "medianOutcome": 0.002839,
+        "pValue": 0.767483,
+        "qValue": 0.988138,
+        "evidence": "uncertain"
+      },
+      "strength": "medium",
+      "status": "confirming"
+    },
+    {
+      "group": "美债利率来源分解",
+      "title": "10Y期限溢价—纳指链",
+      "steps": [
+        "长期债券风险补偿上升",
+        "区分期限风险补偿与预期政策路径",
+        "长久期科技股估值承压"
+      ],
+      "interpretation": "Kim–Wright三因子模型估计的10Y零息债期限溢价变化与目标后续变化关系",
+      "sourceTitle": "Federal Reserve · Three-Factor Nominal Term Structure Model",
+      "sourceUrl": "https://fred.stlouisfed.org/series/THREEFYTP10",
+      "left": "termpremium10y",
+      "right": "nasdaq",
+      "expectedSign": "negative",
+      "signal": -0.23,
+      "windows": {
+        "short": -0.51,
+        "medium": -0.12,
+        "long": -0.16
+      },
+      "statistics": {
+        "short": {
+          "value": -0.51,
+          "samples": 20,
+          "ciLow": -0.78,
+          "ciHigh": -0.09,
+          "pValue": 0.018899
+        },
+        "medium": {
+          "value": -0.12,
+          "samples": 60,
+          "ciLow": -0.36,
+          "ciHigh": 0.14,
+          "pValue": 0.358842
+        },
+        "long": {
+          "value": -0.16,
+          "samples": 120,
+          "ciLow": -0.33,
+          "ciHigh": 0.02,
+          "pValue": 0.074374
+        }
+      },
+      "stability": "stable",
+      "regimeShift": true,
+      "evidence": "uncertain",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": -0.09,
+        "samples": 260,
+        "ciLow": -0.21,
+        "ciHigh": 0.03,
+        "pValue": 0.151469,
+        "qValue": 0.587269,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 0.02484,
+        "currentMove": -0.0101,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 55.77,
+        "baselineUpRatePct": 60.47,
+        "liftPct": -4.7,
+        "medianOutcome": 0.003214,
+        "pValue": 0.511619,
+        "qValue": 0.899507,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -0.02481,
+        "currentMove": -0.0101,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 57.69,
+        "baselineUpRatePct": 60.26,
+        "liftPct": -2.57,
+        "medianOutcome": 0.007377,
+        "pValue": 0.719684,
+        "qValue": 0.988138,
+        "evidence": "uncertain"
+      },
+      "strength": "weak",
       "status": "confirming"
     },
     {
@@ -6167,7 +6499,7 @@
         "ciLow": -0.14,
         "ciHigh": 0.11,
         "pValue": 0.795595,
-        "qValue": 0.967182,
+        "qValue": 0.971463,
         "evidence": "uncertain"
       },
       "shock": {
@@ -6183,7 +6515,7 @@
         "liftPct": -3.63,
         "medianOutcome": 0.001255,
         "pValue": 0.618678,
-        "qValue": 0.948715,
+        "qValue": 0.952108,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -6199,11 +6531,103 @@
         "liftPct": 0.64,
         "medianOutcome": 0.003002,
         "pValue": 0.930073,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "strength": "weak",
       "status": "diverging"
+    },
+    {
+      "group": "美债利率来源分解",
+      "title": "10Y期限溢价—标普500链",
+      "steps": [
+        "长期债券风险补偿上升",
+        "区分期限风险补偿与预期政策路径",
+        "股票估值贴现率与融资成本承压"
+      ],
+      "interpretation": "Kim–Wright三因子模型估计的10Y零息债期限溢价变化与目标后续变化关系",
+      "sourceTitle": "Federal Reserve · Three-Factor Nominal Term Structure Model",
+      "sourceUrl": "https://fred.stlouisfed.org/series/THREEFYTP10",
+      "left": "termpremium10y",
+      "right": "sp500",
+      "expectedSign": "negative",
+      "signal": -0.21,
+      "windows": {
+        "short": -0.49,
+        "medium": -0.08,
+        "long": -0.18
+      },
+      "statistics": {
+        "short": {
+          "value": -0.49,
+          "samples": 20,
+          "ciLow": -0.76,
+          "ciHigh": -0.05,
+          "pValue": 0.028971
+        },
+        "medium": {
+          "value": -0.08,
+          "samples": 60,
+          "ciLow": -0.33,
+          "ciHigh": 0.18,
+          "pValue": 0.538487
+        },
+        "long": {
+          "value": -0.18,
+          "samples": 120,
+          "ciLow": -0.34,
+          "ciHigh": 0,
+          "pValue": 0.054703
+        }
+      },
+      "stability": "stable",
+      "regimeShift": false,
+      "evidence": "uncertain",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": -0.09,
+        "samples": 260,
+        "ciLow": -0.21,
+        "ciHigh": 0.03,
+        "pValue": 0.145297,
+        "qValue": 0.587269,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 0.025,
+        "currentMove": -0.0101,
+        "triggered": false,
+        "eventSamples": 49,
+        "controlSamples": 432,
+        "eventUpRatePct": 53.06,
+        "baselineUpRatePct": 59.95,
+        "liftPct": -6.89,
+        "medianOutcome": 0.002554,
+        "pValue": 0.352262,
+        "qValue": 0.899507,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -0.0249,
+        "currentMove": -0.0101,
+        "triggered": false,
+        "eventSamples": 49,
+        "controlSamples": 432,
+        "eventUpRatePct": 61.22,
+        "baselineUpRatePct": 59.03,
+        "liftPct": 2.19,
+        "medianOutcome": 0.003719,
+        "pValue": 0.767483,
+        "qValue": 0.988138,
+        "evidence": "uncertain"
+      },
+      "strength": "weak",
+      "status": "confirming"
     },
     {
       "group": "全球市场广度",
@@ -6259,7 +6683,7 @@
         "ciLow": -0.04,
         "ciHigh": 0.2,
         "pValue": 0.181132,
-        "qValue": 0.711111,
+        "qValue": 0.636706,
         "evidence": "uncertain"
       },
       "shock": {
@@ -6275,7 +6699,7 @@
         "liftPct": 14.99,
         "medianOutcome": 0.011262,
         "pValue": 0.021335,
-        "qValue": 0.461138,
+        "qValue": 0.488451,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -6291,7 +6715,7 @@
         "liftPct": 4.53,
         "medianOutcome": 0.004701,
         "pValue": 0.461255,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -6351,7 +6775,7 @@
         "ciLow": -0.07,
         "ciHigh": 0.23,
         "pValue": 0.29671,
-        "qValue": 0.767104,
+        "qValue": 0.732306,
         "evidence": "uncertain"
       },
       "shock": {
@@ -6367,7 +6791,7 @@
         "liftPct": 11.04,
         "medianOutcome": 0.003383,
         "pValue": 0.371429,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -6383,11 +6807,195 @@
         "liftPct": -7.62,
         "medianOutcome": 0.00003,
         "pValue": 0.53729,
-        "qValue": 0.910745,
+        "qValue": 0.909825,
         "evidence": "uncertain"
       },
       "strength": "weak",
       "status": "confirming"
+    },
+    {
+      "group": "美债利率来源分解",
+      "title": "10Y期限溢价—10Y收益率链",
+      "steps": [
+        "美债期限补偿上升",
+        "区分期限风险补偿与预期政策路径",
+        "10Y名义收益率承压上行"
+      ],
+      "interpretation": "Kim–Wright三因子模型估计的10Y零息债期限溢价变化与目标后续变化关系",
+      "sourceTitle": "Federal Reserve · Three-Factor Nominal Term Structure Model",
+      "sourceUrl": "https://fred.stlouisfed.org/series/THREEFYTP10",
+      "left": "termpremium10y",
+      "right": "us10y",
+      "expectedSign": "positive",
+      "signal": -0.19,
+      "windows": {
+        "short": -0.3,
+        "medium": -0.18,
+        "long": -0.11
+      },
+      "statistics": {
+        "short": {
+          "value": -0.3,
+          "samples": 20,
+          "ciLow": -0.66,
+          "ciHigh": 0.16,
+          "pValue": 0.195797
+        },
+        "medium": {
+          "value": -0.18,
+          "samples": 60,
+          "ciLow": -0.42,
+          "ciHigh": 0.07,
+          "pValue": 0.160264
+        },
+        "long": {
+          "value": -0.11,
+          "samples": 120,
+          "ciLow": -0.28,
+          "ciHigh": 0.07,
+          "pValue": 0.233442
+        }
+      },
+      "stability": "stable",
+      "regimeShift": false,
+      "evidence": "uncertain",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": 0.11,
+        "samples": 260,
+        "ciLow": -0.01,
+        "ciHigh": 0.23,
+        "pValue": 0.066959,
+        "qValue": 0.587269,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 0.02393,
+        "currentMove": -0.0101,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 57.69,
+        "baselineUpRatePct": 50,
+        "liftPct": 7.69,
+        "medianOutcome": 0.02,
+        "pValue": 0.292672,
+        "qValue": 0.873335,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -0.02487,
+        "currentMove": -0.0101,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 38.46,
+        "baselineUpRatePct": 52.14,
+        "liftPct": -13.68,
+        "medianOutcome": -0.025,
+        "pValue": 0.061216,
+        "qValue": 0.587117,
+        "evidence": "uncertain"
+      },
+      "strength": "weak",
+      "status": "diverging"
+    },
+    {
+      "group": "美债利率来源分解",
+      "title": "预期短率成分—10Y收益率链",
+      "steps": [
+        "未来短端政策利率路径上修",
+        "区分期限风险补偿与预期政策路径",
+        "10Y名义收益率承压上行"
+      ],
+      "interpretation": "10Y恒定期限收益率减Kim–Wright期限溢价的透明代理；不是可直接观测的政策预期",
+      "sourceTitle": "Federal Reserve · Three-Factor Nominal Term Structure Model",
+      "sourceUrl": "https://www.federalreserve.gov/data/three-factor-nominal-term-structure-model.htm",
+      "left": "expectedrate10y",
+      "right": "us10y",
+      "expectedSign": "positive",
+      "signal": -0.19,
+      "windows": {
+        "short": -0.35,
+        "medium": -0.15,
+        "long": -0.1
+      },
+      "statistics": {
+        "short": {
+          "value": -0.35,
+          "samples": 20,
+          "ciLow": -0.69,
+          "ciHigh": 0.11,
+          "pValue": 0.128075
+        },
+        "medium": {
+          "value": -0.15,
+          "samples": 60,
+          "ciLow": -0.39,
+          "ciHigh": 0.11,
+          "pValue": 0.261794
+        },
+        "long": {
+          "value": -0.1,
+          "samples": 120,
+          "ciLow": -0.28,
+          "ciHigh": 0.08,
+          "pValue": 0.261524
+        }
+      },
+      "stability": "stable",
+      "regimeShift": false,
+      "evidence": "uncertain",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": 0.09,
+        "samples": 260,
+        "ciLow": -0.04,
+        "ciHigh": 0.2,
+        "pValue": 0.170034,
+        "qValue": 0.616373,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 0.03812,
+        "currentMove": 0.06,
+        "triggered": true,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 61.54,
+        "baselineUpRatePct": 49.57,
+        "liftPct": 11.97,
+        "medianOutcome": 0.03,
+        "pValue": 0.101434,
+        "qValue": 0.726585,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -0.03932,
+        "currentMove": 0.06,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 46.15,
+        "baselineUpRatePct": 51.28,
+        "liftPct": -5.13,
+        "medianOutcome": 0,
+        "pValue": 0.482695,
+        "qValue": 0.899507,
+        "evidence": "uncertain"
+      },
+      "strength": "weak",
+      "status": "diverging"
     },
     {
       "group": "中国与全球需求",
@@ -6443,7 +7051,7 @@
         "ciLow": -0.19,
         "ciHigh": 0.25,
         "pValue": 0.788411,
-        "qValue": 0.967182,
+        "qValue": 0.971463,
         "evidence": "uncertain"
       },
       "shock": {
@@ -6535,7 +7143,7 @@
         "ciLow": -0.2,
         "ciHigh": 0.24,
         "pValue": 0.83622,
-        "qValue": 0.967182,
+        "qValue": 0.973752,
         "evidence": "uncertain"
       },
       "shock": {
@@ -6627,7 +7235,7 @@
         "ciLow": -0.14,
         "ciHigh": 0.1,
         "pValue": 0.709998,
-        "qValue": 0.940747,
+        "qValue": 0.935906,
         "evidence": "uncertain"
       },
       "shock": {
@@ -6643,7 +7251,7 @@
         "liftPct": -0.67,
         "medianOutcome": 0.000787,
         "pValue": 0.923305,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -6659,7 +7267,7 @@
         "liftPct": 15.29,
         "medianOutcome": 0.021708,
         "pValue": 0.034724,
-        "qValue": 0.473735,
+        "qValue": 0.488451,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -6719,7 +7327,7 @@
         "ciLow": -0.4,
         "ciHigh": 0.03,
         "pValue": 0.083648,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -6811,7 +7419,7 @@
         "ciLow": -0.16,
         "ciHigh": 0.08,
         "pValue": 0.491488,
-        "qValue": 0.853652,
+        "qValue": 0.828925,
         "evidence": "uncertain"
       },
       "shock": {
@@ -6827,7 +7435,7 @@
         "liftPct": 1.72,
         "medianOutcome": 0.0113,
         "pValue": 0.804813,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -6843,7 +7451,7 @@
         "liftPct": -14.96,
         "medianOutcome": -0.007533,
         "pValue": 0.040525,
-        "qValue": 0.483767,
+        "qValue": 0.502987,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -6903,7 +7511,7 @@
         "ciLow": -0.22,
         "ciHigh": 0.02,
         "pValue": 0.11711,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -6919,7 +7527,7 @@
         "liftPct": -9.53,
         "medianOutcome": 0.002587,
         "pValue": 0.154719,
-        "qValue": 0.733991,
+        "qValue": 0.743278,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -6935,7 +7543,7 @@
         "liftPct": 5.67,
         "medianOutcome": 0.00961,
         "pValue": 0.41471,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -6995,7 +7603,7 @@
         "ciLow": -0.08,
         "ciHigh": 0.16,
         "pValue": 0.506699,
-        "qValue": 0.853652,
+        "qValue": 0.828925,
         "evidence": "uncertain"
       },
       "shock": {
@@ -7011,7 +7619,7 @@
         "liftPct": 1.93,
         "medianOutcome": 0.005995,
         "pValue": 0.791548,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -7027,7 +7635,7 @@
         "liftPct": 8.34,
         "medianOutcome": 0.007561,
         "pValue": 0.253408,
-        "qValue": 0.824747,
+        "qValue": 0.856714,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -7087,7 +7695,7 @@
         "ciLow": -0.12,
         "ciHigh": 0.13,
         "pValue": 0.929173,
-        "qValue": 0.975172,
+        "qValue": 0.979855,
         "evidence": "uncertain"
       },
       "shock": {
@@ -7103,7 +7711,7 @@
         "liftPct": 1.91,
         "medianOutcome": 0.007543,
         "pValue": 0.797704,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -7119,7 +7727,7 @@
         "liftPct": 8.73,
         "medianOutcome": 0.009687,
         "pValue": 0.241376,
-        "qValue": 0.824747,
+        "qValue": 0.856714,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -7179,7 +7787,7 @@
         "ciLow": -0.01,
         "ciHigh": 0.23,
         "pValue": 0.0633,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -7195,7 +7803,7 @@
         "liftPct": -11.11,
         "medianOutcome": -0.000934,
         "pValue": 0.12559,
-        "qValue": 0.733991,
+        "qValue": 0.730722,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -7211,7 +7819,7 @@
         "liftPct": -2.56,
         "medianOutcome": 0.003839,
         "pValue": 0.72413,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -7271,7 +7879,7 @@
         "ciLow": -0.2,
         "ciHigh": 0.05,
         "pValue": 0.219973,
-        "qValue": 0.744117,
+        "qValue": 0.689037,
         "evidence": "uncertain"
       },
       "shock": {
@@ -7287,7 +7895,7 @@
         "liftPct": -12.73,
         "medianOutcome": -0.005602,
         "pValue": 0.087116,
-        "qValue": 0.693298,
+        "qValue": 0.70698,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -7303,7 +7911,7 @@
         "liftPct": 13.97,
         "medianOutcome": 0.011795,
         "pValue": 0.060455,
-        "qValue": 0.577345,
+        "qValue": 0.587117,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -7363,7 +7971,7 @@
         "ciLow": -0.11,
         "ciHigh": 0.32,
         "pValue": 0.338779,
-        "qValue": 0.775681,
+        "qValue": 0.738821,
         "evidence": "uncertain"
       },
       "shock": {
@@ -7395,7 +8003,7 @@
         "liftPct": -1.37,
         "medianOutcome": 0.009472,
         "pValue": 0.929058,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -7455,7 +8063,7 @@
         "ciLow": -0.1,
         "ciHigh": 0.34,
         "pValue": 0.264582,
-        "qValue": 0.765431,
+        "qValue": 0.728384,
         "evidence": "uncertain"
       },
       "shock": {
@@ -7547,7 +8155,7 @@
         "ciLow": -0.06,
         "ciHigh": 0.26,
         "pValue": 0.20522,
-        "qValue": 0.725111,
+        "qValue": 0.661264,
         "evidence": "uncertain"
       },
       "shock": {
@@ -7563,7 +8171,7 @@
         "liftPct": 6.82,
         "medianOutcome": 0.005,
         "pValue": 0.550906,
-        "qValue": 0.916164,
+        "qValue": 0.916466,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -7579,7 +8187,7 @@
         "liftPct": -28.35,
         "medianOutcome": -0.035,
         "pValue": 0.030636,
-        "qValue": 0.473735,
+        "qValue": 0.488451,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -7639,7 +8247,7 @@
         "ciLow": -0.06,
         "ciHigh": 0.19,
         "pValue": 0.284418,
-        "qValue": 0.765431,
+        "qValue": 0.728384,
         "evidence": "uncertain"
       },
       "shock": {
@@ -7655,7 +8263,7 @@
         "liftPct": 9.61,
         "medianOutcome": 0.01016,
         "pValue": 0.186511,
-        "qValue": 0.774426,
+        "qValue": 0.787076,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -7671,11 +8279,103 @@
         "liftPct": -13.89,
         "medianOutcome": -0.004017,
         "pValue": 0.056224,
-        "qValue": 0.5749,
+        "qValue": 0.587117,
         "evidence": "uncertain"
       },
       "strength": "unavailable",
       "status": "unavailable"
+    },
+    {
+      "group": "美债利率来源分解",
+      "title": "10Y期限溢价—黄金链",
+      "steps": [
+        "持有长期债券所需补偿上升",
+        "区分期限风险补偿与预期政策路径",
+        "无息黄金的机会成本变化"
+      ],
+      "interpretation": "Kim–Wright三因子模型估计的10Y零息债期限溢价变化与目标后续变化关系",
+      "sourceTitle": "Federal Reserve · Three-Factor Nominal Term Structure Model",
+      "sourceUrl": "https://fred.stlouisfed.org/series/THREEFYTP10",
+      "left": "termpremium10y",
+      "right": "gold",
+      "expectedSign": "negative",
+      "signal": -0.12,
+      "windows": {
+        "short": -0.3,
+        "medium": -0.05,
+        "long": -0.07
+      },
+      "statistics": {
+        "short": {
+          "value": -0.3,
+          "samples": 20,
+          "ciLow": -0.65,
+          "ciHigh": 0.17,
+          "pValue": 0.2082
+        },
+        "medium": {
+          "value": -0.05,
+          "samples": 60,
+          "ciLow": -0.3,
+          "ciHigh": 0.2,
+          "pValue": 0.679868
+        },
+        "long": {
+          "value": -0.07,
+          "samples": 120,
+          "ciLow": -0.24,
+          "ciHigh": 0.11,
+          "pValue": 0.476895
+        }
+      },
+      "stability": "insufficient",
+      "regimeShift": false,
+      "evidence": "uncertain",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": 0,
+        "samples": 260,
+        "ciLow": -0.13,
+        "ciHigh": 0.12,
+        "pValue": 0.944747,
+        "qValue": 0.981631,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 0.02722,
+        "currentMove": -0.0101,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 50,
+        "baselineUpRatePct": 50.21,
+        "liftPct": -0.21,
+        "medianOutcome": -0.001185,
+        "pValue": 0.977078,
+        "qValue": 1,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -0.02392,
+        "currentMove": -0.0101,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 44.23,
+        "baselineUpRatePct": 50.85,
+        "liftPct": -6.62,
+        "medianOutcome": -0.00698,
+        "pValue": 0.365062,
+        "qValue": 0.899507,
+        "evidence": "uncertain"
+      },
+      "strength": "weak",
+      "status": "dormant"
     },
     {
       "group": "央行资产负债表",
@@ -7731,7 +8431,7 @@
         "ciLow": -0.09,
         "ciHigh": 0.15,
         "pValue": 0.624137,
-        "qValue": 0.904465,
+        "qValue": 0.893826,
         "evidence": "uncertain"
       },
       "shock": {
@@ -7747,7 +8447,7 @@
         "liftPct": -13.25,
         "medianOutcome": -0.005878,
         "pValue": 0.067735,
-        "qValue": 0.616066,
+        "qValue": 0.621395,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -7763,7 +8463,7 @@
         "liftPct": 1.71,
         "medianOutcome": 0.008644,
         "pValue": 0.813622,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -7823,7 +8523,7 @@
         "ciLow": -0.1,
         "ciHigh": 0.14,
         "pValue": 0.707744,
-        "qValue": 0.940747,
+        "qValue": 0.935906,
         "evidence": "uncertain"
       },
       "shock": {
@@ -7839,7 +8539,7 @@
         "liftPct": 1.29,
         "medianOutcome": 0.005476,
         "pValue": 0.857873,
-        "qValue": 0.990312,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -7855,7 +8555,7 @@
         "liftPct": 3.42,
         "medianOutcome": 0.002611,
         "pValue": 0.634947,
-        "qValue": 0.948715,
+        "qValue": 0.952108,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -7915,7 +8615,7 @@
         "ciLow": -0.14,
         "ciHigh": 0.1,
         "pValue": 0.723302,
-        "qValue": 0.946543,
+        "qValue": 0.942731,
         "evidence": "uncertain"
       },
       "shock": {
@@ -7931,7 +8631,7 @@
         "liftPct": 3.49,
         "medianOutcome": 0.004053,
         "pValue": 0.653525,
-        "qValue": 0.954026,
+        "qValue": 0.958778,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -7947,7 +8647,7 @@
         "liftPct": -9.17,
         "medianOutcome": 0.000319,
         "pValue": 0.238234,
-        "qValue": 0.824747,
+        "qValue": 0.856714,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -8007,7 +8707,7 @@
         "ciLow": -0.15,
         "ciHigh": 0.09,
         "pValue": 0.590905,
-        "qValue": 0.894799,
+        "qValue": 0.878782,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8023,7 +8723,7 @@
         "liftPct": -9.62,
         "medianOutcome": -0.004448,
         "pValue": 0.186053,
-        "qValue": 0.774426,
+        "qValue": 0.787076,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -8039,7 +8739,7 @@
         "liftPct": -5.34,
         "medianOutcome": 0.001118,
         "pValue": 0.462933,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "unavailable",
@@ -8099,7 +8799,7 @@
         "ciLow": -0.04,
         "ciHigh": 0.26,
         "pValue": 0.143952,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8115,7 +8815,7 @@
         "liftPct": 1.22,
         "medianOutcome": 0.004859,
         "pValue": 0.919438,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -8131,7 +8831,99 @@
         "liftPct": -7.72,
         "medianOutcome": -0.002827,
         "pValue": 0.512826,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
+        "evidence": "uncertain"
+      },
+      "strength": "weak",
+      "status": "dormant"
+    },
+    {
+      "group": "美债利率来源分解",
+      "title": "预期短率成分—美元链",
+      "steps": [
+        "预期美国短率路径上修",
+        "区分期限风险补偿与预期政策路径",
+        "美元利差支撑增强"
+      ],
+      "interpretation": "10Y恒定期限收益率减Kim–Wright期限溢价的透明代理；不是可直接观测的政策预期",
+      "sourceTitle": "Federal Reserve · Three-Factor Nominal Term Structure Model",
+      "sourceUrl": "https://www.federalreserve.gov/data/three-factor-nominal-term-structure-model.htm",
+      "left": "expectedrate10y",
+      "right": "usd",
+      "expectedSign": "positive",
+      "signal": -0.09,
+      "windows": {
+        "short": -0.03,
+        "medium": -0.13,
+        "long": -0.09
+      },
+      "statistics": {
+        "short": {
+          "value": -0.03,
+          "samples": 20,
+          "ciLow": -0.47,
+          "ciHigh": 0.42,
+          "pValue": 0.892695
+        },
+        "medium": {
+          "value": -0.13,
+          "samples": 60,
+          "ciLow": -0.38,
+          "ciHigh": 0.12,
+          "pValue": 0.308079
+        },
+        "long": {
+          "value": -0.09,
+          "samples": 120,
+          "ciLow": -0.26,
+          "ciHigh": 0.09,
+          "pValue": 0.335559
+        }
+      },
+      "stability": "insufficient",
+      "regimeShift": false,
+      "evidence": "uncertain",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": 0.14,
+        "samples": 260,
+        "ciLow": 0.02,
+        "ciHigh": 0.26,
+        "pValue": 0.019958,
+        "qValue": 0.385855,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 0.03783,
+        "currentMove": 0.06,
+        "triggered": true,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 55.77,
+        "baselineUpRatePct": 50.64,
+        "liftPct": 5.13,
+        "medianOutcome": 0.001482,
+        "pValue": 0.48263,
+        "qValue": 0.899507,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -0.03981,
+        "currentMove": 0.06,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 50,
+        "baselineUpRatePct": 51.28,
+        "liftPct": -1.28,
+        "medianOutcome": -0.000325,
+        "pValue": 0.86094,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -8191,7 +8983,7 @@
         "ciLow": -0.22,
         "ciHigh": 0.02,
         "pValue": 0.101316,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8207,7 +8999,7 @@
         "liftPct": -2.14,
         "medianOutcome": 0.006084,
         "pValue": 0.765424,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -8223,7 +9015,7 @@
         "liftPct": 4.27,
         "medianOutcome": 0.00936,
         "pValue": 0.551617,
-        "qValue": 0.916164,
+        "qValue": 0.916466,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -8283,7 +9075,7 @@
         "ciLow": -0.22,
         "ciHigh": 0.03,
         "pValue": 0.120912,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8299,7 +9091,7 @@
         "liftPct": -0.43,
         "medianOutcome": -0.001741,
         "pValue": 0.953084,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -8315,11 +9107,103 @@
         "liftPct": -6.84,
         "medianOutcome": -0.00964,
         "pValue": 0.349333,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "unavailable",
       "status": "unavailable"
+    },
+    {
+      "group": "美债利率来源分解",
+      "title": "10Y期限溢价—美元链",
+      "steps": [
+        "美国长期收益率风险补偿变化",
+        "区分期限风险补偿与预期政策路径",
+        "美元利差吸引力与风险偏好重新定价"
+      ],
+      "interpretation": "Kim–Wright三因子模型估计的10Y零息债期限溢价变化与目标后续变化关系",
+      "sourceTitle": "Federal Reserve · Three-Factor Nominal Term Structure Model",
+      "sourceUrl": "https://fred.stlouisfed.org/series/THREEFYTP10",
+      "left": "termpremium10y",
+      "right": "usd",
+      "expectedSign": "context",
+      "signal": -0.08,
+      "windows": {
+        "short": 0,
+        "medium": -0.13,
+        "long": -0.06
+      },
+      "statistics": {
+        "short": {
+          "value": 0,
+          "samples": 20,
+          "ciLow": -0.44,
+          "ciHigh": 0.44,
+          "pValue": 0.991912
+        },
+        "medium": {
+          "value": -0.13,
+          "samples": 60,
+          "ciLow": -0.37,
+          "ciHigh": 0.13,
+          "pValue": 0.33393
+        },
+        "long": {
+          "value": -0.06,
+          "samples": 120,
+          "ciLow": -0.24,
+          "ciHigh": 0.12,
+          "pValue": 0.512192
+        }
+      },
+      "stability": "insufficient",
+      "regimeShift": true,
+      "evidence": "uncertain",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": 0.18,
+        "samples": 260,
+        "ciLow": 0.06,
+        "ciHigh": 0.29,
+        "pValue": 0.003847,
+        "qValue": 0.148751,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 0.02482,
+        "currentMove": -0.0101,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 65.38,
+        "baselineUpRatePct": 49.57,
+        "liftPct": 15.81,
+        "medianOutcome": 0.002193,
+        "pValue": 0.030486,
+        "qValue": 0.488451,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -0.02392,
+        "currentMove": -0.0101,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 50,
+        "baselineUpRatePct": 51.28,
+        "liftPct": -1.28,
+        "medianOutcome": -0.000325,
+        "pValue": 0.86094,
+        "qValue": 0.988138,
+        "evidence": "uncertain"
+      },
+      "strength": "weak",
+      "status": "dormant"
     },
     {
       "group": "期限结构与周期",
@@ -8375,7 +9259,7 @@
         "ciLow": -0.07,
         "ciHigh": 0.17,
         "pValue": 0.428719,
-        "qValue": 0.853652,
+        "qValue": 0.826218,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8391,7 +9275,7 @@
         "liftPct": -10.05,
         "medianOutcome": 0.001038,
         "pValue": 0.148051,
-        "qValue": 0.733991,
+        "qValue": 0.743278,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -8407,7 +9291,7 @@
         "liftPct": 5.56,
         "medianOutcome": 0.00618,
         "pValue": 0.438916,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -8467,7 +9351,7 @@
         "ciLow": -0.27,
         "ciHigh": -0.04,
         "pValue": 0.010751,
-        "qValue": 0.284902,
+        "qValue": 0.249423,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8483,7 +9367,7 @@
         "liftPct": -18.38,
         "medianOutcome": -0.007204,
         "pValue": 0.01149,
-        "qValue": 0.438918,
+        "qValue": 0.484878,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -8499,7 +9383,7 @@
         "liftPct": 22.22,
         "medianOutcome": 0.010347,
         "pValue": 0.002247,
-        "qValue": 0.145924,
+        "qValue": 0.161204,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -8559,7 +9443,7 @@
         "ciLow": -0.22,
         "ciHigh": 0.24,
         "pValue": 0.925414,
-        "qValue": 0.975172,
+        "qValue": 0.979855,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8651,7 +9535,7 @@
         "ciLow": -0.11,
         "ciHigh": 0.36,
         "pValue": 0.287028,
-        "qValue": 0.765431,
+        "qValue": 0.728384,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8743,7 +9627,7 @@
         "ciLow": -0.12,
         "ciHigh": 0.13,
         "pValue": 0.915038,
-        "qValue": 0.975172,
+        "qValue": 0.979855,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8759,7 +9643,7 @@
         "liftPct": -2.93,
         "medianOutcome": 0.001996,
         "pValue": 0.694038,
-        "qValue": 0.976136,
+        "qValue": 0.984265,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -8775,7 +9659,99 @@
         "liftPct": -0.7,
         "medianOutcome": 0.004751,
         "pValue": 0.925124,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
+        "evidence": "uncertain"
+      },
+      "strength": "weak",
+      "status": "dormant"
+    },
+    {
+      "group": "美债利率来源分解",
+      "title": "预期短率成分—黄金链",
+      "steps": [
+        "预期政策利率维持高位",
+        "区分期限风险补偿与预期政策路径",
+        "无息黄金机会成本提高"
+      ],
+      "interpretation": "10Y恒定期限收益率减Kim–Wright期限溢价的透明代理；不是可直接观测的政策预期",
+      "sourceTitle": "Federal Reserve · Three-Factor Nominal Term Structure Model",
+      "sourceUrl": "https://www.federalreserve.gov/data/three-factor-nominal-term-structure-model.htm",
+      "left": "expectedrate10y",
+      "right": "gold",
+      "expectedSign": "negative",
+      "signal": -0.07,
+      "windows": {
+        "short": -0.21,
+        "medium": 0,
+        "long": -0.06
+      },
+      "statistics": {
+        "short": {
+          "value": -0.21,
+          "samples": 20,
+          "ciLow": -0.6,
+          "ciHigh": 0.26,
+          "pValue": 0.377674
+        },
+        "medium": {
+          "value": 0,
+          "samples": 60,
+          "ciLow": -0.26,
+          "ciHigh": 0.25,
+          "pValue": 0.982338
+        },
+        "long": {
+          "value": -0.06,
+          "samples": 120,
+          "ciLow": -0.24,
+          "ciHigh": 0.12,
+          "pValue": 0.489928
+        }
+      },
+      "stability": "insufficient",
+      "regimeShift": false,
+      "evidence": "uncertain",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": 0.01,
+        "samples": 260,
+        "ciLow": -0.11,
+        "ciHigh": 0.13,
+        "pValue": 0.89273,
+        "qValue": 0.979855,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 0.03982,
+        "currentMove": 0.06,
+        "triggered": true,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 53.85,
+        "baselineUpRatePct": 49.79,
+        "liftPct": 4.06,
+        "medianOutcome": 0.008848,
+        "pValue": 0.578554,
+        "qValue": 0.92481,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -0.03952,
+        "currentMove": 0.06,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 46.15,
+        "baselineUpRatePct": 50.64,
+        "liftPct": -4.49,
+        "medianOutcome": -0.008131,
+        "pValue": 0.538996,
+        "qValue": 0.909825,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -8835,7 +9811,7 @@
         "ciLow": -0.16,
         "ciHigh": 0.08,
         "pValue": 0.507359,
-        "qValue": 0.853652,
+        "qValue": 0.828925,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8851,7 +9827,7 @@
         "liftPct": 3.55,
         "medianOutcome": 0.009728,
         "pValue": 0.624394,
-        "qValue": 0.948715,
+        "qValue": 0.952108,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -8867,7 +9843,7 @@
         "liftPct": 10.09,
         "medianOutcome": 0.007437,
         "pValue": 0.164026,
-        "qValue": 0.733991,
+        "qValue": 0.743278,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -8943,7 +9919,7 @@
         "liftPct": 16.64,
         "medianOutcome": 0.012665,
         "pValue": 0.021729,
-        "qValue": 0.461138,
+        "qValue": 0.488451,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -8959,7 +9935,7 @@
         "liftPct": -11.73,
         "medianOutcome": -0.000756,
         "pValue": 0.105694,
-        "qValue": 0.721364,
+        "qValue": 0.726585,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -9019,7 +9995,7 @@
         "ciLow": -0.18,
         "ciHigh": 0.06,
         "pValue": 0.357297,
-        "qValue": 0.789031,
+        "qValue": 0.750182,
         "evidence": "uncertain"
       },
       "shock": {
@@ -9035,7 +10011,7 @@
         "liftPct": 8,
         "medianOutcome": 0.007015,
         "pValue": 0.253102,
-        "qValue": 0.824747,
+        "qValue": 0.856714,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -9051,7 +10027,7 @@
         "liftPct": 2.56,
         "medianOutcome": 0.005984,
         "pValue": 0.712362,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -9111,7 +10087,7 @@
         "ciLow": -0.13,
         "ciHigh": 0.11,
         "pValue": 0.894247,
-        "qValue": 0.975172,
+        "qValue": 0.979855,
         "evidence": "uncertain"
       },
       "shock": {
@@ -9127,7 +10103,7 @@
         "liftPct": -11.12,
         "medianOutcome": -0.008717,
         "pValue": 0.128136,
-        "qValue": 0.733991,
+        "qValue": 0.730722,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -9143,7 +10119,7 @@
         "liftPct": 3.85,
         "medianOutcome": 0.006768,
         "pValue": 0.598349,
-        "qValue": 0.944501,
+        "qValue": 0.942176,
         "evidence": "uncertain"
       },
       "strength": "unavailable",
@@ -9203,7 +10179,7 @@
         "ciLow": -0.17,
         "ciHigh": 0.08,
         "pValue": 0.462967,
-        "qValue": 0.853652,
+        "qValue": 0.826218,
         "evidence": "uncertain"
       },
       "shock": {
@@ -9219,7 +10195,7 @@
         "liftPct": -2.88,
         "medianOutcome": 0.005527,
         "pValue": 0.654332,
-        "qValue": 0.954026,
+        "qValue": 0.958778,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -9235,7 +10211,7 @@
         "liftPct": -0.88,
         "medianOutcome": 0.005846,
         "pValue": 0.89257,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -9295,7 +10271,7 @@
         "ciLow": -0.09,
         "ciHigh": 0.15,
         "pValue": 0.639135,
-        "qValue": 0.904465,
+        "qValue": 0.894391,
         "evidence": "uncertain"
       },
       "shock": {
@@ -9311,7 +10287,7 @@
         "liftPct": 16.13,
         "medianOutcome": 0.009957,
         "pValue": 0.038025,
-        "qValue": 0.483767,
+        "qValue": 0.501455,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -9327,7 +10303,7 @@
         "liftPct": -6.63,
         "medianOutcome": 0.00099,
         "pValue": 0.393811,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -9387,7 +10363,7 @@
         "ciLow": -0.21,
         "ciHigh": 0.04,
         "pValue": 0.168569,
-        "qValue": 0.687243,
+        "qValue": 0.616373,
         "evidence": "uncertain"
       },
       "shock": {
@@ -9403,7 +10379,7 @@
         "liftPct": 7.44,
         "medianOutcome": 0.006246,
         "pValue": 0.304342,
-        "qValue": 0.867602,
+        "qValue": 0.891891,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -9479,7 +10455,7 @@
         "ciLow": -0.08,
         "ciHigh": 0.16,
         "pValue": 0.4979,
-        "qValue": 0.853652,
+        "qValue": 0.828925,
         "evidence": "uncertain"
       },
       "shock": {
@@ -9495,7 +10471,7 @@
         "liftPct": -6.84,
         "medianOutcome": -0.004816,
         "pValue": 0.349333,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -9511,7 +10487,7 @@
         "liftPct": -0.43,
         "medianOutcome": 0.000102,
         "pValue": 0.953084,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "strength": "unavailable",
@@ -9571,7 +10547,7 @@
         "ciLow": -0.13,
         "ciHigh": 0.12,
         "pValue": 0.923988,
-        "qValue": 0.975172,
+        "qValue": 0.979855,
         "evidence": "uncertain"
       },
       "shock": {
@@ -9587,7 +10563,7 @@
         "liftPct": 12.32,
         "medianOutcome": 0.010611,
         "pValue": 0.111135,
-        "qValue": 0.721364,
+        "qValue": 0.726585,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -9603,7 +10579,7 @@
         "liftPct": 2.2,
         "medianOutcome": 0.011803,
         "pValue": 0.776039,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -9663,7 +10639,7 @@
         "ciLow": -0.17,
         "ciHigh": 0.07,
         "pValue": 0.398727,
-        "qValue": 0.85347,
+        "qValue": 0.80516,
         "evidence": "uncertain"
       },
       "shock": {
@@ -9679,7 +10655,7 @@
         "liftPct": -8.68,
         "medianOutcome": -0.00675,
         "pValue": 0.230153,
-        "qValue": 0.824747,
+        "qValue": 0.856714,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -9695,7 +10671,7 @@
         "liftPct": 3.22,
         "medianOutcome": 0.008499,
         "pValue": 0.640755,
-        "qValue": 0.948715,
+        "qValue": 0.952108,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -9755,7 +10731,7 @@
         "ciLow": -0.24,
         "ciHigh": 0,
         "pValue": 0.042319,
-        "qValue": 0.633257,
+        "qValue": 0.545445,
         "evidence": "uncertain"
       },
       "shock": {
@@ -9771,7 +10747,7 @@
         "liftPct": -7.54,
         "medianOutcome": 0.00201,
         "pValue": 0.293871,
-        "qValue": 0.850445,
+        "qValue": 0.873335,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -9787,7 +10763,7 @@
         "liftPct": 7.74,
         "medianOutcome": 0.006172,
         "pValue": 0.281253,
-        "qValue": 0.826451,
+        "qValue": 0.860064,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -9847,7 +10823,7 @@
         "ciLow": -0.18,
         "ciHigh": 0.06,
         "pValue": 0.329357,
-        "qValue": 0.775681,
+        "qValue": 0.738821,
         "evidence": "uncertain"
       },
       "shock": {
@@ -9863,7 +10839,7 @@
         "liftPct": 1.71,
         "medianOutcome": 0.005543,
         "pValue": 0.813622,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -9879,7 +10855,7 @@
         "liftPct": -4.7,
         "medianOutcome": 0.000452,
         "pValue": 0.516994,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -9939,7 +10915,7 @@
         "ciLow": -0.2,
         "ciHigh": 0.04,
         "pValue": 0.1995,
-        "qValue": 0.725111,
+        "qValue": 0.661264,
         "evidence": "uncertain"
       },
       "shock": {
@@ -9955,7 +10931,7 @@
         "liftPct": -1.15,
         "medianOutcome": 0.007831,
         "pValue": 0.87106,
-        "qValue": 0.990312,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -9971,7 +10947,7 @@
         "liftPct": 6.63,
         "medianOutcome": 0.011355,
         "pValue": 0.361337,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -10031,7 +11007,7 @@
         "ciLow": -0.28,
         "ciHigh": -0.04,
         "pValue": 0.00755,
-        "qValue": 0.266767,
+        "qValue": 0.21895,
         "evidence": "uncertain"
       },
       "shock": {
@@ -10047,7 +11023,7 @@
         "liftPct": -1.32,
         "medianOutcome": 0.001221,
         "pValue": 0.867841,
-        "qValue": 0.990312,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -10063,7 +11039,7 @@
         "liftPct": -7.16,
         "medianOutcome": -0.003661,
         "pValue": 0.327518,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -10123,7 +11099,7 @@
         "ciLow": -0.05,
         "ciHigh": 0.19,
         "pValue": 0.231659,
-        "qValue": 0.744117,
+        "qValue": 0.689037,
         "evidence": "uncertain"
       },
       "shock": {
@@ -10155,7 +11131,7 @@
         "liftPct": 2.13,
         "medianOutcome": 0.000385,
         "pValue": 0.770723,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -10215,7 +11191,7 @@
         "ciLow": -0.31,
         "ciHigh": -0.07,
         "pValue": 0.001672,
-        "qValue": 0.088616,
+        "qValue": 0.096976,
         "evidence": "supported"
       },
       "shock": {
@@ -10231,7 +11207,7 @@
         "liftPct": -11.44,
         "medianOutcome": -0.01025,
         "pValue": 0.149261,
-        "qValue": 0.733991,
+        "qValue": 0.743278,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -10247,7 +11223,7 @@
         "liftPct": -11.46,
         "medianOutcome": -0.020123,
         "pValue": 0.11708,
-        "qValue": 0.721364,
+        "qValue": 0.726585,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -10323,7 +11299,7 @@
         "liftPct": -5.13,
         "medianOutcome": -0.002026,
         "pValue": 0.482111,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -10339,7 +11315,7 @@
         "liftPct": -5.13,
         "medianOutcome": -0.005996,
         "pValue": 0.482111,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "unavailable",
@@ -10399,7 +11375,7 @@
         "ciLow": -0.38,
         "ciHigh": 0.05,
         "pValue": 0.120429,
-        "qValue": 0.643971,
+        "qValue": 0.587269,
         "evidence": "uncertain"
       },
       "shock": {
@@ -10491,7 +11467,7 @@
         "ciLow": -0.19,
         "ciHigh": 0.05,
         "pValue": 0.268424,
-        "qValue": 0.765431,
+        "qValue": 0.728384,
         "evidence": "uncertain"
       },
       "shock": {
@@ -10507,7 +11483,7 @@
         "liftPct": -1.58,
         "medianOutcome": 0.009744,
         "pValue": 0.838968,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -10523,7 +11499,7 @@
         "liftPct": 8.54,
         "medianOutcome": 0.006291,
         "pValue": 0.272037,
-        "qValue": 0.824747,
+        "qValue": 0.856714,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -10583,7 +11559,7 @@
         "ciLow": -0.13,
         "ciHigh": 0.11,
         "pValue": 0.90073,
-        "qValue": 0.975172,
+        "qValue": 0.979855,
         "evidence": "uncertain"
       },
       "shock": {
@@ -10599,7 +11575,7 @@
         "liftPct": 4.4,
         "medianOutcome": 0.00763,
         "pValue": 0.573857,
-        "qValue": 0.926974,
+        "qValue": 0.92481,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -10615,7 +11591,7 @@
         "liftPct": 9.44,
         "medianOutcome": 0.007172,
         "pValue": 0.202072,
-        "qValue": 0.821186,
+        "qValue": 0.836023,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -10675,7 +11651,7 @@
         "ciLow": -0.16,
         "ciHigh": 0.08,
         "pValue": 0.493435,
-        "qValue": 0.853652,
+        "qValue": 0.828925,
         "evidence": "uncertain"
       },
       "shock": {
@@ -10691,7 +11667,7 @@
         "liftPct": -5.55,
         "medianOutcome": -0.003388,
         "pValue": 0.446777,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -10707,7 +11683,7 @@
         "liftPct": 0.86,
         "medianOutcome": 0.008014,
         "pValue": 0.906155,
-        "qValue": 0.992222,
+        "qValue": 0.993527,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -10767,7 +11743,7 @@
         "ciLow": -0.1,
         "ciHigh": 0.15,
         "pValue": 0.698439,
-        "qValue": 0.940747,
+        "qValue": 0.935906,
         "evidence": "uncertain"
       },
       "shock": {
@@ -10783,7 +11759,7 @@
         "liftPct": 3.07,
         "medianOutcome": 0.003862,
         "pValue": 0.687132,
-        "qValue": 0.976136,
+        "qValue": 0.984265,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -10799,7 +11775,7 @@
         "liftPct": 1.66,
         "medianOutcome": 0.002805,
         "pValue": 0.834106,
-        "qValue": 0.983085,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -10859,7 +11835,7 @@
         "ciLow": -0.07,
         "ciHigh": 0.17,
         "pValue": 0.412315,
-        "qValue": 0.853652,
+        "qValue": 0.810653,
         "evidence": "uncertain"
       },
       "shock": {
@@ -10875,7 +11851,7 @@
         "liftPct": 5.37,
         "medianOutcome": 0.011742,
         "pValue": 0.433609,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -10891,7 +11867,7 @@
         "liftPct": -11.3,
         "medianOutcome": -0.009325,
         "pValue": 0.112712,
-        "qValue": 0.721364,
+        "qValue": 0.726585,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -10951,7 +11927,7 @@
         "ciLow": -0.16,
         "ciHigh": 0.08,
         "pValue": 0.517404,
-        "qValue": 0.85695,
+        "qValue": 0.833595,
         "evidence": "uncertain"
       },
       "shock": {
@@ -10967,7 +11943,7 @@
         "liftPct": -2.77,
         "medianOutcome": -0.002219,
         "pValue": 0.704673,
-        "qValue": 0.982427,
+        "qValue": 0.988138,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -10983,7 +11959,7 @@
         "liftPct": 10.05,
         "medianOutcome": 0.016459,
         "pValue": 0.169087,
-        "qValue": 0.733991,
+        "qValue": 0.743278,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -11043,7 +12019,7 @@
         "ciLow": -0.32,
         "ciHigh": -0.09,
         "pValue": 0.00081,
-        "qValue": 0.08586,
+        "qValue": 0.09396,
         "evidence": "supported"
       },
       "shock": {
@@ -11059,7 +12035,7 @@
         "liftPct": -16.73,
         "medianOutcome": -0.002044,
         "pValue": 0.028888,
-        "qValue": 0.473735,
+        "qValue": 0.488451,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -11075,7 +12051,7 @@
         "liftPct": 4.9,
         "medianOutcome": 0.01129,
         "pValue": 0.50272,
-        "qValue": 0.894937,
+        "qValue": 0.899507,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -11135,7 +12111,7 @@
         "ciLow": -0.27,
         "ciHigh": 0.17,
         "pValue": 0.623112,
-        "qValue": 0.904465,
+        "qValue": 0.893826,
         "evidence": "uncertain"
       },
       "shock": {
@@ -11227,7 +12203,7 @@
         "ciLow": -0.15,
         "ciHigh": 0.09,
         "pValue": 0.639952,
-        "qValue": 0.904465,
+        "qValue": 0.894391,
         "evidence": "uncertain"
       },
       "shock": {
@@ -11243,7 +12219,7 @@
         "liftPct": 3.73,
         "medianOutcome": 0.009741,
         "pValue": 0.604102,
-        "qValue": 0.945766,
+        "qValue": 0.944189,
         "evidence": "uncertain"
       },
       "lowerShock": {
@@ -11259,7 +12235,7 @@
         "liftPct": 12.46,
         "medianOutcome": 0.011156,
         "pValue": 0.08326,
-        "qValue": 0.69142,
+        "qValue": 0.702714,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -11365,6 +12341,14 @@
     "regime": {
       "title": "风险驱动分化",
       "summary": "全球风险压力共振-1.12σ（单日变化下跌 1.87点），圣路易斯联储金融压力-0.83（零以上为高于历史平均）；10Y–2Y曲线正斜率45bp，10Y–3M正斜率92bp；2Y−EFFR政策路径差+60bp；5Y5Y通胀预期2.30%；新兴市场HY收益率7.44%；SOFR−EFFR资金压力差+2bp。"
+    },
+    "rateRegime": {
+      "title": "长端利率波动有限",
+      "dominant": "expected-rate",
+      "yieldMoveBp": 1,
+      "termPremiumMoveBp": -1.01,
+      "expectedRateMoveBp": 6,
+      "summary": "10Y收益率最近观测变化上涨 1.00bp；Kim–Wright期限溢价变化下跌 1.01bp，收益率减期限溢价得到的预期短率成分代理变化上涨 6.00bp。分量发布日期不同，归因只比较方向和相对幅度，不要求机械相加。"
     },
     "cryptoRegime": {
       "title": "链上结构数据待更新",
@@ -11480,9 +12464,9 @@
             "validated": false
           },
           "liveEvaluation": {
-            "modelVersion": "cross-asset-v1.4-driver-ablation",
+            "modelVersion": "cross-asset-v1.5-rate-decomposition",
             "totalSnapshots": 1,
-            "allVersionSnapshots": 3,
+            "allVersionSnapshots": 4,
             "resolvedSamples": 0,
             "directionalSamples": 0,
             "directionalAccuracyPct": null,
@@ -11502,26 +12486,15 @@
           },
           "scenario": null,
           "consensus": {
-            "aligned": 1,
-            "total": 1,
-            "pct": 100
+            "aligned": 0,
+            "total": 0,
+            "pct": null
           },
-          "predictiveDrivers": [
-            {
-              "chain": "金融条件—美股链",
-              "driver": "芝加哥联储金融条件指数",
-              "driverMove": -0.01,
-              "driverZ": -1.1,
-              "correlation": -0.21,
-              "contribution": 0.1,
-              "effect": "tailwind",
-              "text": "芝加哥联储金融条件指数下跌 0.01点；领先相关-0.21（时点门槛p≤0.0008），与滚动回测同口径贡献+0.10"
-            }
-          ],
+          "predictiveDrivers": [],
           "reasons": [
             "近5个交易日上涨 1.05%（波动标准化+0.27），近1个月上涨 0.09%（标准化+0.01）",
             "跨资产驱动未通过留出期消融检验（完整模型41.2%，纯动量41.2%），本次评分已将其归零",
-            "芝加哥联储金融条件指数下跌 0.01点；领先相关-0.21（时点门槛p≤0.0008），与滚动回测同口径贡献+0.10"
+            "当前没有通过95%区间筛选的跨资产领先线索"
           ],
           "risks": [
             "当前驱动方向分化，突破前不宜给出强方向",
@@ -11964,9 +12937,9 @@
             "validated": false
           },
           "liveEvaluation": {
-            "modelVersion": "cross-asset-v1.4-driver-ablation",
+            "modelVersion": "cross-asset-v1.5-rate-decomposition",
             "totalSnapshots": 1,
-            "allVersionSnapshots": 3,
+            "allVersionSnapshots": 4,
             "resolvedSamples": 0,
             "directionalSamples": 0,
             "directionalAccuracyPct": null,
@@ -12429,9 +13402,9 @@
             "validated": false
           },
           "liveEvaluation": {
-            "modelVersion": "cross-asset-v1.4-driver-ablation",
+            "modelVersion": "cross-asset-v1.5-rate-decomposition",
             "totalSnapshots": 1,
-            "allVersionSnapshots": 3,
+            "allVersionSnapshots": 4,
             "resolvedSamples": 0,
             "directionalSamples": 0,
             "directionalAccuracyPct": null,
@@ -12894,9 +13867,9 @@
             "validated": false
           },
           "liveEvaluation": {
-            "modelVersion": "cross-asset-v1.4-driver-ablation",
+            "modelVersion": "cross-asset-v1.5-rate-decomposition",
             "totalSnapshots": 1,
-            "allVersionSnapshots": 3,
+            "allVersionSnapshots": 4,
             "resolvedSamples": 0,
             "directionalSamples": 0,
             "directionalAccuracyPct": null,
@@ -13377,9 +14350,9 @@
             "validated": false
           },
           "liveEvaluation": {
-            "modelVersion": "cross-asset-v1.4-driver-ablation",
+            "modelVersion": "cross-asset-v1.5-rate-decomposition",
             "totalSnapshots": 1,
-            "allVersionSnapshots": 3,
+            "allVersionSnapshots": 4,
             "resolvedSamples": 0,
             "directionalSamples": 0,
             "directionalAccuracyPct": null,
@@ -13831,9 +14804,9 @@
             "validated": false
           },
           "liveEvaluation": {
-            "modelVersion": "cross-asset-v1.4-driver-ablation",
+            "modelVersion": "cross-asset-v1.5-rate-decomposition",
             "totalSnapshots": 1,
-            "allVersionSnapshots": 3,
+            "allVersionSnapshots": 4,
             "resolvedSamples": 0,
             "directionalSamples": 0,
             "directionalAccuracyPct": null,
@@ -14314,9 +15287,9 @@
             "validated": false
           },
           "liveEvaluation": {
-            "modelVersion": "cross-asset-v1.4-driver-ablation",
+            "modelVersion": "cross-asset-v1.5-rate-decomposition",
             "totalSnapshots": 1,
-            "allVersionSnapshots": 3,
+            "allVersionSnapshots": 4,
             "resolvedSamples": 0,
             "directionalSamples": 0,
             "directionalAccuracyPct": null,
@@ -14798,9 +15771,9 @@
             "validated": false
           },
           "liveEvaluation": {
-            "modelVersion": "cross-asset-v1.4-driver-ablation",
+            "modelVersion": "cross-asset-v1.5-rate-decomposition",
             "totalSnapshots": 1,
-            "allVersionSnapshots": 3,
+            "allVersionSnapshots": 4,
             "resolvedSamples": 0,
             "directionalSamples": 0,
             "directionalAccuracyPct": null,
@@ -15283,9 +16256,9 @@
             "validated": false
           },
           "liveEvaluation": {
-            "modelVersion": "cross-asset-v1.4-driver-ablation",
+            "modelVersion": "cross-asset-v1.5-rate-decomposition",
             "totalSnapshots": 1,
-            "allVersionSnapshots": 3,
+            "allVersionSnapshots": 4,
             "resolvedSamples": 0,
             "directionalSamples": 0,
             "directionalAccuracyPct": null,
@@ -15769,9 +16742,9 @@
             "validated": false
           },
           "liveEvaluation": {
-            "modelVersion": "cross-asset-v1.4-driver-ablation",
+            "modelVersion": "cross-asset-v1.5-rate-decomposition",
             "totalSnapshots": 1,
-            "allVersionSnapshots": 3,
+            "allVersionSnapshots": 4,
             "resolvedSamples": 0,
             "directionalSamples": 0,
             "directionalAccuracyPct": null,
