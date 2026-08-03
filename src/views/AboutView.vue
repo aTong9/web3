@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useI18n } from '@/composables/use-i18n'
+import readmeMd from '../../README.md?raw'
 
 const { t } = useI18n()
+const readmeContent = readmeMd
 </script>
 
 <template>
@@ -39,6 +41,15 @@ const { t } = useI18n()
     </section>
 
     <footer>{{ t('about.footer') }}</footer>
+
+    <section class="readme-block">
+      <span>04</span>
+      <div>
+        <h2>{{ t('about.readmeTitle') }}</h2>
+        <p>{{ t('about.readmeDesc') }}</p>
+        <pre>{{ readmeContent }}</pre>
+      </div>
+    </section>
   </article>
 </template>
 
@@ -108,6 +119,22 @@ footer {
   border-top: 1px solid var(--ink);
   color: var(--danger);
   font-size: 12px;
+}
+
+.readme-block pre {
+  margin: 16px 0 0;
+  padding: 16px;
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: color-mix(in oklab, #000 78%, var(--card));
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 @media (max-width: 640px) {

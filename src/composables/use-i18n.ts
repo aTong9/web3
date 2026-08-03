@@ -670,6 +670,8 @@ const messages: Record<Locale, DictionaryNode> = {
       section3Title: '资讯台',
       section3Desc:
         '集中存放高频阅读入口，以原站跳转替代 iframe 嵌入，减少加载问题和第三方追踪面。',
+      readmeTitle: '项目说明',
+      readmeDesc: '在页底部同步展示仓库根目录的 README.md 以便核对当前系统说明。',
       footer: '内容仅供个人研究使用，不构成任何投资建议。',
     },
     blogger: {
@@ -1327,6 +1329,8 @@ const messages: Record<Locale, DictionaryNode> = {
       section3Title: 'Briefing',
       section3Desc:
         'High-frequency research sources are grouped here; open original sites directly instead of iframes.',
+      readmeTitle: 'Project README',
+      readmeDesc: 'README.md from repository root is displayed here for quick reference.',
       footer: 'For personal research only. Not financial advice.',
     },
     blogger: {
