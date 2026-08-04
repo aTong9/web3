@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-03T23:06:04.391Z",
+  "updatedAt": "2026-08-04T00:16:28.951Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -36,6 +36,42 @@
     }
   ],
   "articles": [
+    {
+      "id": "8f71a45d67cc4154",
+      "title": "Analysis: Federal Reserve may be pulled into Bessent’s effort to support Japan’s yen",
+      "url": "https://www.cnbc.com/2026/08/03/bessent-fed-japan-yen-fima-repo-facility.html",
+      "publishedAt": "2026-08-03T23:20:54.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "美元"
+      ],
+      "translatedTitle": "分析：美联储可能会被拉入贝森特支持日元的努力",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "76d79c8fdf19f58a",
+      "title": "CNBC's The China Connection newsletter: AI wins come with an old investor risk",
+      "url": "https://www.cnbc.com/2026/08/03/cnbcs-the-china-connection-newsletter-ai-wins-create-investor-risks.html",
+      "publishedAt": "2026-08-03T23:00:01.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "A股"
+      ],
+      "translatedTitle": "CNBC的The China Connection时事通讯：人工智能的胜利伴随着旧的投资者风险",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "a50190587cd93303",
       "title": "Big Tech's Anthropic and OpenAI stakes are distorting the corporate earnings picture",
@@ -71,24 +107,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "8f71a45d67cc4154",
-      "title": "Analysis: Federal Reserve may be pulled into Bessent’s effort to support Japan’s yen",
-      "url": "https://www.cnbc.com/2026/08/03/bessent-fed-japan-yen-fima-repo-facility.html",
-      "publishedAt": "2026-08-03T22:40:32.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [
-        "美元"
-      ],
-      "translatedTitle": "分析：美联储可能会被拉入贝森特支持日元的努力",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "dc8b88db8f9f255f",
       "title": "Jim Cramer says the market has warmed up to Big Tech's AI spending. Here's what flipped the switch",
       "url": "https://www.cnbc.com/2026/08/03/jim-cramer-market-warmed-up-big-tech-ai-spending.html",
@@ -114,7 +132,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "拉里·伯格（ Larry Berg ）被任命为下一任美国职业足球大",
       "translationStatus": "translated",
@@ -130,7 +148,7 @@
       "category": "equities",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [
         "美股"
       ],
@@ -237,24 +255,6 @@
         "美股"
       ],
       "translatedTitle": "随着股票在盈利后继续飙升，亚马逊市值突破3万亿美元$",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "809172ddf05577c1",
-      "title": "Oil prices tumble after Trump calls off attack on Iran",
-      "url": "https://www.cnbc.com/2026/08/03/oil-prices-today-wti-brent-hormuz-trump-iran.html",
-      "publishedAt": "2026-08-03T19:59:55.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "geopolitics",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "原油"
-      ],
-      "translatedTitle": "特朗普取消对伊朗的攻击后油价暴跌",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -441,22 +441,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "ac10db3d2f29d776",
-      "title": "Visa to buy cybersecurity firm BioCatch for $2.4 billion amid surge in AI-powered scams",
-      "url": "https://www.cnbc.com/2026/08/03/visa-buys-biocatch-fraud-detection.html",
-      "publishedAt": "2026-08-03T16:44:25.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "Visa以24亿美元收购网络安全公司BioCatch ，因人工智能诈骗激增",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "9bab66b58994d118",
       "title": "Trump insists Iran talks are underway despite Tehran's 'duplicitous' denials",
       "url": "https://www.cnbc.com/2026/08/03/trump-iran-us-negotiations-peace-proposals-.html",
@@ -501,6 +485,22 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "《蜘蛛侠：全新一天》击败《复仇者联盟：终局之战》，在国内开启有史以来最高纪录",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "365fd9321e61d613",
+      "title": "Why the U.S. stepped in after decades to prop up Japan's yen — and what's at stake",
+      "url": "https://www.cnbc.com/2026/08/03/japan-yen-intervention-us-treasurys-euros-.html",
+      "publishedAt": "2026-08-03T13:49:17.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "为什么美国在几十年后介入支撑日元—以及利害攸关的是什么",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
