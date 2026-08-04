@@ -31,6 +31,36 @@ export interface SiteConfig {
   defaultLogo?: string
 }
 
+export type UserRole = 'admin' | 'editor' | 'viewer'
+export type AppPermission =
+  | 'admin.view'
+  | 'users.manage'
+  | 'analytics.view'
+  | 'analytics.manage'
+  | 'paper.manage'
+
+export interface AppUser {
+  id: string
+  name: string
+  email: string
+  role: UserRole
+  status: 'active' | 'disabled'
+  createdAt: string
+  lastLoginAt: string | null
+  permissions: AppPermission[]
+}
+
+export interface AnalyticsConfig {
+  provider: 'posthog'
+  enabled: boolean
+  host: string
+  projectKey: string
+  autocapture: boolean
+  sessionReplay: boolean
+  consentRequired: boolean
+  updatedAt: string | null
+}
+
 // 博主监控相关类型定义
 export interface BloggerInfo {
   id: string
@@ -97,14 +127,7 @@ export interface UsFundDataset {
 }
 
 export type SectorKind = 'industry' | 'theme'
-export type SectorPeriod =
-  | 'day'
-  | 'week'
-  | 'month'
-  | 'quarter'
-  | 'halfYear'
-  | 'yearToDate'
-  | 'year'
+export type SectorPeriod = 'day' | 'week' | 'month' | 'quarter' | 'halfYear' | 'yearToDate' | 'year'
 
 export interface SectorReturns {
   day: number | null
@@ -227,13 +250,7 @@ export interface UsMegaCapDataset {
   stocks: UsMegaCapStock[]
 }
 
-export type QuantSignalLevel =
-  | 'buy'
-  | 'accumulate'
-  | 'hold'
-  | 'reduce'
-  | 'sell'
-  | 'unavailable'
+export type QuantSignalLevel = 'buy' | 'accumulate' | 'hold' | 'reduce' | 'sell' | 'unavailable'
 
 export interface QuantStrategyConfig {
   forwardPeThreshold: number

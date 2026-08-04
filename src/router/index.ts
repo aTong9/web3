@@ -1,9 +1,21 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { useAuth } from '@/composables/use-auth'
+import { useAnalytics } from '@/composables/use-analytics'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../views/AdminView.vue'),
+      meta: {
+        titleKey: '管理中心',
+        descriptionKey: '用户权限与开源埋点',
+        permission: 'admin.view',
+      },
+    },
     {
       path: '/',
       name: 'home',
@@ -108,5 +120,17 @@ const router = createRouter({
     },
   ],
 })
+
+router.beforeEach(async (to) => {
+  const auth = useAuth()
+  await auth.restore()
+  const permission = to.meta.permission
+  if (typeof permission === 'string' && !auth.can(permission as import('@/types').AppPermission))
+    return '/'
+})
+
+router.afterEach((to) =>
+  useAnalytics().capture('$pageview', { path: to.path, route: String(to.name ?? '') }),
+)
 
 export default router

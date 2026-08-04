@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from '@/composables/use-i18n'
+import { useAuth } from '@/composables/use-auth'
 
 defineProps<{ mobileOpen: boolean }>()
 defineEmits<{ close: [] }>()
 
 const { t } = useI18n()
+const { can } = useAuth()
 
-const groups = [
+const groups = computed(() => [
   {
     title: 'ui.nav.marketSummary',
     icon: '◫',
@@ -44,7 +46,10 @@ const groups = [
       { title: 'ui.nav.about', to: '/about' },
     ],
   },
-]
+  ...(can('admin.view')
+    ? [{ title: '管理', icon: '⚙', items: [{ title: '用户与埋点', to: '/admin' }] }]
+    : []),
+])
 const collapsed = ref<string[]>([])
 const toggleGroup = (title: string) => {
   collapsed.value = collapsed.value.includes(title)
@@ -57,10 +62,16 @@ const toggleGroup = (title: string) => {
   <aside class="sidebar" :class="{ open: mobileOpen }">
     <div class="brand">
       <RouterLink to="/" @click="$emit('close')"
-        ><b>F.</b><span><strong>{{ t('ui.app.title') }}</strong><small>{{ t('ui.app.description') }}</small></span></RouterLink
+        ><b>F.</b
+        ><span
+          ><strong>{{ t('ui.app.title') }}</strong
+          ><small>{{ t('ui.app.description') }}</small></span
+        ></RouterLink
       >
       <div class="brand-actions">
-        <button class="close-menu" :aria-label="t('ui.app.closeMenu')" @click="$emit('close')">×</button>
+        <button class="close-menu" :aria-label="t('ui.app.closeMenu')" @click="$emit('close')">
+          ×
+        </button>
       </div>
     </div>
     <nav :aria-label="t('ui.app.navigation') ?? '系统主菜单'">
@@ -91,7 +102,12 @@ const toggleGroup = (title: string) => {
       </div>
     </footer>
   </aside>
-  <button v-if="mobileOpen" class="backdrop" :aria-label="t('ui.app.closeBackdrop')" @click="$emit('close')"></button>
+  <button
+    v-if="mobileOpen"
+    class="backdrop"
+    :aria-label="t('ui.app.closeBackdrop')"
+    @click="$emit('close')"
+  ></button>
 </template>
 
 <style scoped>

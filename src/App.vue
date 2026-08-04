@@ -1,14 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { RouterView } from 'vue-router'
 import AppSidebar from '@/components/AppSidebar.vue'
 import AppTopbar from '@/components/AppTopbar.vue'
 import TransmissionAlert from '@/components/TransmissionAlert.vue'
+import AnalyticsConsent from '@/components/AnalyticsConsent.vue'
 import { useTheme } from '@/utils/use-theme'
+import { useAuth } from '@/composables/use-auth'
+import { useAnalytics } from '@/composables/use-analytics'
 
 const mobileMenuOpen = ref(false)
 const alertOpen = ref(true)
 useTheme()
+const { restore } = useAuth()
+const { start } = useAnalytics()
+onMounted(async () => {
+  await restore()
+  await start()
+})
 </script>
 
 <template>
@@ -19,6 +28,7 @@ useTheme()
       <RouterView />
     </div>
     <TransmissionAlert v-if="alertOpen" @close="alertOpen = false" />
+    <AnalyticsConsent />
   </div>
 </template>
 

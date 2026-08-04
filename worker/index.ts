@@ -5,6 +5,18 @@ import type {
   UsMegaCapDataset,
 } from '../src/types/index'
 import { buildQuantDashboard } from '../src/utils/quant-signals'
+import {
+  AuthError,
+  analyticsConfig,
+  authStatus,
+  authenticate,
+  createUser,
+  exchangeCode,
+  listUsers,
+  logout,
+  saveAnalytics,
+  updateUser,
+} from './admin'
 
 const maximumJsonBytes = 4_000_000
 const maximumRequestBytes = 8_192
@@ -52,7 +64,7 @@ const responseHeaders = (request: Request, env: Env) => {
   if (origin) {
     headers.set('Access-Control-Allow-Origin', origin)
     headers.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
-    headers.set('Access-Control-Allow-Headers', 'Content-Type')
+    headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     headers.set('Access-Control-Max-Age', '86400')
     headers.set('Vary', 'Origin')
   }
@@ -269,12 +281,55 @@ const deletePaperPosition = async (env: Env, clientId: string, id: string) => {
 
 const handleApi = async (request: Request, env: Env) => {
   const url = new URL(request.url)
-  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: responseHeaders(request, env) })
+  if (request.method === 'OPTIONS')
+    return new Response(null, { status: 204, headers: responseHeaders(request, env) })
   if (url.pathname === '/api/health' && request.method === 'GET') {
     const snapshot = await env.DB.prepare(
       'SELECT generated_at FROM quant_snapshots ORDER BY created_at DESC LIMIT 1',
     ).first<{ generated_at: string }>()
-    return json(request, env, { ok: true, service: 'web3-quant-api', latestSnapshotAt: snapshot?.generated_at ?? null })
+    return json(request, env, {
+      ok: true,
+      service: 'web3-quant-api',
+      latestSnapshotAt: snapshot?.generated_at ?? null,
+    })
+  }
+  if (url.pathname === '/api/auth/status' && request.method === 'GET') {
+    return json(request, env, await authStatus(env))
+  }
+  if (url.pathname === '/api/auth/exchange' && request.method === 'POST') {
+    return json(request, env, await exchangeCode(env, await requestJson(request)))
+  }
+  if (url.pathname === '/api/auth/me' && request.method === 'GET') {
+    return json(request, env, { user: await authenticate(request, env) })
+  }
+  if (url.pathname === '/api/auth/logout' && request.method === 'POST') {
+    await logout(request, env)
+    return json(request, env, { ok: true })
+  }
+  if (url.pathname === '/api/analytics/config' && request.method === 'GET') {
+    return json(request, env, await analyticsConfig(env))
+  }
+  if (url.pathname === '/api/admin/users' && request.method === 'GET') {
+    await authenticate(request, env, 'users.manage')
+    return json(request, env, { users: await listUsers(env) })
+  }
+  if (url.pathname === '/api/admin/users' && request.method === 'POST') {
+    const actor = await authenticate(request, env, 'users.manage')
+    return json(request, env, await createUser(env, actor.id, await requestJson(request)), 201)
+  }
+  const userMatch = url.pathname.match(/^\/api\/admin\/users\/([0-9a-f-]+)$/i)
+  if (userMatch && request.method === 'PATCH') {
+    const actor = await authenticate(request, env, 'users.manage')
+    await updateUser(env, actor.id, userMatch[1], await requestJson(request))
+    return json(request, env, { ok: true })
+  }
+  if (url.pathname === '/api/admin/analytics' && request.method === 'GET') {
+    await authenticate(request, env, 'analytics.view')
+    return json(request, env, await analyticsConfig(env, true))
+  }
+  if (url.pathname === '/api/admin/analytics' && request.method === 'PATCH') {
+    const actor = await authenticate(request, env, 'analytics.manage')
+    return json(request, env, await saveAnalytics(env, actor.id, await requestJson(request)))
   }
   if (url.pathname === '/api/quant/dashboard' && request.method === 'GET') {
     return json(request, env, await latestDashboard(env))
@@ -311,7 +366,7 @@ export default {
       }
       return await handleApi(request, env)
     } catch (error) {
-      const status = error instanceof HttpError ? error.status : 500
+      const status = error instanceof HttpError || error instanceof AuthError ? error.status : 500
       const message = error instanceof Error ? error.message : '未知错误'
       console.error(JSON.stringify({ event: 'request_failed', requestId, status, message }))
       return json(

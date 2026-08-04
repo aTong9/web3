@@ -2,22 +2,21 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import UserMenu from '@/components/UserMenu.vue'
 import { useI18n } from '@/composables/use-i18n'
 
 defineEmits<{ openMenu: [] }>()
 const route = useRoute()
 const { locale, t, setLocale } = useI18n()
-const title = computed(() =>
-  t(String(route.meta.titleKey ?? 'ui.app.title')),
-)
-const description = computed(() =>
-  t(String(route.meta.descriptionKey ?? 'marketHome.heading')),
-)
+const title = computed(() => t(String(route.meta.titleKey ?? 'ui.app.title')))
+const description = computed(() => t(String(route.meta.descriptionKey ?? 'marketHome.heading')))
 </script>
 
 <template>
   <header class="app-topbar">
-    <button class="menu-button" :aria-label="t('ui.app.openMenu')" @click="$emit('openMenu')">☰</button>
+    <button class="menu-button" :aria-label="t('ui.app.openMenu')" @click="$emit('openMenu')">
+      ☰
+    </button>
     <div>
       <strong>{{ title }}</strong>
       <small>{{ description }}</small>
@@ -32,6 +31,7 @@ const description = computed(() =>
       </button>
     </div>
     <ThemeToggle />
+    <UserMenu />
   </header>
 </template>
 
@@ -46,7 +46,7 @@ const description = computed(() =>
   top: 0;
   z-index: 28;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto auto auto;
   align-items: center;
   gap: 18px;
 }
