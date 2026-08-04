@@ -3,14 +3,18 @@ import { computed, ref } from 'vue'
 import fundData from '@/data/us-funds.json'
 import type { FundVenue, UsFund, UsFundDataset } from '@/types'
 import HotStocksPanel from '@/components/HotStocksPanel.vue'
+import UsMegaCapsPanel from '@/components/UsMegaCapsPanel.vue'
+import { useI18n } from '@/composables/use-i18n'
 
 type SortKey = 'scale' | 'fee' | 'premium' | 'firstYearCost'
+const ALL_INDEX = 'all'
 
 const dataset = fundData as UsFundDataset
 const activeVenue = ref<FundVenue>('exchange')
-const activeIndex = ref('全部指数')
+const activeIndex = ref(ALL_INDEX)
 const sortKey = ref<SortKey>('scale')
 const brokerageFeePct = ref(0.03)
+const { t } = useI18n()
 
 const indices = computed(() => [...new Set(dataset.funds.map((fund) => fund.index))])
 
@@ -29,7 +33,7 @@ const visibleFunds = computed(() =>
     .filter(
       (fund) =>
         fund.venue === activeVenue.value &&
-        (activeIndex.value === '全部指数' || fund.index === activeIndex.value),
+        (activeIndex.value === ALL_INDEX || fund.index === activeIndex.value),
     )
     .sort((a, b) => {
       if (sortKey.value === 'scale') return (b.scaleBillionCny ?? -1) - (a.scaleBillionCny ?? -1)
@@ -52,8 +56,8 @@ const formatSignedFee = (value: number | null) =>
   value === null ? '—' : `${value > 0 ? '+' : ''}${value.toFixed(2)}%`
 
 const formatLimit = (fund: UsFund) => {
-  if (fund.recurringInvestmentOpen === false) return '暂停定投'
-  if (fund.dailyInvestmentLimitCny === null) return '未检出限额'
+  if (fund.recurringInvestmentOpen === false) return t('funds.status.stopped')
+  if (fund.dailyInvestmentLimitCny === null) return t('funds.status.noLimit')
   return `¥${fund.dailyInvestmentLimitCny.toLocaleString('zh-CN')} / 日`
 }
 </script>
@@ -62,60 +66,60 @@ const formatLimit = (fund: UsFund) => {
   <div class="fund-page">
     <header class="page-heading">
       <div>
-        <p>US equity funds · 中国市场</p>
-        <h1>美股市场</h1>
+        <p>{{ t('funds.sub') }}</p>
+        <h1>{{ t('funds.title') }}</h1>
       </div>
       <div class="freshness">
         <span class="live-dot"></span>
         <div>
-          <strong>每日监控</strong>
-          <small>更新于 {{ formatUpdatedAt(dataset.updatedAt) }}</small>
+          <strong>{{ t('funds.monitor') }}</strong>
+          <small>{{ t('funds.updatedLabel') }} {{ formatUpdatedAt(dataset.updatedAt) }}</small>
         </div>
       </div>
     </header>
 
     <section class="scope-note">
       <p>
-        首批覆盖跟踪纳斯达克 100 与标普 500 的主流境内 QDII
-        产品。总成本估算将年运作费率、当前购买手续费、场内佣金假设和最近溢折价分开计算。
+        {{ t('funds.scope.intro') }}
       </p>
       <p>{{ dataset.source }}</p>
     </section>
 
+    <UsMegaCapsPanel />
     <HotStocksPanel market="us" />
 
     <div class="controls">
-      <div class="segmented" aria-label="交易场所">
+      <div class="segmented" :aria-label="t('funds.venue.exchange')">
         <button :class="{ active: activeVenue === 'exchange' }" @click="activeVenue = 'exchange'">
-          场内 ETF
+          {{ t('funds.venue.exchange') }}
         </button>
         <button
           :class="{ active: activeVenue === 'offExchange' }"
           @click="activeVenue = 'offExchange'"
         >
-          场外基金
+          {{ t('funds.venue.offExchange') }}
         </button>
       </div>
 
       <div class="filter-row">
         <label>
-          跟踪指数
+          {{ t('funds.index') }}
           <select v-model="activeIndex">
-            <option>全部指数</option>
+            <option :value="ALL_INDEX">{{ t('funds.allIndex') }}</option>
             <option v-for="indexName in indices" :key="indexName">{{ indexName }}</option>
           </select>
         </label>
         <label>
-          排序
+          {{ t('funds.sort') }}
           <select v-model="sortKey">
-            <option value="scale">规模从大到小</option>
-            <option value="fee">综合费率从低到高</option>
-            <option value="premium">溢价率从低到高</option>
-            <option value="firstYearCost">首年成本估算从低到高</option>
+            <option value="scale">{{ t('funds.sortOptions.scale') }}</option>
+            <option value="fee">{{ t('funds.sortOptions.fee') }}</option>
+            <option value="premium">{{ t('funds.sortOptions.premium') }}</option>
+            <option value="firstYearCost">{{ t('funds.sortOptions.firstYearCost') }}</option>
           </select>
         </label>
         <label v-if="activeVenue === 'exchange'">
-          单边佣金
+          {{ t('funds.feeHint') }}
           <span class="commission-input"
             ><input v-model.number="brokerageFeePct" type="number" min="0" step="0.01" />%</span
           >
@@ -127,15 +131,15 @@ const formatLimit = (fund: UsFund) => {
       <table>
         <thead>
           <tr>
-            <th>基金</th>
-            <th>跟踪指数</th>
-            <th class="number">规模</th>
-            <th class="number">综合费率</th>
-            <th class="number">溢折价</th>
-            <th class="number">购买成本</th>
-            <th class="number">首年成本估算</th>
-            <th v-if="activeVenue === 'offExchange'">每日定投参考额度</th>
-            <th>明细</th>
+            <th>{{ t('funds.table.fund') }}</th>
+            <th>{{ t('funds.table.indexLabel') }}</th>
+            <th class="number">{{ t('funds.table.scale') }}</th>
+            <th class="number">{{ t('funds.table.fee') }}</th>
+            <th class="number">{{ t('funds.table.premium') }}</th>
+            <th class="number">{{ t('funds.table.entryCost') }}</th>
+            <th class="number">{{ t('funds.table.firstYear') }}</th>
+            <th v-if="activeVenue === 'offExchange'">{{ t('funds.table.dailyLimit') }}</th>
+            <th>{{ t('funds.table.detail') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -156,21 +160,27 @@ const formatLimit = (fund: UsFund) => {
             <td class="number">
               <strong>{{ formatSignedFee(fund.premiumRatePct) }}</strong>
               <small v-if="fund.venue === 'exchange'">净值 {{ fund.navDate ?? '—' }}</small>
-              <small v-else>场外按净值申购</small>
+              <small v-else>{{ t('funds.table.row.offExchangeNav') }}</small>
             </td>
             <td class="number">
               <strong>{{
                 formatFee(fund.venue === 'exchange' ? brokerageFeePct : fund.purchaseFeePct)
               }}</strong>
-              <small>{{ fund.venue === 'exchange' ? '买入佣金假设' : '当前申购费' }}</small>
+              <small>
+                {{
+                  fund.venue === 'exchange'
+                    ? t('funds.table.row.buyFee')
+                    : t('funds.table.row.applyFee')
+                }}
+              </small>
             </td>
             <td class="number cost-total">
               <strong>{{ formatSignedFee(firstYearCost(fund)) }}</strong>
-              <small>运作费 + 买入成本 + 溢折价</small>
+              <small>{{ t('funds.table.row.feeFormula') }}</small>
             </td>
             <td class="number">
               <strong>{{ formatFee(totalFee(fund)) }}</strong>
-              <small>年运作费率</small>
+              <small>{{ t('funds.table.row.annualOpFee') }}</small>
             </td>
             <td v-if="activeVenue === 'offExchange'">
               <span
@@ -182,16 +192,16 @@ const formatLimit = (fund: UsFund) => {
               >
                 {{ formatLimit(fund) }}
               </span>
-              <small class="channel-note">天天基金渠道</small>
+              <small class="channel-note">{{ t('funds.row.channelNote') }}</small>
             </td>
             <td class="fee-detail">
-              <span>管理 {{ formatFee(fund.managementFeePct) }}</span>
-              <span>托管 {{ formatFee(fund.custodianFeePct) }}</span>
+              <span>{{ t('funds.legend.management', { value: formatFee(fund.managementFeePct) }) }}</span>
+              <span>{{ t('funds.legend.custody', { value: formatFee(fund.custodianFeePct) }) }}</span>
               <span v-if="(fund.serviceFeePct ?? 0) > 0">
-                销售服务 {{ formatFee(fund.serviceFeePct) }}
+                {{ t('funds.legend.service', { value: formatFee(fund.serviceFeePct) }) }}
               </span>
               <span v-if="(fund.purchaseFeePct ?? 0) > 0">
-                当前申购 {{ formatFee(fund.purchaseFeePct) }}
+                {{ t('funds.legend.purchase', { value: formatFee(fund.purchaseFeePct) }) }}
               </span>
             </td>
           </tr>
@@ -200,8 +210,7 @@ const formatLimit = (fund: UsFund) => {
     </div>
 
     <footer>
-      场内产品还应结合实时溢价率、成交额与券商佣金判断；本页排序不代表推荐，也不构成投资建议。
-      首年成本未计卖出佣金、买卖价差、持有期相关赎回费、跟踪误差及汇率影响；负值表示当前折价抵减了估算成本。
+      {{ t('funds.notice') }} {{ t('funds.caution') }}
     </footer>
   </div>
 </template>

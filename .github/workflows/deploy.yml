@@ -3,6 +3,15 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  workflow_run:
+    workflows:
+      - Update A-share sector data
+      - Update cross-asset dashboard
+      - Update hot stocks
+      - Update KOL monitor
+      - Update global market news
+      - Update US fund data
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -12,14 +21,20 @@ permissions:
 
 concurrency:
   group: 'pages'
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Data refreshes are committed by GITHUB_TOKEN, so their push event does
+          # not start another workflow. workflow_run deploys the latest canonical
+          # branch explicitly after the refresh workflow has completed.
+          ref: main
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -44,6 +59,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       pages: write
       id-token: write

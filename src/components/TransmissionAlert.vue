@@ -1,20 +1,22 @@
 <script setup lang="ts">
 import marketHomeData from '@/data/market-home.json'
 import type { MarketHomeDataset } from '@/types'
+import { useI18n } from '@/composables/use-i18n'
 
 defineEmits<{ close: [] }>()
 const dataset = marketHomeData as MarketHomeDataset
+const { t } = useI18n()
 </script>
 
 <template>
   <div class="alert-layer" role="dialog" aria-modal="true" aria-labelledby="alert-title">
     <section>
       <header>
-        <span>MARKET TRANSMISSION ALERT</span
-        ><button aria-label="关闭提醒" @click="$emit('close')">×</button>
+        <span>{{ t('ui.transmissionAlert.title') }}</span
+        ><button :aria-label="t('ui.transmissionAlert.close')" @click="$emit('close')">×</button>
       </header>
       <div class="alert-copy">
-        <p>每次进入系统提醒</p>
+        <p>{{ t('ui.transmissionAlert.title') }}</p>
         <h2 id="alert-title">{{ dataset.marketBrief.regime.title }}</h2>
         <span>{{ dataset.marketBrief.regime.summary }}</span>
       </div>
@@ -28,8 +30,8 @@ const dataset = marketHomeData as MarketHomeDataset
         </article>
       </div>
       <footer>
-        <small>数据更新 {{ new Date(dataset.updatedAt).toLocaleString('zh-CN') }}</small
-        ><button @click="$emit('close')">查看首页结论</button>
+        <small>{{ t('ui.transmissionAlert.updated') }} {{ new Intl.DateTimeFormat('zh-CN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(dataset.updatedAt)) }}</small
+        ><button @click="$emit('close')">{{ t('ui.transmissionAlert.viewHome') }}</button>
       </footer>
     </section>
   </div>

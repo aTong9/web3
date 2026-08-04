@@ -1,42 +1,46 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useI18n } from '@/composables/use-i18n'
 
 defineProps<{ mobileOpen: boolean }>()
 defineEmits<{ close: [] }>()
 
+const { t } = useI18n()
+
 const groups = [
   {
-    title: '总览',
+    title: 'ui.nav.marketSummary',
     icon: '◫',
     items: [
-      { title: '市场首页', to: '/' },
-      { title: '跨资产驾驶舱', to: '/cross-asset' },
+      { title: 'ui.nav.marketPage', to: '/' },
+      { title: 'ui.nav.crossAsset', to: '/cross-asset' },
     ],
   },
   {
-    title: '市场监控',
+    title: 'ui.nav.monitor',
     icon: '⌁',
     items: [
-      { title: 'A股市场', to: '/a-share' },
-      { title: '美股市场', to: '/funds' },
+      { title: 'ui.nav.aShareMarket', to: '/a-share' },
+      { title: 'ui.nav.usMarket', to: '/funds' },
     ],
   },
   {
-    title: '市场情报',
+    title: 'ui.nav.intelligence',
     icon: '◎',
     items: [
-      { title: '全球市场快讯', to: '/market-news' },
-      { title: 'KOL监控', to: '/kols' },
-      { title: '资讯台', to: '/blogger' },
+      { title: 'ui.nav.news', to: '/market-news' },
+      { title: 'ui.nav.kol', to: '/kols' },
+      { title: 'ui.nav.briefing', to: '/blogger' },
     ],
   },
   {
-    title: '工具与资源',
+    title: 'ui.nav.tools',
     icon: '◇',
     items: [
-      { title: '资源导航', to: '/resources' },
-      { title: '系统说明', to: '/about' },
+      { title: 'ui.nav.resource', to: '/resources' },
+      { title: 'ui.nav.report', to: '/report' },
+      { title: 'ui.nav.about', to: '/about' },
     ],
   },
 ]
@@ -52,18 +56,18 @@ const toggleGroup = (title: string) => {
   <aside class="sidebar" :class="{ open: mobileOpen }">
     <div class="brand">
       <RouterLink to="/" @click="$emit('close')"
-        ><b>F.</b><span><strong>市场研究台</strong><small>MARKET DESK</small></span></RouterLink
+        ><b>F.</b><span><strong>{{ t('ui.app.title') }}</strong><small>{{ t('ui.app.description') }}</small></span></RouterLink
       >
       <div class="brand-actions">
-        <button class="close-menu" aria-label="关闭菜单" @click="$emit('close')">×</button>
+        <button class="close-menu" :aria-label="t('ui.app.closeMenu')" @click="$emit('close')">×</button>
       </div>
     </div>
-    <nav aria-label="系统主菜单">
+    <nav :aria-label="t('ui.app.navigation') ?? '系统主菜单'">
       <section v-for="group in groups" :key="group.title">
         <button class="group-title" @click="toggleGroup(group.title)">
           <span
             ><i>{{ group.icon }}</i
-            >{{ group.title }}</span
+            >{{ t(group.title) }}</span
           >
           <b :class="{ collapsed: collapsed.includes(group.title) }">⌄</b>
         </button>
@@ -73,17 +77,20 @@ const toggleGroup = (title: string) => {
             :key="item.to"
             :to="item.to"
             @click="$emit('close')"
-            >{{ item.title }}</RouterLink
+            >{{ t(item.title) }}</RouterLink
           >
         </div>
       </section>
     </nav>
     <footer>
       <span></span>
-      <div><strong>数据任务运行中</strong><small>自动更新 · 来源可追溯</small></div>
+      <div>
+        <strong>{{ t('ui.app.systemRunning') }}</strong>
+        <small>{{ t('ui.app.sourceTraceable') }}</small>
+      </div>
     </footer>
   </aside>
-  <button v-if="mobileOpen" class="backdrop" aria-label="关闭菜单" @click="$emit('close')"></button>
+  <button v-if="mobileOpen" class="backdrop" :aria-label="t('ui.app.closeBackdrop')" @click="$emit('close')"></button>
 </template>
 
 <style scoped>

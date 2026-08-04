@@ -1,35 +1,40 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import marketHomeData from '@/data/market-home.json'
-import type { MarketHomeDataset } from '@/types'
+import crossAssetData from '@/data/cross-asset.json'
+import type { CrossAssetDataset, MarketHomeDataset } from '@/types'
+import DailyMarketPoster from '@/components/DailyMarketPoster.vue'
 import DisclosureCard from '@/components/DisclosureCard.vue'
+import { useI18n } from '@/composables/use-i18n'
 
 const dataset = marketHomeData as MarketHomeDataset
+const crossAssetDataset = crossAssetData as CrossAssetDataset
 const markets = computed(() => dataset.marketBrief.markets)
 const leadMarket = computed(() => markets.value[0])
+const { t } = useI18n()
 
 const formatMove = (value: number | null) =>
   value === null ? '—' : (value > 0 ? '+' : '') + value.toFixed(2) + '%'
 const directionName = (direction: 'bullish' | 'bearish') =>
-  direction === 'bullish' ? '偏涨' : '偏跌'
+  direction === 'bullish' ? t('direction.bullish') : t('direction.bearish')
 const validationText = (
   horizon: MarketHomeDataset['marketBrief']['markets'][number]['horizonOutlooks'][number],
 ) => {
   if (horizon.validated)
-    return (
-      '留出验证通过 · ' +
-      horizon.validation.samples +
-      '样本 · 命中' +
-      (horizon.validation.accuracyPct?.toFixed(1) ?? '—') +
-      '%'
-    )
+    return t('marketHome.validation.pass', {
+      samples: horizon.validation.samples,
+      accuracy: horizon.validation.accuracyPct?.toFixed(1) ?? '—',
+    })
   const lift =
     horizon.validation.liftPct === null
       ? '—'
       : (horizon.validation.liftPct > 0 ? '+' : '') +
         horizon.validation.liftPct.toFixed(1) +
         '%'
-  return '观察信号 · 留出' + horizon.validation.samples + '样本 · 相对基线' + lift
+  return t('marketHome.validation.watch', {
+    samples: horizon.validation.samples,
+    lift,
+  })
 }
 const formatUpdatedAt = (value: string) =>
   new Intl.DateTimeFormat('zh-CN', {
@@ -43,14 +48,14 @@ const formatUpdatedAt = (value: string) =>
   <main class="market-home">
     <header class="home-heading">
       <div class="heading-copy">
-        <p>MARKET NOW & NEXT</p>
-        <h1>市场今日结论</h1>
-        <span>仅使用跨资产市场驾驶舱已经生成的因子，不混入新闻、KOL或主观判断。</span>
-        <small>数据更新 {{ formatUpdatedAt(dataset.updatedAt) }}</small>
+        <p>{{ t('marketHome.badge') }}</p>
+        <h1>{{ t('marketHome.heading') }}</h1>
+        <span>{{ t('marketHome.hint') }}</span>
+        <small>{{ t('marketHome.updated') }} {{ formatUpdatedAt(dataset.updatedAt) }}</small>
       </div>
-      <section v-if="leadMarket" class="market-pulse" aria-label="市场方向脉冲">
+      <section v-if="leadMarket" class="market-pulse" :aria-label="t('marketHome.pulse.baseline')">
         <div class="pulse-heading">
-          <span>基准市场脉冲</span>
+          <span>{{ t('marketHome.pulse.baseline') }}</span>
           <strong>{{ leadMarket.name }}</strong>
           <b :class="{ up: (leadMarket.dailyMove ?? 0) >= 0, down: (leadMarket.dailyMove ?? 0) < 0 }">
             {{ formatMove(leadMarket.dailyMove) }}
@@ -75,24 +80,24 @@ const formatUpdatedAt = (value: string) =>
     <section class="global-factors">
       <DisclosureCard
         class="primary-factor"
-        eyebrow="宏观与流动性"
+        :eyebrow="t('marketHome.coreFactors.macro')"
         :title="dataset.marketBrief.regime.title"
-        description="点击查看当前宏观与流动性因子"
+        :description="t('marketHome.coreFactors.more')"
         default-open
       >
         <p>{{ dataset.marketBrief.regime.summary }}</p>
       </DisclosureCard>
       <DisclosureCard
-        eyebrow="长端利率来源"
+        :eyebrow="t('marketHome.coreFactors.termRate')"
         :title="dataset.marketBrief.rateRegime.title"
-        description="期限溢价与政策路径分解"
+        :description="t('marketHome.coreFactors.details')"
       >
         <p>{{ dataset.marketBrief.rateRegime.summary }}</p>
       </DisclosureCard>
       <DisclosureCard
-        eyebrow="市场参与度"
+        :eyebrow="t('marketHome.coreFactors.liquidity')"
         :title="dataset.marketBrief.breadth.title"
-        description="全球股指与风险资产参与率"
+        :description="t('marketHome.coreFactors.marketParticipation')"
       >
         <p>{{ dataset.marketBrief.breadth.summary }}</p>
       </DisclosureCard>
@@ -103,9 +108,9 @@ const formatUpdatedAt = (value: string) =>
         v-for="market in markets"
         :key="market.id"
         class="market-card"
-        :eyebrow="market.date ?? '日期未知'"
+        :eyebrow="market.date ?? t('marketHome.unknownDate')"
         :title="market.name"
-        description="展开查看涨跌因子与四周期方向"
+        :description="t('marketHome.card.futureDirection')"
         :default-open="false"
       >
         <template #metric>
@@ -117,14 +122,20 @@ const formatUpdatedAt = (value: string) =>
         </template>
 
         <div class="cause">
-          <b>当前涨跌的跨资产因素</b>
+          <b>{{ t('marketHome.factor.current') }}</b>
           <ul v-if="market.drivers.length">
             <li v-for="driver in market.drivers" :key="driver.chain">
-              <span :class="driver.effect">{{ driver.effect === 'tailwind' ? '顺风' : '逆风' }}</span>
+              <span :class="driver.effect">
+                {{
+                  driver.effect === 'tailwind'
+                    ? t('marketHome.driverEffect.tailwind')
+                    : t('marketHome.driverEffect.headwind')
+                }}
+              </span>
               {{ driver.text }}
             </li>
           </ul>
-          <p v-else>驾驶舱当前没有足够强且稳定的共振因子，不补充其他解释。</p>
+          <p v-else>{{ t('marketHome.factor.noEnough') }}</p>
         </div>
 
         <div class="horizons">
@@ -134,8 +145,12 @@ const formatUpdatedAt = (value: string) =>
               <strong :class="horizon.direction">{{ directionName(horizon.direction) }}</strong>
             </header>
             <div class="probability">
-              上涨条件频率 {{ horizon.upProbabilityPct.toFixed(1) }}% · 得分
-              {{ horizon.score > 0 ? '+' : '' }}{{ horizon.score.toFixed(2) }}
+              {{
+                t('marketHome.period.upChance', {
+                  value: horizon.upProbabilityPct.toFixed(1),
+                  score: `${horizon.score > 0 ? '+' : ''}${horizon.score.toFixed(2)}`,
+                })
+              }}
             </div>
             <ul>
               <li v-for="factor in horizon.factors" :key="factor.name">{{ factor.text }}</li>
@@ -147,8 +162,10 @@ const formatUpdatedAt = (value: string) =>
     </section>
 
     <footer>
-      “偏涨/偏跌”是规则模型方向，不是确定结果；标记为“观察信号”时，方向尚未通过留出样本增量门槛。
+      {{ t('marketHome.noteDescription') }}
     </footer>
+
+    <DailyMarketPoster :home="dataset" :cross-asset="crossAssetDataset" />
   </main>
 </template>
 

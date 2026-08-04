@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import kolData from '@/data/kol-monitor.json'
 import type { KolMonitorDataset, KolPlatform, KolStockMention } from '@/types'
+import { useI18n } from '@/composables/use-i18n'
 
 const dataset = kolData as KolMonitorDataset
 const query = ref('')
@@ -10,21 +11,39 @@ const expandedKols = ref<string[]>(dataset.kols.map((kol) => kol.id))
 const subscription = ref({ name: '', url: '', feedUrl: '', tags: '' })
 const updateState = ref<'idle' | 'updating' | 'success' | 'error'>('idle')
 const updateMessage = ref('')
+const { t, locale } = useI18n()
 
-const platformNames: Record<KolPlatform, string> = {
-  youtube: 'YouTube',
-  xiaohongshu: '小红书',
-  wechat: '微信',
-  bilibili: 'B站',
-  x: 'X',
-  instagram: 'Instagram',
-  tiktok: 'TikTok',
-  douyin: '抖音',
-  weibo: '微博',
-  zhihu: '知乎',
-  rss: 'RSS',
-  web: '网页',
-}
+const platformNames = computed(() =>
+  locale.value === 'en'
+    ? {
+        youtube: 'YouTube',
+        xiaohongshu: 'XiaoHongShu',
+        wechat: 'WeChat',
+        bilibili: 'Bilibili',
+        x: 'X',
+        instagram: 'Instagram',
+        tiktok: 'TikTok',
+        douyin: 'Douyin',
+        weibo: 'Weibo',
+        zhihu: 'Zhihu',
+        rss: 'RSS',
+        web: 'Web',
+      }
+    : {
+        youtube: 'YouTube',
+        xiaohongshu: '小红书',
+        wechat: '微信',
+        bilibili: 'B站',
+        x: 'X',
+        instagram: 'Instagram',
+        tiktok: 'TikTok',
+        douyin: '抖音',
+        weibo: '微博',
+        zhihu: '知乎',
+        rss: 'RSS',
+        web: '网页',
+      },
+)
 
 const visibleKols = computed(() => {
   const needle = query.value.trim().toLocaleLowerCase()
@@ -66,8 +85,8 @@ const toggleKol = (id: string) => {
 }
 
 const formatDate = (value: string | null) => {
-  if (!value) return '日期未知'
-  return new Intl.DateTimeFormat('zh-CN', {
+  if (!value) return t('kol.unknownDate')
+  return new Intl.DateTimeFormat(locale.value === 'en' ? 'en-US' : 'zh-CN', {
     timeZone: 'Asia/Shanghai',
     year: 'numeric',
     month: '2-digit',
@@ -76,7 +95,7 @@ const formatDate = (value: string | null) => {
 }
 
 const formatUpdatedAt = (value: string) =>
-  new Intl.DateTimeFormat('zh-CN', {
+  new Intl.DateTimeFormat(locale.value === 'en' ? 'en-US' : 'zh-CN', {
     timeZone: 'Asia/Shanghai',
     dateStyle: 'medium',
     timeStyle: 'short',
@@ -84,7 +103,7 @@ const formatUpdatedAt = (value: string) =>
 
 const addSubscription = async () => {
   updateState.value = 'updating'
-  updateMessage.value = '正在保存订阅并抓取最新内容…'
+  updateMessage.value = t('kol.saveStart')
   try {
     const response = await fetch('/api/kols/subscriptions', {
       method: 'POST',
@@ -102,14 +121,14 @@ const addSubscription = async () => {
     const contentType = response.headers.get('content-type') ?? ''
     const result = contentType.includes('application/json')
       ? await response.json()
-      : { error: '当前是静态部署环境，无法写入本地订阅配置' }
-    if (!response.ok || !result.ok) throw new Error(result.error ?? '更新失败')
+    : { error: t('kol.saveStatic') }
+    if (!response.ok || !result.ok) throw new Error(result.error ?? t('kol.saveFailed'))
     updateState.value = 'success'
-    updateMessage.value = '订阅已保存并完成同步，正在载入最新数据…'
+    updateMessage.value = t('kol.saveDone')
     window.setTimeout(() => window.location.reload(), 700)
   } catch (error) {
     updateState.value = 'error'
-    updateMessage.value = error instanceof Error ? error.message : '更新失败'
+    updateMessage.value = error instanceof Error ? error.message : t('kol.saveFailed')
   }
 }
 </script>
@@ -118,13 +137,13 @@ const addSubscription = async () => {
   <div class="kol-page">
     <header class="page-heading">
       <div>
-        <p>Cross-platform intelligence · 自动解析</p>
-        <h1>KOL监控</h1>
+        <p>{{ t('kol.badge') }}</p>
+        <h1>{{ t('kol.title') }}</h1>
       </div>
       <div class="freshness">
         <span></span>
         <div>
-          <strong>每6小时同步</strong><small>{{ formatUpdatedAt(dataset.updatedAt) }}</small>
+          <strong>{{ t('kol.sync') }}</strong><small>{{ formatUpdatedAt(dataset.updatedAt) }}</small>
         </div>
       </div>
     </header>
@@ -133,21 +152,25 @@ const addSubscription = async () => {
       <header>
         <div>
           <span>ADD & SYNC</span>
-          <h2>添加 KOL / RSS 订阅</h2>
+          <h2>{{ t('kol.addTitle') }}</h2>
         </div>
-        <small>提交后立即写入订阅配置，并调用 RSS 解析器刷新内容。</small>
+        <small>{{ t('kol.help') }}</small>
       </header>
       <form @submit.prevent="addSubscription">
         <label>
-          <span>名称 *</span>
-          <input v-model.trim="subscription.name" required placeholder="例如：某宏观研究员" />
+          <span>{{ t('kol.name') }}</span>
+          <input
+            v-model.trim="subscription.name"
+            required
+            :placeholder="locale === 'en' ? 'e.g. Macro Analyst' : '例如：某宏观研究员'"
+          />
         </label>
         <label>
-          <span>主页地址</span>
+          <span>{{ t('kol.url') }}</span>
           <input v-model.trim="subscription.url" type="url" placeholder="https://example.com" />
         </label>
         <label>
-          <span>RSS / Atom 地址</span>
+          <span>{{ t('kol.rss') }}</span>
           <input
             v-model.trim="subscription.feedUrl"
             type="url"
@@ -155,8 +178,8 @@ const addSubscription = async () => {
           />
         </label>
         <label>
-          <span>标签</span>
-          <input v-model.trim="subscription.tags" placeholder="美股, 宏观, 科技" />
+          <span>{{ t('kol.tags') }}</span>
+          <input v-model.trim="subscription.tags" :placeholder="t('kol.tagsHint')" />
         </label>
         <button
           type="submit"
@@ -166,41 +189,41 @@ const addSubscription = async () => {
             (!subscription.url && !subscription.feedUrl)
           "
         >
-          {{ updateState === 'updating' ? '同步中…' : '保存并立即更新' }}
+          {{ updateState === 'updating' ? t('kol.saving') : t('kol.saveSync') }}
         </button>
       </form>
       <p v-if="updateMessage" class="update-message" :class="updateState">
         {{ updateMessage }}
       </p>
       <p class="runtime-note">
-        本地管理系统可直接更新；GitHub Pages 等纯静态部署没有服务器写权限，需要由自动任务更新。
+        {{ t('kol.staticNotice') }}
       </p>
     </section>
 
     <section class="summary">
       <div>
-        <span>监控账号</span><strong>{{ dataset.kols.length }}</strong>
+        <span>{{ t('kol.monitors') }}</span><strong>{{ dataset.kols.length }}</strong>
       </div>
       <div>
-        <span>可用连接</span><strong>{{ syncedCount }}</strong>
+        <span>{{ t('kol.connected') }}</span><strong>{{ syncedCount }}</strong>
       </div>
       <div>
-        <span>已解析内容</span><strong>{{ contentCount }}</strong>
+        <span>{{ t('kol.parsed') }}</span><strong>{{ contentCount }}</strong>
       </div>
       <div>
-        <span>股票提及</span><strong>{{ stockMentions.length }}</strong>
+        <span>{{ t('kol.mentions') }}</span><strong>{{ stockMentions.length }}</strong>
       </div>
     </section>
 
     <section v-if="stockMentions.length" class="stock-radar">
       <header>
-        <h2>股票提及</h2>
-        <span>按当前内容出现次数排序</span>
+        <h2>{{ t('kol.mentionTitle') }}</h2>
+        <span>{{ t('kol.mentionSort') }}</span>
       </header>
       <div class="stock-list">
         <span v-for="stock in stockMentions" :key="`${stock.market}-${stock.code}`">
           <b>{{ stock.name }}</b
-          ><small>{{ stock.market }} · {{ stock.code }} · {{ stock.count }}次</small>
+          ><small>{{ stock.market }} · {{ stock.code }} · {{ t('kol.contentCount', { count: stock.count }) }}</small>
         </span>
       </div>
     </section>
@@ -208,7 +231,7 @@ const addSubscription = async () => {
     <div class="toolbar">
       <div class="platform-tabs">
         <button :class="{ active: activePlatform === 'all' }" @click="activePlatform = 'all'">
-          全部
+          {{ t('ui.navigation.allResources') }}
         </button>
         <button
           v-for="platform in platforms"
@@ -219,7 +242,12 @@ const addSubscription = async () => {
           {{ platformNames[platform] }}
         </button>
       </div>
-      <input v-model="query" type="search" placeholder="搜索账号或内容…" aria-label="搜索KOL" />
+      <input
+        v-model="query"
+        type="search"
+        :placeholder="t('kol.searchPlaceholder')"
+        :aria-label="t('kol.searchAria')"
+      />
     </div>
 
     <div class="kol-list">
@@ -229,12 +257,12 @@ const addSubscription = async () => {
             <span class="platform">{{ platformNames[kol.platform] }}</span>
             <span class="kol-name"
               ><strong>{{ kol.name }}</strong
-              ><small>{{ kol.items.length }} 条内容</small></span
-            >
+              ><small>{{ t('kol.contentCount', { count: kol.items.length }) }}</small></span
+              >
             <span class="status" :class="kol.status">{{ kol.status }}</span>
             <span class="arrow" :class="{ open: expandedKols.includes(kol.id) }">⌄</span>
           </button>
-          <a :href="kol.url" target="_blank" rel="noopener noreferrer">主页 ↗</a>
+          <a :href="kol.url" target="_blank" rel="noopener noreferrer">{{ t('kol.home') }}</a>
         </header>
 
         <p class="status-message">{{ kol.statusMessage }}</p>
@@ -260,13 +288,13 @@ const addSubscription = async () => {
             </span>
             <span>↗</span>
           </a>
-          <div v-if="!kol.items.length" class="empty">当前没有可展示的公开内容。</div>
+          <div v-if="!kol.items.length" class="empty">{{ t('kol.noContent') }}</div>
         </div>
       </section>
     </div>
 
     <footer>
-      {{ dataset.source }}。股票提及来自关键词匹配，仅表示内容中出现，不代表持仓或推荐。
+      {{ dataset.source }}{{ locale === 'en' ? '. ' : '。' }}{{ t('kol.footerNotice') }}
     </footer>
   </div>
 </template>

@@ -2,21 +2,35 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import { useI18n } from '@/composables/use-i18n'
 
 defineEmits<{ openMenu: [] }>()
 const route = useRoute()
-const title = computed(() => String(route.meta.pageTitle ?? '市场研究台'))
-const description = computed(() => String(route.meta.pageDescription ?? '数据驱动的个人投资工作台'))
+const { locale, t, setLocale } = useI18n()
+const title = computed(() =>
+  t(String(route.meta.titleKey ?? 'ui.app.title')),
+)
+const description = computed(() =>
+  t(String(route.meta.descriptionKey ?? 'marketHome.heading')),
+)
 </script>
 
 <template>
   <header class="app-topbar">
-    <button class="menu-button" aria-label="打开菜单" @click="$emit('openMenu')">☰</button>
+    <button class="menu-button" :aria-label="t('ui.app.openMenu')" @click="$emit('openMenu')">☰</button>
     <div>
       <strong>{{ title }}</strong>
       <small>{{ description }}</small>
     </div>
-    <span class="system-state"><i></i>数据任务运行中</span>
+    <span class="system-state"><i></i>{{ t('ui.app.systemRunning') }}</span>
+    <div class="locale-switch" role="group" :aria-label="t('ui.app.language')">
+      <button :class="{ active: locale === 'zh' }" @click="setLocale('zh')">
+        {{ t('ui.app.chinese') }}
+      </button>
+      <button :class="{ active: locale === 'en' }" @click="setLocale('en')">
+        {{ t('ui.app.english') }}
+      </button>
+    </div>
     <ThemeToggle />
   </header>
 </template>
@@ -69,6 +83,25 @@ const description = computed(() => String(route.meta.pageDescription ?? '数据�
   border-radius: 50%;
   background: var(--accent);
   box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.locale-switch {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.locale-switch button {
+  border: 0;
+  padding: 6px 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 9px;
+}
+.locale-switch button.active {
+  background: var(--surface-soft);
+  color: var(--ink);
+  font-weight: 700;
 }
 @media (max-width: 900px) {
   .app-topbar {

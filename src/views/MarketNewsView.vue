@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import embeddedData from '@/data/market-news.json'
 import type { MarketNewsCategory, MarketNewsDataset, MarketNewsImpact } from '@/types'
+import { useI18n } from '@/composables/use-i18n'
 
 const dataset = ref(embeddedData as MarketNewsDataset)
 const impact = ref<'all' | MarketNewsImpact>('all')
@@ -9,19 +10,20 @@ const category = ref<'all' | MarketNewsCategory>('all')
 const query = ref('')
 const liveStatus = ref<'idle' | 'checking' | 'updated' | 'error'>('idle')
 let refreshTimer: number | undefined
+const { t } = useI18n()
 
 const impactNames: Record<MarketNewsImpact, string> = {
-  critical: '紧急',
-  high: '高影响',
-  medium: '中影响',
-  low: '一般',
+  critical: t('marketNews.urgent'),
+  high: t('marketNews.high'),
+  medium: t('marketNews.medium'),
+  low: t('marketNews.low'),
 }
 const categoryNames: Record<MarketNewsCategory, string> = {
-  macro: '宏观与央行',
-  geopolitics: '地缘政治',
-  equities: '股票与公司',
-  commodities: '商品与能源',
-  technology: '科技与监管',
+  macro: t('marketNews.categories.macro'),
+  geopolitics: t('marketNews.categories.geopolitics'),
+  equities: t('marketNews.categories.equities'),
+  commodities: t('marketNews.categories.commodities'),
+  technology: t('marketNews.categories.technology'),
 }
 
 const articles = computed(() => {
@@ -94,51 +96,55 @@ onUnmounted(() => window.clearInterval(refreshTimer))
   <main class="news-page">
     <header class="page-heading">
       <div>
-        <p>Global market intelligence · 24 hours</p>
-        <h1>全球市场快讯</h1>
-        <span>按潜在市场影响排序筛选，标题保留原文以避免机器翻译歧义。</span>
+        <p>{{ t('marketNews.badge') }}</p>
+        <h1>{{ t('marketNews.heading') }}</h1>
+        <span>{{ t('marketNews.intro') }}</span>
       </div>
       <div class="freshness">
         <i :class="liveStatus"></i>
         <div>
-          <strong>后台每15分钟更新</strong>
-          <small>{{ formatUpdatedAt(dataset.updatedAt) }} · 页面每2分钟检查</small>
+          <strong>{{ t('marketNews.backendUpdate') }}</strong>
+          <small>{{ formatUpdatedAt(dataset.updatedAt) }} · {{ t('marketNews.checkInterval') }}</small>
         </div>
       </div>
     </header>
 
     <section class="summary">
       <div>
-        <span>近24小时</span><strong>{{ dataset.articles.length }}</strong>
+        <span>{{ t('marketNews.recent24h') }}</span><strong>{{ dataset.articles.length }}</strong>
       </div>
       <div class="critical">
-        <span>紧急</span><strong>{{ urgentCount }}</strong>
+        <span>{{ t('marketNews.urgent') }}</span><strong>{{ urgentCount }}</strong>
       </div>
       <div>
-        <span>高影响</span><strong>{{ highCount }}</strong>
+        <span>{{ t('marketNews.high') }}</span><strong>{{ highCount }}</strong>
       </div>
       <div>
-        <span>官方发布</span><strong>{{ officialCount }}</strong>
+        <span>{{ t('marketNews.official') }}</span><strong>{{ officialCount }}</strong>
       </div>
     </section>
 
     <section class="notice">
-      <strong>影响分级是关键词辅助判断，不代表涨跌方向。</strong>
-      <span>紧急消息请打开原文交叉确认；GitHub 定时任务可能排队延迟。</span>
+      <strong>{{ t('marketNews.noticeTitle') }}</strong>
+      <span>{{ t('marketNews.noticeTip') }}</span>
     </section>
 
     <div class="toolbar">
       <div class="filters">
-        <select v-model="impact" aria-label="按影响级别筛选">
-          <option value="all">全部影响</option>
+        <select v-model="impact" :aria-label="t('marketNews.filterImpactLabel')">
+          <option value="all">{{ t('marketNews.allImpact') }}</option>
           <option v-for="(name, key) in impactNames" :key="key" :value="key">{{ name }}</option>
         </select>
-        <select v-model="category" aria-label="按新闻类别筛选">
-          <option value="all">全部类别</option>
+        <select v-model="category" :aria-label="t('marketNews.filterCategoryLabel')">
+          <option value="all">{{ t('marketNews.allCategory') }}</option>
           <option v-for="(name, key) in categoryNames" :key="key" :value="key">{{ name }}</option>
         </select>
       </div>
-      <input v-model="query" type="search" placeholder="搜索标题、来源或资产…" />
+      <input
+        v-model="query"
+        type="search"
+        :placeholder="t('marketNews.searchPlaceholder')"
+      />
     </div>
 
     <div class="news-list">
@@ -153,21 +159,21 @@ onUnmounted(() => window.clearInterval(refreshTimer))
         <time>{{ formatTime(article.publishedAt) }}</time>
         <span class="impact" :class="article.impact">{{ impactNames[article.impact] }}</span>
         <span class="copy">
-          <strong class="translated-title">{{ article.translatedTitle || article.title }}</strong>
-          <span
-            v-if="article.translatedTitle && article.translatedTitle !== article.title"
-            class="original-title"
-          >
-            原文：{{ article.title }}
-          </span>
-          <small>
-            {{ article.source }} · {{ categoryNames[article.category] }}
-            <b v-if="article.sourceType === 'official'">官方</b>
-            <b v-if="article.translationStatus === 'translated'"
-              >{{ article.translationProvider }} 机器翻译</b
+            <strong class="translated-title">{{ article.translatedTitle || article.title }}</strong>
+            <span
+              v-if="article.translatedTitle && article.translatedTitle !== article.title"
+              class="original-title"
             >
-            <b v-else-if="article.translationStatus === 'failed'" class="translation-failed"
-              >翻译失败 · 已显示原文</b
+            {{ t('marketNews.translated') }} {{ article.title }}
+            </span>
+            <small>
+              {{ article.source }} · {{ categoryNames[article.category] }}
+              <b v-if="article.sourceType === 'official'">{{ t('marketNews.officialBadge') }}</b>
+              <b v-if="article.translationStatus === 'translated'"
+              >{{ t('marketNews.translateProvider', { provider: article.translationProvider }) }}</b
+              >
+              <b v-else-if="article.translationStatus === 'failed'" class="translation-failed"
+              >{{ t('marketNews.translateFailed') }}</b
             >
           </small>
           <span v-if="article.affectedAssets.length" class="assets">
@@ -176,10 +182,10 @@ onUnmounted(() => window.clearInterval(refreshTimer))
         </span>
         <span>↗</span>
       </a>
-      <div v-if="!articles.length" class="empty">当前筛选条件下没有快讯。</div>
+      <div v-if="!articles.length" class="empty">{{ t('marketNews.noData') }}</div>
     </div>
 
-    <footer>{{ dataset.source }}。本页用于信息发现，不保证覆盖所有新闻，不构成投资建议。</footer>
+    <footer>{{ t('marketNews.footer', { source: dataset.source }) }}</footer>
   </main>
 </template>
 

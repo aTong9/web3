@@ -20,6 +20,7 @@
     "update:news": "node scripts/update-market-news.mjs",
     "update:cross-asset": "node scripts/update-cross-asset.mjs",
     "update:hot-stocks": "node scripts/update-hot-stocks.mjs",
+    "update:us-megacaps": "node scripts/update-us-megacaps.mjs",
     "deploy": "npm run build-only && gh-pages -d dist -m \"Deploy to GitHub Pages\""
   },
   "homepage": "https://github.com/aTong9/web3",
@@ -28,6 +29,7 @@
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "echarts": "^6.1.0",
+    "html2canvas": "^1.4.1",
     "js-yaml": "^4.3.1",
     "pinia": "^3.0.4",
     "rss-parser": "^3.13.0",
