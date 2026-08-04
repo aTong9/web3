@@ -3,6 +3,9 @@ import { onMounted, ref } from 'vue'
 import type { AnalyticsConfig, AppUser, UserRole } from '@/types'
 import PermissionGate from '@/components/PermissionGate.vue'
 import { adminApi } from '@/utils/admin-api'
+import { useI18n } from '@/composables/use-i18n'
+
+const { t } = useI18n()
 
 const users = ref<AppUser[]>([]),
   message = ref(''),
@@ -28,7 +31,7 @@ const load = async () => {
     users.value = u.users
     analytics.value = a
   } catch (e) {
-    message.value = e instanceof Error ? e.message : '加载失败'
+    message.value = e instanceof Error ? e.message : t('admin.loadFailed')
   }
 }
 const add = async () => {
@@ -38,19 +41,19 @@ const add = async () => {
     newUser.value = { name: '', email: '', role: 'viewer' }
     await load()
   } catch (e) {
-    message.value = e instanceof Error ? e.message : '创建失败'
+    message.value = e instanceof Error ? e.message : t('admin.createFailed')
   }
 }
 const update = async (user: AppUser) => {
   await adminApi.updateUser(user.id, { role: user.role, status: user.status })
-  message.value = '用户权限已更新'
+  message.value = t('admin.userUpdated')
 }
 const save = async () => {
   try {
     analytics.value = await adminApi.saveAnalytics(analytics.value)
-    message.value = '埋点配置已保存'
+    message.value = t('admin.analyticsSaved')
   } catch (e) {
-    message.value = e instanceof Error ? e.message : '保存失败'
+    message.value = e instanceof Error ? e.message : t('admin.saveFailed')
   }
 }
 onMounted(load)
@@ -58,28 +61,29 @@ onMounted(load)
 <template>
   <main class="admin-page">
     <header>
-      <span>ADMINISTRATION</span>
-      <h1>管理中心</h1>
-      <p>用户、菜单与按钮权限，以及开源埋点平台统一配置。</p>
+      <span>{{ t('admin.badge') }}</span>
+      <h1>{{ t('admin.title') }}</h1>
+      <p>{{ t('admin.intro') }}</p>
     </header>
     <p v-if="message" class="notice">{{ message }}</p>
     <PermissionGate permission="users.manage">
       <section class="card">
-        <h2>用户与角色</h2>
+        <h2>{{ t('admin.users') }}</h2>
         <form class="create" @submit.prevent="add">
-          <input v-model.trim="newUser.name" required placeholder="姓名" /><input
+          <input v-model.trim="newUser.name" required :placeholder="t('admin.name')" /><input
             v-model.trim="newUser.email"
             required
             type="email"
-            placeholder="邮箱"
+            :placeholder="t('admin.email')"
           /><select v-model="newUser.role">
             <option value="viewer">Viewer</option>
             <option value="editor">Editor</option>
             <option value="admin">Admin</option></select
-          ><button>创建并生成口令</button>
+          ><button>{{ t('admin.create') }}</button>
         </form>
         <div v-if="accessCode" class="code">
-          <b>一次性访问口令（仅显示本次）</b><code>{{ accessCode }}</code>
+          <b>{{ t('admin.oneTimeCode') }}</b
+          ><code>{{ accessCode }}</code>
         </div>
         <div class="table">
           <div v-for="item in users" :key="item.id" class="row">
@@ -91,8 +95,8 @@ onMounted(load)
               <option value="editor">Editor</option>
               <option value="admin">Admin</option></select
             ><select v-model="item.status" @change="update(item)">
-              <option value="active">启用</option>
-              <option value="disabled">停用</option>
+              <option value="active">{{ t('admin.active') }}</option>
+              <option value="disabled">{{ t('admin.disabled') }}</option>
             </select>
           </div>
         </div>
@@ -100,16 +104,28 @@ onMounted(load)
     </PermissionGate>
     <PermissionGate permission="analytics.view">
       <section class="card">
-        <h2>开源数据埋点 · PostHog</h2>
-        <p>支持 PostHog Cloud 或自托管。默认关闭，不采集表单内容、访问口令或投资输入。</p>
+        <h2>{{ t('admin.analytics') }}</h2>
+        <p>{{ t('admin.analyticsIntro') }}</p>
         <form class="analytics" @submit.prevent="save">
           <label>Host<input v-model.trim="analytics.host" required type="url" /></label
           ><label>Project Key<input v-model.trim="analytics.projectKey" autocomplete="off" /></label
-          ><label><input v-model="analytics.enabled" type="checkbox" />启用埋点</label
-          ><label><input v-model="analytics.autocapture" type="checkbox" />自动交互采集</label
-          ><label><input v-model="analytics.sessionReplay" type="checkbox" />会话回放</label
-          ><label><input v-model="analytics.consentRequired" type="checkbox" />需用户同意</label
-          ><PermissionGate permission="analytics.manage"><button>保存配置</button></PermissionGate>
+          ><label
+            ><input v-model="analytics.enabled" type="checkbox" />{{ t('admin.enabled') }}</label
+          ><label
+            ><input v-model="analytics.autocapture" type="checkbox" />{{
+              t('admin.autocapture')
+            }}</label
+          ><label
+            ><input v-model="analytics.sessionReplay" type="checkbox" />{{
+              t('admin.replay')
+            }}</label
+          ><label
+            ><input v-model="analytics.consentRequired" type="checkbox" />{{
+              t('admin.consent')
+            }}</label
+          ><PermissionGate permission="analytics.manage"
+            ><button>{{ t('admin.save') }}</button></PermissionGate
+          >
         </form>
       </section>
     </PermissionGate>

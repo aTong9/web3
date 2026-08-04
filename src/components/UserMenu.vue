@@ -2,7 +2,9 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAuth } from '@/composables/use-auth'
+import { useI18n } from '@/composables/use-i18n'
 const { user, can, loading, login, logout } = useAuth()
+const { t } = useI18n()
 const open = ref(false),
   error = ref(''),
   form = ref({ code: '', name: '', email: '' })
@@ -12,7 +14,7 @@ const submit = async () => {
     await login(form.value)
     open.value = false
   } catch (e) {
-    error.value = e instanceof Error ? e.message : '登录失败'
+    error.value = e instanceof Error ? e.message : t('userMenu.failed')
   }
 }
 const signOut = async () => {
@@ -23,33 +25,42 @@ const signOut = async () => {
 <template>
   <div class="user-menu">
     <button class="user-button" aria-haspopup="dialog" @click="open = !open">
-      {{ user ? user.name.slice(0, 1).toUpperCase() : '登录' }}
+      {{ user ? user.name.slice(0, 1).toUpperCase() : t('userMenu.login') }}
     </button>
     <div v-if="open" class="popover">
       <template v-if="user">
         <strong>{{ user.name }}</strong
         ><small>{{ user.email }} · {{ user.role }}</small>
-        <RouterLink v-if="can('admin.view')" to="/admin" @click="open = false">管理中心</RouterLink>
-        <button @click="signOut">退出登录</button>
+        <RouterLink v-if="can('admin.view')" to="/admin" @click="open = false">{{
+          t('userMenu.admin')
+        }}</RouterLink>
+        <button @click="signOut">{{ t('userMenu.logout') }}</button>
       </template>
       <form v-else @submit.prevent="submit">
-        <strong>用户登录</strong><small>使用管理员生成的一次性访问口令</small>
+        <strong>{{ t('userMenu.title') }}</strong
+        ><small>{{ t('userMenu.hint') }}</small>
         <input
           v-model.trim="form.code"
           required
           minlength="20"
-          placeholder="访问口令"
+          :placeholder="t('userMenu.code')"
           autocomplete="one-time-code"
         />
-        <input v-model.trim="form.name" placeholder="姓名（首次初始化）" autocomplete="name" />
+        <input
+          v-model.trim="form.name"
+          :placeholder="t('userMenu.firstName')"
+          autocomplete="name"
+        />
         <input
           v-model.trim="form.email"
           type="email"
-          placeholder="邮箱（首次初始化）"
+          :placeholder="t('userMenu.firstEmail')"
           autocomplete="email"
         />
         <p v-if="error">{{ error }}</p>
-        <button :disabled="loading">{{ loading ? '验证中…' : '登录' }}</button>
+        <button :disabled="loading">
+          {{ loading ? t('userMenu.validating') : t('userMenu.login') }}
+        </button>
       </form>
     </div>
   </div>

@@ -17,11 +17,13 @@ export const getQuantClientId = () => {
 }
 
 const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
+  const sessionToken = window.localStorage.getItem('market-admin-session')
   const response = await fetch(`${apiBase}${path}`, {
     ...init,
     headers: {
       Accept: 'application/json',
       ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {}),
       ...init?.headers,
     },
     signal: AbortSignal.timeout(requestTimeoutMs),

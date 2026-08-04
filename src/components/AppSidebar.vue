@@ -47,7 +47,7 @@ const groups = computed(() => [
     ],
   },
   ...(can('admin.view')
-    ? [{ title: '管理', icon: '⚙', items: [{ title: '用户与埋点', to: '/admin' }] }]
+    ? [{ title: 'ui.nav.management', icon: '⚙', items: [{ title: 'ui.nav.admin', to: '/admin' }] }]
     : []),
 ])
 const collapsed = ref<string[]>([])

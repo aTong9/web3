@@ -335,23 +335,29 @@ const handleApi = async (request: Request, env: Env) => {
     return json(request, env, await latestDashboard(env))
   }
   if (url.pathname === '/api/paper' && request.method === 'GET') {
-    const clientId = validateClientId(url.searchParams.get('clientId'))
-    return json(request, env, { positions: await listPaperPositions(env, clientId) })
+    const actor = await authenticate(request, env, 'paper.manage')
+    return json(request, env, { positions: await listPaperPositions(env, actor.id) })
   }
   if (url.pathname === '/api/paper' && request.method === 'POST') {
-    return json(request, env, { position: await createPaperPosition(request, env) }, 201)
+    const actor = await authenticate(request, env, 'paper.manage')
+    const input = await requestJson<{ symbol?: unknown }>(request)
+    const securedRequest = new Request(request.url, {
+      method: 'POST',
+      headers: request.headers,
+      body: JSON.stringify({ ...input, clientId: actor.id }),
+    })
+    return json(request, env, { position: await createPaperPosition(securedRequest, env) }, 201)
   }
   const closeMatch = url.pathname.match(/^\/api\/paper\/([0-9a-f-]+)\/close$/i)
   if (closeMatch && request.method === 'PATCH') {
-    const input = await requestJson<{ clientId?: unknown }>(request)
-    const clientId = validateClientId(input.clientId)
-    await closePaperPosition(env, clientId, closeMatch[1])
+    const actor = await authenticate(request, env, 'paper.manage')
+    await closePaperPosition(env, actor.id, closeMatch[1])
     return json(request, env, { ok: true })
   }
   const deleteMatch = url.pathname.match(/^\/api\/paper\/([0-9a-f-]+)$/i)
   if (deleteMatch && request.method === 'DELETE') {
-    const clientId = validateClientId(url.searchParams.get('clientId'))
-    await deletePaperPosition(env, clientId, deleteMatch[1])
+    const actor = await authenticate(request, env, 'paper.manage')
+    await deletePaperPosition(env, actor.id, deleteMatch[1])
     return json(request, env, { ok: true })
   }
   throw new HttpError(404, 'API路径不存在')

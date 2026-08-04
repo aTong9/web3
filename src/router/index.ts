@@ -11,8 +11,8 @@ const router = createRouter({
       name: 'admin',
       component: () => import('../views/AdminView.vue'),
       meta: {
-        titleKey: '管理中心',
-        descriptionKey: '用户权限与开源埋点',
+        titleKey: 'ui.routes.admin.title',
+        descriptionKey: 'ui.routes.admin.description',
         permission: 'admin.view',
       },
     },

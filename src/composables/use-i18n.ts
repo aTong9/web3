@@ -20,6 +20,8 @@ const messages: Record<Locale, DictionaryNode> = {
         news: '全球市场快讯',
         briefing: '资讯台',
         about: '系统说明',
+        management: '系统管理',
+        admin: '用户与埋点',
       },
       nav: {
         marketSummary: '总览',
@@ -75,13 +77,14 @@ const messages: Record<Locale, DictionaryNode> = {
         kol: { title: 'KOL监控', description: '跨平台与RSS监控' },
         report: { title: '日报与发布', description: '报告导出与发布配置' },
         about: { title: '系统说明', description: '规则、来源与风险提示' },
+        admin: { title: '管理中心', description: '用户权限与开源埋点' },
       },
       navigation: {
         resourceView: '资源导航',
         allSites: '全部站点',
         allResources: '全部资源',
         all: '全部',
-      allLabel: '全部',
+        allLabel: '全部',
         tipTitle: '使用提示',
         tipText: '通过标题、简介或域名搜索，星标数据保存在当前浏览器。',
         searchLabel: '搜索',
@@ -139,7 +142,8 @@ const messages: Record<Locale, DictionaryNode> = {
     quant: {
       badge: 'QUANT SIGNAL DESK · PAPER ONLY',
       title: '全球资产量化信号台',
-      intro: '把跨资产方向、价格动量和美股巨头估值合并成可核对的候选信号；当前不连接券商，也不会自动下单。',
+      intro:
+        '把跨资产方向、价格动量和美股巨头估值合并成可核对的候选信号；当前不连接券商，也不会自动下单。',
       updated: '信号更新时间',
       cloud: {
         connected: 'Cloudflare D1已连接',
@@ -160,19 +164,64 @@ const messages: Record<Locale, DictionaryNode> = {
       },
       assetTitle: '全球资产机会排序',
       assetHint: '得分综合中期方向与多周期动量；证据不足时不会给出交易候选。',
-      filter: { all: '全部', stocks: '股票', bonds: '债券', fx: '外汇', commodities: '商品', crypto: '加密' },
+      filter: {
+        all: '全部',
+        stocks: '股票',
+        bonds: '债券',
+        fx: '外汇',
+        commodities: '商品',
+        crypto: '加密',
+      },
       sort: { score: '按信号得分', evidence: '按证据强度' },
-      columns: { asset: '资产', price: '最新值', changes: '周 / 月', score: '得分', evidence: '证据', signal: '信号' },
-      signal: { buy: '买入候选', accumulate: '逐步积累', hold: '持有观察', reduce: '减仓观察', sell: '卖出候选', unavailable: '证据不足' },
-      model: { validatedHorizon: '方向模型已验证', horizonWatch: '方向模型观察中', momentumProxy: '动量代理' },
+      columns: {
+        asset: '资产',
+        price: '最新值',
+        changes: '周 / 月',
+        score: '得分',
+        evidence: '证据',
+        signal: '信号',
+      },
+      signal: {
+        buy: '买入候选',
+        accumulate: '逐步积累',
+        hold: '持有观察',
+        reduce: '减仓观察',
+        sell: '卖出候选',
+        unavailable: '证据不足',
+      },
+      model: {
+        validatedHorizon: '方向模型已验证',
+        horizonWatch: '方向模型观察中',
+        momentumProxy: '动量代理',
+      },
       detail: '展开证据与风险',
       reasons: '支持因素',
       risks: '反向风险 / 限制',
       optionsTitle: '美股前十大期权候选',
-      optionsHint: '优先评估365–730 DTE的LEAPS；方向同时考虑35x纪律线、纳指环境、EPS修正和财报窗口。实时期权链接入前均不可执行。',
-      optionAction: { longCallCandidate: 'Long Call候选', longCallWatch: '低估值观察', hold: '持有观察', exitLongCall: '退出Long Call', avoid: '高估值回避', unavailable: '数据不足' },
-      optionDirection: { bullish: '偏多', bearish: '偏空', neutral: '中性等待', eventRisk: '财报事件风险' },
-      optionStrategy: { longCall: 'LEAPS Long Call', callDebitSpread: '长期看涨价差', putDebitSpread: '长期看跌价差', protectivePut: '保护性Put', wait: '等待确认', exitOrAvoid: '退出或回避' },
+      optionsHint:
+        '优先评估365–730 DTE的LEAPS；方向同时考虑35x纪律线、纳指环境、EPS修正和财报窗口。实时期权链接入前均不可执行。',
+      optionAction: {
+        longCallCandidate: 'Long Call候选',
+        longCallWatch: '低估值观察',
+        hold: '持有观察',
+        exitLongCall: '退出Long Call',
+        avoid: '高估值回避',
+        unavailable: '数据不足',
+      },
+      optionDirection: {
+        bullish: '偏多',
+        bearish: '偏空',
+        neutral: '中性等待',
+        eventRisk: '财报事件风险',
+      },
+      optionStrategy: {
+        longCall: 'LEAPS Long Call',
+        callDebitSpread: '长期看涨价差',
+        putDebitSpread: '长期看跌价差',
+        protectivePut: '保护性Put',
+        wait: '等待确认',
+        exitOrAvoid: '退出或回避',
+      },
       earnings: {
         title: '财报与EPS预期',
         nextDate: '下次财报',
@@ -184,13 +233,19 @@ const messages: Record<Locale, DictionaryNode> = {
         revisions: '近4周上修 / 下修',
         range: '预期区间',
         annual: '{year}年度EPS共识',
-        window: { preEarnings: '财报前14天', postEarnings: '财报后3天', clear: '非财报窗口', unknown: '日期待确认' },
+        window: {
+          preEarnings: '财报前14天',
+          postEarnings: '财报后3天',
+          clear: '非财报窗口',
+          unknown: '日期待确认',
+        },
       },
       executable: '可执行',
       notExecutable: '仅研究，不可执行',
       rank: '市值第{rank}',
       peGap: '相对35x {value}',
       addPaper: '加入模拟记录',
+      permissionRequired: '登录后可操作',
       recorded: '已记录',
       paperTitle: '本地模拟信号账本',
       paperHint: '仅跟踪标的股票价格变化，不模拟期权IV、Theta或成交滑点。记录只保存在当前浏览器。',
@@ -202,7 +257,8 @@ const messages: Record<Locale, DictionaryNode> = {
       paperClosed: '已关闭',
       paperRemove: '删除记录',
       methodologyTitle: '方法与上线闸门',
-      methodology: '真实期权执行至少还需要：实时期权链、IV与流动性、EPS修正、财报日历、滑点回测、券商模拟盘和人工确认。禁止把“高于35x”解释为裸卖Call。',
+      methodology:
+        '真实期权执行至少还需要：实时期权链、IV与流动性、EPS修正、财报日历、滑点回测、券商模拟盘和人工确认。禁止把“高于35x”解释为裸卖Call。',
       disclaimer: '本页面是规则研究与模拟记录，不构成投资建议或收益承诺。期权可能损失全部权利金。',
     },
     marketHome: {
@@ -250,8 +306,7 @@ const messages: Record<Locale, DictionaryNode> = {
     home: {
       eyebrow: 'Daily dashboard · 个人使用',
       heading: '把市场信息，放回一个安静的工作台。',
-      intro:
-        '收拢宏观、股票、加密资产与研究工具。这里不提供投资建议，只负责让常用入口更容易找到。',
+      intro: '收拢宏观、股票、加密资产与研究工具。这里不提供投资建议，只负责让常用入口更容易找到。',
     },
     aShare: {
       eyebrow: 'A-share sector monitor · 收盘数据',
@@ -300,7 +355,8 @@ const messages: Record<Locale, DictionaryNode> = {
       intro: '只使用市场首页与跨资产驾驶舱已经生成的数据，生成可核对、可复用的发布稿。',
       ready: '报告数据已就绪',
       securityTitle: '安全边界',
-      securityText: '邮箱地址与发布偏好仅保存在当前浏览器；邮箱密码、SMTP密钥和X API Token不得填入此页面或提交到公开仓库。',
+      securityText:
+        '邮箱地址与发布偏好仅保存在当前浏览器；邮箱密码、SMTP密钥和X API Token不得填入此页面或提交到公开仓库。',
       configTitle: '发布配置',
       author: '报告署名',
       email: '收件邮箱',
@@ -319,7 +375,8 @@ const messages: Record<Locale, DictionaryNode> = {
       automationIntro: '静态GitHub Pages不能安全保存发送凭据。自动化时应在GitHub Secrets配置：',
       automationEmail: '邮件：SMTP或邮件服务商密钥，以及收件邮箱。',
       automationX: 'X：开发者应用的OAuth凭据；是否可自动发帖取决于X当前API权限。',
-      automationDone: '当前页面已完成报告生成与手动发布闭环，后续发送adapter可以直接复用同一报告内容。',
+      automationDone:
+        '当前页面已完成报告生成与手动发布闭环，后续发送adapter可以直接复用同一报告内容。',
       previewTitle: '实时报告预览',
       copyFull: '复制完整报告',
       copyShort: '复制短帖',
@@ -432,8 +489,7 @@ const messages: Record<Locale, DictionaryNode> = {
       searchPlaceholder: '搜索账号或内容…',
       searchAria: '搜索KOL',
       unknownDate: '日期未知',
-      footerNotice:
-        '股票提及来自关键词匹配，仅表示内容中出现，不代表持仓或推荐。',
+      footerNotice: '股票提及来自关键词匹配，仅表示内容中出现，不代表持仓或推荐。',
       home: '主页 ↗',
     },
     crossAsset: {
@@ -490,7 +546,7 @@ const messages: Record<Locale, DictionaryNode> = {
       selectedRule: '选定规则',
       ruleWeights: '5日/{week}、1月/{month}、跨资产/{driver}',
       thresholdLabel: '门槛 ±',
-      
+
       conservativeAdvantageLabel: '训练95%保守优势',
       validationCoverageLabel: '留出期覆盖',
       ablationLabel: '跨资产驱动消融：完整模型',
@@ -778,6 +834,42 @@ const messages: Record<Locale, DictionaryNode> = {
       lastUpdated: '最近更新',
       nextUpdate: '下次预计',
     },
+    admin: {
+      badge: 'ADMINISTRATION',
+      title: '管理中心',
+      intro: '用户、菜单与按钮权限，以及开源埋点平台统一配置。',
+      users: '用户与角色',
+      name: '姓名',
+      email: '邮箱',
+      create: '创建并生成口令',
+      active: '启用',
+      disabled: '停用',
+      oneTimeCode: '一次性访问口令（仅显示本次）',
+      analytics: '开源数据埋点 · PostHog',
+      analyticsIntro: '支持 PostHog Cloud 或自托管。默认关闭，不采集表单内容、访问口令或投资输入。',
+      enabled: '启用埋点',
+      autocapture: '自动交互采集',
+      replay: '会话回放',
+      consent: '需用户同意',
+      save: '保存配置',
+      userUpdated: '用户权限已更新',
+      analyticsSaved: '埋点配置已保存',
+      loadFailed: '加载失败',
+      createFailed: '创建失败',
+      saveFailed: '保存失败',
+    },
+    userMenu: {
+      login: '登录',
+      title: '用户登录',
+      hint: '使用管理员生成的一次性访问口令',
+      code: '访问口令',
+      firstName: '姓名（首次初始化）',
+      firstEmail: '邮箱（首次初始化）',
+      validating: '验证中…',
+      admin: '管理中心',
+      logout: '退出登录',
+      failed: '登录失败',
+    },
     direction: { bullish: '偏涨', bearish: '偏跌' },
   },
   en: {
@@ -798,6 +890,8 @@ const messages: Record<Locale, DictionaryNode> = {
         resource: 'Resource Hub',
         report: 'Daily Report',
         about: 'System Notes',
+        management: 'Administration',
+        admin: 'Users & Analytics',
       },
       app: {
         title: 'Market Research Desk',
@@ -814,8 +908,14 @@ const messages: Record<Locale, DictionaryNode> = {
       },
       routes: {
         home: { title: 'Market Home', description: 'Today factors and 6-horizon direction' },
-        crossAsset: { title: 'Cross-Asset Cockpit', description: 'Transmission, correlation and market regime' },
-        quant: { title: 'Global Quant Signals', description: 'Asset ranking, option candidates and paper journal' },
+        crossAsset: {
+          title: 'Cross-Asset Cockpit',
+          description: 'Transmission, correlation and market regime',
+        },
+        quant: {
+          title: 'Global Quant Signals',
+          description: 'Asset ranking, option candidates and paper journal',
+        },
         resources: { title: 'Resource Hub', description: 'Investment and financial tools' },
         marketNews: { title: 'Global News', description: 'Bilingual originals and impact view' },
         blogger: { title: 'Briefing', description: 'Research content aggregation' },
@@ -824,6 +924,7 @@ const messages: Record<Locale, DictionaryNode> = {
         kol: { title: 'KOL Monitor', description: 'Cross platform and RSS intelligence' },
         report: { title: 'Daily Report', description: 'Export and publish config' },
         about: { title: 'System Notes', description: 'Methodology and risk' },
+        admin: { title: 'Administration', description: 'User access and open-source analytics' },
       },
       header: {
         brand: 'Personal Finance Desk',
@@ -872,7 +973,8 @@ const messages: Record<Locale, DictionaryNode> = {
     quant: {
       badge: 'QUANT SIGNAL DESK · PAPER ONLY',
       title: 'Global Asset Quant Signals',
-      intro: 'Combine cross-asset direction, price momentum and mega-cap valuation into auditable candidates. No broker connection or automatic orders.',
+      intro:
+        'Combine cross-asset direction, price momentum and mega-cap valuation into auditable candidates. No broker connection or automatic orders.',
       updated: 'Signal updated',
       cloud: {
         connected: 'Cloudflare D1 connected',
@@ -885,22 +987,73 @@ const messages: Record<Locale, DictionaryNode> = {
       risk: 'Max premium risk per trade',
       optionTemplate: 'Option template',
       optionTemplateValue: '{min}–{max} DTE (1–2 years) · Delta {deltaMin}–{deltaMax}',
-      summary: { buy: 'Buy/accumulate', sell: 'Reduce/sell', calls: 'Long Call candidates', exits: 'Exit/avoid' },
+      summary: {
+        buy: 'Buy/accumulate',
+        sell: 'Reduce/sell',
+        calls: 'Long Call candidates',
+        exits: 'Exit/avoid',
+      },
       assetTitle: 'Global asset opportunity ranking',
-      assetHint: 'Score blends medium-horizon direction and multi-period momentum. Weak evidence produces no trade candidate.',
-      filter: { all: 'All', stocks: 'Equities', bonds: 'Bonds', fx: 'FX', commodities: 'Commodities', crypto: 'Crypto' },
+      assetHint:
+        'Score blends medium-horizon direction and multi-period momentum. Weak evidence produces no trade candidate.',
+      filter: {
+        all: 'All',
+        stocks: 'Equities',
+        bonds: 'Bonds',
+        fx: 'FX',
+        commodities: 'Commodities',
+        crypto: 'Crypto',
+      },
       sort: { score: 'Signal score', evidence: 'Evidence strength' },
-      columns: { asset: 'Asset', price: 'Latest', changes: 'Week / month', score: 'Score', evidence: 'Evidence', signal: 'Signal' },
-      signal: { buy: 'Buy candidate', accumulate: 'Accumulate', hold: 'Hold/watch', reduce: 'Reduce watch', sell: 'Sell candidate', unavailable: 'Insufficient evidence' },
-      model: { validatedHorizon: 'Validated direction model', horizonWatch: 'Direction model on watch', momentumProxy: 'Momentum proxy' },
+      columns: {
+        asset: 'Asset',
+        price: 'Latest',
+        changes: 'Week / month',
+        score: 'Score',
+        evidence: 'Evidence',
+        signal: 'Signal',
+      },
+      signal: {
+        buy: 'Buy candidate',
+        accumulate: 'Accumulate',
+        hold: 'Hold/watch',
+        reduce: 'Reduce watch',
+        sell: 'Sell candidate',
+        unavailable: 'Insufficient evidence',
+      },
+      model: {
+        validatedHorizon: 'Validated direction model',
+        horizonWatch: 'Direction model on watch',
+        momentumProxy: 'Momentum proxy',
+      },
       detail: 'Expand evidence and risks',
       reasons: 'Supporting factors',
       risks: 'Inverse risks / limits',
       optionsTitle: 'Top-10 US mega-cap option candidates',
-      optionsHint: 'Prioritizes 365–730 DTE LEAPS. Direction combines the 35x discipline line, Nasdaq regime, EPS revisions and the earnings window. All remain non-executable until live chains are connected.',
-      optionAction: { longCallCandidate: 'Long Call candidate', longCallWatch: 'Low-valuation watch', hold: 'Hold/watch', exitLongCall: 'Exit Long Call', avoid: 'High-valuation avoid', unavailable: 'Insufficient data' },
-      optionDirection: { bullish: 'Bullish', bearish: 'Bearish', neutral: 'Neutral / wait', eventRisk: 'Earnings event risk' },
-      optionStrategy: { longCall: 'LEAPS Long Call', callDebitSpread: 'Long-dated call spread', putDebitSpread: 'Long-dated put spread', protectivePut: 'Protective put', wait: 'Wait for confirmation', exitOrAvoid: 'Exit or avoid' },
+      optionsHint:
+        'Prioritizes 365–730 DTE LEAPS. Direction combines the 35x discipline line, Nasdaq regime, EPS revisions and the earnings window. All remain non-executable until live chains are connected.',
+      optionAction: {
+        longCallCandidate: 'Long Call candidate',
+        longCallWatch: 'Low-valuation watch',
+        hold: 'Hold/watch',
+        exitLongCall: 'Exit Long Call',
+        avoid: 'High-valuation avoid',
+        unavailable: 'Insufficient data',
+      },
+      optionDirection: {
+        bullish: 'Bullish',
+        bearish: 'Bearish',
+        neutral: 'Neutral / wait',
+        eventRisk: 'Earnings event risk',
+      },
+      optionStrategy: {
+        longCall: 'LEAPS Long Call',
+        callDebitSpread: 'Long-dated call spread',
+        putDebitSpread: 'Long-dated put spread',
+        protectivePut: 'Protective put',
+        wait: 'Wait for confirmation',
+        exitOrAvoid: 'Exit or avoid',
+      },
       earnings: {
         title: 'Earnings & EPS estimates',
         nextDate: 'Next earnings',
@@ -912,16 +1065,23 @@ const messages: Record<Locale, DictionaryNode> = {
         revisions: '4-week up / down revisions',
         range: 'Estimate range',
         annual: '{year} annual consensus EPS',
-        window: { preEarnings: 'Within 14 days', postEarnings: 'Within 3 days after', clear: 'Outside earnings window', unknown: 'Date unconfirmed' },
+        window: {
+          preEarnings: 'Within 14 days',
+          postEarnings: 'Within 3 days after',
+          clear: 'Outside earnings window',
+          unknown: 'Date unconfirmed',
+        },
       },
       executable: 'Executable',
       notExecutable: 'Research only',
       rank: 'Market-cap #{rank}',
       peGap: 'vs 35x {value}',
       addPaper: 'Add paper record',
+      permissionRequired: 'Sign in to manage',
       recorded: 'Recorded',
       paperTitle: 'Local paper-signal journal',
-      paperHint: 'Tracks underlying price only; it does not simulate IV, Theta or execution slippage. Records stay in this browser.',
+      paperHint:
+        'Tracks underlying price only; it does not simulate IV, Theta or execution slippage. Records stay in this browser.',
       paperEmpty: 'No paper records yet. Add one from an option candidate.',
       paperOpened: 'Recorded',
       paperEntry: 'Entry price',
@@ -930,8 +1090,10 @@ const messages: Record<Locale, DictionaryNode> = {
       paperClosed: 'Closed',
       paperRemove: 'Delete record',
       methodologyTitle: 'Method and production gates',
-      methodology: 'Live option execution still requires option chains, IV/liquidity, EPS revisions, earnings calendar, slippage backtests, broker paper trading and manual approval. Never interpret above 35x as permission to sell naked calls.',
-      disclaimer: 'Rule research and paper logging only; not investment advice or a return promise. Options can lose the entire premium.',
+      methodology:
+        'Live option execution still requires option chains, IV/liquidity, EPS revisions, earnings calendar, slippage backtests, broker paper trading and manual approval. Never interpret above 35x as permission to sell naked calls.',
+      disclaimer:
+        'Rule research and paper logging only; not investment advice or a return promise. Options can lose the entire premium.',
     },
     crossAsset: {
       description: 'Cross-asset regime monitor · Multi-asset linkage',
@@ -941,7 +1103,8 @@ const messages: Record<Locale, DictionaryNode> = {
       noMarketBriefData: 'No sufficiently strong cross-asset clues; attribution omitted.',
       alertGap: 'Resonance explanation gap · Prioritize verifying events',
       candidate: 'Candidate event catalysts',
-      catalystSortHint: 'Sorted by assets, theme, impact and freshness; candidates are not confirmed causes.',
+      catalystSortHint:
+        'Sorted by assets, theme, impact and freshness; candidates are not confirmed causes.',
       update: 'Auto updated on trading day',
       sourceLabel: 'Data source ↗',
       coreRules: '{count} core rules · Status: confirming, diverging or dormant',
@@ -1025,7 +1188,8 @@ const messages: Record<Locale, DictionaryNode> = {
       historicalDirectionBullish: 'Historical bias up',
       historicalDirectionBearish: 'Historical bias down',
       future5d: 'Future 5D median return',
-      interlude: 'This is a historical conditional distribution, not a guarantee; when gate fails, use as reference only.',
+      interlude:
+        'This is a historical conditional distribution, not a guarantee; when gate fails, use as reference only.',
       supportReasons: 'Supporting reasons',
       supportReasonsLabel: 'Supporting reasons',
       oppositeRisks: 'Inverse risks',
@@ -1043,7 +1207,7 @@ const messages: Record<Locale, DictionaryNode> = {
       liftLabel: 'Post-5D return lift',
       allPeriodLift: 'pp',
       trendTitle: '10Y–2Y curve',
-      
+
       hyLabel: 'High yield spread',
       monthStrength: 'Monthly strength of global assets',
       strengthHint: 'Quickly identify risk appetite and rotation direction',
@@ -1213,7 +1377,8 @@ const messages: Record<Locale, DictionaryNode> = {
         channelNote: 'Data refresh and methodology follow off-venue source',
       },
       status: { stopped: 'DCA paused', noLimit: 'No limit detected' },
-      notice: 'In-venue products still need real-time premium, turnover and broker commission. This ranking is not a recommendation and not investment advice.',
+      notice:
+        'In-venue products still need real-time premium, turnover and broker commission. This ranking is not a recommendation and not investment advice.',
       caution:
         'First-year cost excludes exit fee, spread, holding-related redemption fee, tracking error and FX impact; negative value means discount offsets estimated cost.',
     },
@@ -1331,7 +1496,8 @@ const messages: Record<Locale, DictionaryNode> = {
         dormant: 'dormant',
         unavailable: 'insufficient',
       },
-      footerDisclaimer: 'Correlation is not causality; bullish/bearish is directional signal, not certainty.',
+      footerDisclaimer:
+        'Correlation is not causality; bullish/bearish is directional signal, not certainty.',
       horizon: {
         day: '1D',
         week: '1W',
@@ -1350,7 +1516,8 @@ const messages: Record<Locale, DictionaryNode> = {
     report: {
       badge: 'DAILY REPORT · PUBLISHING',
       title: 'Daily Report & Publishing',
-      intro: 'Only use data generated by Market Home and cross-asset cockpit to produce reusable publish-ready drafts.',
+      intro:
+        'Only use data generated by Market Home and cross-asset cockpit to produce reusable publish-ready drafts.',
       ready: 'Report data is ready',
       securityTitle: 'Security Boundary',
       securityText:
@@ -1370,7 +1537,8 @@ const messages: Record<Locale, DictionaryNode> = {
       save: 'Save Setup',
       reset: 'Reset Default',
       automation: 'What is needed for automated publishing?',
-      automationIntro: "Static GitHub Pages cannot safely store send credentials. For automation, configure GitHub Secrets:",
+      automationIntro:
+        'Static GitHub Pages cannot safely store send credentials. For automation, configure GitHub Secrets:',
       automationEmail: 'Email: SMTP or email-provider secret plus recipient email.',
       automationX: 'X: developer OAuth credentials; auto-post requires current X API permissions.',
       automationDone:
@@ -1426,7 +1594,8 @@ const messages: Record<Locale, DictionaryNode> = {
     marketNews: {
       badge: 'Global Market Intelligence · 24h',
       heading: 'Global Market News',
-      intro: 'Filter by potential market impact; original title is kept to avoid machine-translation ambiguity.',
+      intro:
+        'Filter by potential market impact; original title is kept to avoid machine-translation ambiguity.',
       backendUpdate: 'Background updates every 15 min',
       checkInterval: 'Live check every 2 min',
       recent24h: 'Last 24h',
@@ -1524,6 +1693,43 @@ const messages: Record<Locale, DictionaryNode> = {
       lastUpdated: 'Last updated',
       nextUpdate: 'Next expected',
     },
+    admin: {
+      badge: 'ADMINISTRATION',
+      title: 'Administration',
+      intro: 'Manage users, menu and button permissions, and open-source analytics in one place.',
+      users: 'Users & roles',
+      name: 'Name',
+      email: 'Email',
+      create: 'Create and issue code',
+      active: 'Active',
+      disabled: 'Disabled',
+      oneTimeCode: 'One-time access code (shown once)',
+      analytics: 'Open-source analytics · PostHog',
+      analyticsIntro:
+        'Supports PostHog Cloud or self-hosting. Off by default; form values, access codes, and investment inputs are excluded.',
+      enabled: 'Enable analytics',
+      autocapture: 'Autocapture interactions',
+      replay: 'Session replay',
+      consent: 'Require consent',
+      save: 'Save settings',
+      userUpdated: 'User permissions updated',
+      analyticsSaved: 'Analytics settings saved',
+      loadFailed: 'Unable to load',
+      createFailed: 'Unable to create user',
+      saveFailed: 'Unable to save',
+    },
+    userMenu: {
+      login: 'Sign in',
+      title: 'User sign-in',
+      hint: 'Use the one-time access code issued by an administrator',
+      code: 'Access code',
+      firstName: 'Name (first setup)',
+      firstEmail: 'Email (first setup)',
+      validating: 'Verifying…',
+      admin: 'Administration',
+      logout: 'Sign out',
+      failed: 'Sign-in failed',
+    },
     direction: { bullish: 'bullish', bearish: 'bearish' },
   },
 }
@@ -1532,8 +1738,7 @@ const STORAGE_KEY = 'market-research-locale'
 const isBrowser = typeof window !== 'undefined'
 const localeStore = ref<Locale>('zh')
 
-const toLocale = (value: string | null): Locale =>
-  value === 'en' || value === 'zh' ? value : 'zh'
+const toLocale = (value: string | null): Locale => (value === 'en' || value === 'zh' ? value : 'zh')
 
 if (isBrowser) {
   localeStore.value = toLocale(window.localStorage.getItem(STORAGE_KEY))
