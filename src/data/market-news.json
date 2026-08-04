@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-04T09:30:22.659Z",
+  "updatedAt": "2026-08-04T11:46:44.041Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -38,19 +38,131 @@
   "articles": [
     {
       "id": "065f77655eae1f25",
-      "title": "Trump warns Iran talks are ‘last chance’ to end war — oil prices rise as Tehran denies negotiations",
+      "title": "Trump warns Iran talks are ‘last chance’ to end war as Qatar confirms diplomatic efforts",
       "url": "https://www.cnbc.com/2026/08/04/us-iran-war-trump-hormuz.html",
-      "publishedAt": "2026-08-04T09:04:13.000Z",
+      "publishedAt": "2026-08-04T11:46:06.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "geopolitics",
       "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "特朗普警告说，随着卡塔尔确认外交努力，伊朗会谈是结束战争的“最后机会”",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "101df453ed30fd93",
+      "title": "Pfizer tops estimates, hikes low end of revenue guidance on strength of Eliquis, other drugs",
+      "url": "https://www.cnbc.com/2026/08/04/pfizer-pfe-earnings-q2-2026.html",
+      "publishedAt": "2026-08-04T11:38:55.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "辉瑞高于预期，针对Eliquis、其他药物的实力上调低端营收指引",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "29db096cf3f343a4",
+      "title": "McDonald's earnings beat estimates, chain announces new U.S. head to accelerate growth",
+      "url": "https://www.cnbc.com/2026/08/04/mcdonalds-mcd-q2-2026-earnings.html",
+      "publishedAt": "2026-08-04T11:34:49.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
       "impact": "medium",
       "impactScore": 3,
       "affectedAssets": [
-        "原油"
+        "美股"
       ],
-      "translatedTitle": "特朗普警告伊朗会谈是结束战争的“最后机会” —随着德黑兰否认谈判，油价上涨",
+      "translatedTitle": "麦当劳盈利超出预期，连锁宣布新任美国主管加速增长",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "ec79a6267dd49165",
+      "title": "Wayfair posts strongest U.S. growth since 2020",
+      "url": "https://www.cnbc.com/2026/08/04/wayfair-w-earnings-q2-2026.html",
+      "publishedAt": "2026-08-04T11:03:25.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "Wayfair发布了自2020年以来美国最强劲的增长",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "9c26c159bc8b7689",
+      "title": "Trump and Republicans brand Democrats ‘communists’ amid progressive push",
+      "url": "https://www.cnbc.com/2026/08/04/trump-election-republicans-democrats-communist.html",
+      "publishedAt": "2026-08-04T11:00:01.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "特朗普和共和党人在进步推动中将民主党人称为“共产主义者”",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "d31c5c6f3ef09c25",
+      "title": "Merck hikes revenue outlook as new drug sales grow, but cuts profit guidance due to deal charges",
+      "url": "https://www.cnbc.com/2026/08/04/merck-mrk-earnings-q2-2026.html",
+      "publishedAt": "2026-08-04T10:34:21.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "随着新药销售增长，默克提高了收入前景，但由于交易费用而削减了利润指导",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "ac91115e939f0184",
+      "title": "Palantir jumps 16% on 'otherworldly' commercial revenue — here's what's driving the demand",
+      "url": "https://www.cnbc.com/2026/08/04/palantir-2q-earnings-ai-sovereign-tools.html",
+      "publishedAt": "2026-08-04T10:27:09.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "Palantir在“超凡脱俗”的商业收入上跃升16% —这就是推动需求的原因",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "37ec32a1a032d22a",
+      "title": "Apple launches fresh legal challenge against UK encrypted data access demand",
+      "url": "https://www.cnbc.com/2026/08/04/apple-encrypted-data-legal-challenge-uk.html",
+      "publishedAt": "2026-08-04T10:15:27.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "苹果对英国加密数据访问需求发起新的法律挑战",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -64,7 +176,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "印度将通过以10 ％的折扣出售该国最大人寿保险公司的股份筹集高达33亿美元的$",
       "translationStatus": "translated",
@@ -80,7 +192,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "Takaichi的财政推动可能会提振经济增长—以及日本已经上升的利息账单",
       "translationStatus": "translated",
@@ -96,7 +208,7 @@
       "category": "geopolitics",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [
         "原油"
       ],
@@ -114,27 +226,11 @@
       "category": "commodities",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [
         "原油"
       ],
       "translatedTitle": "随着特朗普抨击大石油公司“赚太多钱” ，英国石油公司的利润增加了一倍以上",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "acb606330a094d6d",
-      "title": "AI is helping Grab ship products more than 30% faster, CFO says, as company raises forecasts",
-      "url": "https://www.cnbc.com/2026/08/04/grab-earnings-ai-forecast-cfo-.html",
-      "publishedAt": "2026-08-04T05:47:49.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "首席财务官表示，随着公司提高预测，人工智能正在帮助Grab产品出货速度提高30 ％以上",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -151,24 +247,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "汇丰银行税前利润高于预期，这得益于更高的净利息收入和费用",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "29db096cf3f343a4",
-      "title": "McDonald's is about to report earnings. Here's what to expect",
-      "url": "https://www.cnbc.com/2026/08/04/mcdonalds-mcd-q2-2026-earnings.html",
-      "publishedAt": "2026-08-04T04:01:01.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "麦当劳即将报告收入。接下来会发生什么",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -205,22 +283,6 @@
         "美股"
       ],
       "translatedTitle": "Big Tech的Anthropic和OpenAI股权正在扭曲企业盈利状况",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "25d5532ae5ba896e",
-      "title": "Palantir soars 12% on blowout quarter, with U.S. commercial revenue soaring nearly 150%",
-      "url": "https://www.cnbc.com/2026/08/03/palantir-pltr-earnings-q2-2026.html",
-      "publishedAt": "2026-08-03T22:47:54.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "Palantir井喷季度飙升12% ，美国商业收入飙升近150%",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -273,24 +335,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "63d99bf2d197c261",
-      "title": "Snap's stock jumps 8% on earnings beat and strong sales forecast",
-      "url": "https://www.cnbc.com/2026/08/03/snap-q2-earnings-report-2026.html",
-      "publishedAt": "2026-08-03T22:03:52.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "Snap的股价因盈利表现和强劲的销售预测而上涨8%",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "4b31ddae01c49576",
       "title": "Twenty five states sue Trump administration over latest global tariffs",
       "url": "https://www.cnbc.com/2026/08/03/trump-tariffs-25-states-lawsuit-supreme-court.html",
@@ -303,40 +347,6 @@
       "impactScore": 3,
       "affectedAssets": [],
       "translatedTitle": "25个州就最新的全球关税起诉特朗普政府",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "b82e0ab7668ecf26",
-      "title": "Trump sours on Pirro over Reflecting Pool case, won't say her job is safe",
-      "url": "https://www.cnbc.com/2026/08/03/trump-pirro-reflecting-pool-vandalism-case.html",
-      "publishedAt": "2026-08-03T20:30:54.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "特朗普对Pirro的Reflecting Pool案表示不满，不会说她的工作是安全的",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "c0275df87e9e1cb4",
-      "title": "'The Odyssey' fuels Imax stock to all-time high. CEO calls momentum a 'flywheel'",
-      "url": "https://www.cnbc.com/2026/08/03/imax-stock-the-odyssey.html",
-      "publishedAt": "2026-08-03T20:23:28.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "“奥德赛”将Imax股票推向历史新高。首席执行官称势头为“飞轮”",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -371,6 +381,22 @@
         "美股"
       ],
       "translatedTitle": "随着股票在盈利后继续飙升，亚马逊市值突破3万亿美元$",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "f5d4252f942bb120",
+      "title": "Kalshi traders are not expecting a U.S. and Iran nuclear deal soon",
+      "url": "https://www.cnbc.com/2026/08/03/kalshi-traders-are-not-expecting-a-us-and-iran-nuclear-deal-soon.html",
+      "publishedAt": "2026-08-03T19:48:25.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "high",
+      "impactScore": 5,
+      "affectedAssets": [],
+      "translatedTitle": "Kalshi交易商预计美国和伊朗不会很快达成核协议",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -459,22 +485,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "cd5675a4e72efbb3",
-      "title": "Are Americans ready to embrace tiny 'cars'? These companies think so",
-      "url": "https://www.cnbc.com/2026/08/03/electric-lsv-stellantis-fiat-toppolino.html",
-      "publishedAt": "2026-08-03T16:57:42.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "美国人准备好拥抱微型“汽车”了吗？这些公司是这么认为的",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "0e56b7d13563ce84",
       "title": "White House to host AI companies Tuesday to review new model-testing framework",
       "url": "https://www.cnbc.com/2026/08/03/white-house-ai-companies-voluntary-framework-meeting.html",
@@ -521,24 +531,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "为什么美国在几十年后介入支撑日元—以及利害攸关的是什么",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "121ec6548bcf3f08",
-      "title": "SpaceX's post-IPO plunge sets tense backdrop for first earnings report",
-      "url": "https://www.cnbc.com/2026/08/03/spacexs-post-ipo-plunge-sets-tense-backdrop-for-first-earnings-report.html",
-      "publishedAt": "2026-08-03T13:45:02.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "SpaceX的IPO后暴跌为首份盈利报告设定了紧张的背景",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     }
