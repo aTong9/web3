@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
+import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import crossAssetData from '@/data/cross-asset.json'
 import marketHomeData from '@/data/market-home.json'
 import type { CrossAssetDataset, DailyReportConfig, MarketHomeDataset } from '@/types'
@@ -62,10 +63,11 @@ const xUrl = computed(
         <h1>{{ t('report.title') }}</h1>
         <span>{{ t('report.intro') }}</span>
       </div>
-      <div class="freshness">
-        <i></i>
-        <span><strong>{{ t('report.ready') }}</strong><small>{{ report.asOfDate }}</small></span>
-      </div>
+      <DataUpdateStatus
+        :updated-at="home.updatedAt"
+        schedule="crossAsset"
+        :label="t('report.ready')"
+      />
     </header>
 
     <section class="security-note">

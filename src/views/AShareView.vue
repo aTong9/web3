@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import sectorData from '@/data/a-share-sectors.json'
 import type { AShareFund, AShareSectorDataset, SectorKind, SectorPeriod } from '@/types'
 import HotStocksPanel from '@/components/HotStocksPanel.vue'
@@ -13,13 +14,14 @@ const activeScope = ref<Scope>('all')
 const direction = ref<'desc' | 'asc'>('desc')
 const query = ref('')
 const brokerageFeePct = ref(0.03)
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
 const periodOptions: Array<{ value: SectorPeriod; label: string }> = [
   { value: 'day', label: t('aShare.day') },
   { value: 'week', label: t('aShare.week') },
   { value: 'month', label: t('aShare.month') },
   { value: 'quarter', label: t('aShare.quarter') },
+  { value: 'halfYear', label: t('aShare.halfYear') },
   { value: 'yearToDate', label: t('aShare.yearToDate') },
   { value: 'year', label: t('aShare.year') },
 ]
@@ -77,14 +79,6 @@ const returnClass = (value: number | null) => ({
   negative: value !== null && value < 0,
 })
 
-const formatUpdatedAt = (value: string) =>
-  new Intl.DateTimeFormat(locale.value === 'en' ? 'en-US' : 'zh-CN', {
-    timeZone: 'Asia/Shanghai',
-    month: 'numeric',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value))
 </script>
 
 <template>
@@ -94,20 +88,11 @@ const formatUpdatedAt = (value: string) =>
         <p>{{ t('aShare.eyebrow') }}</p>
         <h1>{{ t('aShare.title') }}</h1>
       </div>
-      <div class="market-state">
-        <span :class="dataset.marketStatus"></span>
-        <div>
-          <strong>
-            {{
-              dataset.marketStatus === 'closed' ? t('aShare.marketClosed') : t('aShare.marketOpen')
-            }}
-          </strong>
-          <small
-            >{{ t('aShare.tradingDay') }} {{ dataset.tradingDate }} ·
-            {{ formatUpdatedAt(dataset.updatedAt) }} {{ t('aShare.closeText') }}</small
-          >
-        </div>
-      </div>
+      <DataUpdateStatus
+        :updated-at="dataset.updatedAt"
+        schedule="aShare"
+        :label="`${t('aShare.tradingDay')} ${dataset.tradingDate}`"
+      />
     </header>
 
     <section class="market-summary">
@@ -219,13 +204,16 @@ const formatUpdatedAt = (value: string) =>
               <span>{{ totalFee(fund) === null ? '—' : `${totalFee(fund)?.toFixed(2)}%` }}</span>
               <span
                 >{{ formatCost(fund.premiumRatePct)
-                }}<small>{{ t('aShare.navLabel') }} {{ fund.navDate ?? '—' }}</small></span
+                }}<small
+                  >{{ t('aShare.navLabel') }} {{ fund.latestNav?.toFixed(4) ?? '—' }} ·
+                  {{ fund.navDate ?? '—' }}</small
+                ></span
               >
               <span
                 >{{ formatCost(firstYearCost(fund))
                 }}<small>{{ t('funds.row.feeFormula') }} {{ t('funds.row.buyFee') }} {{ brokerageFeePct.toFixed(2) }}%</small></span
               >
-              <span>{{ fund.latestClose.toFixed(3) }}</span>
+              <span>{{ fund.latestClose.toFixed(3) }}<small>{{ fund.latestDate }}</small></span>
             </a>
           </div>
         </div>
@@ -530,7 +518,7 @@ details[open] .disclosure {
 .return-strip {
   margin-bottom: 18px;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(7, 1fr);
   gap: 1px;
 }
 

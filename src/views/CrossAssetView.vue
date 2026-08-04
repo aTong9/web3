@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import EChart from '@/components/EChart.vue'
 import crossAssetData from '@/data/cross-asset.json'
 import marketNewsData from '@/data/market-news.json'
@@ -20,7 +21,7 @@ const chainStatus = ref<'all' | 'confirming' | 'diverging' | 'dormant' | 'contex
 )
 const selectedBriefId = ref(dataset.marketBrief.markets[0]?.id ?? 'sp500')
 const { theme } = useTheme()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const chartPalette = computed(() =>
   theme.value === 'dark'
     ? {
@@ -52,7 +53,9 @@ const periods = [
   ['week', t('crossAsset.periodLabel.week')],
   ['month', t('crossAsset.periodLabel.month')],
   ['quarter', t('crossAsset.periodLabel.quarter')],
+  ['halfYear', t('crossAsset.periodLabel.halfYear')],
   ['yearToDate', t('crossAsset.periodLabel.yearToDate')],
+  ['year', t('crossAsset.periodLabel.year')],
 ] as const
 
 const visibleAssets = computed(() =>
@@ -217,13 +220,16 @@ const formatValue = (asset: CrossAssetItem) => {
   const maximumFractionDigits = Math.abs(asset.value) >= 100 ? 2 : 4
   return `${asset.value.toLocaleString('zh-CN', { maximumFractionDigits })}${asset.unit ? ` ${asset.unit}` : ''}`
 }
-const formatChange = (value: number | null, mode: CrossAssetItem['mode'] = 'return') => {
-  if (value === null) return '—'
+const formatChange = (
+  value: number | null | undefined,
+  mode: CrossAssetItem['mode'] = 'return',
+) => {
+  if (value === null || value === undefined) return '—'
   return `${value > 0 ? '+' : ''}${value.toFixed(2)}${mode === 'difference' ? t('crossAsset.modeBp') : mode === 'absolute' ? t('crossAsset.modePoints') : t('crossAsset.modePercent')}`
 }
-const valueClass = (value: number | null) => ({
-  positive: value !== null && value > 0,
-  negative: value !== null && value < 0,
+const valueClass = (value: number | null | undefined) => ({
+  positive: value !== null && value !== undefined && value > 0,
+  negative: value !== null && value !== undefined && value < 0,
 })
 const matrixNames = computed(() => dataset.matrix.ids.map((id) => assetById(id)?.name ?? id))
 const heatmapOption = computed(() => ({
@@ -323,12 +329,6 @@ const performanceOption = computed(() => ({
     },
   ],
 }))
-const formatUpdatedAt = (value: string) =>
-  new Intl.DateTimeFormat(locale.value === 'en' ? 'en-US' : 'zh-CN', {
-    timeZone: 'Asia/Shanghai',
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
 </script>
 
 <template>
@@ -339,13 +339,12 @@ const formatUpdatedAt = (value: string) =>
         <h1>{{ t('crossAsset.title') }}</h1>
         <span>{{ t('crossAsset.summaryLabel') }}</span>
       </div>
-      <a :href="dataset.sourceUrl" target="_blank" rel="noopener noreferrer" class="freshness">
-        <i></i
-        ><span
-          ><strong>{{ t('crossAsset.update') }}</strong
-          ><small>{{ formatUpdatedAt(dataset.updatedAt) }} · {{ t('crossAsset.sourceLabel') }}</small></span
-        >
-      </a>
+      <div class="heading-status">
+        <DataUpdateStatus :updated-at="dataset.updatedAt" schedule="crossAsset" />
+        <a :href="dataset.sourceUrl" target="_blank" rel="noopener noreferrer">
+          {{ t('crossAsset.sourceLabel') }}
+        </a>
+      </div>
     </header>
 
     <section class="chains-section top-chains">
@@ -932,6 +931,16 @@ h1 {
   color: var(--muted);
   font-size: 13px;
 }
+.heading-status {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+.heading-status > a {
+  color: var(--accent);
+  font-size: 9px;
+  text-decoration: none;
+}
 .freshness {
   padding: 12px 15px;
   border: 1px solid var(--border);
@@ -1058,11 +1067,11 @@ section + section {
   background: var(--surface);
 }
 .asset-row {
-  min-width: 1060px;
+  min-width: 1240px;
   padding: 13px 14px;
   border-bottom: 1px solid var(--border);
   display: grid;
-  grid-template-columns: minmax(180px, 1.3fr) 145px repeat(5, 85px) minmax(190px, 1fr);
+  grid-template-columns: minmax(180px, 1.3fr) 130px repeat(7, 76px) minmax(180px, 1fr);
   gap: 12px;
   align-items: center;
   font-size: 12px;
@@ -1595,8 +1604,9 @@ tbody th {
     align-items: flex-start;
     flex-direction: column;
   }
-  .freshness {
+  .heading-status {
     align-self: flex-start;
+    justify-items: start;
   }
   .regime-strip {
     grid-template-columns: 1fr 1fr;

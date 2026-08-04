@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import kolData from '@/data/kol-monitor.json'
 import type { KolMonitorDataset, KolPlatform, KolStockMention } from '@/types'
 import { useI18n } from '@/composables/use-i18n'
@@ -94,13 +95,6 @@ const formatDate = (value: string | null) => {
   }).format(new Date(value))
 }
 
-const formatUpdatedAt = (value: string) =>
-  new Intl.DateTimeFormat(locale.value === 'en' ? 'en-US' : 'zh-CN', {
-    timeZone: 'Asia/Shanghai',
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
-
 const addSubscription = async () => {
   updateState.value = 'updating'
   updateMessage.value = t('kol.saveStart')
@@ -140,12 +134,7 @@ const addSubscription = async () => {
         <p>{{ t('kol.badge') }}</p>
         <h1>{{ t('kol.title') }}</h1>
       </div>
-      <div class="freshness">
-        <span></span>
-        <div>
-          <strong>{{ t('kol.sync') }}</strong><small>{{ formatUpdatedAt(dataset.updatedAt) }}</small>
-        </div>
-      </div>
+      <DataUpdateStatus :updated-at="dataset.updatedAt" schedule="kols" :label="t('kol.sync')" />
     </header>
 
     <section class="subscription-panel">

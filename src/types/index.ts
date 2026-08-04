@@ -97,13 +97,21 @@ export interface UsFundDataset {
 }
 
 export type SectorKind = 'industry' | 'theme'
-export type SectorPeriod = 'day' | 'week' | 'month' | 'quarter' | 'yearToDate' | 'year'
+export type SectorPeriod =
+  | 'day'
+  | 'week'
+  | 'month'
+  | 'quarter'
+  | 'halfYear'
+  | 'yearToDate'
+  | 'year'
 
 export interface SectorReturns {
   day: number | null
   week: number | null
   month: number | null
   quarter: number | null
+  halfYear: number | null
   yearToDate: number | null
   year: number | null
 }
@@ -291,7 +299,10 @@ export interface CrossAssetItem {
   date: string | null
   availableDate: string | null
   stale: boolean
-  changes: Record<'day' | 'week' | 'month' | 'quarter' | 'yearToDate', number | null>
+  changes: Record<
+    'day' | 'week' | 'month' | 'quarter' | 'halfYear' | 'yearToDate' | 'year',
+    number | null
+  >
   flow: {
     status: 'proxy' | 'actual' | 'unavailable'
     label: string
@@ -419,7 +430,7 @@ export interface CrossAssetDataset {
         text: string
       }>
       horizonOutlooks: Array<{
-        id: 'day' | 'week' | 'month' | 'quarter'
+        id: 'day' | 'week' | 'month' | 'quarter' | 'halfYear' | 'year'
         label: string
         observations: number
         direction: 'bullish' | 'bearish'

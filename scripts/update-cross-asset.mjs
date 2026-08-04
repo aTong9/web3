@@ -764,7 +764,9 @@ const assets = definitions.map((definition) => {
       week,
       month: relativeChange(history, 21, definition.mode),
       quarter: relativeChange(history, 63, definition.mode),
+      halfYear: relativeChange(history, 126, definition.mode),
       yearToDate: ytdChange(history, definition.mode),
+      year: relativeChange(history, 252, definition.mode),
     },
     flow: {
       status: 'proxy',
@@ -3044,6 +3046,8 @@ const horizonDefinitions = [
   { id: 'week', label: '未来1周', horizon: 5, shortWindow: 5, longWindow: 21 },
   { id: 'month', label: '未来1月', horizon: 21, shortWindow: 21, longWindow: 63 },
   { id: 'quarter', label: '未来1季度', horizon: 63, shortWindow: 63, longWindow: 126 },
+  { id: 'halfYear', label: '未来半年', horizon: 126, shortWindow: 126, longWindow: 252 },
+  { id: 'year', label: '未来1年', horizon: 252, shortWindow: 252, longWindow: 504 },
 ]
 const pureMomentumRules = ruleFamilies.filter((rule) => rule.driverWeight === 0)
 const buildHorizonMomentumOutlook = (id, horizonDefinition) => {

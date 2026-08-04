@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import marketHomeData from '@/data/market-home.json'
 import crossAssetData from '@/data/cross-asset.json'
 import type { CrossAssetDataset, MarketHomeDataset } from '@/types'
@@ -15,6 +16,12 @@ const { t } = useI18n()
 
 const formatMove = (value: number | null) =>
   value === null ? '—' : (value > 0 ? '+' : '') + value.toFixed(2) + '%'
+const formatMarketValue = (id: string) => {
+  const asset = crossAssetDataset.assets.find((item) => item.id === id)
+  if (!asset || asset.value === null) return '—'
+  const value = asset.value.toLocaleString('zh-CN', { maximumFractionDigits: 4 })
+  return asset.unit === '美元' ? `$${value}` : `${value} ${asset.unit}`
+}
 const directionName = (direction: 'bullish' | 'bearish') =>
   direction === 'bullish' ? t('direction.bullish') : t('direction.bearish')
 const validationText = (
@@ -36,12 +43,6 @@ const validationText = (
     lift,
   })
 }
-const formatUpdatedAt = (value: string) =>
-  new Intl.DateTimeFormat('zh-CN', {
-    timeZone: 'Asia/Shanghai',
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
 </script>
 
 <template>
@@ -51,7 +52,7 @@ const formatUpdatedAt = (value: string) =>
         <p>{{ t('marketHome.badge') }}</p>
         <h1>{{ t('marketHome.heading') }}</h1>
         <span>{{ t('marketHome.hint') }}</span>
-        <small>{{ t('marketHome.updated') }} {{ formatUpdatedAt(dataset.updatedAt) }}</small>
+        <DataUpdateStatus :updated-at="dataset.updatedAt" schedule="crossAsset" />
       </div>
       <section v-if="leadMarket" class="market-pulse" :aria-label="t('marketHome.pulse.baseline')">
         <div class="pulse-heading">
@@ -60,6 +61,9 @@ const formatUpdatedAt = (value: string) =>
           <b :class="{ up: (leadMarket.dailyMove ?? 0) >= 0, down: (leadMarket.dailyMove ?? 0) < 0 }">
             {{ formatMove(leadMarket.dailyMove) }}
           </b>
+          <small class="latest-price">
+            {{ t('crossAsset.latestValue') }} {{ formatMarketValue(leadMarket.id) }}
+          </small>
         </div>
         <div class="pulse-track" aria-hidden="true">
           <i
@@ -114,11 +118,14 @@ const formatUpdatedAt = (value: string) =>
         :default-open="false"
       >
         <template #metric>
-          <strong
-            :class="{ up: (market.dailyMove ?? 0) >= 0, down: (market.dailyMove ?? 0) < 0 }"
-          >
-            {{ formatMove(market.dailyMove) }}
-          </strong>
+          <span class="market-metric">
+            <small>{{ formatMarketValue(market.id) }}</small>
+            <strong
+              :class="{ up: (market.dailyMove ?? 0) >= 0, down: (market.dailyMove ?? 0) < 0 }"
+            >
+              {{ formatMove(market.dailyMove) }}
+            </strong>
+          </span>
         </template>
 
         <div class="cause">
@@ -233,11 +240,26 @@ const formatUpdatedAt = (value: string) =>
   font-size: 22px;
   font-variant-numeric: tabular-nums;
 }
+.latest-price {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 9px;
+}
+.market-metric {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+.market-metric small {
+  color: var(--muted);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
 .pulse-track {
   height: 4px;
   margin: 18px 0 14px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 4px;
 }
 .pulse-track i {
@@ -255,7 +277,7 @@ const formatUpdatedAt = (value: string) =>
 }
 .pulse-horizons {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 8px;
 }
 .pulse-horizons span {
@@ -325,7 +347,7 @@ const formatUpdatedAt = (value: string) =>
 }
 .horizons {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 .horizons > section {

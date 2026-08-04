@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import embeddedData from '@/data/market-news.json'
 import type { MarketNewsCategory, MarketNewsDataset, MarketNewsImpact } from '@/types'
 import { useI18n } from '@/composables/use-i18n'
@@ -61,13 +62,6 @@ const formatTime = (value: string) =>
     hour12: false,
   }).format(new Date(value))
 
-const formatUpdatedAt = (value: string) =>
-  new Intl.DateTimeFormat('zh-CN', {
-    timeZone: 'Asia/Shanghai',
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
-
 const refreshLatest = async () => {
   liveStatus.value = 'checking'
   try {
@@ -100,13 +94,11 @@ onUnmounted(() => window.clearInterval(refreshTimer))
         <h1>{{ t('marketNews.heading') }}</h1>
         <span>{{ t('marketNews.intro') }}</span>
       </div>
-      <div class="freshness">
-        <i :class="liveStatus"></i>
-        <div>
-          <strong>{{ t('marketNews.backendUpdate') }}</strong>
-          <small>{{ formatUpdatedAt(dataset.updatedAt) }} · {{ t('marketNews.checkInterval') }}</small>
-        </div>
-      </div>
+      <DataUpdateStatus
+        :updated-at="dataset.updatedAt"
+        schedule="news"
+        :label="t('marketNews.backendUpdate')"
+      />
     </header>
 
     <section class="summary">

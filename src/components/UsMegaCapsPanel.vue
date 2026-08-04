@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import megaCapData from '@/data/us-megacaps.json'
 import type { UsMegaCapDataset, UsMegaCapStock } from '@/types'
 import { useI18n } from '@/composables/use-i18n'
@@ -44,12 +45,6 @@ const signalSummary = computed(() => ({
     .length,
   unavailable: dataset.stocks.filter((stock) => stock.forwardPe === null).length,
 }))
-const formatUpdatedAt = (value: string) =>
-  new Intl.DateTimeFormat('zh-CN', {
-    timeZone: 'Asia/Shanghai',
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
 </script>
 
 <template>
@@ -93,6 +88,7 @@ const formatUpdatedAt = (value: string) =>
       <div class="valuation-row table-head" aria-hidden="true">
         <span>{{ t('mega.table.rank') }}</span>
         <span>{{ t('mega.table.marketCap') }}</span>
+        <span>{{ t('crossAsset.latestValue') }}</span>
         <span>{{ t('mega.table.currentPe') }}</span>
         <span>{{ t('mega.table.historicalPe') }}</span>
         <span>{{ t('mega.table.forwardPe') }}</span>
@@ -112,6 +108,10 @@ const formatUpdatedAt = (value: string) =>
         <span :data-label="t('mega.table.marketCap')">
           <strong>{{ formatMarketCap(stock.marketCapUsd) }}</strong>
           <small>{{ t('mega.table.rankLabel', { value: stock.marketCapRank }) }}</small>
+        </span>
+        <span :data-label="t('crossAsset.latestValue')">
+          <strong>${{ stock.price?.toFixed(2) ?? '—' }}</strong>
+          <small>{{ t('marketHome.updated') }}</small>
         </span>
         <span :data-label="t('mega.table.currentPe')" class="pe-value">
           <strong>{{ formatPe(stock.trailingPe) }}</strong>
@@ -134,7 +134,7 @@ const formatUpdatedAt = (value: string) =>
     </div>
 
     <footer>
-      <span>{{ t('marketHome.updated') }} {{ formatUpdatedAt(dataset.updatedAt) }}</span>
+      <DataUpdateStatus :updated-at="dataset.updatedAt" schedule="hotStocks" />
       <span>
         <a
           v-for="source in dataset.sources"
@@ -195,6 +195,7 @@ select {
 }
 .valuation-table {
   margin-top: 18px;
+  overflow-x: auto;
   border-top: 1px solid var(--ink);
 }
 .discipline-bar {
@@ -242,12 +243,13 @@ select {
   color: var(--warning);
 }
 .valuation-row {
+  min-width: 730px;
   min-height: 68px;
   padding: 12px 8px;
   border-bottom: 1px solid var(--border);
   color: var(--ink);
   display: grid;
-  grid-template-columns: minmax(210px, 1.5fr) repeat(4, minmax(105px, 0.8fr));
+  grid-template-columns: minmax(190px, 1.4fr) repeat(5, minmax(95px, 0.8fr));
   align-items: center;
   gap: 14px;
   text-decoration: none;

@@ -35,9 +35,9 @@ const directionName = (direction: 'bullish' | 'bearish') =>
   direction === 'bullish' ? t('direction.bullish') : t('direction.bearish')
 const directionClass = (direction: 'bullish' | 'bearish') =>
   direction === 'bullish' ? 'bullish' : 'bearish'
-const posterHorizonIds = ['day', 'week', 'month', 'quarter'] as const
+const posterHorizonIds = ['day', 'week', 'month', 'quarter', 'halfYear', 'year'] as const
 const getHorizonDirection = (
-  horizonId: 'day' | 'week' | 'month' | 'quarter',
+  horizonId: (typeof posterHorizonIds)[number],
   market: (typeof markets.value)[number],
 ) => {
   const item = market.horizonOutlooks.find((entry) => entry.id === horizonId)

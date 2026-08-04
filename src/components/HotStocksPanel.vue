@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import hotStockData from '@/data/hot-stocks.json'
 import type { HotStockDataset } from '@/types'
 import { useI18n } from '@/composables/use-i18n'
@@ -29,12 +30,6 @@ const formatActivity = (value: number | null) => {
     ? `${(value / 100_000_000).toFixed(1)}${t('hotStocks.unitSharesBillion')}`
     : `${(value / 10_000).toFixed(0)}${t('hotStocks.unitSharesTenThousand')}`
 }
-const formatUpdatedAt = (value: string) =>
-  new Intl.DateTimeFormat('zh-CN', {
-    timeZone: 'Asia/Shanghai',
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
 </script>
 
 <template>
@@ -54,7 +49,7 @@ const formatUpdatedAt = (value: string) =>
             {{ t('hotStocks.periodWeekly') }}
           </button>
         </div>
-        <small>{{ formatUpdatedAt(dataset.updatedAt) }}</small>
+        <DataUpdateStatus :updated-at="dataset.updatedAt" schedule="hotStocks" />
       </div>
     </header>
     <p v-if="marketData.status !== 'ok'" class="status-message">
@@ -71,7 +66,11 @@ const formatUpdatedAt = (value: string) =>
         <b>{{ stock.rank.toString().padStart(2, '0') }}</b>
         <span>
           <strong>{{ stock.name }}</strong>
-          <small>{{ stock.code }} · {{ stock.activityLabel }} {{ formatActivity(stock.activityValue) }}</small>
+          <small>
+            {{ stock.code }} · {{ t('crossAsset.latestValue') }}
+            {{ stock.price?.toFixed(2) ?? '—' }} · {{ stock.activityLabel }}
+            {{ formatActivity(stock.activityValue) }}
+          </small>
         </span>
         <em
           :class="{

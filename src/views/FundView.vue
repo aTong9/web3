@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import fundData from '@/data/us-funds.json'
 import type { FundVenue, UsFund, UsFundDataset } from '@/types'
 import HotStocksPanel from '@/components/HotStocksPanel.vue'
@@ -44,13 +45,6 @@ const visibleFunds = computed(() =>
     }),
 )
 
-const formatUpdatedAt = (value: string) =>
-  new Intl.DateTimeFormat('zh-CN', {
-    timeZone: 'Asia/Shanghai',
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
-
 const formatFee = (value: number | null) => (value === null ? '—' : `${value.toFixed(2)}%`)
 const formatSignedFee = (value: number | null) =>
   value === null ? '—' : `${value > 0 ? '+' : ''}${value.toFixed(2)}%`
@@ -69,13 +63,11 @@ const formatLimit = (fund: UsFund) => {
         <p>{{ t('funds.sub') }}</p>
         <h1>{{ t('funds.title') }}</h1>
       </div>
-      <div class="freshness">
-        <span class="live-dot"></span>
-        <div>
-          <strong>{{ t('funds.monitor') }}</strong>
-          <small>{{ t('funds.updatedLabel') }} {{ formatUpdatedAt(dataset.updatedAt) }}</small>
-        </div>
-      </div>
+      <DataUpdateStatus
+        :updated-at="dataset.updatedAt"
+        schedule="funds"
+        :label="t('funds.monitor')"
+      />
     </header>
 
     <section class="scope-note">
@@ -134,6 +126,7 @@ const formatLimit = (fund: UsFund) => {
             <th>{{ t('funds.table.fund') }}</th>
             <th>{{ t('funds.table.indexLabel') }}</th>
             <th class="number">{{ t('funds.table.scale') }}</th>
+            <th class="number">{{ t('funds.table.value') }}</th>
             <th class="number">{{ t('funds.table.fee') }}</th>
             <th class="number">{{ t('funds.table.premium') }}</th>
             <th class="number">{{ t('funds.table.entryCost') }}</th>
@@ -158,9 +151,28 @@ const formatLimit = (fund: UsFund) => {
               <small>{{ fund.scaleDate ?? '—' }}</small>
             </td>
             <td class="number">
-              <strong>{{ formatSignedFee(fund.premiumRatePct) }}</strong>
-              <small v-if="fund.venue === 'exchange'">净值 {{ fund.navDate ?? '—' }}</small>
-              <small v-else>{{ t('funds.table.row.offExchangeNav') }}</small>
+              <strong>{{
+                fund.venue === 'exchange'
+                  ? (fund.latestClose?.toFixed(4) ?? '—')
+                  : (fund.latestNav?.toFixed(4) ?? '—')
+              }}</strong>
+              <small>
+                {{
+                  fund.venue === 'exchange'
+                    ? `${fund.latestCloseDate ?? '—'} · NAV ${fund.latestNav?.toFixed(4) ?? '—'}`
+                    : `${t('funds.table.row.offExchangeNav')} · ${fund.navDate ?? '—'}`
+                }}
+              </small>
+            </td>
+            <td class="number">
+              <strong>{{ formatFee(totalFee(fund)) }}</strong>
+              <small>{{ t('funds.table.row.annualOpFee') }}</small>
+            </td>
+            <td class="number">
+              <strong>{{
+                formatSignedFee(fund.venue === 'exchange' ? fund.premiumRatePct : null)
+              }}</strong>
+              <small>{{ fund.navDate ?? '—' }}</small>
             </td>
             <td class="number">
               <strong>{{
@@ -177,10 +189,6 @@ const formatLimit = (fund: UsFund) => {
             <td class="number cost-total">
               <strong>{{ formatSignedFee(firstYearCost(fund)) }}</strong>
               <small>{{ t('funds.table.row.feeFormula') }}</small>
-            </td>
-            <td class="number">
-              <strong>{{ formatFee(totalFee(fund)) }}</strong>
-              <small>{{ t('funds.table.row.annualOpFee') }}</small>
             </td>
             <td v-if="activeVenue === 'offExchange'">
               <span
@@ -388,6 +396,7 @@ select {
 
 table {
   width: 100%;
+  min-width: 1180px;
   border-collapse: collapse;
   font-size: 12px;
 }
