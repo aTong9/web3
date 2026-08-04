@@ -138,8 +138,16 @@ RSS/Atom 支持内容列表同步，普通网页支持公开元数据解析。�
 为正时进入 Long Call 候选；35倍以上仅提示退出已有 Long Call 或回避，不代表允许卖出裸 Call。
 所有候选在实时期权链、隐含波动率、流动性、EPS修正和财报日历接入前都标记为不可执行。
 
-模拟信号账本保存在当前浏览器的 `localStorage` 中，只记录信号时点的标的价格和后续价格变化，
-不等同于期权回测或模拟成交。接入真实券商前必须增加服务端密钥、幂等订单、仓位风控、模拟账户和人工确认。
+量化页面优先连接 `web3-quant-api` Cloudflare Worker：服务端从仓库读取最新版跨资产与美股巨头数据，
+生成统一快照并存入 D1；工作日北京时间18:45和次日07:45自动刷新。模拟信号账本按浏览器生成的匿名
+客户端 ID 保存在 D1，仅记录信号时点的标的价格和后续价格变化。云端不可达时，页面会明确显示降级状态，
+继续使用随构建发布的数据与浏览器 `localStorage`，不会阻塞阅读。
+
+Cloudflare 相关代码位于 `worker/`，配置位于 `wrangler.jsonc`。本地初始化与验证使用
+`npm run cloudflare:db:local`、`npm run cloudflare:check` 和 `npm run cloudflare:dev`；远端部署使用
+`npm run cloudflare:deploy`。生产 API 为 `https://web3-quant-api.binson0426.workers.dev`，前端可通过
+`VITE_QUANT_API_BASE` 覆盖。当前服务不保存券商密钥、不连接券商且不能下单；接入真实券商前必须增加
+认证、密钥托管、幂等订单、组合级仓位风控、独立模拟账户和逐笔人工确认。
 
 ## 全球市场快讯
 

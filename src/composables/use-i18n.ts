@@ -141,6 +141,11 @@ const messages: Record<Locale, DictionaryNode> = {
       title: '全球资产量化信号台',
       intro: '把跨资产方向、价格动量和美股巨头估值合并成可核对的候选信号；当前不连接券商，也不会自动下单。',
       updated: '信号更新时间',
+      cloud: {
+        connected: 'Cloudflare D1已连接',
+        loading: '正在连接Cloudflare',
+        fallback: '云端不可用 · 已降级到本地数据',
+      },
       configTitle: '当前策略纪律',
       threshold: 'Forward PE纪律线',
       buffer: '大幅偏离缓冲',
@@ -854,6 +859,11 @@ const messages: Record<Locale, DictionaryNode> = {
       title: 'Global Asset Quant Signals',
       intro: 'Combine cross-asset direction, price momentum and mega-cap valuation into auditable candidates. No broker connection or automatic orders.',
       updated: 'Signal updated',
+      cloud: {
+        connected: 'Cloudflare D1 connected',
+        loading: 'Connecting to Cloudflare',
+        fallback: 'Cloud unavailable · Local fallback active',
+      },
       configTitle: 'Current strategy discipline',
       threshold: 'Forward PE line',
       buffer: 'Material-deviation buffer',

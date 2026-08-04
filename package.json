@@ -21,6 +21,12 @@
     "update:cross-asset": "node scripts/update-cross-asset.mjs",
     "update:hot-stocks": "node scripts/update-hot-stocks.mjs",
     "update:us-megacaps": "node scripts/update-us-megacaps.mjs",
+    "cloudflare:types": "wrangler types worker/env.d.ts",
+    "cloudflare:check": "npm run cloudflare:types && tsc -p tsconfig.worker.json --noEmit && wrangler deploy --dry-run --outdir .wrangler/dry-run",
+    "cloudflare:dev": "wrangler dev --local --test-scheduled",
+    "cloudflare:db:local": "wrangler d1 migrations apply DB --local",
+    "cloudflare:db:remote": "wrangler d1 migrations apply DB --remote",
+    "cloudflare:deploy": "npm run cloudflare:db:remote && wrangler deploy",
     "deploy": "npm run build-only && gh-pages -d dist -m \"Deploy to GitHub Pages\""
   },
   "homepage": "https://github.com/aTong9/web3",
@@ -37,6 +43,7 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260804.1",
     "@tsconfig/node24": "^24.0.3",
     "@types/node": "^24.10.4",
     "@vitejs/plugin-vue": "^6.0.3",
@@ -53,6 +60,7 @@
     "typescript": "~5.9.3",
     "vite": "^7.3.0",
     "vite-plugin-vue-devtools": "^8.0.5",
-    "vue-tsc": "^3.2.2"
+    "vue-tsc": "^3.2.2",
+    "wrangler": "^4.118.0"
   }
 }

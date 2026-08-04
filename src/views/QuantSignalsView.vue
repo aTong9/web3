@@ -10,11 +10,13 @@ import type {
   OptionCandidateAction,
   PaperSignalPosition,
   QuantAssetSignal,
+  QuantDashboard,
   QuantOptionCandidate,
   QuantSignalLevel,
   UsMegaCapDataset,
 } from '@/types'
 import { buildQuantDashboard } from '@/utils/quant-signals'
+import { getQuantClientId, quantApi } from '@/utils/quant-api'
 
 type CategoryFilter = 'all' | Exclude<CrossAssetCategory, 'macro'>
 type SortMode = 'score' | 'evidence'
@@ -22,10 +24,13 @@ type SortMode = 'score' | 'evidence'
 const { locale, t } = useI18n()
 const dataset = crossAssetData as CrossAssetDataset
 const megaCaps = megaCapData as UsMegaCapDataset
-const dashboard = buildQuantDashboard(dataset, megaCaps)
+const dashboard = ref<QuantDashboard>(buildQuantDashboard(dataset, megaCaps))
 const category = ref<CategoryFilter>('all')
 const sortMode = ref<SortMode>('score')
 const paperPositions = ref<PaperSignalPosition[]>([])
+const cloudStatus = ref<'loading' | 'connected' | 'fallback'>('loading')
+const busyPositionId = ref<string | null>(null)
+let quantClientId = ''
 const paperStorageKey = 'market-desk-quant-paper-signals-v1'
 
 const categoryFilters: CategoryFilter[] = [
@@ -37,7 +42,7 @@ const categoryFilters: CategoryFilter[] = [
   'crypto',
 ]
 const filteredAssets = computed(() =>
-  dashboard.assets
+  dashboard.value.assets
     .filter((asset) => category.value === 'all' || asset.category === category.value)
     .sort((left, right) =>
       sortMode.value === 'evidence'
@@ -94,8 +99,20 @@ const isRecorded = (candidate: QuantOptionCandidate) =>
   paperPositions.value.some(
     (position) => position.symbol === candidate.symbol && position.status === 'open',
   )
-const addPaperPosition = (candidate: QuantOptionCandidate) => {
+const addPaperPosition = async (candidate: QuantOptionCandidate) => {
   if (candidate.price === null || isRecorded(candidate)) return
+  if (cloudStatus.value === 'connected') {
+    busyPositionId.value = candidate.symbol
+    try {
+      const position = await quantApi.createPosition(quantClientId, candidate)
+      paperPositions.value.unshift(position)
+    } catch (error) {
+      console.error('Cloud paper position could not be created:', error)
+    } finally {
+      busyPositionId.value = null
+    }
+    return
+  }
   paperPositions.value.unshift({
     id: `${candidate.symbol}-${Date.now()}`,
     symbol: candidate.symbol,
@@ -112,7 +129,7 @@ const addPaperPosition = (candidate: QuantOptionCandidate) => {
   persistPaper()
 }
 const currentCandidate = (symbol: string) =>
-  dashboard.options.find((candidate) => candidate.symbol === symbol)
+  dashboard.value.options.find((candidate) => candidate.symbol === symbol)
 const paperReturn = (position: PaperSignalPosition) => {
   const price =
     position.status === 'closed'
@@ -122,26 +139,61 @@ const paperReturn = (position: PaperSignalPosition) => {
     ? null
     : ((price - position.entryUnderlyingPrice) / position.entryUnderlyingPrice) * 100
 }
-const closePaperPosition = (position: PaperSignalPosition) => {
+const closePaperPosition = async (position: PaperSignalPosition) => {
   const currentPrice = currentCandidate(position.symbol)?.price
   if (currentPrice === null || currentPrice === undefined) return
+  if (cloudStatus.value === 'connected') {
+    busyPositionId.value = position.id
+    try {
+      await quantApi.closePosition(quantClientId, position)
+    } catch (error) {
+      console.error('Cloud paper position could not be closed:', error)
+      return
+    } finally {
+      busyPositionId.value = null
+    }
+  }
   position.status = 'closed'
   position.closedAt = new Date().toISOString()
   position.exitUnderlyingPrice = currentPrice
-  persistPaper()
+  if (cloudStatus.value === 'fallback') persistPaper()
 }
-const removePaperPosition = (position: PaperSignalPosition) => {
+const removePaperPosition = async (position: PaperSignalPosition) => {
+  if (cloudStatus.value === 'connected') {
+    busyPositionId.value = position.id
+    try {
+      await quantApi.deletePosition(quantClientId, position)
+    } catch (error) {
+      console.error('Cloud paper position could not be removed:', error)
+      return
+    } finally {
+      busyPositionId.value = null
+    }
+  }
   paperPositions.value = paperPositions.value.filter((item) => item.id !== position.id)
-  persistPaper()
+  if (cloudStatus.value === 'fallback') persistPaper()
 }
 
-onMounted(() => {
+onMounted(async () => {
   try {
     const stored = window.localStorage.getItem(paperStorageKey)
     paperPositions.value = stored ? (JSON.parse(stored) as PaperSignalPosition[]) : []
   } catch (error) {
     console.warn('Paper signal records could not be loaded:', error)
     paperPositions.value = []
+  }
+  try {
+    quantClientId = getQuantClientId()
+    const [cloudDashboard, cloudPositions] = await Promise.all([
+      quantApi.dashboard(),
+      quantApi.positions(quantClientId),
+    ])
+    dashboard.value = cloudDashboard
+    paperPositions.value = cloudPositions
+    cloudStatus.value = 'connected'
+  } catch (error) {
+    console.warn('Cloud quant service unavailable; local fallback is active:', error)
+    cloudStatus.value = 'fallback'
   }
 })
 </script>
@@ -153,6 +205,7 @@ onMounted(() => {
         <p>{{ t('quant.badge') }}</p>
         <h1>{{ t('quant.title') }}</h1>
         <span>{{ t('quant.intro') }}</span>
+        <small class="cloud-state" :class="cloudStatus">{{ t(`quant.cloud.${cloudStatus}`) }}</small>
         <DataUpdateStatus :updated-at="dashboard.generatedAt" schedule="crossAsset" />
       </div>
       <section class="strategy-focus" :aria-label="t('quant.configTitle')">
@@ -251,7 +304,7 @@ onMounted(() => {
         </details>
         <footer>
           <span class="execution">{{ candidate.executable ? t('quant.executable') : t('quant.notExecutable') }}</span>
-          <button :disabled="candidate.price === null || isRecorded(candidate)" @click="addPaperPosition(candidate)">
+          <button :disabled="candidate.price === null || isRecorded(candidate) || busyPositionId === candidate.symbol" @click="addPaperPosition(candidate)">
             {{ isRecorded(candidate) ? t('quant.recorded') : t('quant.addPaper') }}
           </button>
         </footer>
@@ -266,8 +319,8 @@ onMounted(() => {
         <div><small>{{ t('quant.paperOpened') }}</small><b>{{ formatDate(position.openedAt) }}</b></div>
         <div><small>{{ t('quant.paperEntry') }}</small><b>${{ position.entryUnderlyingPrice.toFixed(2) }}</b></div>
         <div><small>{{ t('quant.paperReturn') }}</small><b :class="(paperReturn(position) ?? 0) >= 0 ? 'positive' : 'negative'">{{ formatPct(paperReturn(position)) }}</b></div>
-        <button v-if="position.status === 'open'" @click="closePaperPosition(position)">{{ t('quant.paperClose') }}</button>
-        <button v-else class="remove-record" @click="removePaperPosition(position)">{{ t('quant.paperRemove') }}</button>
+        <button v-if="position.status === 'open'" :disabled="busyPositionId === position.id" @click="closePaperPosition(position)">{{ t('quant.paperClose') }}</button>
+        <button v-else class="remove-record" :disabled="busyPositionId === position.id" @click="removePaperPosition(position)">{{ t('quant.paperRemove') }}</button>
       </article>
     </section>
 
@@ -286,6 +339,9 @@ onMounted(() => {
 .page-heading p { margin: 0 0 9px; color: var(--accent); font-size: 9px; font-weight: 700; letter-spacing: .14em; }
 .page-heading h1 { margin: 0; font: 500 clamp(34px, 4vw, 52px) Georgia, 'Songti SC', serif; letter-spacing: -.035em; }
 .page-heading > div > span { display: block; max-width: 720px; margin: 12px 0 18px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.cloud-state { display: inline-flex; margin: 0 0 10px; padding: 5px 8px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); font-size: 9px; }
+.cloud-state.connected { border-color: color-mix(in srgb, var(--positive) 35%, var(--border)); color: var(--positive); }
+.cloud-state.fallback { color: var(--warning); }
 .strategy-focus { padding: 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); }
 .strategy-focus header { display: flex; justify-content: space-between; align-items: center; }
 .strategy-focus header span { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .08em; }

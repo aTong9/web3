@@ -47,9 +47,13 @@ const { t } = useI18n()
   backdrop-filter: blur(5px);
   display: grid;
   place-items: center;
+  box-sizing: border-box;
 }
 .alert-layer > section {
-  width: min(620px, 100%);
+  width: 100%;
+  max-width: 620px;
+  min-width: 0;
+  box-sizing: border-box;
   border-radius: 12px;
   background: var(--surface);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.28);
@@ -90,6 +94,7 @@ const { t } = useI18n()
 .alert-copy span {
   color: var(--muted);
   font-size: 11px;
+  overflow-wrap: anywhere;
 }
 .signals {
   margin: 0 28px;
@@ -101,6 +106,9 @@ const { t } = useI18n()
   display: flex;
   justify-content: space-between;
   gap: 18px;
+}
+.signals article > div {
+  min-width: 0;
 }
 .signals strong,
 .signals small {
@@ -135,5 +143,34 @@ const { t } = useI18n()
   background: var(--ink);
   color: white;
   cursor: pointer;
+  white-space: nowrap;
+}
+@media (max-width: 520px) {
+  .alert-layer {
+    padding: 12px;
+  }
+  .alert-layer > section {
+    width: 100%;
+    max-width: 100%;
+  }
+  .alert-copy {
+    padding: 22px 20px 16px;
+  }
+  .signals {
+    margin: 0 20px;
+  }
+  .signals article {
+    gap: 10px;
+  }
+  .alert-layer footer {
+    padding: 16px 20px 20px;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .alert-layer footer button {
+    align-self: end;
+    max-width: 100%;
+  }
 }
 </style>
