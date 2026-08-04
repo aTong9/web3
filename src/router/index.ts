@@ -23,6 +23,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/quant-signals',
+      name: 'quant-signals',
+      component: () => import('../views/QuantSignalsView.vue'),
+      meta: {
+        titleKey: 'ui.routes.quant.title',
+        descriptionKey: 'ui.routes.quant.description',
+      },
+    },
+    {
       path: '/resources',
       name: 'resources',
       component: HomeView,

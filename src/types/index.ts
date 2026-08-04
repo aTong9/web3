@@ -208,6 +208,103 @@ export interface UsMegaCapDataset {
   stocks: UsMegaCapStock[]
 }
 
+export type QuantSignalLevel =
+  | 'buy'
+  | 'accumulate'
+  | 'hold'
+  | 'reduce'
+  | 'sell'
+  | 'unavailable'
+
+export interface QuantStrategyConfig {
+  forwardPeThreshold: number
+  valuationBufferPct: number
+  minimumEvidenceScore: number
+  maximumPositionRiskPct: number
+  optionDteRange: { min: number; max: number }
+  optionDeltaRange: { min: number; max: number }
+}
+
+export interface QuantAssetSignal {
+  id: string
+  name: string
+  category: CrossAssetCategory
+  mode: CrossAssetItem['mode']
+  value: number
+  unit: string
+  date: string
+  score: number
+  evidenceScore: number
+  signal: QuantSignalLevel
+  stale: boolean
+  changes: Pick<SectorReturns, 'day' | 'week' | 'month' | 'quarter' | 'halfYear' | 'year'>
+  reasons: string[]
+  risks: string[]
+  modelSource: 'validated-horizon' | 'horizon-watch' | 'momentum-proxy'
+}
+
+export type OptionCandidateAction =
+  | 'long-call-candidate'
+  | 'long-call-watch'
+  | 'hold'
+  | 'exit-long-call'
+  | 'avoid'
+  | 'unavailable'
+
+export interface QuantOptionCandidate {
+  symbol: string
+  name: string
+  marketCapRank: number
+  price: number | null
+  forwardPe: number | null
+  historicalPeMedian5y: number | null
+  discountToThresholdPct: number | null
+  gapToHistoricalAnchorPct: number | null
+  score: number
+  evidenceScore: number
+  action: OptionCandidateAction
+  executable: boolean
+  reasons: string[]
+  blockers: string[]
+  template: {
+    strategy: 'long-call' | 'exit-or-avoid'
+    dteRange: { min: number; max: number }
+    deltaRange: { min: number; max: number }
+    maximumPositionRiskPct: number
+  }
+  sourceUrl: string
+}
+
+export interface QuantDashboard {
+  generatedAt: string
+  asOfDate: string | null
+  config: QuantStrategyConfig
+  summary: {
+    buyCandidates: number
+    sellCandidates: number
+    optionLongCallCandidates: number
+    optionExitCandidates: number
+    unavailable: number
+  }
+  assets: QuantAssetSignal[]
+  options: QuantOptionCandidate[]
+  limitations: string[]
+}
+
+export interface PaperSignalPosition {
+  id: string
+  symbol: string
+  name: string
+  action: OptionCandidateAction
+  openedAt: string
+  closedAt: string | null
+  entryUnderlyingPrice: number
+  exitUnderlyingPrice: number | null
+  forwardPe: number | null
+  signalScore: number
+  status: 'open' | 'closed'
+}
+
 export type KolPlatform =
   | 'youtube'
   | 'xiaohongshu'

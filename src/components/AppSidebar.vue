@@ -15,6 +15,7 @@ const groups = [
     items: [
       { title: 'ui.nav.marketPage', to: '/' },
       { title: 'ui.nav.crossAsset', to: '/cross-asset' },
+      { title: 'ui.nav.quant', to: '/quant-signals' },
     ],
   },
   {
