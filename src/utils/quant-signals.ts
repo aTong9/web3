@@ -14,8 +14,8 @@ const defaultConfig: QuantStrategyConfig = {
   valuationBufferPct: 20,
   minimumEvidenceScore: 55,
   maximumPositionRiskPct: 0.75,
-  optionDteRange: { min: 60, max: 120 },
-  optionDeltaRange: { min: 0.55, max: 0.7 },
+  optionDteRange: { min: 365, max: 730 },
+  optionDeltaRange: { min: 0.6, max: 0.8 },
 }
 
 const coreAssetIds = new Set([
@@ -45,6 +45,14 @@ const inversePriceProxyIds = new Set(['us2y', 'us10y', 'us30y'])
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 const round = (value: number, decimals = 1) => Number(value.toFixed(decimals))
 const direction = (value: number | null) => (value === null ? 0 : value > 0 ? 1 : value < 0 ? -1 : 0)
+const daysFromToday = (value: string | null) => {
+  if (!value) return null
+  const parsed = new Date(value.includes('/') ? `${value} 12:00:00 UTC` : `${value}T12:00:00Z`)
+  if (Number.isNaN(parsed.getTime())) return null
+  const today = new Date()
+  today.setUTCHours(12, 0, 0, 0)
+  return Math.round((parsed.getTime() - today.getTime()) / 86_400_000)
+}
 
 const changeScore = (asset: CrossAssetItem) => {
   const weights = { day: 0.1, week: 0.25, month: 0.35, quarter: 0.2, halfYear: 0.1 }
@@ -174,10 +182,33 @@ const buildOptionCandidates = (
         forwardPe === null
           ? 0
           : clamp(((config.forwardPeThreshold - forwardPe) / config.forwardPeThreshold) * 100, -60, 60)
-      const score = clamp(valuationScore + marketScore, -100, 100)
+      const revisionBalance =
+        stock.earnings.revisionsUp === null || stock.earnings.revisionsDown === null
+          ? null
+          : stock.earnings.revisionsUp - stock.earnings.revisionsDown
+      const earningsScore = clamp(
+        (revisionBalance ?? 0) * 3 +
+          (stock.earnings.lastResultReliable ? (stock.earnings.lastSurprisePct ?? 0) * 0.35 : 0),
+        -20,
+        20,
+      )
+      const score = clamp(valuationScore + marketScore + earningsScore, -100, 100)
+      const daysToEarnings = daysFromToday(stock.earnings.nextEarningsDate)
+      const daysSinceEarnings = daysFromToday(stock.earnings.lastReportedDate)
+      const earningsWindow: QuantOptionCandidate['earningsWindow'] =
+        daysToEarnings !== null && daysToEarnings >= 0 && daysToEarnings <= 14
+          ? 'pre-earnings'
+          : daysSinceEarnings !== null && daysSinceEarnings <= 0 && daysSinceEarnings >= -3
+            ? 'post-earnings'
+            : stock.earnings.nextEarningsDate === null
+              ? 'unknown'
+              : 'clear'
       const evidenceScore = clamp(
         30 + (forwardPe !== null ? 20 : 0) + (stock.price !== null ? 10 : 0) +
-          (stock.historicalPeMedian5y !== null ? 15 : 0) + (marketValidated ? 15 : 0),
+          (stock.historicalPeMedian5y !== null ? 15 : 0) +
+          (marketValidated ? 15 : 0) +
+          (stock.earnings.nextConsensusEps !== null ? 10 : 0) +
+          (revisionBalance !== null ? 10 : 0),
         0,
         100,
       )
@@ -188,10 +219,34 @@ const buildOptionCandidates = (
       else if (forwardPe <= deepValueLine && marketScore > 0) action = 'long-call-candidate'
       else if (forwardPe < config.forwardPeThreshold) action = 'long-call-watch'
 
+      const earningsSupportsBullish =
+        stock.earnings.lastResultReliable &&
+        stock.earnings.positiveSurpriseStreak > 0 &&
+        revisionBalance !== null &&
+        revisionBalance >= 0
+      let direction: QuantOptionCandidate['direction'] = 'neutral'
+      if (earningsWindow === 'pre-earnings') direction = 'event-risk'
+      else if (
+        ['long-call-candidate', 'long-call-watch'].includes(action) &&
+        earningsSupportsBullish
+      )
+        direction = 'bullish'
+      else if ((action === 'exit-long-call' || action === 'avoid') && marketScore < 0 && (revisionBalance ?? 0) <= 0) direction = 'bearish'
+
+      let strategy: QuantOptionCandidate['template']['strategy'] = 'wait'
+      if (direction === 'bullish') {
+        strategy = action === 'long-call-candidate' ? 'long-call' : 'call-debit-spread'
+      } else if (direction === 'bearish') {
+        strategy = 'put-debit-spread'
+      } else if (action === 'exit-long-call') {
+        strategy = 'exit-or-avoid'
+      }
+
       const blockers = [
         '尚未接入实时期权链、隐含波动率、成交量和买卖价差',
-        '尚未接入分析师EPS预期修正与财报日历',
       ]
+      if (earningsWindow === 'pre-earnings') blockers.push('14天内进入财报窗口，隐含波动率可能明显抬升，等待财报后重新评估')
+      if (earningsWindow === 'unknown') blockers.push('下一次财报日期尚未公布或数据源尚未更新')
       if (!marketValidated) blockers.push('纳指中期方向尚未通过留出验证')
       if (megaCaps.status !== 'ok') blockers.push('估值数据本次更新已降级')
       const reasons = [
@@ -202,6 +257,14 @@ const buildOptionCandidates = (
           ? '五年PE中枢缺失'
           : `五年Trailing PE中枢 ${stock.historicalPeMedian5y.toFixed(1)}x（仅作质量锚）`,
         `纳指中期环境得分 ${round(marketScore)}`,
+        stock.earnings.nextConsensusEps === null
+          ? '下一季度EPS预期缺失'
+          : `${stock.earnings.nextFiscalQuarter ?? '下一季度'} EPS共识 ${stock.earnings.nextConsensusEps.toFixed(2)}，近4周上修/下修 ${stock.earnings.revisionsUp ?? '—'}/${stock.earnings.revisionsDown ?? '—'}`,
+        stock.earnings.lastSurprisePct === null
+          ? '最近财报结果缺失'
+          : !stock.earnings.lastResultReliable
+            ? '最近财报EPS与共识口径异常，结果不参与方向评分'
+          : `最近财报EPS ${stock.earnings.lastActualEps?.toFixed(2) ?? '—'}，超预期 ${stock.earnings.lastSurprisePct > 0 ? '+' : ''}${stock.earnings.lastSurprisePct.toFixed(2)}%`,
       ]
       return {
         symbol: stock.symbol,
@@ -215,13 +278,14 @@ const buildOptionCandidates = (
         score: round(score),
         evidenceScore: round(evidenceScore, 0),
         action,
+        direction,
+        earningsWindow,
+        earnings: stock.earnings,
         executable: false,
         reasons,
         blockers,
         template: {
-          strategy: (action === 'exit-long-call' || action === 'avoid'
-            ? 'exit-or-avoid'
-            : 'long-call') as QuantOptionCandidate['template']['strategy'],
+          strategy,
           dteRange: config.optionDteRange,
           deltaRange: config.optionDeltaRange,
           maximumPositionRiskPct: config.maximumPositionRiskPct,
@@ -260,7 +324,7 @@ export const buildQuantDashboard = (
     limitations: [
       '所有结果均为规则模型候选，不是交易指令。模型未接券商，不会自动下单。',
       '35x是可配置纪律线；低于或高于阈值本身不足以证明期权具有正期望。',
-      '期权候选在实时期权链、IV、流动性、EPS修正和财报日历接入前一律不可执行。',
+      'EPS预期、修正和财报结果已接入；期权候选在实时期权链、IV与流动性接入前一律不可执行。',
       '模拟记录只跟踪标的股票价格变化，不等同于期权收益。',
     ],
   }

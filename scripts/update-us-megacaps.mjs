@@ -106,10 +106,53 @@ const fetchValuation = async (symbol) => {
   const page = await fetchText(`https://stockanalysis.com/stocks/${ticker}/statistics/`)
   const trailingMatch = page.match(/id:"pe",title:"PE Ratio",value:"([\d.\-]+)"/)
   const forwardMatch = page.match(/id:"peForward",title:"Forward PE",value:"([\d.\-]+)"/)
+  const earningsDateMatch = page.match(
+    /title:"Earnings Date",value:"([A-Z][a-z]{2} \d{1,2}, 20\d{2})"/,
+  )
+  const earningsDate = earningsDateMatch ? new Date(`${earningsDateMatch[1]} 12:00:00 UTC`) : null
+  const today = new Date()
+  today.setUTCHours(0, 0, 0, 0)
   return {
     trailingPe:
       numberFrom(trailingMatch?.[1]) > 0 ? round(numberFrom(trailingMatch?.[1])) : null,
     forwardPe: numberFrom(forwardMatch?.[1]) > 0 ? round(numberFrom(forwardMatch?.[1])) : null,
+    nextEarningsDate:
+      earningsDate && earningsDate >= today ? earningsDate.toISOString().slice(0, 10) : null,
+  }
+}
+
+const fetchEarnings = async (symbol) => {
+  const [surpriseText, forecastText] = await Promise.all([
+    fetchText(`https://api.nasdaq.com/api/company/${symbol}/earnings-surprise`),
+    fetchText(`https://api.nasdaq.com/api/analyst/${symbol}/earnings-forecast`),
+  ])
+  const surpriseRows = JSON.parse(surpriseText).data?.earningsSurpriseTable?.rows ?? []
+  const forecast = JSON.parse(forecastText).data ?? {}
+  const quarterly = forecast.quarterlyForecast?.rows?.[0]
+  const annual = forecast.yearlyForecast?.rows?.[0]
+  const last = surpriseRows[0]
+  const lastSurprisePct = round(numberFrom(last?.percentageSurprise))
+  const positiveSurpriseStreak = surpriseRows.findIndex(
+    (row) => (numberFrom(row.percentageSurprise) ?? 0) <= 0,
+  )
+  return {
+    lastReportedDate: last?.dateReported ?? null,
+    lastFiscalQuarter: last?.fiscalQtrEnd ?? null,
+    lastActualEps: numberFrom(last?.eps),
+    lastConsensusEps: numberFrom(last?.consensusForecast),
+    lastSurprisePct,
+    lastResultReliable: lastSurprisePct !== null && Math.abs(lastSurprisePct) <= 100,
+    positiveSurpriseStreak:
+      positiveSurpriseStreak === -1 ? surpriseRows.length : positiveSurpriseStreak,
+    nextFiscalQuarter: quarterly?.fiscalEnd ?? null,
+    nextConsensusEps: numberFrom(quarterly?.consensusEPSForecast),
+    nextHighEps: numberFrom(quarterly?.highEPSForecast),
+    nextLowEps: numberFrom(quarterly?.lowEPSForecast),
+    estimateCount: numberFrom(quarterly?.noOfEstimates),
+    revisionsUp: numberFrom(quarterly?.up),
+    revisionsDown: numberFrom(quarterly?.down),
+    annualFiscalEnd: annual?.fiscalEnd ?? null,
+    annualConsensusEps: numberFrom(annual?.consensusEPSForecast),
   }
 }
 
@@ -136,9 +179,10 @@ try {
   const stocks = []
   for (const item of largest) {
     const previousStock = previous?.stocks?.find((stock) => stock.symbol === item.symbol)
-    const [valuationResult, historyResult] = await Promise.allSettled([
+    const [valuationResult, historyResult, earningsResult] = await Promise.allSettled([
       fetchValuation(item.symbol),
       fetchHistoricalMedian(item.symbol),
+      fetchEarnings(item.symbol),
     ])
     const valuation =
       valuationResult.status === 'fulfilled'
@@ -146,6 +190,7 @@ try {
         : {
             trailingPe: previousStock?.trailingPe ?? null,
             forwardPe: previousStock?.forwardPe ?? null,
+            nextEarningsDate: previousStock?.earnings?.nextEarningsDate ?? null,
           }
     const history =
       historyResult.status === 'fulfilled'
@@ -154,14 +199,37 @@ try {
             historicalPeMedian5y: previousStock?.historicalPeMedian5y ?? null,
             historicalYears: previousStock?.historicalYears ?? [],
           }
+    const earnings =
+      earningsResult.status === 'fulfilled'
+        ? earningsResult.value
+        : {
+            lastReportedDate: previousStock?.earnings?.lastReportedDate ?? null,
+            lastFiscalQuarter: previousStock?.earnings?.lastFiscalQuarter ?? null,
+            lastActualEps: previousStock?.earnings?.lastActualEps ?? null,
+            lastConsensusEps: previousStock?.earnings?.lastConsensusEps ?? null,
+            lastSurprisePct: previousStock?.earnings?.lastSurprisePct ?? null,
+            lastResultReliable: previousStock?.earnings?.lastResultReliable ?? false,
+            positiveSurpriseStreak: previousStock?.earnings?.positiveSurpriseStreak ?? 0,
+            nextFiscalQuarter: previousStock?.earnings?.nextFiscalQuarter ?? null,
+            nextConsensusEps: previousStock?.earnings?.nextConsensusEps ?? null,
+            nextHighEps: previousStock?.earnings?.nextHighEps ?? null,
+            nextLowEps: previousStock?.earnings?.nextLowEps ?? null,
+            estimateCount: previousStock?.earnings?.estimateCount ?? null,
+            revisionsUp: previousStock?.earnings?.revisionsUp ?? null,
+            revisionsDown: previousStock?.earnings?.revisionsDown ?? null,
+            annualFiscalEnd: previousStock?.earnings?.annualFiscalEnd ?? null,
+            annualConsensusEps: previousStock?.earnings?.annualConsensusEps ?? null,
+          }
+    const { nextEarningsDate, ...valuationMetrics } = valuation
     stocks.push({
       marketCapRank: stocks.length + 1,
       symbol: item.symbol,
       name: item.name.replace(/ Class [A-Z] Common Stock$/i, '').replace(/ Common Stock$/i, ''),
       marketCapUsd: round(numberFrom(item.marketCap), 0),
       price: round(numberFrom(item.lastsale)),
-      ...valuation,
+      ...valuationMetrics,
       ...history,
+      earnings: { nextEarningsDate, ...earnings },
       url: `https://www.nasdaq.com/market-activity/stocks/${item.symbol.toLowerCase()}`,
     })
   }
@@ -169,7 +237,7 @@ try {
     updatedAt: new Date().toISOString(),
     status: 'ok',
     methodology:
-      'Nasdaq全市场普通股按市值选取前10；当前与Forward PE来自StockAnalysis；长期PE为CompaniesMarketCap最近5个可用年度正PE的中位数。',
+      'Nasdaq全市场普通股按市值选取前10；当前价、Forward PE和已公布财报日期来自StockAnalysis；长期PE为CompaniesMarketCap最近5个可用年度正PE的中位数；财报结果、EPS预期和近4周修正来自Nasdaq。',
     sources: [
       { name: 'Nasdaq', url: 'https://www.nasdaq.com/market-activity/stocks/screener' },
       { name: 'StockAnalysis', url: 'https://stockanalysis.com/stocks/' },

@@ -81,6 +81,39 @@ const actionKey: Record<OptionCandidateAction, string> = {
 }
 const actionLabel = (action: OptionCandidateAction) =>
   t(`quant.optionAction.${actionKey[action]}`)
+const directionLabel = (direction: QuantOptionCandidate['direction']) =>
+  t(`quant.optionDirection.${direction === 'event-risk' ? 'eventRisk' : direction}`)
+const strategyKey: Record<QuantOptionCandidate['template']['strategy'], string> = {
+  'long-call': 'longCall',
+  'call-debit-spread': 'callDebitSpread',
+  'put-debit-spread': 'putDebitSpread',
+  'protective-put': 'protectivePut',
+  wait: 'wait',
+  'exit-or-avoid': 'exitOrAvoid',
+}
+const strategyLabel = (strategy: QuantOptionCandidate['template']['strategy']) =>
+  t(`quant.optionStrategy.${strategyKey[strategy]}`)
+const earningsWindowLabel = (window: QuantOptionCandidate['earningsWindow']) =>
+  t(
+    `quant.earnings.window.${
+      window === 'pre-earnings'
+        ? 'preEarnings'
+        : window === 'post-earnings'
+          ? 'postEarnings'
+          : window
+    }`,
+  )
+const formatCalendarDate = (value: string | null) => {
+  if (!value) return t('quant.earnings.datePending')
+  const date = new Date(value.includes('/') ? `${value} 12:00:00 UTC` : `${value}T12:00:00Z`)
+  return Number.isNaN(date.getTime())
+    ? value
+    : new Intl.DateTimeFormat(locale.value === 'en' ? 'en-US' : 'zh-CN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      }).format(date)
+}
 const modelLabel = (source: QuantAssetSignal['modelSource']) =>
   t(
     `quant.model.${
@@ -288,13 +321,52 @@ onMounted(async () => {
       <article v-for="candidate in dashboard.options" :key="candidate.symbol" class="option-card">
         <header>
           <div><span>{{ t('quant.rank', { rank: candidate.marketCapRank }) }}</span><h3>{{ candidate.symbol }}</h3><small>{{ candidate.name }}</small></div>
-          <em :class="candidate.action">{{ actionLabel(candidate.action) }}</em>
+          <div class="option-recommendation">
+            <em :class="candidate.direction">{{ directionLabel(candidate.direction) }}</em>
+            <b>{{ strategyLabel(candidate.template.strategy) }}</b>
+            <small>{{ candidate.template.dteRange.min }}–{{ candidate.template.dteRange.max }} DTE</small>
+          </div>
         </header>
         <div class="option-metrics">
           <div><span>Forward PE</span><strong>{{ candidate.forwardPe?.toFixed(2) ?? '—' }}x</strong></div>
           <div><span>{{ t('quant.peGap', { value: formatPct(candidate.discountToThresholdPct) }) }}</span><strong>${{ candidate.price?.toFixed(2) ?? '—' }}</strong></div>
           <div><span>{{ t('quant.columns.score') }}</span><strong>{{ candidate.score > 0 ? '+' : '' }}{{ candidate.score }}</strong></div>
         </div>
+        <section class="earnings-panel">
+          <header>
+            <b>{{ t('quant.earnings.title') }}</b>
+            <em :class="candidate.earningsWindow">{{ earningsWindowLabel(candidate.earningsWindow) }}</em>
+          </header>
+          <dl>
+            <div>
+              <dt>{{ t('quant.earnings.nextDate') }}</dt>
+              <dd>{{ formatCalendarDate(candidate.earnings.nextEarningsDate) }}</dd>
+            </div>
+            <div>
+              <dt>{{ t('quant.earnings.lastReport') }}</dt>
+              <dd>{{ formatCalendarDate(candidate.earnings.lastReportedDate) }}</dd>
+            </div>
+            <div>
+              <dt>{{ t('quant.earnings.surprise') }}</dt>
+              <dd v-if="candidate.earnings.lastResultReliable" :class="(candidate.earnings.lastSurprisePct ?? 0) >= 0 ? 'positive' : 'negative'">
+                {{ formatPct(candidate.earnings.lastSurprisePct) }}
+              </dd>
+              <dd v-else>{{ t('quant.earnings.unreliable') }}</dd>
+            </div>
+            <div>
+              <dt>{{ t('quant.earnings.nextEstimate', { quarter: candidate.earnings.nextFiscalQuarter ?? '—' }) }}</dt>
+              <dd>{{ candidate.earnings.nextConsensusEps?.toFixed(2) ?? '—' }}</dd>
+            </div>
+            <div>
+              <dt>{{ t('quant.earnings.revisions') }}</dt>
+              <dd>{{ candidate.earnings.revisionsUp ?? '—' }} / {{ candidate.earnings.revisionsDown ?? '—' }}</dd>
+            </div>
+            <div>
+              <dt>{{ t('quant.earnings.range') }}</dt>
+              <dd>{{ candidate.earnings.nextLowEps?.toFixed(2) ?? '—' }}–{{ candidate.earnings.nextHighEps?.toFixed(2) ?? '—' }}</dd>
+            </div>
+          </dl>
+        </section>
         <details>
           <summary>{{ t('quant.detail') }}</summary>
           <div class="option-detail">
@@ -390,11 +462,26 @@ onMounted(async () => {
 .option-card > header { display: flex; justify-content: space-between; gap: 14px; }
 .option-card header span, .option-card header small { display: block; color: var(--muted); font-size: 8px; }
 .option-card h3 { margin: 4px 0; font: 500 23px Georgia, serif; }
+.option-recommendation { display: grid; justify-items: end; gap: 4px; text-align: right; }
+.option-recommendation em.bullish { background: var(--danger-soft); color: var(--positive); }
+.option-recommendation em.bearish { background: var(--accent-soft); color: var(--negative); }
+.option-recommendation em.event-risk { color: var(--warning); }
+.option-recommendation b { font-size: 11px; }
+.option-recommendation small { color: var(--muted); font-size: 8px; font-variant-numeric: tabular-nums; }
 .option-metrics { margin: 16px 0; display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--border); border-radius: 8px; }
 .option-metrics div { padding: 11px; }
 .option-metrics div + div { border-left: 1px solid var(--border); }
 .option-metrics span { display: block; min-height: 24px; color: var(--muted); font-size: 8px; }
 .option-metrics strong { font-size: 15px; font-variant-numeric: tabular-nums; }
+.earnings-panel { margin-bottom: 14px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-soft); }
+.earnings-panel > header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.earnings-panel > header b { font-size: 10px; }
+.earnings-panel > header em { padding: 4px 6px; border-radius: 4px; background: var(--surface); color: var(--muted); font-size: 8px; font-style: normal; }
+.earnings-panel > header em.pre-earnings { color: var(--warning); }
+.earnings-panel > header em.post-earnings { color: var(--accent); }
+.earnings-panel dl { margin: 10px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.earnings-panel dt { min-height: 21px; color: var(--muted); font-size: 8px; line-height: 1.4; }
+.earnings-panel dd { margin: 3px 0 0; font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .option-card details { border-top: 1px solid var(--border); }
 .option-card details summary { padding: 11px 0; color: var(--muted); cursor: pointer; font-size: 10px; }
 .option-detail { padding-bottom: 10px; }
@@ -442,5 +529,6 @@ onMounted(async () => {
   .option-metrics { grid-template-columns: 1fr 1fr; }
   .option-metrics div:nth-child(3) { grid-column: 1 / -1; border-top: 1px solid var(--border); border-left: 0; }
   .paper-row { grid-template-columns: 1fr; }
+  .earnings-panel dl { grid-template-columns: 1fr 1fr; }
 }
 </style>

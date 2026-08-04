@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-08-02T12:36:48.310Z",
+  "updatedAt": "2026-08-04T07:48:08.964Z",
   "status": "ok",
-  "methodology": "Nasdaq全市场普通股按市值选取前10；当前与Forward PE来自StockAnalysis；长期PE为CompaniesMarketCap最近5个可用年度正PE的中位数。",
+  "methodology": "Nasdaq全市场普通股按市值选取前10；当前价、Forward PE和已公布财报日期来自StockAnalysis；长期PE为CompaniesMarketCap最近5个可用年度正PE的中位数；财报结果、EPS预期和近4周修正来自Nasdaq。",
   "sources": [
     {
       "name": "Nasdaq",
@@ -21,10 +21,10 @@
       "marketCapRank": 1,
       "symbol": "NVDA",
       "name": "NVIDIA Corporation",
-      "marketCapUsd": 4858150000000,
-      "price": 200.75,
-      "trailingPe": 30.74,
-      "forwardPe": 20.11,
+      "marketCapUsd": 5000688000000,
+      "price": 206.64,
+      "trailingPe": 31.65,
+      "forwardPe": 20.69,
       "historicalPeMedian5y": 65.1,
       "historicalYears": [
         {
@@ -48,16 +48,66 @@
           "pe": 84
         }
       ],
+      "earnings": {
+        "nextEarningsDate": "2026-08-26",
+        "lastReportedDate": "5/20/2026",
+        "lastFiscalQuarter": "Apr 2026",
+        "lastActualEps": 1.87,
+        "lastConsensusEps": 1.7,
+        "lastSurprisePct": 10,
+        "lastResultReliable": true,
+        "positiveSurpriseStreak": 4,
+        "nextFiscalQuarter": "Jul 2026",
+        "nextConsensusEps": 2.01,
+        "nextHighEps": 2.05,
+        "nextLowEps": 1.97,
+        "estimateCount": 11,
+        "revisionsUp": 3,
+        "revisionsDown": 0,
+        "annualFiscalEnd": "Jan 2027",
+        "annualConsensusEps": 8.79
+      },
       "url": "https://www.nasdaq.com/market-activity/stocks/nvda"
     },
     {
       "marketCapRank": 2,
+      "symbol": "GOOGL",
+      "name": "Alphabet Inc.",
+      "marketCapUsd": 4568027300000,
+      "price": 373.51,
+      "trailingPe": 18.74,
+      "forwardPe": 28.12,
+      "historicalPeMedian5y": null,
+      "historicalYears": [],
+      "earnings": {
+        "nextEarningsDate": null,
+        "lastReportedDate": "7/22/2026",
+        "lastFiscalQuarter": "Jun 2026",
+        "lastActualEps": 9.11,
+        "lastConsensusEps": 2.88,
+        "lastSurprisePct": 216.32,
+        "lastResultReliable": false,
+        "positiveSurpriseStreak": 4,
+        "nextFiscalQuarter": "Sep 2026",
+        "nextConsensusEps": 2.93,
+        "nextHighEps": 3.12,
+        "nextLowEps": 2.64,
+        "estimateCount": 14,
+        "revisionsUp": 4,
+        "revisionsDown": 7,
+        "annualFiscalEnd": "Dec 2026",
+        "annualConsensusEps": 20.51
+      },
+      "url": "https://www.nasdaq.com/market-activity/stocks/googl"
+    },
+    {
+      "marketCapRank": 3,
       "symbol": "AAPL",
       "name": "Apple Inc.",
-      "marketCapUsd": 4537071141960,
-      "price": 308.91,
-      "trailingPe": 35.44,
-      "forwardPe": 33.76,
+      "marketCapUsd": 4456437557520,
+      "price": 303.42,
+      "trailingPe": 34.81,
+      "forwardPe": 33.17,
       "historicalPeMedian5y": 29.6,
       "historicalYears": [
         {
@@ -81,28 +131,35 @@
           "pe": 28.6
         }
       ],
+      "earnings": {
+        "nextEarningsDate": null,
+        "lastReportedDate": "7/30/2026",
+        "lastFiscalQuarter": "Jun 2026",
+        "lastActualEps": 1.91,
+        "lastConsensusEps": 1.88,
+        "lastSurprisePct": 1.6,
+        "lastResultReliable": true,
+        "positiveSurpriseStreak": 4,
+        "nextFiscalQuarter": "Sep 2026",
+        "nextConsensusEps": 2,
+        "nextHighEps": 2.12,
+        "nextLowEps": 1.91,
+        "estimateCount": 9,
+        "revisionsUp": 2,
+        "revisionsDown": 2,
+        "annualFiscalEnd": "Sep 2026",
+        "annualConsensusEps": 8.8
+      },
       "url": "https://www.nasdaq.com/market-activity/stocks/aapl"
-    },
-    {
-      "marketCapRank": 3,
-      "symbol": "GOOG",
-      "name": "Alphabet Inc. Class C Capital Stock",
-      "marketCapUsd": 4361829500000,
-      "price": 356.65,
-      "trailingPe": 17.85,
-      "forwardPe": 26.36,
-      "historicalPeMedian5y": null,
-      "historicalYears": [],
-      "url": "https://www.nasdaq.com/market-activity/stocks/goog"
     },
     {
       "marketCapRank": 4,
       "symbol": "MSFT",
       "name": "Microsoft Corporation",
-      "marketCapUsd": 3450799500578,
-      "price": 464.72,
-      "trailingPe": 25.89,
-      "forwardPe": 23.71,
+      "marketCapUsd": 3621067258686,
+      "price": 487.65,
+      "trailingPe": 27.17,
+      "forwardPe": 24.79,
       "historicalPeMedian5y": 33.4,
       "historicalYears": [
         {
@@ -126,16 +183,35 @@
           "pe": 34.4
         }
       ],
+      "earnings": {
+        "nextEarningsDate": null,
+        "lastReportedDate": "7/29/2026",
+        "lastFiscalQuarter": "Jun 2026",
+        "lastActualEps": 4.74,
+        "lastConsensusEps": 4.21,
+        "lastSurprisePct": 12.59,
+        "lastResultReliable": true,
+        "positiveSurpriseStreak": 4,
+        "nextFiscalQuarter": "Sep 2026",
+        "nextConsensusEps": 4.67,
+        "nextHighEps": 4.84,
+        "nextLowEps": 4.46,
+        "estimateCount": 13,
+        "revisionsUp": 9,
+        "revisionsDown": 1,
+        "annualFiscalEnd": "Jun 2027",
+        "annualConsensusEps": 19.53
+      },
       "url": "https://www.nasdaq.com/market-activity/stocks/msft"
     },
     {
       "marketCapRank": 5,
       "symbol": "AMZN",
       "name": "Amazon.com Inc.",
-      "marketCapUsd": 2921415780629,
-      "price": 271.58,
-      "trailingPe": 21.84,
-      "forwardPe": 29.47,
+      "marketCapUsd": 3055234222013,
+      "price": 284.02,
+      "trailingPe": 22.84,
+      "forwardPe": 30.59,
       "historicalPeMedian5y": 50.6,
       "historicalYears": [
         {
@@ -159,16 +235,35 @@
           "pe": 76.5
         }
       ],
+      "earnings": {
+        "nextEarningsDate": null,
+        "lastReportedDate": "7/30/2026",
+        "lastFiscalQuarter": "Jun 2026",
+        "lastActualEps": 1.88,
+        "lastConsensusEps": 1.83,
+        "lastSurprisePct": 2.73,
+        "lastResultReliable": true,
+        "positiveSurpriseStreak": 1,
+        "nextFiscalQuarter": "Sep 2026",
+        "nextConsensusEps": 2,
+        "nextHighEps": 2.23,
+        "nextLowEps": 1.87,
+        "estimateCount": 14,
+        "revisionsUp": 3,
+        "revisionsDown": 4,
+        "annualFiscalEnd": "Dec 2026",
+        "annualConsensusEps": 7.84
+      },
       "url": "https://www.nasdaq.com/market-activity/stocks/amzn"
     },
     {
       "marketCapRank": 6,
       "symbol": "TSM",
       "name": "Taiwan Semiconductor Manufacturing Company Ltd.",
-      "marketCapUsd": 2096644607442,
-      "price": 404.25,
-      "trailingPe": 27.95,
-      "forwardPe": 19.48,
+      "marketCapUsd": 2106291506563,
+      "price": 406.11,
+      "trailingPe": 26.5,
+      "forwardPe": 18.6,
       "historicalPeMedian5y": 27.2,
       "historicalYears": [
         {
@@ -192,16 +287,35 @@
           "pe": 27.2
         }
       ],
+      "earnings": {
+        "nextEarningsDate": null,
+        "lastReportedDate": "7/16/2026",
+        "lastFiscalQuarter": "Jun 2026",
+        "lastActualEps": 4.31,
+        "lastConsensusEps": 3.87,
+        "lastSurprisePct": 11.37,
+        "lastResultReliable": true,
+        "positiveSurpriseStreak": 4,
+        "nextFiscalQuarter": "Sep 2026",
+        "nextConsensusEps": 4.45,
+        "nextHighEps": 4.7,
+        "nextLowEps": 4.24,
+        "estimateCount": 5,
+        "revisionsUp": 4,
+        "revisionsDown": 0,
+        "annualFiscalEnd": "Dec 2026",
+        "annualConsensusEps": 16.44
+      },
       "url": "https://www.nasdaq.com/market-activity/stocks/tsm"
     },
     {
       "marketCapRank": 7,
       "symbol": "AVGO",
       "name": "Broadcom Inc.",
-      "marketCapUsd": 1852030819477,
-      "price": 389.28,
-      "trailingPe": 64.79,
-      "forwardPe": 24.7,
+      "marketCapUsd": 1866065681062,
+      "price": 392.23,
+      "trailingPe": 65.28,
+      "forwardPe": 24.89,
       "historicalPeMedian5y": 39.4,
       "historicalYears": [
         {
@@ -225,28 +339,35 @@
           "pe": 39.4
         }
       ],
+      "earnings": {
+        "nextEarningsDate": "2026-09-02",
+        "lastReportedDate": "6/3/2026",
+        "lastFiscalQuarter": "Apr 2026",
+        "lastActualEps": 2.17,
+        "lastConsensusEps": 2.02,
+        "lastSurprisePct": 7.43,
+        "lastResultReliable": true,
+        "positiveSurpriseStreak": 3,
+        "nextFiscalQuarter": "Jul 2026",
+        "nextConsensusEps": 2.83,
+        "nextHighEps": 2.89,
+        "nextLowEps": 2.68,
+        "estimateCount": 9,
+        "revisionsUp": 0,
+        "revisionsDown": 0,
+        "annualFiscalEnd": "Oct 2026",
+        "annualConsensusEps": 10.24
+      },
       "url": "https://www.nasdaq.com/market-activity/stocks/avgo"
     },
     {
       "marketCapRank": 8,
-      "symbol": "SPCX",
-      "name": "Space Exploration Technologies Corp.",
-      "marketCapUsd": 1418655844187,
-      "price": 108.37,
-      "trailingPe": null,
-      "forwardPe": 179.45,
-      "historicalPeMedian5y": null,
-      "historicalYears": [],
-      "url": "https://www.nasdaq.com/market-activity/stocks/spcx"
-    },
-    {
-      "marketCapRank": 9,
       "symbol": "META",
       "name": "Meta Platforms Inc.",
-      "marketCapUsd": 1413165637570,
-      "price": 556.71,
-      "trailingPe": 20.98,
-      "forwardPe": 17.33,
+      "marketCapUsd": 1503640074244,
+      "price": 590.24,
+      "trailingPe": 22.24,
+      "forwardPe": 18.68,
       "historicalPeMedian5y": 23.8,
       "historicalYears": [
         {
@@ -270,16 +391,66 @@
           "pe": 23.9
         }
       ],
+      "earnings": {
+        "nextEarningsDate": null,
+        "lastReportedDate": "7/29/2026",
+        "lastFiscalQuarter": "Jun 2026",
+        "lastActualEps": 6.18,
+        "lastConsensusEps": 7.1,
+        "lastSurprisePct": -12.96,
+        "lastResultReliable": true,
+        "positiveSurpriseStreak": 0,
+        "nextFiscalQuarter": "Sep 2026",
+        "nextConsensusEps": 6.76,
+        "nextHighEps": 7.41,
+        "nextLowEps": 6.34,
+        "estimateCount": 14,
+        "revisionsUp": 3,
+        "revisionsDown": 6,
+        "annualFiscalEnd": "Dec 2026",
+        "annualConsensusEps": 28.99
+      },
       "url": "https://www.nasdaq.com/market-activity/stocks/meta"
+    },
+    {
+      "marketCapRank": 9,
+      "symbol": "SPCX",
+      "name": "Space Exploration Technologies Corp.",
+      "marketCapUsd": 1499295504611,
+      "price": 114.53,
+      "trailingPe": null,
+      "forwardPe": 189.65,
+      "historicalPeMedian5y": null,
+      "historicalYears": [],
+      "earnings": {
+        "nextEarningsDate": "2026-08-04",
+        "lastReportedDate": null,
+        "lastFiscalQuarter": null,
+        "lastActualEps": 0,
+        "lastConsensusEps": 0,
+        "lastSurprisePct": 0,
+        "lastResultReliable": true,
+        "positiveSurpriseStreak": 0,
+        "nextFiscalQuarter": "Jun 2026",
+        "nextConsensusEps": -0.26,
+        "nextHighEps": -0.12,
+        "nextLowEps": -0.42,
+        "estimateCount": 9,
+        "revisionsUp": 0,
+        "revisionsDown": 0,
+        "annualFiscalEnd": "Dec 2026",
+        "annualConsensusEps": -0.64
+      },
+      "url": "https://www.nasdaq.com/market-activity/stocks/spcx"
     },
     {
       "marketCapRank": 10,
       "symbol": "TSLA",
       "name": "Tesla Inc.",
-      "marketCapUsd": 1229138644487,
-      "price": 311.21,
-      "trailingPe": 288.28,
-      "forwardPe": 161,
+      "marketCapUsd": 1272070224660,
+      "price": 322.08,
+      "trailingPe": 298.35,
+      "forwardPe": 166.62,
       "historicalPeMedian5y": 181,
       "historicalYears": [
         {
@@ -303,6 +474,25 @@
           "pe": 190
         }
       ],
+      "earnings": {
+        "nextEarningsDate": null,
+        "lastReportedDate": "7/22/2026",
+        "lastFiscalQuarter": "Jun 2026",
+        "lastActualEps": 0.04,
+        "lastConsensusEps": 0.32,
+        "lastSurprisePct": -87.5,
+        "lastResultReliable": true,
+        "positiveSurpriseStreak": 0,
+        "nextFiscalQuarter": "Sep 2026",
+        "nextConsensusEps": 0.27,
+        "nextHighEps": 0.52,
+        "nextLowEps": 0.09,
+        "estimateCount": 11,
+        "revisionsUp": 1,
+        "revisionsDown": 6,
+        "annualFiscalEnd": "Dec 2026",
+        "annualConsensusEps": 0.89
+      },
       "url": "https://www.nasdaq.com/market-activity/stocks/tsla"
     }
   ]

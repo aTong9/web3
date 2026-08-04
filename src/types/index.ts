@@ -196,6 +196,25 @@ export interface UsMegaCapStock {
   historicalPeMedian5y: number | null
   forwardPe: number | null
   historicalYears: Array<{ year: number; pe: number }>
+  earnings: {
+    nextEarningsDate: string | null
+    lastReportedDate: string | null
+    lastFiscalQuarter: string | null
+    lastActualEps: number | null
+    lastConsensusEps: number | null
+    lastSurprisePct: number | null
+    lastResultReliable: boolean
+    positiveSurpriseStreak: number
+    nextFiscalQuarter: string | null
+    nextConsensusEps: number | null
+    nextHighEps: number | null
+    nextLowEps: number | null
+    estimateCount: number | null
+    revisionsUp: number | null
+    revisionsDown: number | null
+    annualFiscalEnd: string | null
+    annualConsensusEps: number | null
+  }
   url: string
 }
 
@@ -251,6 +270,16 @@ export type OptionCandidateAction =
   | 'avoid'
   | 'unavailable'
 
+export type OptionDirection = 'bullish' | 'bearish' | 'neutral' | 'event-risk'
+
+export type OptionStrategy =
+  | 'long-call'
+  | 'call-debit-spread'
+  | 'put-debit-spread'
+  | 'protective-put'
+  | 'wait'
+  | 'exit-or-avoid'
+
 export interface QuantOptionCandidate {
   symbol: string
   name: string
@@ -263,11 +292,14 @@ export interface QuantOptionCandidate {
   score: number
   evidenceScore: number
   action: OptionCandidateAction
+  direction: OptionDirection
+  earningsWindow: 'pre-earnings' | 'post-earnings' | 'clear' | 'unknown'
+  earnings: UsMegaCapStock['earnings']
   executable: boolean
   reasons: string[]
   blockers: string[]
   template: {
-    strategy: 'long-call' | 'exit-or-avoid'
+    strategy: OptionStrategy
     dteRange: { min: number; max: number }
     deltaRange: { min: number; max: number }
     maximumPositionRiskPct: number

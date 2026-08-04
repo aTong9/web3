@@ -123,7 +123,14 @@ const latestDashboard = async (env: Env): Promise<QuantDashboard> => {
   const row = await env.DB.prepare(
     'SELECT payload FROM quant_snapshots ORDER BY created_at DESC LIMIT 1',
   ).first<{ payload: string }>()
-  return row ? (JSON.parse(row.payload) as QuantDashboard) : refreshSnapshot(env)
+  if (row) {
+    const dashboard = JSON.parse(row.payload) as QuantDashboard
+    const currentSchema =
+      dashboard.config.optionDteRange.min >= 365 &&
+      dashboard.options.every((candidate) => candidate.earnings && candidate.direction)
+    if (currentSchema) return dashboard
+  }
+  return refreshSnapshot(env)
 }
 
 const validateClientId = (value: unknown) => {
