@@ -169,7 +169,11 @@ const messages: Record<Locale, DictionaryNode> = {
         watch: '观察信号 · {samples}样本 · 相对基线增量 {lift}',
       },
       pulse: { baseline: '基准脉冲' },
-      period: { upChance: '上行概率 {value}% · 分数 {score}' },
+      period: {
+        upChance: '上行概率 {value}% · 分数 {score}',
+        returnRange: '历史中间50%：{low} 至 {high}（{samples}期）',
+        rangeUnavailable: '历史区间样本不足',
+      },
     },
     home: {
       eyebrow: 'Daily dashboard · 个人使用',
@@ -1010,7 +1014,11 @@ const messages: Record<Locale, DictionaryNode> = {
         watch: 'Watch signal · {samples} samples · relative baseline {lift}',
       },
       pulse: { baseline: 'Benchmark pulse' },
-      period: { upChance: 'Up probability {value}% · score {score}' },
+      period: {
+        upChance: 'Up probability {value}% · score {score}',
+        returnRange: 'Historical middle 50%: {low} to {high} ({samples})',
+        rangeUnavailable: 'Insufficient range history',
+      },
     },
     funds: {
       sub: 'US equity funds for China market',

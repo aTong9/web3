@@ -46,7 +46,7 @@ const description = computed(() =>
   top: 0;
   z-index: 28;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
   align-items: center;
   gap: 18px;
 }
@@ -106,7 +106,7 @@ const description = computed(() =>
 @media (max-width: 900px) {
   .app-topbar {
     height: 56px;
-    grid-template-columns: 28px minmax(0, 1fr) auto;
+    grid-template-columns: 28px minmax(0, 1fr) auto auto;
     gap: 10px;
   }
   .menu-button {

@@ -438,6 +438,11 @@ export interface CrossAssetDataset {
         validated: boolean
         confidence: 'validated' | 'watch'
         upProbabilityPct: number
+        historicalReturnRangePct: {
+          low: number | null
+          high: number | null
+          samples: number
+        }
         ruleName: string
         threshold: number
         training: {

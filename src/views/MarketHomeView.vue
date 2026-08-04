@@ -24,6 +24,18 @@ const formatMarketValue = (id: string) => {
 }
 const directionName = (direction: 'bullish' | 'bearish') =>
   direction === 'bullish' ? t('direction.bullish') : t('direction.bearish')
+const formatSignedPct = (value: number) => `${value > 0 ? '+' : ''}${value.toFixed(2)}%`
+const historicalRangeText = (
+  horizon: MarketHomeDataset['marketBrief']['markets'][number]['horizonOutlooks'][number],
+) => {
+  const { low, high, samples } = horizon.historicalReturnRangePct
+  if (low === null || high === null) return t('marketHome.period.rangeUnavailable')
+  return t('marketHome.period.returnRange', {
+    low: formatSignedPct(low),
+    high: formatSignedPct(high),
+    samples,
+  })
+}
 const validationText = (
   horizon: MarketHomeDataset['marketBrief']['markets'][number]['horizonOutlooks'][number],
 ) => {
@@ -76,6 +88,7 @@ const validationText = (
           <span v-for="horizon in leadMarket.horizonOutlooks" :key="horizon.id">
             <small>{{ horizon.label.replace('未来', '') }}</small>
             <strong :class="horizon.direction">{{ directionName(horizon.direction) }}</strong>
+            <em>{{ historicalRangeText(horizon) }}</em>
           </span>
         </div>
       </section>
@@ -159,6 +172,7 @@ const validationText = (
                 })
               }}
             </div>
+            <div class="return-range">{{ historicalRangeText(horizon) }}</div>
             <ul>
               <li v-for="factor in horizon.factors" :key="factor.name">{{ factor.text }}</li>
             </ul>
@@ -291,6 +305,13 @@ const validationText = (
 .pulse-horizons strong {
   font-size: 13px;
 }
+.pulse-horizons em {
+  color: var(--muted);
+  font-size: 8px;
+  font-style: normal;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+}
 .global-factors {
   margin: 24px 0 32px;
   display: grid;
@@ -372,6 +393,13 @@ const validationText = (
   margin-top: 7px;
   color: var(--muted);
   font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.return-range {
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 9px;
+  line-height: 1.45;
   font-variant-numeric: tabular-nums;
 }
 .horizons ul {

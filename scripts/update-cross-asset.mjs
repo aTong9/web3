@@ -3173,6 +3173,12 @@ const buildHorizonMomentumOutlook = (id, horizonDefinition) => {
   const directionRows = trainingRows.filter((row) => row.prediction === direction)
   const upCount = directionRows.filter((row) => row.forward > 0).length
   const upProbabilityPct = round(((upCount + 1) / (directionRows.length + 2)) * 100)
+  const directionalReturns = directionRows.map((row) => row.forward)
+  const historicalReturnRangePct = {
+    low: directionalReturns.length ? round(quantile(directionalReturns, 0.25)) : null,
+    high: directionalReturns.length ? round(quantile(directionalReturns, 0.75)) : null,
+    samples: directionalReturns.length,
+  }
   const minimumValidationSamples = horizonDefinition.horizon >= 63 ? 4 : 8
   const validated =
     Math.abs(score) >= selected.threshold &&
@@ -3202,6 +3208,7 @@ const buildHorizonMomentumOutlook = (id, horizonDefinition) => {
     validated,
     confidence: validated ? 'validated' : 'watch',
     upProbabilityPct,
+    historicalReturnRangePct,
     ruleName: selected.rule.name,
     threshold: selected.threshold,
     training,
