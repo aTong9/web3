@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-05T11:31:09.412Z",
+  "updatedAt": "2026-08-05T13:23:15.827Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -37,10 +37,216 @@
   ],
   "articles": [
     {
+      "id": "1a33e5e14e1c79d1",
+      "title": "CVS blows past estimates, hikes guidance as insurance unit continues to improve",
+      "url": "https://www.cnbc.com/2026/08/05/cvs-health-cvs-earnings-q2-2026.html",
+      "publishedAt": "2026-08-05T13:19:18.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "CVS超出预期，随着保险部门继续改善，加息指导",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "720967f3acf0dcf9",
+      "title": "Stock bears obliterated as Nasdaq 100 logs top 10 bullish stat of past decade",
+      "url": "https://www.cnbc.com/2026/08/05/stock-bears-obliterated-as-nasdaq-logs-top-10-bullish-stat-of-past-decade.html",
+      "publishedAt": "2026-08-05T13:19:09.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "股票熊市被抹去，因为纳斯达克100日志在过去十年中排名前十的看涨数据",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "8c46929680fcf2ba",
+      "title": "Jim Cramer's top 10 things to watch in the stock market Wednesday",
+      "url": "https://www.cnbc.com/2026/08/05/jim-cramers-top-10-things-to-watch-in-the-stock-market-wednesday.html",
+      "publishedAt": "2026-08-05T13:17:35.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "吉姆·克莱默（ Jim Cramer ）周三在股市上值得关注的10件事",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "44b906117f04760e",
+      "title": "Oil prices move higher after Yemen's Iran-backed Houthis claim Saudi tanker strike",
+      "url": "https://www.cnbc.com/2026/08/05/oil-prices-iran-war-houthis-saudi-tanker.html",
+      "publishedAt": "2026-08-05T13:11:00.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "commodities",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "原油"
+      ],
+      "translatedTitle": "在也门伊朗支持的胡塞武装声称沙特油轮罢工后，油价走高",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "f1c208a095865a11",
+      "title": "Abdul El-Sayed emerges as likely winner in Michigan Democratic Senate primary",
+      "url": "https://www.cnbc.com/2026/08/04/abdul-el-sayed-haley-stevens-michigan-primary.html",
+      "publishedAt": "2026-08-05T13:10:11.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "阿卜杜勒·赛义德（ Abdul El-Sayed ）在密歇根州民主党参议院初选中成为可能的",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "c423e46ed582174e",
+      "title": "Fed's Kashkari says 'now is the time to start slowly moving' rates up",
+      "url": "https://www.cnbc.com/2026/08/05/feds-kashkari-says-now-is-the-time-to-start-slowly-moving-rates-up.html",
+      "publishedAt": "2026-08-05T13:06:35.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "美元"
+      ],
+      "translatedTitle": "美联储的卡什卡里表示， “现在是时候开始缓慢移动”利率",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "efe857f29bf6ad82",
+      "title": "Warren presses Lutnick over UAE access to sensitive U.S. tech after Trump crypto investment",
+      "url": "https://www.cnbc.com/2026/08/05/warren-lutnick-uae-export-controls-trump-crypto.html",
+      "publishedAt": "2026-08-05T13:00:01.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "加密"
+      ],
+      "translatedTitle": "在特朗普投资加密货币后，沃伦向拉特尼克施压，要求阿联酋获得敏感的美国技术",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "525841a6642bcc64",
+      "title": "We're adding to our position in a chipmaker as the AI trade regains its footing",
+      "url": "https://www.cnbc.com/2026/08/05/were-adding-to-our-position-in-a-chipmaker-as-the-ai-trade-regains-its-footing.html",
+      "publishedAt": "2026-08-05T12:35:29.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "随着人工智能行业重新站稳脚跟，我们正在增加我们在芯片制造商中的地位",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "aae7901f7167f3b4",
+      "title": "Private companies added just 44,000 workers in July, below expectations, ADP reports",
+      "url": "https://www.cnbc.com/2026/08/05/private-companies-added-just-44000-workers-in-july-below-expectations-adp-reports.html",
+      "publishedAt": "2026-08-05T12:29:19.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "ADP报告称，私营公司7月份仅增加了44,000名员工，低于预期",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "8b0c4df3a2cd2a26",
+      "title": "AMD sinks 8% in premarket trading despite beating expectations",
+      "url": "https://www.cnbc.com/2026/08/05/amd-stock-today-earnings-q2.html",
+      "publishedAt": "2026-08-05T12:27:14.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "AMD在盘前交易中下跌8% ，尽管超出预期",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "45680d2ce20a33fd",
+      "title": "GM, Chinese automaker extend joint venture for 20 years despite geopolitical tensions with U.S.",
+      "url": "https://www.cnbc.com/2026/08/04/gm-chinese-automaker-extend-tie-up-amid-geopolitical-tensions-with-us.html",
+      "publishedAt": "2026-08-05T12:16:52.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "A股"
+      ],
+      "translatedTitle": "尽管与美国的地缘政治紧张局势，中国汽车制造商通用汽车仍将合资企业延长了20年",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "6b0ca210b4f2ac8d",
+      "title": "The IRS is getting better at spotting crypto tax mistakes. Here's what it means for investors",
+      "url": "https://www.cnbc.com/2026/08/05/irs-form-1099-da-crypto-tax-reporting-rules.html",
+      "publishedAt": "2026-08-05T12:15:01.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "加密"
+      ],
+      "translatedTitle": "美国国税局越来越擅长发现加密税收错误。这对投资者意味着什么",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "abcbdd3cc0d929f4",
       "title": "Uber issues weaker-than-expected bookings, earnings forecasts for third quarter",
       "url": "https://www.cnbc.com/2026/08/05/uber-stock-q2-2026-earnings.html",
-      "publishedAt": "2026-08-05T11:28:06.000Z",
+      "publishedAt": "2026-08-05T12:14:09.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "equities",
@@ -55,6 +261,40 @@
       "translationProvider": "MyMemory"
     },
     {
+      "id": "174a41042b3f0d25",
+      "title": "Saudi wealth fund and Jared Kushner's Affinity finalize $55 billion EA Sports deal",
+      "url": "https://www.cnbc.com/2026/08/05/saudi-wealth-fund-jared-kushner-ea-sports-deal.html",
+      "publishedAt": "2026-08-05T12:08:58.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "沙特财富基金和Jared Kushner的Affinity完成了550亿美元的EA Sports交易",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "ace296dea929cb07",
+      "title": "Disney tops earnings estimates as parks and streaming offer a boost",
+      "url": "https://www.cnbc.com/2026/08/05/disney-dis-earnings-q3-2026.html",
+      "publishedAt": "2026-08-05T11:56:15.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "随着公园和流媒体的提升，迪士尼的收入高于预期",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "8e466b1d0608f5a0",
       "title": "Ken Griffin's Citadel posts best month in years after scooping up Situational Awareness stocks",
       "url": "https://www.cnbc.com/2026/08/05/ken-griffins-citadel-posts-best-month-in-years-after-scooping-up-situational-awareness-stocks.html",
@@ -64,7 +304,7 @@
       "category": "equities",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "美股"
       ],
@@ -82,7 +322,7 @@
       "category": "equities",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "美股"
       ],
@@ -100,43 +340,9 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "抵押贷款利率达到一年多来的最高水平，导致需求低于去年同期水平",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "ace296dea929cb07",
-      "title": "Disney tops earnings estimates as parks and streaming offer a boost",
-      "url": "https://www.cnbc.com/2026/08/05/disney-dis-earnings-q3-2026.html",
-      "publishedAt": "2026-08-05T10:59:31.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 3,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "随着公园和流媒体的提升，迪士尼的收入高于预期",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "1a33e5e14e1c79d1",
-      "title": "CVS blows past estimates, hikes guidance as insurance unit continues to improve",
-      "url": "https://www.cnbc.com/2026/08/05/cvs-health-cvs-earnings-q2-2026.html",
-      "publishedAt": "2026-08-05T10:59:02.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "CVS超出预期，随着保险部门继续改善，加息指导",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -150,7 +356,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "礼来轻松超越季度预期，随着Zepbound和Mounjaro销售激增而提高前景",
       "translationStatus": "translated",
@@ -166,25 +372,9 @@
       "category": "technology",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "SpaceX在人工智能支出激增刺激投资者后下跌12%",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "8b0c4df3a2cd2a26",
-      "title": "AMD plummets 8% in premarket trading despite beating expectations",
-      "url": "https://www.cnbc.com/2026/08/05/amd-stock-today-earnings-q2.html",
-      "publishedAt": "2026-08-05T10:32:35.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "AMD在盘前交易中暴跌8% ，尽管超出预期",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -198,27 +388,9 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "Anthropic的Mythos创造了虚假身份，在新的网络事件中欺骗人类",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "44b906117f04760e",
-      "title": "Oil prices move higher after Yemen's Iran-backed Houthis claim Saudi tanker strike",
-      "url": "https://www.cnbc.com/2026/08/05/oil-prices-iran-war-houthis-saudi-tanker.html",
-      "publishedAt": "2026-08-05T09:53:06.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "commodities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 3,
-      "affectedAssets": [
-        "原油"
-      ],
-      "translatedTitle": "在也门伊朗支持的胡塞武装声称沙特油轮罢工后，油价走高",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -232,7 +404,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "特朗普表示，霍尔木兹协议可能会在周三或周四达成，因为他对“非常好”的伊朗谈判表示欢迎",
       "translationStatus": "translated",
@@ -289,60 +461,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "6346c9aaf1e899f7",
-      "title": "China's super-rich 'in shock' and hunting for cash as Beijing issues surprise tax on offshore trusts",
-      "url": "https://www.cnbc.com/2026/08/05/wealthy-chinese-race-for-tax-advice-as-beijing-targets-offshore-trusts.html",
-      "publishedAt": "2026-08-05T06:33:47.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "A股"
-      ],
-      "translatedTitle": "随着北京对离岸信托征收惊人的税收，中国的超级富豪“震惊”并寻找现金",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "1d60cf7a99786e53",
-      "title": "India's central bank keeps benchmark rates steady, cites 'moderate' core inflation",
-      "url": "https://www.cnbc.com/2026/08/05/india-rbi-interest-rate-inflation-iran-war.html",
-      "publishedAt": "2026-08-05T05:50:04.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "high",
-      "impactScore": 5,
-      "affectedAssets": [
-        "债券"
-      ],
-      "translatedTitle": "印度央行维持基准利率稳定，引用“温和”的核心通胀",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "45680d2ce20a33fd",
-      "title": "GM, Chinese automaker extend joint venture for 20 years despite geopolitical tensions with U.S.",
-      "url": "https://www.cnbc.com/2026/08/04/gm-chinese-automaker-extend-tie-up-amid-geopolitical-tensions-with-us.html",
-      "publishedAt": "2026-08-05T02:30:01.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "A股"
-      ],
-      "translatedTitle": "尽管与美国的地缘政治紧张局势，中国汽车制造商通用汽车仍将合资企业延长了20年",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "02461602b4af3733",
       "title": "Lucid begins 'operational reset' as CEO says EV maker will delay midsize vehicle",
       "url": "https://www.cnbc.com/2026/08/04/lucid-group-lcid-earnings-q2-2026.html",
@@ -355,24 +473,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "Lucid开始“运营重置” ，因为首席执行官表示电动汽车制造商将推迟中型车辆",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "e7691b9fda6ec938",
-      "title": "How the 'Baby iPhone' and an Apple supplier leak explain China's recent supply chain moves",
-      "url": "https://www.cnbc.com/2026/08/04/china-apple-india-tata-electronics.html",
-      "publishedAt": "2026-08-04T22:47:43.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "A股"
-      ],
-      "translatedTitle": "“婴儿iPhone”和苹果供应商泄密如何解释中国最近的供应链动向",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -407,22 +507,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "吉姆·克莱默（ Jim Cramer ）表示，一家对冲基金的倒闭为科技股的上涨扫清了道路",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "1b8b422587e04d89",
-      "title": "Sen. Susan Collins will oppose Blanche, a critical blow for Trump's AG pick",
-      "url": "https://www.cnbc.com/2026/08/04/todd-blanche-weaponization-fund-senate-confirmation.html",
-      "publishedAt": "2026-08-04T22:09:14.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "参议员苏珊·柯林斯（ Susan Collins ）将反对布兰奇（ Blanche ） ，这对特朗普的AG",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -510,94 +594,6 @@
         "美元"
       ],
       "translatedTitle": "联邦储备委员会宣布批准Banco Santander, S.A.和Santander Holdings USA, Inc.的申请",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "f90c578b098a806c",
-      "title": "Chipotle stock falls on potential link to salmonella outbreak in Minnesota",
-      "url": "https://www.cnbc.com/2026/08/04/chipotle-stock-falls-salmonella-outbreak-minnesota.html",
-      "publishedAt": "2026-08-04T20:13:38.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "Chipotle股票下跌可能与明尼苏达州沙门氏菌爆发有关",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "8a04ba945cd37447",
-      "title": "Oil prices tumble after Bessent says Strait of Hormuz deal may come this week",
-      "url": "https://www.cnbc.com/2026/08/04/oil-rises-after-selloff-as-talks-to-end-us-iran-war-remain-uncertain.html",
-      "publishedAt": "2026-08-04T18:54:56.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "commodities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "原油"
-      ],
-      "translatedTitle": "贝森特表示本周可能达成霍尔木兹海峡交易后，油价暴跌",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "d24137bba7d2f8e7",
-      "title": "Here's why we're sticking with DuPont despite a noisy quarter",
-      "url": "https://www.cnbc.com/2026/08/04/heres-why-were-sticking-with-dupont-despite-a-noisy-quarter.html",
-      "publishedAt": "2026-08-04T18:46:49.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "这就是为什么尽管季度嘈杂，我们仍然坚持使用杜邦的原因",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "3c3613f5fb9a3eee",
-      "title": "Jeff Bezos just filed to sell $4 billion in Amazon. The shares are falling",
-      "url": "https://www.cnbc.com/2026/08/04/jeff-bezos-just-filed-to-sell-4-billion-in-amazon-the-shares-are-falling.html",
-      "publishedAt": "2026-08-04T16:14:49.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "杰夫·贝索斯（ Jeff Bezos ）刚刚申请在亚马逊出售40 $十亿。股价正在下跌",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "2a5e1e626ee08c4f",
-      "title": "Someone on Wall Street thinks SpaceX could triple this week",
-      "url": "https://www.cnbc.com/2026/08/04/someone-on-wall-street-thinks-spacex-could-triple-this-week.html",
-      "publishedAt": "2026-08-04T14:05:01.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "华尔街有人认为SpaceX本周可能会增长三倍",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     }
