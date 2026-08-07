@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-07T03:16:50.982Z",
+  "updatedAt": "2026-08-07T05:16:04.289Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -38,19 +38,35 @@
   "articles": [
     {
       "id": "a77c7d9c7c803258",
-      "title": "China's exports jump 23% in July, beating estimates; imports cool",
+      "title": "China's exports growth beats estimates in July, as AI-driven shipments surge",
       "url": "https://www.cnbc.com/2026/08/07/china-july-trade-exports-imports-surplus-imbalance-tariffs-.html",
-      "publishedAt": "2026-08-07T03:04:54.000Z",
+      "publishedAt": "2026-08-07T04:44:17.000Z",
       "source": "CNBC",
       "sourceType": "media",
-      "category": "macro",
+      "category": "technology",
       "language": "English",
       "impact": "low",
       "impactScore": 1,
       "affectedAssets": [
         "A股"
       ],
-      "translatedTitle": "中国7月出口增长23% ，高于预期；进口降温",
+      "translatedTitle": "随着人工智能驱动的出货量激增，中国7月份的出口增长超过预期",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "25908e32ee5acf38",
+      "title": "The 72-hour crisis that could upend Meta’s business in India as firm risks losing legal protection",
+      "url": "https://www.cnbc.com/2026/08/07/meta-india-zuckerberg-apology-genz-protest.html",
+      "publishedAt": "2026-08-07T04:11:09.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "这场持续72小时的危机可能会颠覆Meta在印度的业务，因为公司可能会失去法律保护",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -64,7 +80,7 @@
       "category": "commodities",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [
         "原油"
       ],
@@ -82,7 +98,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "伊朗首席谈判代表指责特朗普“戏剧外交” ，霍尔木兹的交通接近停滞",
       "translationStatus": "translated",
@@ -98,7 +114,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "Meta下令向减排基金支付5.67亿美元（ $ ） ，作为新墨西哥州儿童伤害案件的补救措施",
       "translationStatus": "translated",
@@ -399,22 +415,6 @@
         "美股"
       ],
       "translatedTitle": "SpaceX股票周四通过了一项关键测试。现在，经验丰富的交易员正在押注底部可能",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "7b4fb3ffcf08527e",
-      "title": "Trump wins last-minute reprieve temporarily blocking BBC access to his business records",
-      "url": "https://www.cnbc.com/2026/08/06/trump-bbc-lawsuit-financial-records-court-stay.html",
-      "publishedAt": "2026-08-06T18:10:58.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "特朗普赢得最后一刻的缓刑，暂时阻止BBC访问他的商业记录",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
