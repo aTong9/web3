@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-10T15:18:26.291Z",
+  "updatedAt": "2026-08-10T16:24:29.093Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -37,10 +37,64 @@
   ],
   "articles": [
     {
+      "id": "fe30fa15c31e1559",
+      "title": "Interest rates may stay higher for longer. What that means for consumers",
+      "url": "https://www.cnbc.com/2026/08/10/fed-rate-hike-prospects-higher-interest-rates.html",
+      "publishedAt": "2026-08-10T16:10:05.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "债券"
+      ],
+      "translatedTitle": "利率可能会持续更长时间。这对消费者意味着什么",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "0e1b330190b2205b",
+      "title": "Gold just had its best week in 7 months. Here’s why Mike Khouw is buying more",
+      "url": "https://www.cnbc.com/2026/08/10/gold-just-had-its-best-week-in-7-months-heres-why-mike-khouw-is-buying-more.html",
+      "publishedAt": "2026-08-10T16:09:32.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "commodities",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "黄金"
+      ],
+      "translatedTitle": "黄金刚刚度过了7个月以来最好的一周。这就是Mike Khouw购买更多",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "72fdcfd9c8bcf1cc",
+      "title": "Oil in U.S. Strategic Petroleum Reserve falls below 300 million barrels, lowest since 1983",
+      "url": "https://www.cnbc.com/2026/08/10/oil-in-strategic-petroleum-reserve-falls-below-300-million-barrels-lowest-since-1983.html",
+      "publishedAt": "2026-08-10T16:04:30.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "commodities",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "原油"
+      ],
+      "translatedTitle": "美国战略石油储备中的石油量降至3亿桶以下，为1983年以来的最低水平",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "eea02b001d15c746",
       "title": "SpaceX stock rebounds to near $135 IPO price",
       "url": "https://www.cnbc.com/2026/08/10/spacex-spcx-stock-ipo-price.html",
-      "publishedAt": "2026-08-10T15:13:09.000Z",
+      "publishedAt": "2026-08-10T15:40:03.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "equities",
@@ -51,6 +105,24 @@
         "美股"
       ],
       "translatedTitle": "SpaceX股票反弹至接近135 $的IPO价格",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "d1f0a23243ecefac",
+      "title": "We're buying more of an AI stock that's under pressure to start the week",
+      "url": "https://www.cnbc.com/2026/08/10/were-buying-more-of-an-ai-stock-thats-under-pressure-to-start-the-week.html",
+      "publishedAt": "2026-08-10T15:35:16.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "我们正在购买更多的人工智能股票，该股票面临着本周开始的压力",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -87,24 +159,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "c957fe0fa64de911",
-      "title": "U.S. oil price hits $80 as doubt grows Washington and Tehran will reach Strait of Hormuz deal",
-      "url": "https://www.cnbc.com/2026/08/10/oil-prices-today-brent-wti-hormuz-trump-iran.html",
-      "publishedAt": "2026-08-10T14:39:53.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "commodities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 3,
-      "affectedAssets": [
-        "原油"
-      ],
-      "translatedTitle": "美国油价触及80 $ ，华盛顿和德黑兰将达成霍尔木兹海峡协议",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "901b52ed6cb3586a",
       "title": "Intel plans $15 billion stock offering as AI demand accelerates",
       "url": "https://www.cnbc.com/2026/08/10/intel-intc-stock-offering-ai.html",
@@ -123,6 +177,22 @@
       "translationProvider": "MyMemory"
     },
     {
+      "id": "fce29804193a4f82",
+      "title": "Trump signals shift to economic pressure as Iran hardens stance over Strait of Hormuz",
+      "url": "https://www.cnbc.com/2026/08/10/us-iran-war-trump-hormuz-oman-ships-blockade-shipping.html",
+      "publishedAt": "2026-08-10T14:27:15.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "随着伊朗强化对霍尔木兹海峡的立场，特朗普发出转向经济压力的信号",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "fcd2868b0a8ebcc3",
       "title": "Archer shares surge after Boeing stake, electric aircraft subsidiary deal",
       "url": "https://www.cnbc.com/2026/08/10/boeing-evtol-archer-stake.html",
@@ -132,7 +202,7 @@
       "category": "equities",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "美股"
       ],
@@ -150,7 +220,7 @@
       "category": "technology",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "众议院民主党人呼吁人工智能公司就最近的黑客行为作证： “明显的安全风险”",
       "translationStatus": "translated",
@@ -166,45 +236,9 @@
       "category": "technology",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "全球最大的芯片制造商台积电的销售额激增45% ，人工智能需求旺盛",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "d59bb959a75e32d4",
-      "title": "The Club's top 10 things to watch in the stock market Monday",
-      "url": "https://www.cnbc.com/2026/08/10/the-clubs-top-10-things-to-watch-in-the-stock-market-monday.html",
-      "publishedAt": "2026-08-10T13:19:20.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "俱乐部周一股市值得关注的十大事项",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "fe30fa15c31e1559",
-      "title": "Interest rates may stay higher for longer. What that means for consumers",
-      "url": "https://www.cnbc.com/2026/08/10/fed-rate-hike-prospects-higher-interest-rates.html",
-      "publishedAt": "2026-08-10T12:41:26.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "债券"
-      ],
-      "translatedTitle": "利率可能会持续更长时间。这对消费者意味着什么",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -389,22 +423,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "0e28f3cfd74f3cb4",
-      "title": "How a small Israeli startup was linked to rogue AI hacks at OpenAI, Anthropic and Meta",
-      "url": "https://www.cnbc.com/2026/08/09/israeli-startup-irregular-linked-to-ai-hacks-openai-anthropic-meta.html",
-      "publishedAt": "2026-08-09T11:31:42.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "一家以色列小型初创公司如何与OpenAI、Anthropic和Meta的流氓人工智能黑客联系在一起",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "2178b4565f189847",
       "title": "Hunter Biden says Joe Biden’s cancer has spread further and is ‘very painful’",
       "url": "https://www.cnbc.com/2026/08/08/hunter-biden-says-joe-bidens-cancer-has-spread-is-very-debilitating.html",
@@ -417,38 +435,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "亨特·拜登（ Hunter Biden ）表示，乔·拜登（ Joe Biden ）的癌症进一步扩散， “非常痛苦”",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "60ce364a6041eefd",
-      "title": "Elevator giant Otis wants to be a defensive play in a volatile market. It has to prove itself first",
-      "url": "https://www.cnbc.com/2026/08/08/elevator-giant-otis-stock-wall-street.html",
-      "publishedAt": "2026-08-08T15:43:23.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "电梯巨头奥的斯希望在动荡的市场中发挥防守作用。它必须先证明自己",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "709ea6dc882a4b8c",
-      "title": "Inside the startup drone maker powering Ukraine's deep-strike campaign",
-      "url": "https://www.cnbc.com/2026/08/08/ukraine-russia-war-fire-point-drones.html",
-      "publishedAt": "2026-08-08T15:29:19.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "在支持乌克兰深度打击运动的初创无人机制造商内部",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     }
