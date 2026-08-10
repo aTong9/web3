@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-09T22:35:13.042Z",
+  "updatedAt": "2026-08-10T02:05:41.024Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -36,6 +36,24 @@
     }
   ],
   "articles": [
+    {
+      "id": "c957fe0fa64de911",
+      "title": "Oil rises amid uncertainty over U.S.-Iran Strait of Hormuz deal",
+      "url": "https://www.cnbc.com/2026/08/10/oil-prices-today-brent-wti-hormuz-trump-iran.html",
+      "publishedAt": "2026-08-10T01:23:35.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "commodities",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "原油"
+      ],
+      "translatedTitle": "由于美国-伊朗霍尔木兹海峡交易的不确定性，石油价格上涨",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "85b5278fbfcd613d",
       "title": "Max Miller stays in Ohio House race as GOP ballot deadline passes",
@@ -379,24 +397,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "环孢菌恐惧导致消费者失去对沙拉的胃口",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "7e91583b01d8df08",
-      "title": "A record-breaking week for options powers S&P 500 surge; volatility gauge is near 2026 low",
-      "url": "https://www.cnbc.com/2026/08/08/record-breaking-week-for-options-powers-sp-500-surge.html",
-      "publishedAt": "2026-08-08T11:49:22.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "期权创纪录的一周推动标准普尔500指数飙升；波动率指标接近2026年低点",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     }
