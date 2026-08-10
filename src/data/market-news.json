@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-10T22:08:23.878Z",
+  "updatedAt": "2026-08-10T22:57:42.906Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -37,26 +37,10 @@
   ],
   "articles": [
     {
-      "id": "6ce21c2ab7aeee24",
-      "title": "Nvidia lines up $500 billion in financing as CEO Jensen Huang tells CNBC his chips are ‘investable asset’",
-      "url": "https://www.cnbc.com/2026/08/10/nvidia-wall-street-asset-managers-500-billion-ai-push.html",
-      "publishedAt": "2026-08-10T22:07:15.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "英伟达（ Nvidia ）融资5000亿美元，首席执行官黄延森（ Jensen Huang ）告诉CNBC ，他的芯片是“可投资资产”",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "3df757825c35cd1d",
       "title": "Trump Media posts $238 million second-quarter loss as crypto declines",
       "url": "https://www.cnbc.com/2026/08/10/trump-media-djt-tmtg-earnings-truth-social-crypto.html",
-      "publishedAt": "2026-08-10T21:48:14.000Z",
+      "publishedAt": "2026-08-10T22:33:55.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "macro",
@@ -67,6 +51,22 @@
         "加密"
       ],
       "translatedTitle": "随着加密货币的下滑，特朗普媒体公布第二季度亏损2.38 $",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "6ce21c2ab7aeee24",
+      "title": "Nvidia lines up $500 billion in financing as CEO Jensen Huang tells CNBC his chips are ‘investable asset’",
+      "url": "https://www.cnbc.com/2026/08/10/nvidia-wall-street-asset-managers-500-billion-ai-push.html",
+      "publishedAt": "2026-08-10T22:09:00.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "英伟达（ Nvidia ）融资5000亿美元，首席执行官黄延森（ Jensen Huang ）告诉CNBC ，他的芯片是“可投资资产”",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -114,7 +114,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "特朗普签署行政命令，呼吁减少儿童疫苗，错误地将注射与自闭症联系起来",
       "translationStatus": "translated",
@@ -130,7 +130,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "波音出售eVTOL子公司，收购Archer股份",
       "translationStatus": "translated",
@@ -146,7 +146,7 @@
       "category": "equities",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "美股"
       ],
