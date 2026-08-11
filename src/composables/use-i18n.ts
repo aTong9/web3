@@ -1030,7 +1030,10 @@ const messages: Record<Locale, DictionaryNode> = {
         offExchange: '场外净值',
       },
       eventMarkers: '历史预测事件标记',
-      eventMarkerNote: '箭头表示当日已留存的多空偏向，不是事后信号',
+      eventMarkerNote: '箭头为当时多空记录，E 为已公布财报；均不是事后信号',
+      earningsReported: '已公布财报',
+      upcomingEarnings: '下次财报',
+      upcomingEarningsRisk: '财报日期可能调整；需额外核对期权隐含波动与预期波幅',
       chainValidationActive: '正在验证“{chain}”：已联动相关资产并定位到近 3 个月。',
       status: {
         strongBullish: '强趋势偏多',
@@ -2338,7 +2341,12 @@ const messages: Record<Locale, DictionaryNode> = {
         offExchange: 'Off-exchange NAV',
       },
       eventMarkers: 'Historical forecast markers',
-      eventMarkerNote: 'Arrows are point-in-time directional records, not hindsight signals',
+      eventMarkerNote:
+        'Arrows are point-in-time directional records and E marks reported earnings; neither is a hindsight signal',
+      earningsReported: 'Reported earnings',
+      upcomingEarnings: 'Next earnings',
+      upcomingEarningsRisk:
+        'The date may change; verify option-implied volatility and expected move separately',
       chainValidationActive:
         'Validating “{chain}”: related assets are linked and the chart is focused on the latest quarter.',
       status: {

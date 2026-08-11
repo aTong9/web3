@@ -46,6 +46,12 @@ interface ForecastHistoryRecord {
   horizonId?: string
   ruleName: string
 }
+interface CorporateTechnicalEvent {
+  symbol: string
+  date: string
+  type: 'earningsReported' | 'earningsExpected'
+  surprisePct: number | null
+}
 
 const baseDataset = technicalData as AssetTechnicalDataset
 const usStockDataset = usStockTechnicalData as AssetTechnicalDataset
@@ -62,7 +68,10 @@ const dataset: AssetTechnicalDataset = {
   assets: [...baseDataset.assets, ...usStockDataset.assets],
 }
 const crossAsset = crossAssetData as CrossAssetDataset
-const technicalEvents = technicalEventsData as { events: ForecastHistoryRecord[] }
+const technicalEvents = technicalEventsData as {
+  events: ForecastHistoryRecord[]
+  corporateEvents: CorporateTechnicalEvent[]
+}
 const { locale, t } = useI18n()
 const { theme } = useTheme()
 const { can, restore } = useAuth()
@@ -243,6 +252,16 @@ const selectedForecastEvents = computed(() => {
   }
   return [...byDate.values()].slice(-12)
 })
+const selectedCorporateEvents = computed(() =>
+  technicalEvents.corporateEvents.filter(
+    (event) => event.symbol === selectedAsset.value.series.toUpperCase(),
+  ),
+)
+const upcomingCorporateEvent = computed(() =>
+  selectedCorporateEvents.value
+    .filter((event) => event.type === 'earningsExpected' && event.date >= new Date().toISOString().slice(0, 10))
+    .sort((left, right) => left.date.localeCompare(right.date))[0] ?? null,
+)
 const marketDrivers = computed(
   () => selectedMarket.value?.drivers ?? [],
 )
@@ -346,6 +365,22 @@ const chartEvents = computed(() => {
           : chartInterval.value === 'month'
             ? `${event.marketDate.slice(0, 7)}-01`
             : event.marketDate
+      const point = pointsByDate.get(date)
+      return point ? { ...event, date, price: point.close } : null
+    })
+    .filter((event): event is NonNullable<typeof event> => Boolean(event))
+})
+const corporateChartEvents = computed(() => {
+  const pointsByDate = new Map(intervalPoints.value.map((point) => [point.date, point]))
+  return selectedCorporateEvents.value
+    .filter((event) => event.type === 'earningsReported')
+    .map((event) => {
+      const date =
+        chartInterval.value === 'week'
+          ? startOfWeek(event.date)
+          : chartInterval.value === 'month'
+            ? `${event.date.slice(0, 7)}-01`
+            : event.date
       const point = pointsByDate.get(date)
       return point ? { ...event, date, price: point.close } : null
     })
@@ -485,7 +520,14 @@ const chartOption = computed<EChartsCoreOption>(() => {
           coord: [event.date, event.price],
           value: event.bias === 'bullish' ? '↑' : '↓',
           itemStyle: { color: event.bias === 'bullish' ? positive : negative },
-        })),
+        })).concat(
+          corporateChartEvents.value.map((event) => ({
+            name: t('assetTechnical.earningsReported'),
+            coord: [event.date, event.price],
+            value: 'E',
+            itemStyle: { color: warning },
+          })),
+        ),
       },
     })
   } else {
@@ -525,7 +567,14 @@ const chartOption = computed<EChartsCoreOption>(() => {
           coord: [event.date, event.price],
           value: event.bias === 'bullish' ? '↑' : '↓',
           itemStyle: { color: event.bias === 'bullish' ? positive : negative },
-        })),
+        })).concat(
+          corporateChartEvents.value.map((event) => ({
+            name: t('assetTechnical.earningsReported'),
+            coord: [event.date, event.price],
+            value: 'E',
+            itemStyle: { color: warning },
+          })),
+        ),
       },
     })
   }
@@ -1251,10 +1300,15 @@ onBeforeUnmount(() => {
             </strong>
             <small>{{ t('assetTechnical.correlationCaution') }}</small>
           </article>
-          <article v-if="chartEvents.length">
+          <article v-if="chartEvents.length || corporateChartEvents.length">
             <span>{{ t('assetTechnical.eventMarkers') }}</span>
-            <strong>{{ chartEvents.length }}</strong>
+            <strong>{{ chartEvents.length + corporateChartEvents.length }}</strong>
             <small>{{ t('assetTechnical.eventMarkerNote') }}</small>
+          </article>
+          <article v-if="upcomingCorporateEvent">
+            <span>{{ t('assetTechnical.upcomingEarnings') }}</span>
+            <strong>{{ upcomingCorporateEvent.date }}</strong>
+            <small>{{ t('assetTechnical.upcomingEarningsRisk') }}</small>
           </article>
         </section>
         <p v-if="chainValidationActive && activeChain" class="chain-validation-note">
