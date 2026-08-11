@@ -26,6 +26,7 @@
     "update:us-megacaps": "node scripts/update-us-megacaps.mjs",
     "update:us-stock-technicals": "node scripts/update-us-stock-technicals.mjs",
     "update:option-market": "node scripts/update-option-market.mjs",
+    "auth:recovery-code": "node scripts/create-admin-recovery-code.mjs",
     "cloudflare:types": "wrangler types worker/env.d.ts",
     "cloudflare:check": "npm run cloudflare:types && tsc -p tsconfig.worker.json --noEmit && wrangler deploy --dry-run --outdir .wrangler/dry-run",
     "cloudflare:dev": "wrangler dev --local --test-scheduled",
