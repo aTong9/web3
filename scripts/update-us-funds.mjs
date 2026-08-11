@@ -1,9 +1,13 @@
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const outputPath = resolve(root, 'src/data/us-funds.json')
+const previousDataset = await readFile(outputPath, 'utf8')
+  .then((text) => JSON.parse(text))
+  .catch(() => ({ funds: [] }))
+const previousByCode = new Map(previousDataset.funds.map((fund) => [fund.code, fund]))
 
 const funds = [
   { code: '513100', venue: 'exchange', index: '纳斯达克 100' },
@@ -37,6 +41,14 @@ const fetchText = async (url) => {
   return response.text()
 }
 
+const fetchOptionalText = async (url) => {
+  try {
+    return await fetchText(url)
+  } catch {
+    return ''
+  }
+}
+
 const match = (text, pattern) => text.match(pattern)?.[1]?.trim() ?? null
 const number = (value) => (value ? Number.parseFloat(value.replaceAll(',', '')) : null)
 const round = (value) => Math.round(value * 100) / 100
@@ -47,10 +59,10 @@ const readFund = async (config) => {
   const [page, profile, detail, historyResponse] = await Promise.all([
     fetchText(`https://fund.eastmoney.com/${code}.html`),
     fetchText(`https://fund.eastmoney.com/pingzhongdata/${code}.js`),
-    fetchText(`https://fundf10.eastmoney.com/jbgk_${code}.html`),
+    fetchOptionalText(`https://fundf10.eastmoney.com/jbgk_${code}.html`),
     config.venue === 'exchange'
       ? fetchText(
-          `https://quotes.sina.cn/cn/api/jsonp.php/var%20_data=/CN_MarketDataService.getKLineData?symbol=${market}${code}&scale=240&ma=no&datalen=5`,
+          `https://quotes.sina.cn/cn/api/jsonp.php/var%20_data=/CN_MarketDataService.getKLineData?symbol=${market}${code}&scale=240&ma=no&datalen=520`,
         )
       : Promise.resolve(''),
   ])
@@ -68,21 +80,61 @@ const readFund = async (config) => {
   const navSeries = navBlock ? JSON.parse(navBlock) : []
   const latestNavPoint = navSeries.at(-1)
   const historyJson = match(historyResponse, /var _data=\((\[[\s\S]*\])\);/)
-  const latestPrice = historyJson ? JSON.parse(historyJson).at(-1) : null
-  const latestClose = latestPrice ? Number(latestPrice.close) : null
+  const priceHistory = historyJson
+    ? JSON.parse(historyJson)
+        .slice(-320)
+        .map((point) => ({ date: point.day, value: Number(point.close) }))
+    : []
+  const navHistory =
+    config.venue === 'offExchange'
+      ? navSeries.slice(-320).map((point) => ({
+          date: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai' }).format(
+            new Date(point.x),
+          ),
+          value: Number(point.y),
+        }))
+      : []
+  const latestPrice = priceHistory.at(-1)
+  const latestClose = latestPrice?.value ?? null
   const latestNav = latestNavPoint?.y ?? null
+  const previousFund = previousByCode.get(code)
+  const recurringInvestmentOpen =
+    config.venue === 'offExchange'
+      ? match(page, /fundDtStatus\s*=\s*"(true|false)"/) === 'true'
+      : null
+  const observationDate = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Shanghai',
+  }).format(new Date())
+  const previousLimitHistory = previousByCode.get(code)?.investmentLimitHistory ?? []
+  const investmentLimitHistory =
+    config.venue === 'offExchange'
+      ? [
+          ...previousLimitHistory.filter((point) => point.date !== observationDate),
+          {
+            date: observationDate,
+            limitCny: dailyLimit,
+            purchaseStatus,
+            recurringInvestmentOpen,
+          },
+        ].slice(-365)
+      : []
 
   return {
     ...config,
     name: match(profile, /fS_name\s*=\s*"([^"]+)"/) ?? code,
     scaleBillionCny: scaleSeries?.y ?? null,
     scaleDate: scaleData?.categories?.at(-1) ?? null,
-    managementFeePct: number(match(detail, /管理费率<\/th><td>([\d.]+)%/)),
-    custodianFeePct: number(match(detail, /托管费率<\/th><td>([\d.]+)%/)),
-    serviceFeePct: number(match(detail, /销售服务费率<\/th><td>([\d.]+)%/)),
+    managementFeePct:
+      number(match(detail, /管理费率<\/th><td>([\d.]+)%/)) ??
+      previousFund?.managementFeePct ??
+      null,
+    custodianFeePct:
+      number(match(detail, /托管费率<\/th><td>([\d.]+)%/)) ?? previousFund?.custodianFeePct ?? null,
+    serviceFeePct:
+      number(match(detail, /销售服务费率<\/th><td>([\d.]+)%/)) ?? previousFund?.serviceFeePct ?? null,
     purchaseFeePct: number(match(profile, /fund_Rate\s*=\s*"([\d.]+)"/)),
     latestClose,
-    latestCloseDate: latestPrice?.day ?? null,
+    latestCloseDate: latestPrice?.date ?? null,
     latestNav,
     navDate: latestNavPoint?.x
       ? new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai' }).format(
@@ -95,12 +147,37 @@ const readFund = async (config) => {
         : null,
     dailyInvestmentLimitCny: config.venue === 'offExchange' ? dailyLimit : null,
     purchaseStatus: config.venue === 'offExchange' ? purchaseStatus : null,
-    recurringInvestmentOpen:
-      config.venue === 'offExchange'
-        ? match(page, /fundDtStatus\s*=\s*"(true|false)"/) === 'true'
-        : null,
+    recurringInvestmentOpen,
+    investmentLimitHistory,
+    priceHistory,
+    navHistory,
+    trackingErrorPct: null,
+    trackingBenchmark: null,
     sourceUrl: `https://fund.eastmoney.com/${code}.html`,
   }
+}
+
+const annualizedTrackingError = (left, right) => {
+  const rightByDate = new Map(right.map((point) => [point.date, point.value]))
+  const common = left.filter((point) => rightByDate.has(point.date)).slice(-253)
+  if (common.length < 21) return null
+  const differences = []
+  for (let index = 1; index < common.length; index += 1) {
+    const previousLeft = common[index - 1].value
+    const previousRight = rightByDate.get(common[index - 1].date)
+    const currentRight = rightByDate.get(common[index].date)
+    if (!previousLeft || !previousRight || !currentRight) continue
+    const leftReturn = common[index].value / previousLeft - 1
+    const rightReturn = currentRight / previousRight - 1
+    if (Math.abs(leftReturn) > 0.3 || Math.abs(rightReturn) > 0.3) continue
+    differences.push(leftReturn - rightReturn)
+  }
+  if (differences.length < 20) return null
+  const mean = differences.reduce((sum, value) => sum + value, 0) / differences.length
+  const variance =
+    differences.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
+    (differences.length - 1)
+  return round(Math.sqrt(variance) * Math.sqrt(252) * 100)
 }
 
 const results = []
@@ -115,6 +192,21 @@ for (const fund of funds) {
 
 if (results.length !== funds.length) {
   throw new Error(`Only ${results.length}/${funds.length} funds updated; refusing partial output`)
+}
+
+for (const fund of results) {
+  const peers = results.filter((candidate) => candidate.index === fund.index)
+  const benchmark = peers.toSorted(
+    (left, right) =>
+      Number(right.venue === 'exchange') - Number(left.venue === 'exchange') ||
+      (right.scaleBillionCny ?? -1) - (left.scaleBillionCny ?? -1),
+  )[0]
+  const series = fund.priceHistory.length ? fund.priceHistory : fund.navHistory
+  const benchmarkSeries = benchmark.priceHistory.length
+    ? benchmark.priceHistory
+    : benchmark.navHistory
+  fund.trackingErrorPct = annualizedTrackingError(series, benchmarkSeries)
+  fund.trackingBenchmark = benchmark.code
 }
 
 const output = {

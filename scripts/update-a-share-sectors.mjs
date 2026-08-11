@@ -119,6 +119,10 @@ const readFund = async (config) => {
         )
       : null,
     premiumRatePct: latestNav !== null ? round((latest.close / latestNav - 1) * 100) : null,
+    priceHistory: prices.slice(-320).map((point) => ({ date: point.date, value: point.close })),
+    navHistory: [],
+    trackingErrorPct: null,
+    trackingBenchmark: null,
     returns: {
       day: periodReturn(prices, 1),
       week: periodReturn(prices, 5),
@@ -130,6 +134,28 @@ const readFund = async (config) => {
     },
     sourceUrl: `https://fund.eastmoney.com/${code}.html`,
   }
+}
+
+const annualizedTrackingError = (left, right) => {
+  const rightByDate = new Map(right.map((point) => [point.date, point.value]))
+  const common = left.filter((point) => rightByDate.has(point.date)).slice(-253)
+  if (common.length < 21) return null
+  const differences = []
+  for (let index = 1; index < common.length; index += 1) {
+    const previousRight = rightByDate.get(common[index - 1].date)
+    const currentRight = rightByDate.get(common[index].date)
+    if (!common[index - 1].value || !previousRight || !currentRight) continue
+    const leftReturn = common[index].value / common[index - 1].value - 1
+    const rightReturn = currentRight / previousRight - 1
+    if (Math.abs(leftReturn) > 0.3 || Math.abs(rightReturn) > 0.3) continue
+    differences.push(leftReturn - rightReturn)
+  }
+  if (differences.length < 20) return null
+  const mean = differences.reduce((sum, value) => sum + value, 0) / differences.length
+  const variance =
+    differences.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
+    (differences.length - 1)
+  return round(Math.sqrt(variance) * Math.sqrt(252) * 100)
 }
 
 const funds = []
@@ -145,6 +171,14 @@ if (funds.length !== fundConfigs.length) {
   throw new Error(
     `Only ${funds.length}/${fundConfigs.length} funds updated; refusing partial output`,
   )
+}
+
+for (const fund of funds) {
+  const benchmark = funds
+    .filter((candidate) => candidate.sector === fund.sector)
+    .toSorted((left, right) => (right.scaleBillionCny ?? -1) - (left.scaleBillionCny ?? -1))[0]
+  fund.trackingErrorPct = annualizedTrackingError(fund.priceHistory, benchmark.priceHistory)
+  fund.trackingBenchmark = benchmark.code
 }
 
 const sectors = [...new Set(funds.map((fund) => fund.sector))].map((sector) => {

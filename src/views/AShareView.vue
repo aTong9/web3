@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
+import FundResearchWorkbench from '@/components/FundResearchWorkbench.vue'
 import sectorData from '@/data/a-share-sectors.json'
 import type { AShareFund, AShareSectorDataset, SectorKind, SectorPeriod } from '@/types'
 import HotStocksPanel from '@/components/HotStocksPanel.vue'
 import { useI18n } from '@/composables/use-i18n'
+import type { FundResearchItem } from '@/utils/fund-research'
 
 type Scope = 'all' | SectorKind
 
@@ -79,6 +81,21 @@ const returnClass = (value: number | null) => ({
   negative: value !== null && value < 0,
 })
 
+const researchFunds = computed<FundResearchItem[]>(() =>
+  dataset.funds.map((fund) => ({
+    code: fund.code,
+    name: fund.name,
+    group: fund.sector,
+    latestValue: fund.latestClose,
+    latestDate: fund.latestDate,
+    annualFeePct: totalFee(fund),
+    premiumRatePct: fund.premiumRatePct,
+    trackingErrorPct: fund.trackingErrorPct,
+    trackingBenchmark: fund.trackingBenchmark,
+    history: fund.priceHistory,
+  })),
+)
+
 </script>
 
 <template>
@@ -111,6 +128,12 @@ const returnClass = (value: number | null) => ({
     </section>
 
     <HotStocksPanel market="aShare" />
+
+    <FundResearchWorkbench
+      :funds="researchFunds"
+      :initial-codes="['512880', '512800', '512690']"
+      storage-key="a-share-funds"
+    />
 
     <div class="toolbar">
       <div class="period-tabs" :aria-label="t('aShare.filterRange')">

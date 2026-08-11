@@ -100,6 +100,18 @@ export interface BloggerData {
 export type FundVenue = 'exchange' | 'offExchange'
 export type FundPurchaseStatus = 'open' | 'limited' | 'suspended'
 
+export interface FundHistoryPoint {
+  date: string
+  value: number
+}
+
+export interface FundInvestmentLimitPoint {
+  date: string
+  limitCny: number | null
+  purchaseStatus: FundPurchaseStatus | null
+  recurringInvestmentOpen: boolean | null
+}
+
 export interface UsFund {
   code: string
   venue: FundVenue
@@ -119,6 +131,11 @@ export interface UsFund {
   dailyInvestmentLimitCny: number | null
   purchaseStatus: FundPurchaseStatus | null
   recurringInvestmentOpen: boolean | null
+  investmentLimitHistory: FundInvestmentLimitPoint[]
+  priceHistory: FundHistoryPoint[]
+  navHistory: FundHistoryPoint[]
+  trackingErrorPct: number | null
+  trackingBenchmark: string | null
   sourceUrl: string
 }
 
@@ -156,6 +173,10 @@ export interface AShareFund {
   latestNav: number | null
   navDate: string | null
   premiumRatePct: number | null
+  priceHistory: FundHistoryPoint[]
+  navHistory: FundHistoryPoint[]
+  trackingErrorPct: number | null
+  trackingBenchmark: string | null
   returns: SectorReturns
   sourceUrl: string
 }

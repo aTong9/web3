@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
+import FundResearchWorkbench from '@/components/FundResearchWorkbench.vue'
 import fundData from '@/data/us-funds.json'
 import type { FundVenue, UsFund, UsFundDataset } from '@/types'
 import HotStocksPanel from '@/components/HotStocksPanel.vue'
 import UsMegaCapsPanel from '@/components/UsMegaCapsPanel.vue'
 import { useI18n } from '@/composables/use-i18n'
+import type { FundResearchItem } from '@/utils/fund-research'
 
 type SortKey = 'scale' | 'fee' | 'premium' | 'firstYearCost'
 const ALL_INDEX = 'all'
@@ -45,6 +47,21 @@ const visibleFunds = computed(() =>
     }),
 )
 
+const researchFunds = computed<FundResearchItem[]>(() =>
+  dataset.funds.map((fund) => ({
+    code: fund.code,
+    name: fund.name,
+    group: `${fund.index} · ${t(`funds.venue.${fund.venue}`)}`,
+    latestValue: fund.venue === 'exchange' ? fund.latestClose : fund.latestNav,
+    latestDate: fund.venue === 'exchange' ? fund.latestCloseDate : fund.navDate,
+    annualFeePct: totalFee(fund),
+    premiumRatePct: fund.premiumRatePct,
+    trackingErrorPct: fund.trackingErrorPct,
+    trackingBenchmark: fund.trackingBenchmark,
+    history: fund.priceHistory.length ? fund.priceHistory : fund.navHistory,
+  })),
+)
+
 const formatFee = (value: number | null) => (value === null ? '—' : `${value.toFixed(2)}%`)
 const formatSignedFee = (value: number | null) =>
   value === null ? '—' : `${value > 0 ? '+' : ''}${value.toFixed(2)}%`
@@ -53,6 +70,18 @@ const formatLimit = (fund: UsFund) => {
   if (fund.recurringInvestmentOpen === false) return t('funds.status.stopped')
   if (fund.dailyInvestmentLimitCny === null) return t('funds.status.noLimit')
   return `¥${fund.dailyInvestmentLimitCny.toLocaleString('zh-CN')} / 日`
+}
+
+const limitChanged = (fund: UsFund) => {
+  const history = fund.investmentLimitHistory
+  if (history.length < 2) return false
+  const latest = history[history.length - 1]
+  const previous = history[history.length - 2]
+  return (
+    latest?.limitCny !== previous?.limitCny ||
+    latest?.purchaseStatus !== previous?.purchaseStatus ||
+    latest?.recurringInvestmentOpen !== previous?.recurringInvestmentOpen
+  )
 }
 </script>
 
@@ -79,6 +108,12 @@ const formatLimit = (fund: UsFund) => {
 
     <UsMegaCapsPanel />
     <HotStocksPanel market="us" />
+
+    <FundResearchWorkbench
+      :funds="researchFunds"
+      :initial-codes="['513100', '159941', '513500']"
+      storage-key="us-funds"
+    />
 
     <div class="controls">
       <div class="segmented" :aria-label="t('funds.venue.exchange')">
@@ -200,6 +235,7 @@ const formatLimit = (fund: UsFund) => {
               >
                 {{ formatLimit(fund) }}
               </span>
+              <em v-if="limitChanged(fund)" class="limit-change">{{ t('funds.status.changed') }}</em>
               <small class="channel-note">{{ t('funds.row.channelNote') }}</small>
             </td>
             <td class="fee-detail">
@@ -228,6 +264,15 @@ const formatLimit = (fund: UsFund) => {
   max-width: 1320px;
   margin: 0 auto;
   padding: 40px clamp(20px, 3.5vw, 52px) 80px;
+}
+
+.limit-change {
+  display: inline-block;
+  margin-top: 5px;
+  color: var(--accent);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
 }
 
 .page-heading {
