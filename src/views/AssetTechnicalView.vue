@@ -125,12 +125,17 @@ const relevantChains = computed(() => {
         )
   return source.length ? source : crossAsset.transmissionChains.slice(0, 5)
 })
+const selectedMarket = computed(() =>
+  crossAsset.marketBrief.markets.find((market) => market.id === selectedId.value),
+)
 const activeChain = computed(
   () => relevantChains.value[activeChainIndex.value % relevantChains.value.length],
 )
 const marketDrivers = computed(
-  () =>
-    crossAsset.marketBrief.markets.find((market) => market.id === selectedId.value)?.drivers ?? [],
+  () => selectedMarket.value?.drivers ?? [],
+)
+const resonanceEvaluation = computed(
+  () => selectedMarket.value?.outlook.backtest.selectivity.driverAblation ?? null,
 )
 const crossAssetScore = computed(() => {
   if (!marketDrivers.value.length) return 0
@@ -879,6 +884,64 @@ onBeforeUnmount(() => {
               }}</span>
             </div>
           </div>
+          <section class="resonance-evidence">
+            <header>
+              <div>
+                <span>{{ t('assetTechnical.backtest.resonanceEyebrow') }}</span>
+                <b>{{ t('assetTechnical.backtest.resonanceTitle') }}</b>
+              </div>
+              <em
+                :class="{
+                  accepted:
+                    resonanceEvaluation?.allowed && resonanceEvaluation.selectedUsesCrossAsset,
+                  rejected:
+                    resonanceEvaluation &&
+                    (!resonanceEvaluation.allowed ||
+                      !resonanceEvaluation.selectedUsesCrossAsset),
+                }"
+              >{{
+                !resonanceEvaluation
+                  ? t('assetTechnical.backtest.unavailable')
+                  : resonanceEvaluation.allowed && resonanceEvaluation.selectedUsesCrossAsset
+                    ? t('assetTechnical.backtest.accepted')
+                    : t('assetTechnical.backtest.rejected')
+              }}</em>
+            </header>
+            <p>{{ t('assetTechnical.backtest.resonanceIntro') }}</p>
+            <div v-if="resonanceEvaluation" class="resonance-metrics">
+              <div>
+                <span>{{ t('assetTechnical.backtest.pairedSamples') }}</span
+                ><strong>{{ resonanceEvaluation.samples }}</strong>
+              </div>
+              <div>
+                <span>{{ t('assetTechnical.backtest.withDrivers') }}</span
+                ><strong>{{ formatSigned(resonanceEvaluation.fullAccuracyPct) }}</strong>
+              </div>
+              <div>
+                <span>{{ t('assetTechnical.backtest.momentumOnly') }}</span
+                ><strong>{{ formatSigned(resonanceEvaluation.momentumOnlyAccuracyPct) }}</strong>
+              </div>
+              <div>
+                <span>{{ t('assetTechnical.backtest.incrementalLift') }}</span
+                ><strong>{{ formatSigned(resonanceEvaluation.liftPct) }}</strong>
+              </div>
+            </div>
+            <p v-if="resonanceEvaluation" class="resonance-decision">
+              {{
+                t(
+                  resonanceEvaluation.allowed && resonanceEvaluation.selectedUsesCrossAsset
+                    ? 'assetTechnical.backtest.resonanceAcceptedReason'
+                    : 'assetTechnical.backtest.resonanceRejectedReason',
+                  {
+                    p:
+                      resonanceEvaluation.pairedAdvantagePValue === null
+                        ? '—'
+                        : resonanceEvaluation.pairedAdvantagePValue.toFixed(3),
+                  },
+                )
+              }}
+            </p>
+          </section>
           <details>
             <summary>{{ t('assetTechnical.backtest.methodology') }}</summary>
             <p>{{
@@ -1538,6 +1601,78 @@ onBeforeUnmount(() => {
 .backtest-panel details {
   margin-top: 8px;
 }
+.resonance-evidence {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+.resonance-evidence > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.resonance-evidence > header div {
+  display: grid;
+  gap: 3px;
+}
+.resonance-evidence > header span {
+  color: var(--accent);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.resonance-evidence > header b {
+  font-size: 10px;
+}
+.resonance-evidence > header em {
+  padding: 4px 7px;
+  border-radius: 99px;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 8px;
+  font-style: normal;
+}
+.resonance-evidence > header em.accepted {
+  background: color-mix(in srgb, var(--positive) 12%, var(--paper));
+  color: var(--positive);
+}
+.resonance-evidence > header em.rejected {
+  background: color-mix(in srgb, var(--warning) 12%, var(--paper));
+  color: var(--warning);
+}
+.resonance-evidence > p {
+  margin: 9px 0;
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.55;
+}
+.resonance-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.resonance-metrics > div {
+  min-width: 0;
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface);
+  display: grid;
+  gap: 3px;
+}
+.resonance-metrics span {
+  color: var(--muted);
+  font-size: 7px;
+}
+.resonance-metrics strong {
+  font-size: 11px;
+}
+.resonance-evidence > .resonance-decision {
+  margin-bottom: 0;
+  color: var(--ink);
+}
 .backtest-panel summary {
   padding: 6px 0;
   font-size: 9px;
@@ -1840,6 +1975,9 @@ onBeforeUnmount(() => {
     min-width: 540px;
   }
   .backtest-summary {
+    min-width: 540px;
+  }
+  .resonance-evidence {
     min-width: 540px;
   }
   .range-tabs button {

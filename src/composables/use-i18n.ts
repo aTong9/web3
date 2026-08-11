@@ -1017,6 +1017,20 @@ const messages: Record<Locale, DictionaryNode> = {
         maxAdverse: '最大不利变动',
         invalidation: '中位失效时间',
         bars: '{value} 个交易日',
+        resonanceEyebrow: 'DRIVER ABLATION · POINT-IN-TIME',
+        resonanceTitle: '传导驱动增量验证',
+        resonanceIntro:
+          '在相同历史日期上，对比“价格动量 + 当时可见的跨资产驱动”和“仅价格动量”；只有产生稳定增量时才允许驱动进入方向模型。',
+        pairedSamples: '配对样本',
+        withDrivers: '加入驱动命中率',
+        momentumOnly: '仅动量命中率',
+        incrementalLift: '增量提升',
+        accepted: '已采用',
+        rejected: '未采用',
+        unavailable: '暂无评估',
+        resonanceAcceptedReason: '跨资产驱动通过消融门槛并进入当前模型；配对优势检验 p={p}。',
+        resonanceRejectedReason:
+          '跨资产驱动尚未证明优于仅价格动量，因此当前模型拒绝该增量特征；配对优势检验 p={p}。',
         methodology: '回测方法与限制',
         methodologyText:
           '按时间顺序以前70%为训练观察段、后30%为留出段；仅使用信号当日及此前数据，综合分绝对值达到 {threshold} 才入样，相邻信号至少间隔 {interval} 个观测。公式版本 {formula}。',
@@ -2168,6 +2182,21 @@ const messages: Record<Locale, DictionaryNode> = {
         maxAdverse: 'Maximum adverse move',
         invalidation: 'Median invalidation',
         bars: '{value} trading days',
+        resonanceEyebrow: 'DRIVER ABLATION · POINT-IN-TIME',
+        resonanceTitle: 'Transmission-driver incremental test',
+        resonanceIntro:
+          'On the same historical dates, compare price momentum plus then-available cross-asset drivers against price momentum alone. Drivers enter the directional model only when they add stable value.',
+        pairedSamples: 'Paired samples',
+        withDrivers: 'Hit rate with drivers',
+        momentumOnly: 'Momentum-only hit rate',
+        incrementalLift: 'Incremental lift',
+        accepted: 'Accepted',
+        rejected: 'Not accepted',
+        unavailable: 'Not evaluated',
+        resonanceAcceptedReason:
+          'Cross-asset drivers passed the ablation gate and are included in the current model; paired advantage test p={p}.',
+        resonanceRejectedReason:
+          'Cross-asset drivers have not outperformed price momentum alone, so the current model rejects the incremental feature; paired advantage test p={p}.',
         methodology: 'Methodology and limitations',
         methodologyText:
           'The first 70% of observations form the training observation segment and the final 30% is held out chronologically. Only information available through the signal close is used. Absolute composite score must reach {threshold}, with at least {interval} observations between samples. Formula {formula}.',
