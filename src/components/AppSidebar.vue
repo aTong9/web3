@@ -24,6 +24,7 @@ const groups = computed(() => [
     title: 'ui.nav.monitor',
     icon: '⌁',
     items: [
+      { title: 'ui.nav.assetTechnical', to: '/asset-technical' },
       { title: 'ui.nav.aShareMarket', to: '/a-share' },
       { title: 'ui.nav.usMarket', to: '/funds' },
     ],

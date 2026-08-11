@@ -44,6 +44,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/asset-technical',
+      name: 'asset-technical',
+      component: () => import('../views/AssetTechnicalView.vue'),
+      meta: {
+        titleKey: 'ui.routes.assetTechnical.title',
+        descriptionKey: 'ui.routes.assetTechnical.description',
+      },
+    },
+    {
       path: '/resources',
       name: 'resources',
       component: HomeView,

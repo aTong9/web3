@@ -888,6 +888,83 @@ export interface CrossAssetDataset {
   }
 }
 
+export type TechnicalSignalStatus =
+  | 'strongBullish'
+  | 'weakBullish'
+  | 'rangeBullish'
+  | 'neutral'
+  | 'rangeBearish'
+  | 'weakBearish'
+  | 'strongBearish'
+  | 'conflicting'
+  | 'insufficient'
+
+export interface AssetPricePoint {
+  date: string
+  close: number
+  open?: number
+  high?: number
+  low?: number
+  volume?: number
+}
+
+export interface TechnicalChartAsset {
+  id: string
+  name: string
+  category: CrossAssetCategory
+  series: string
+  unit: string
+  mode: CrossAssetItem['mode']
+  date: string | null
+  stale: boolean
+  dataShape: 'close' | 'ohlcv'
+  points: AssetPricePoint[]
+}
+
+export interface AssetTechnicalDataset {
+  updatedAt: string
+  source: string
+  sourceUrl: string
+  limitations: string[]
+  assets: TechnicalChartAsset[]
+}
+
+export interface TechnicalIndicatorReading {
+  id: 'trend' | 'momentum' | 'volatility' | 'volume' | 'crossAsset'
+  value: number | null
+  score: number
+  status: TechnicalSignalStatus
+  change: 'rising' | 'falling' | 'flat' | 'unavailable'
+  evidence: string[]
+}
+
+export interface TechnicalHorizonReading {
+  id: 'day' | 'week' | 'month' | 'quarter' | 'halfYear' | 'year'
+  observations: number
+  returnPct: number | null
+  score: number
+  status: TechnicalSignalStatus
+}
+
+export interface TechnicalAnalysisResult {
+  status: TechnicalSignalStatus
+  score: number
+  confidence: number
+  latest: number | null
+  ma20: Array<number | null>
+  ma60: Array<number | null>
+  macd: Array<number | null>
+  macdSignal: Array<number | null>
+  rsi14: Array<number | null>
+  bollingerUpper: Array<number | null>
+  bollingerLower: Array<number | null>
+  atr14: Array<number | null>
+  support: number | null
+  resistance: number | null
+  indicators: TechnicalIndicatorReading[]
+  horizons: TechnicalHorizonReading[]
+}
+
 export interface MarketHomeDataset {
   updatedAt: string
   transmissionChains: CrossAssetDataset['transmissionChains']

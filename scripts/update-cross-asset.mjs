@@ -6,6 +6,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const outputPath = resolve(root, 'src/data/cross-asset.json')
 const homeOutputPath = resolve(root, 'src/data/market-home.json')
 const forecastHistoryPath = resolve(root, 'src/data/cross-asset-forecast-history.json')
+const technicalSignalsPath = resolve(root, 'src/data/asset-technical-signals.json')
 const modelVersion = 'cross-asset-v1.5-rate-decomposition'
 const homeModelVersion = 'cross-asset-home-v1.0-multi-horizon'
 const retiredModelVersions = new Set(['cross-asset-v1.2-risk-stress-resonance'])
@@ -513,20 +514,34 @@ const histories = Object.fromEntries(
   ),
 )
 
+const marketBars = {}
 const sinaText = await fetchText(
   'https://quotes.sina.cn/cn/api/jsonp.php/var%20_data=/CN_MarketDataService.getKLineData?symbol=sh000001&scale=240&ma=no&datalen=400',
 )
 const sinaMatch = sinaText.match(/var _data=\((\[[\s\S]*\])\);/)
-histories.sh000001 = sinaMatch
-  ? JSON.parse(sinaMatch[1]).map((item) => ({ date: item.day, value: Number(item.close) }))
+marketBars.shanghai = sinaMatch
+  ? JSON.parse(sinaMatch[1]).map((item) => ({
+      date: item.day,
+      open: Number(item.open),
+      high: Number(item.high),
+      low: Number(item.low),
+      close: Number(item.close),
+      volume: Number(item.volume),
+    }))
   : []
+histories.sh000001 = marketBars.shanghai.map((item) => ({ date: item.date, value: item.close }))
 const tencentPayload = JSON.parse(
   await fetchText('https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=hkHSI,day,,,400,qfq'),
 )
-histories.hkHSI = (tencentPayload.data?.hkHSI?.day ?? []).map((item) => ({
+marketBars.hangseng = (tencentPayload.data?.hkHSI?.day ?? []).map((item) => ({
   date: item[0],
-  value: Number(item[2]),
+  open: Number(item[1]),
+  close: Number(item[2]),
+  high: Number(item[3]),
+  low: Number(item[4]),
+  volume: Number(item[5]),
 }))
+histories.hkHSI = marketBars.hangseng.map((item) => ({ date: item.date, value: item.close }))
 const stablecoinPayload = JSON.parse(
   await fetchText('https://stablecoins.llama.fi/stablecoincharts/all'),
 )
@@ -1238,16 +1253,86 @@ const riskStressTargets = [
 ]
 const officialStressTargets = riskStressTargets
 const rateDecompositionChains = [
-  ['termpremium10y', 'us10y', '10Y期限溢价—10Y收益率链', 'positive', '美债期限补偿上升', '10Y名义收益率承压上行'],
-  ['termpremium10y', 'sp500', '10Y期限溢价—标普500链', 'negative', '长期债券风险补偿上升', '股票估值贴现率与融资成本承压'],
-  ['termpremium10y', 'nasdaq', '10Y期限溢价—纳指链', 'negative', '长期债券风险补偿上升', '长久期科技股估值承压'],
-  ['termpremium10y', 'gold', '10Y期限溢价—黄金链', 'negative', '持有长期债券所需补偿上升', '无息黄金的机会成本变化'],
-  ['termpremium10y', 'usd', '10Y期限溢价—美元链', 'context', '美国长期收益率风险补偿变化', '美元利差吸引力与风险偏好重新定价'],
-  ['expectedrate10y', 'us10y', '预期短率成分—10Y收益率链', 'positive', '未来短端政策利率路径上修', '10Y名义收益率承压上行'],
-  ['expectedrate10y', 'sp500', '预期短率成分—标普500链', 'negative', '预期政策路径抬升', '股票融资与贴现成本提高'],
-  ['expectedrate10y', 'nasdaq', '预期短率成分—纳指链', 'negative', '预期政策路径抬升', '长久期科技股现金流折现压力提高'],
-  ['expectedrate10y', 'gold', '预期短率成分—黄金链', 'negative', '预期政策利率维持高位', '无息黄金机会成本提高'],
-  ['expectedrate10y', 'usd', '预期短率成分—美元链', 'positive', '预期美国短率路径上修', '美元利差支撑增强'],
+  [
+    'termpremium10y',
+    'us10y',
+    '10Y期限溢价—10Y收益率链',
+    'positive',
+    '美债期限补偿上升',
+    '10Y名义收益率承压上行',
+  ],
+  [
+    'termpremium10y',
+    'sp500',
+    '10Y期限溢价—标普500链',
+    'negative',
+    '长期债券风险补偿上升',
+    '股票估值贴现率与融资成本承压',
+  ],
+  [
+    'termpremium10y',
+    'nasdaq',
+    '10Y期限溢价—纳指链',
+    'negative',
+    '长期债券风险补偿上升',
+    '长久期科技股估值承压',
+  ],
+  [
+    'termpremium10y',
+    'gold',
+    '10Y期限溢价—黄金链',
+    'negative',
+    '持有长期债券所需补偿上升',
+    '无息黄金的机会成本变化',
+  ],
+  [
+    'termpremium10y',
+    'usd',
+    '10Y期限溢价—美元链',
+    'context',
+    '美国长期收益率风险补偿变化',
+    '美元利差吸引力与风险偏好重新定价',
+  ],
+  [
+    'expectedrate10y',
+    'us10y',
+    '预期短率成分—10Y收益率链',
+    'positive',
+    '未来短端政策利率路径上修',
+    '10Y名义收益率承压上行',
+  ],
+  [
+    'expectedrate10y',
+    'sp500',
+    '预期短率成分—标普500链',
+    'negative',
+    '预期政策路径抬升',
+    '股票融资与贴现成本提高',
+  ],
+  [
+    'expectedrate10y',
+    'nasdaq',
+    '预期短率成分—纳指链',
+    'negative',
+    '预期政策路径抬升',
+    '长久期科技股现金流折现压力提高',
+  ],
+  [
+    'expectedrate10y',
+    'gold',
+    '预期短率成分—黄金链',
+    'negative',
+    '预期政策利率维持高位',
+    '无息黄金机会成本提高',
+  ],
+  [
+    'expectedrate10y',
+    'usd',
+    '预期短率成分—美元链',
+    'positive',
+    '预期美国短率路径上修',
+    '美元利差支撑增强',
+  ],
 ]
 const transmissionChains = applyPredictiveFdr([
   chain({
@@ -2247,25 +2332,24 @@ const transmissionChains = applyPredictiveFdr([
       sourceUrl: 'https://fred.stlouisfed.org/series/STLFSI4',
     }),
   ),
-  ...rateDecompositionChains.map(
-    ([left, right, title, expectedSign, firstStep, finalStep]) =>
-      chain({
-        group: '美债利率来源分解',
-        title,
-        left,
-        right,
-        expectedSign,
-        steps: [firstStep, '区分期限风险补偿与预期政策路径', finalStep],
-        interpretation:
-          left === 'termpremium10y'
-            ? 'Kim–Wright三因子模型估计的10Y零息债期限溢价变化与目标后续变化关系'
-            : '10Y恒定期限收益率减Kim–Wright期限溢价的透明代理；不是可直接观测的政策预期',
-        sourceTitle: 'Federal Reserve · Three-Factor Nominal Term Structure Model',
-        sourceUrl:
-          left === 'termpremium10y'
-            ? 'https://fred.stlouisfed.org/series/THREEFYTP10'
-            : 'https://www.federalreserve.gov/data/three-factor-nominal-term-structure-model.htm',
-      }),
+  ...rateDecompositionChains.map(([left, right, title, expectedSign, firstStep, finalStep]) =>
+    chain({
+      group: '美债利率来源分解',
+      title,
+      left,
+      right,
+      expectedSign,
+      steps: [firstStep, '区分期限风险补偿与预期政策路径', finalStep],
+      interpretation:
+        left === 'termpremium10y'
+          ? 'Kim–Wright三因子模型估计的10Y零息债期限溢价变化与目标后续变化关系'
+          : '10Y恒定期限收益率减Kim–Wright期限溢价的透明代理；不是可直接观测的政策预期',
+      sourceTitle: 'Federal Reserve · Three-Factor Nominal Term Structure Model',
+      sourceUrl:
+        left === 'termpremium10y'
+          ? 'https://fred.stlouisfed.org/series/THREEFYTP10'
+          : 'https://www.federalreserve.gov/data/three-factor-nominal-term-structure-model.htm',
+    }),
   ),
 ]).sort((left, right) => Math.abs(right.signal ?? 0) - Math.abs(left.signal ?? 0))
 
@@ -2758,12 +2842,7 @@ const backtestMarket = (id) => {
     driverWeight: 0,
   }
   const driverAblationRows = selectedValidationRecords.map((item) => {
-    const momentumOnlyScore = ruleScore(
-      momentumOnlyRule,
-      item.weekSignal,
-      item.monthSignal,
-      0,
-    )
+    const momentumOnlyScore = ruleScore(momentumOnlyRule, item.weekSignal, item.monthSignal, 0)
     const momentumCorrect = sign(momentumOnlyScore) === sign(item.forward)
     return {
       fullCorrect: item.correct,
@@ -2779,8 +2858,7 @@ const backtestMarket = (id) => {
   const discordant = fullWins + momentumWins
   const binomialCoefficient = (n, k) => {
     let result = 1
-    for (let index = 1; index <= k; index += 1)
-      result = (result * (n - index + 1)) / index
+    for (let index = 1; index <= k; index += 1) result = (result * (n - index + 1)) / index
     return result
   }
   const pairedAdvantagePValue = discordant
@@ -2796,8 +2874,7 @@ const backtestMarket = (id) => {
     : null
   const fullAccuracyPct = driverAblationRows.length
     ? round(
-        (driverAblationRows.filter((item) => item.fullCorrect).length /
-          driverAblationRows.length) *
+        (driverAblationRows.filter((item) => item.fullCorrect).length / driverAblationRows.length) *
           100,
       )
     : null
@@ -3062,24 +3139,9 @@ const buildHorizonMomentumOutlook = (id, horizonDefinition) => {
     index < history.length - horizonDefinition.horizon;
     index += horizonDefinition.horizon
   ) {
-    const shortSignal = momentumSignalAtIndex(
-      target,
-      history,
-      index,
-      horizonDefinition.shortWindow,
-    )
-    const longSignal = momentumSignalAtIndex(
-      target,
-      history,
-      index,
-      horizonDefinition.longWindow,
-    )
-    const forward = historicalMove(
-      target,
-      history,
-      index,
-      index + horizonDefinition.horizon,
-    )
+    const shortSignal = momentumSignalAtIndex(target, history, index, horizonDefinition.shortWindow)
+    const longSignal = momentumSignalAtIndex(target, history, index, horizonDefinition.longWindow)
+    const forward = historicalMove(target, history, index, index + horizonDefinition.horizon)
     const majorityDirection = knownUp >= knownDown ? 1 : -1
     records.push({
       date: history[index].date,
@@ -3087,10 +3149,7 @@ const buildHorizonMomentumOutlook = (id, horizonDefinition) => {
       baselineCorrect: sign(shortSignal) === sign(forward),
       majorityCorrect: majorityDirection === sign(forward),
       scores: Object.fromEntries(
-        pureMomentumRules.map((rule) => [
-          rule.id,
-          ruleScore(rule, shortSignal, longSignal, 0),
-        ]),
+        pureMomentumRules.map((rule) => [rule.id, ruleScore(rule, shortSignal, longSignal, 0)]),
       ),
     })
     if (forward > 0) knownUp += 1
@@ -3321,8 +3380,7 @@ const marketOutlooks = forecastIds.map((id) => {
     .toSorted((left, right) => Math.abs(right.contribution) - Math.abs(left.contribution))
     .slice(0, 3)
   const relatedPredictiveChains = transmissionChains.filter((item) => item.right === id)
-  const predictiveSignificanceThreshold =
-    0.05 / Math.max(1, relatedPredictiveChains.length * 3)
+  const predictiveSignificanceThreshold = 0.05 / Math.max(1, relatedPredictiveChains.length * 3)
   const allPredictiveDrivers = relatedPredictiveChains
     .map((item) => {
       const driver = assetById(item.left)
@@ -3355,7 +3413,9 @@ const marketOutlooks = forecastIds.map((id) => {
           profile.liftPct !== null
         ) {
           signals.push(Math.max(-0.75, Math.min(0.75, profile.liftPct / 100)))
-          evidenceLabels.push(`${label}上涨率增量${profile.liftPct >= 0 ? '+' : ''}${profile.liftPct.toFixed(1)}pct`)
+          evidenceLabels.push(
+            `${label}上涨率增量${profile.liftPct >= 0 ? '+' : ''}${profile.liftPct.toFixed(1)}pct`,
+          )
         }
       }
       if (!signals.length) return null
@@ -3864,9 +3924,69 @@ const homeOutput = {
   },
 }
 
+const technicalAssetIds = new Set([
+  'sp500',
+  'nasdaq',
+  'nikkei',
+  'shanghai',
+  'hangseng',
+  'euro50',
+  'us2y',
+  'us10y',
+  'us30y',
+  'real10y',
+  'igspread',
+  'hyspread',
+  'usd',
+  'vix',
+  'eurusd',
+  'usdjpy',
+  'usdcny',
+  'wti',
+  'brent',
+  'gold',
+  'copper',
+  'natgas',
+  'btc',
+  'eth',
+])
+const technicalSignalsOutput = {
+  updatedAt: output.updatedAt,
+  source: output.source,
+  sourceUrl: output.sourceUrl,
+  limitations: [
+    '多数公开宏观与跨资产序列只提供收盘值，因此仅在数据源提供真实开高低收时开放K线。',
+    '技术指标用于描述价格状态，不构成买卖建议；不同资产的数据频率和交易日历可能不同。',
+    '黄金使用公开策略指数代理，铜为月度序列，短周期技术指标可能不可用。',
+  ],
+  assets: assets
+    .filter((asset) => technicalAssetIds.has(asset.id))
+    .map((asset) => {
+      const definition = definitions.find((item) => item.id === asset.id)
+      const closeHistory = (histories[definition?.series] ?? []).slice(-1260)
+      const bars = marketBars[asset.id]
+      return {
+        id: asset.id,
+        name: asset.name,
+        category: asset.category,
+        series: asset.series,
+        unit: asset.unit,
+        mode: asset.mode,
+        date: asset.date,
+        stale: asset.stale,
+        dataShape: bars?.length ? 'ohlcv' : 'close',
+        points: bars?.length
+          ? bars.slice(-1260)
+          : closeHistory.map((item) => ({ date: item.date, close: item.value })),
+      }
+    })
+    .filter((asset) => asset.points.length >= 2),
+}
+
 await mkdir(dirname(outputPath), { recursive: true })
 await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`)
 await writeFile(homeOutputPath, `${JSON.stringify(homeOutput, null, 2)}\n`)
+await writeFile(technicalSignalsPath, `${JSON.stringify(technicalSignalsOutput, null, 2)}\n`)
 await writeFile(
   forecastHistoryPath,
   `${JSON.stringify({ updatedAt: new Date().toISOString(), records: liveForecastHistory }, null, 2)}\n`,
