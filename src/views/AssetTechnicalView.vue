@@ -457,6 +457,35 @@ const comparisonMetrics = computed(() => {
     const values = rollingCorrelation(leftReturns, rightReturns, window)
     return values[values.length - 1] ?? null
   }
+  const correlation60History = rollingCorrelation(leftReturns, rightReturns, 60).filter(
+    (value): value is number => value !== null,
+  )
+  const latestCorrelation60 = correlation60History[correlation60History.length - 1] ?? null
+  const comparisonCorrelation60 =
+    correlation60History.length > 20
+      ? correlation60History[Math.max(0, correlation60History.length - 21)]!
+      : null
+  const correlationStrengthPercentile =
+    latestCorrelation60 !== null && correlation60History.length >= 20
+      ? Math.round(
+          (correlation60History.filter(
+            (value) => Math.abs(value) <= Math.abs(latestCorrelation60),
+          ).length /
+            correlation60History.length) *
+            100,
+        )
+      : null
+  const correlationRegime =
+    latestCorrelation60 === null || comparisonCorrelation60 === null
+      ? 'insufficient'
+      : latestCorrelation60 * comparisonCorrelation60 < 0 &&
+          Math.abs(latestCorrelation60 - comparisonCorrelation60) >= 0.35
+        ? 'signChanged'
+        : Math.abs(comparisonCorrelation60) - Math.abs(latestCorrelation60) >= 0.25
+          ? 'weakened'
+          : Math.abs(latestCorrelation60) - Math.abs(comparisonCorrelation60) >= 0.25
+            ? 'strengthened'
+            : 'stable'
   const first = aligned[0]
   const last = aligned[aligned.length - 1]
   return {
@@ -465,6 +494,9 @@ const comparisonMetrics = computed(() => {
     relativeReturnPct:
       first && last ? ((last.left / first.left) / (last.right / first.right) - 1) * 100 : null,
     correlations: [20, 60, 120].map((window) => ({ window, value: correlation(window) })),
+    correlationStrengthPercentile,
+    correlationRegime,
+    comparisonCorrelation60,
   }
 })
 const rangeMeasurement = computed(() => {
@@ -1345,6 +1377,22 @@ onBeforeUnmount(() => {
             <strong v-for="item in comparisonMetrics.correlations" :key="item.window">
               {{ item.window }}D ρ {{ item.value?.toFixed(2) ?? '—' }}
             </strong>
+            <small>
+              {{
+                t('assetTechnical.correlationPercentile', {
+                  value: comparisonMetrics.correlationStrengthPercentile ?? '—',
+                })
+              }}
+            </small>
+            <small>
+              {{ t(`assetTechnical.correlationRegime.${comparisonMetrics.correlationRegime}`) }}
+              ·
+              {{
+                t('assetTechnical.correlationPrevious', {
+                  value: comparisonMetrics.comparisonCorrelation60?.toFixed(2) ?? '—',
+                })
+              }}
+            </small>
             <small>{{ t('assetTechnical.correlationCaution') }}</small>
           </article>
           <article v-if="chartEvents.length || corporateChartEvents.length">
