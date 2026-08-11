@@ -1182,6 +1182,8 @@ export interface TechnicalAlertEvaluation {
 }
 
 export type TechnicalChartRange =
+  | 'day'
+  | 'week'
   | 'month'
   | 'quarter'
   | 'halfYear'

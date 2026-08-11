@@ -9,6 +9,7 @@ import technicalData from '@/data/asset-technical-signals.json'
 import crossAssetData from '@/data/cross-asset.json'
 import usStockTechnicalData from '@/data/us-stock-technical-signals.json'
 import type {
+  AssetPricePoint,
   AssetTechnicalDataset,
   CrossAssetDataset,
   TechnicalAlertCondition,
@@ -31,7 +32,8 @@ import { useTheme } from '@/utils/use-theme'
 import { evaluateAssetFreshness } from '@/utils/market-calendar'
 
 type RangeId = TechnicalChartRange
-type ChartMode = 'line' | 'candle'
+type ChartMode = 'line' | 'area' | 'candle'
+type ChartInterval = 'day' | 'week' | 'month'
 type ChainFilter = 'related' | 'strong'
 
 const baseDataset = technicalData as AssetTechnicalDataset
@@ -99,6 +101,7 @@ const compareId = ref('')
 const search = ref('')
 const range = ref<RangeId>(technicalConfig.value.display.defaultRange)
 const chartMode = ref<ChartMode>('line')
+const chartInterval = ref<ChartInterval>('day')
 const chainFilter = ref<ChainFilter>('related')
 const activeChainIndex = ref(0)
 const carouselPlaying = ref(technicalConfig.value.display.carouselAutoPlay)
@@ -119,13 +122,15 @@ const backtestCache = new Map<string, ReturnType<typeof backtestTechnicalSignals
 let carouselTimer: number | null = null
 
 const favoriteStorageKey = 'market-desk-technical-favorites-v1'
-const rangeObservations: Record<RangeId, number> = {
-  month: 21,
-  quarter: 63,
-  halfYear: 126,
-  year: 252,
-  threeYear: 756,
-  fiveYear: 1260,
+const rangeCalendarDays: Record<RangeId, number> = {
+  day: 0,
+  week: 7,
+  month: 31,
+  quarter: 93,
+  halfYear: 186,
+  year: 366,
+  threeYear: 1_096,
+  fiveYear: 1_827,
 }
 const overlayOptions = computed(() => [
   ...(technicalConfig.value.enabled.maShort ? ['ma20'] : []),
@@ -155,6 +160,12 @@ const nextExpectedLabel = computed(() =>
     minute: '2-digit',
   }).format(new Date(selectedFreshness.value.nextExpectedAt)),
 )
+const adjustmentBasis = computed(() => {
+  if (selectedAsset.value.dataShape !== 'ohlcv') return 'notApplicable'
+  if (selectedAsset.value.source === 'Massive') return 'providerAdjusted'
+  if (selectedAsset.value.source === '腾讯财经') return 'forwardAdjusted'
+  return 'sourcePublished'
+})
 const categoryOrder = ['stocks', 'bonds', 'fx', 'commodities', 'crypto'] as const
 const visibleAssets = computed(() => {
   const query = search.value.trim().toLowerCase()
@@ -249,11 +260,62 @@ const analysis = computed(() =>
 const currentAssetAlerts = computed(() =>
   alertRules.value.filter((rule) => rule.assetId === selectedAsset.value.id),
 )
-const displayedPoints = computed(() =>
-  (selectedAsset.value?.points ?? []).slice(-rangeObservations[range.value]),
+const startOfWeek = (date: string) => {
+  const value = new Date(`${date}T12:00:00Z`)
+  const day = value.getUTCDay() || 7
+  value.setUTCDate(value.getUTCDate() - day + 1)
+  return value.toISOString().slice(0, 10)
+}
+const aggregatePoints = (points: AssetPricePoint[], interval: ChartInterval) => {
+  if (interval === 'day') return points
+  const groups = new Map<string, AssetPricePoint[]>()
+  for (const point of points) {
+    const key = interval === 'week' ? startOfWeek(point.date) : `${point.date.slice(0, 7)}-01`
+    const group = groups.get(key) ?? []
+    group.push(point)
+    groups.set(key, group)
+  }
+  return [...groups].map(([date, group]) => {
+    const first = group[0]!
+    const last = group[group.length - 1]!
+    const highs = group.map((point) => point.high).filter((value): value is number => value !== undefined)
+    const lows = group.map((point) => point.low).filter((value): value is number => value !== undefined)
+    const volumes = group
+      .map((point) => point.volume)
+      .filter((value): value is number => value !== undefined)
+    return {
+      date,
+      open: first.open ?? first.close,
+      high: highs.length ? Math.max(...highs) : Math.max(...group.map((point) => point.close)),
+      low: lows.length ? Math.min(...lows) : Math.min(...group.map((point) => point.close)),
+      close: last.close,
+      ...(volumes.length ? { volume: volumes.reduce((sum, value) => sum + value, 0) } : {}),
+    }
+  })
+}
+const intervalPoints = computed(() =>
+  aggregatePoints(selectedAsset.value?.points ?? [], chartInterval.value),
 )
+const displayedPoints = computed(() => {
+  const points = intervalPoints.value
+  const latestDate = points[points.length - 1]?.date
+  if (!latestDate) return []
+  const cutoff = new Date(`${latestDate}T12:00:00Z`)
+  cutoff.setUTCDate(cutoff.getUTCDate() - rangeCalendarDays[range.value])
+  const cutoffDate = cutoff.toISOString().slice(0, 10)
+  const filtered = points.filter((point) => point.date >= cutoffDate)
+  return filtered.length ? filtered : points.slice(-1)
+})
 const displayedStartIndex = computed(() =>
-  Math.max(0, (selectedAsset.value?.points.length ?? 0) - displayedPoints.value.length),
+  Math.max(0, intervalPoints.value.length - displayedPoints.value.length),
+)
+const chartAnalysis = computed(() =>
+  analyzeTechnicalSignals(
+    intervalPoints.value,
+    crossAssetScore.value,
+    selectedFreshness.value.stale,
+    calibratedTechnicalConfig.value,
+  ),
 )
 
 const cssColor = (name: string) => {
@@ -263,7 +325,9 @@ const normalizedComparison = computed(() => {
   const asset = compareAsset.value
   if (!asset) return []
   const targetDates = new Set(displayedPoints.value.map((point) => point.date))
-  const aligned = asset.points.filter((point) => targetDates.has(point.date))
+  const aligned = aggregatePoints(asset.points, chartInterval.value).filter((point) =>
+    targetDates.has(point.date),
+  )
   const base = aligned[0]?.close
   return base ? aligned.map((point) => [point.date, (point.close / base - 1) * 100]) : []
 })
@@ -282,6 +346,10 @@ const chartOption = computed<EChartsCoreOption>(() => {
   const accent = cssColor('--accent')
   const warning = cssColor('--warning')
   const series: Array<Record<string, unknown>> = []
+  const hasVolume = points.some((point) => point.volume !== undefined)
+  const volumeAxisIndex = 1
+  const rsiAxisIndex = hasVolume ? 2 : 1
+  const comparisonAxisIndex = hasVolume ? 3 : 2
 
   if (chartMode.value === 'candle' && selectedAsset.value?.dataShape === 'ohlcv') {
     series.push({
@@ -303,7 +371,7 @@ const chartOption = computed<EChartsCoreOption>(() => {
       showSymbol: false,
       smooth: false,
       lineStyle: { color: accent, width: 2 },
-      areaStyle: { color: `${accent}18` },
+      ...(chartMode.value === 'area' ? { areaStyle: { color: `${accent}38` } } : {}),
       markLine: {
         silent: true,
         symbol: ['none', 'none'],
@@ -313,14 +381,14 @@ const chartOption = computed<EChartsCoreOption>(() => {
             name: t('assetTechnical.support', {
               period: technicalConfig.value.parameters.supportResistanceWindow,
             }),
-            yAxis: analysis.value.support,
+            yAxis: chartAnalysis.value.support,
             lineStyle: { color: negative, type: 'dashed' },
           },
           {
             name: t('assetTechnical.resistance', {
               period: technicalConfig.value.parameters.supportResistanceWindow,
             }),
-            yAxis: analysis.value.resistance,
+            yAxis: chartAnalysis.value.resistance,
             lineStyle: { color: positive, type: 'dashed' },
           },
         ],
@@ -331,7 +399,7 @@ const chartOption = computed<EChartsCoreOption>(() => {
     series.push({
       name: `MA${technicalConfig.value.parameters.maShortPeriod}`,
       type: 'line',
-      data: indicatorSlice(analysis.value.ma20),
+      data: indicatorSlice(chartAnalysis.value.ma20),
       showSymbol: false,
       lineStyle: { color: warning, width: 1.2 },
     })
@@ -339,7 +407,7 @@ const chartOption = computed<EChartsCoreOption>(() => {
     series.push({
       name: `MA${technicalConfig.value.parameters.maLongPeriod}`,
       type: 'line',
-      data: indicatorSlice(analysis.value.ma60),
+      data: indicatorSlice(chartAnalysis.value.ma60),
       showSymbol: false,
       lineStyle: { color: positive, width: 1.2 },
     })
@@ -347,24 +415,34 @@ const chartOption = computed<EChartsCoreOption>(() => {
     series.push({
       name: 'Bollinger +2σ',
       type: 'line',
-      data: indicatorSlice(analysis.value.bollingerUpper),
+      data: indicatorSlice(chartAnalysis.value.bollingerUpper),
       showSymbol: false,
       lineStyle: { color: muted, width: 1, type: 'dotted' },
     })
     series.push({
       name: 'Bollinger −2σ',
       type: 'line',
-      data: indicatorSlice(analysis.value.bollingerLower),
+      data: indicatorSlice(chartAnalysis.value.bollingerLower),
       showSymbol: false,
       lineStyle: { color: muted, width: 1, type: 'dotted' },
     })
   }
+  if (hasVolume)
+    series.push({
+      name: t('assetTechnical.volume'),
+      type: 'bar',
+      xAxisIndex: volumeAxisIndex,
+      yAxisIndex: volumeAxisIndex,
+      data: points.map((point) => point.volume ?? null),
+      itemStyle: { color: `${accent}88` },
+      barMaxWidth: 10,
+    })
   if (technicalConfig.value.enabled.rsi) series.push({
     name: `RSI ${technicalConfig.value.parameters.rsiPeriod}`,
     type: 'line',
-    xAxisIndex: 1,
-    yAxisIndex: 1,
-    data: indicatorSlice(analysis.value.rsi14),
+    xAxisIndex: rsiAxisIndex,
+    yAxisIndex: rsiAxisIndex,
+    data: indicatorSlice(chartAnalysis.value.rsi14),
     showSymbol: false,
     lineStyle: { color: warning, width: 1.4 },
     markLine: {
@@ -383,12 +461,76 @@ const chartOption = computed<EChartsCoreOption>(() => {
       name: `${compareAsset.value?.name} %`,
       type: 'line',
       xAxisIndex: 0,
-      yAxisIndex: 2,
+      yAxisIndex: comparisonAxisIndex,
       data: normalizedComparison.value,
       showSymbol: false,
       lineStyle: { color: positive, width: 1.4, type: 'dashed' },
     })
   }
+  const commonGrid = { left: 54, right: normalizedComparison.value.length ? 58 : 24 }
+  const grids: Array<Record<string, unknown>> = [
+    { ...commonGrid, top: 46, height: hasVolume ? '48%' : '61%' },
+  ]
+  const xAxes: Array<Record<string, unknown>> = [
+    {
+      type: 'category',
+      data: dates,
+      boundaryGap: chartMode.value === 'candle',
+      axisLine: { lineStyle: { color: border } },
+      axisLabel: { color: muted, fontSize: 9 },
+      splitLine: { show: false },
+    },
+  ]
+  const yAxes: Array<Record<string, unknown>> = [
+    {
+      scale: true,
+      axisLabel: { color: muted, fontSize: 9 },
+      splitLine: { lineStyle: { color: border, opacity: 0.45 } },
+    },
+  ]
+  if (hasVolume) {
+    grids.push({ ...commonGrid, top: '62%', height: '9%' })
+    xAxes.push({
+      type: 'category',
+      gridIndex: volumeAxisIndex,
+      data: dates,
+      boundaryGap: true,
+      axisLabel: { show: false },
+      axisLine: { lineStyle: { color: border } },
+    })
+    yAxes.push({
+      gridIndex: volumeAxisIndex,
+      scale: true,
+      axisLabel: { show: false },
+      splitLine: { show: false },
+    })
+  }
+  grids.push({ ...commonGrid, top: '76%', height: '13%' })
+  xAxes.push({
+    type: 'category',
+    gridIndex: rsiAxisIndex,
+    data: dates,
+    boundaryGap: false,
+    axisLine: { lineStyle: { color: border } },
+    axisLabel: { color: muted, fontSize: 9 },
+    splitLine: { show: false },
+  })
+  yAxes.push({
+    gridIndex: rsiAxisIndex,
+    min: 0,
+    max: 100,
+    interval: 50,
+    axisLabel: { color: muted, fontSize: 9 },
+    splitLine: { lineStyle: { color: border, opacity: 0.35 } },
+  })
+  if (normalizedComparison.value.length)
+    yAxes.push({
+      type: 'value',
+      position: 'right',
+      axisLabel: { color: positive, fontSize: 9, formatter: '{value}%' },
+      splitLine: { show: false },
+    })
+  const zoomAxisIndexes = xAxes.map((_, index) => index)
 
   return {
     darkMode: theme.value === 'dark',
@@ -410,55 +552,14 @@ const chartOption = computed<EChartsCoreOption>(() => {
       textStyle: { color: ink, fontSize: 10 },
     },
     axisPointer: { link: [{ xAxisIndex: 'all' }] },
-    grid: [
-      { left: 54, right: normalizedComparison.value.length ? 58 : 24, top: 46, height: '61%' },
-      { left: 54, right: normalizedComparison.value.length ? 58 : 24, top: '76%', height: '13%' },
-    ],
-    xAxis: [
-      {
-        type: 'category',
-        data: dates,
-        boundaryGap: chartMode.value === 'candle',
-        axisLine: { lineStyle: { color: border } },
-        axisLabel: { color: muted, fontSize: 9 },
-        splitLine: { show: false },
-      },
-      {
-        type: 'category',
-        gridIndex: 1,
-        data: dates,
-        boundaryGap: false,
-        axisLine: { lineStyle: { color: border } },
-        axisLabel: { color: muted, fontSize: 9 },
-        splitLine: { show: false },
-      },
-    ],
-    yAxis: [
-      {
-        scale: true,
-        axisLabel: { color: muted, fontSize: 9 },
-        splitLine: { lineStyle: { color: border, opacity: 0.45 } },
-      },
-      {
-        gridIndex: 1,
-        min: 0,
-        max: 100,
-        interval: 50,
-        axisLabel: { color: muted, fontSize: 9 },
-        splitLine: { lineStyle: { color: border, opacity: 0.35 } },
-      },
-      {
-        type: 'value',
-        position: 'right',
-        axisLabel: { color: positive, fontSize: 9, formatter: '{value}%' },
-        splitLine: { show: false },
-      },
-    ],
+    grid: grids,
+    xAxis: xAxes,
+    yAxis: yAxes,
     dataZoom: [
-      { type: 'inside', xAxisIndex: [0, 1], filterMode: 'none' },
+      { type: 'inside', xAxisIndex: zoomAxisIndexes, filterMode: 'none' },
       {
         type: 'slider',
-        xAxisIndex: [0, 1],
+        xAxisIndex: zoomAxisIndexes,
         bottom: 2,
         height: 18,
         borderColor: border,
@@ -835,6 +936,8 @@ onBeforeUnmount(() => {
           <div class="range-tabs" role="group" :aria-label="t('assetTechnical.range')">
             <button
               v-for="item in [
+                'day',
+                'week',
                 'month',
                 'quarter',
                 'halfYear',
@@ -850,6 +953,19 @@ onBeforeUnmount(() => {
             </button>
           </div>
           <div class="chart-actions">
+            <div class="interval-tabs" role="group" :aria-label="t('assetTechnical.interval')">
+              <button
+                v-for="item in ['day', 'week', 'month'] as ChartInterval[]"
+                :key="item"
+                :class="{ active: chartInterval === item }"
+                @click="chartInterval = item"
+              >
+                {{ t(`assetTechnical.intervalOption.${item}`) }}
+              </button>
+            </div>
+            <select :aria-label="t('assetTechnical.adjustment')" disabled>
+              <option>{{ t(`assetTechnical.adjustmentOption.${adjustmentBasis}`) }}</option>
+            </select>
             <select v-model="compareId" :aria-label="t('assetTechnical.compare')">
               <option value="">{{ t('assetTechnical.noCompare') }}</option>
               <option
@@ -862,6 +978,9 @@ onBeforeUnmount(() => {
             </select>
             <button :class="{ active: chartMode === 'line' }" @click="chartMode = 'line'">
               {{ t('assetTechnical.line') }}
+            </button>
+            <button :class="{ active: chartMode === 'area' }" @click="chartMode = 'area'">
+              {{ t('assetTechnical.area') }}
             </button>
             <button
               :disabled="selectedAsset.dataShape !== 'ohlcv'"
@@ -908,7 +1027,7 @@ onBeforeUnmount(() => {
                   period: technicalConfig.parameters.supportResistanceWindow,
                 })
               }}</small
-              ><b>{{ formatValue(analysis.support) }}</b>
+              ><b>{{ formatValue(chartAnalysis.support) }}</b>
             </div>
             <div>
               <small>{{
@@ -916,7 +1035,7 @@ onBeforeUnmount(() => {
                   period: technicalConfig.parameters.supportResistanceWindow,
                 })
               }}</small
-              ><b>{{ formatValue(analysis.resistance) }}</b>
+              ><b>{{ formatValue(chartAnalysis.resistance) }}</b>
             </div>
           </header>
           <EChart
@@ -1660,6 +1779,10 @@ onBeforeUnmount(() => {
   gap: 4px;
   flex-wrap: wrap;
 }
+.interval-tabs {
+  display: inline-flex;
+  gap: 4px;
+}
 .range-tabs button,
 .chart-actions button {
   min-height: 36px;
@@ -1670,6 +1793,10 @@ onBeforeUnmount(() => {
   width: 150px;
   min-height: 36px;
   font-size: 9px;
+}
+.chart-actions select:disabled {
+  color: var(--muted);
+  opacity: 1;
 }
 .chart-actions button:disabled {
   opacity: 0.45;

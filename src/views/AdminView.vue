@@ -263,7 +263,7 @@ onMounted(load)
             <label>
               <span>{{ t('admin.defaultRange') }}</span>
               <select v-model="technicalConfig.display.defaultRange">
-                <option v-for="item in ['month', 'quarter', 'halfYear', 'year', 'threeYear', 'fiveYear']" :key="item" :value="item">
+                <option v-for="item in ['day', 'week', 'month', 'quarter', 'halfYear', 'year', 'threeYear', 'fiveYear']" :key="item" :value="item">
                   {{ t(`assetTechnical.rangeOption.${item}`) }}
                 </option>
               </select>

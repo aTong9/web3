@@ -5,7 +5,7 @@
 | Phase                                   | Status      | Current evidence                                                                                                                                                                                                                                   |
 | --------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Phase 0 · Data and interfaces           | Complete    | Versioned asset history, per-asset source/calendar metadata, optional OHLCV, indicator/result/alert types, role permissions, authenticated Worker APIs, D1 migrations, daily workflows, global configuration, templates, and append-only ledgers are implemented. Daily generation now reads the live source priority, selects/falls back between equivalent providers, and runtime freshness uses unified timezone/session/publication rules. |
-| Phase 1 · Core MVP                      | In progress | 24 cross-asset series, line/real-candle modes, MA20/60, MACD, RSI, Bollinger, ATR, support/resistance, six horizons, comparison, transmission carousel, favorites, fullscreen, PNG export, and authenticated personal alerts are implemented. Massive OHLCV is live for the US mega-cap set; the free plan supplies two years of history and the workflow now respects its five-calls-per-minute limit while retaining stale fallback data on transient failures. |
+| Phase 1 · Core MVP                      | Complete | 33 cross-asset series support line, area and real-candle modes, daily/weekly/monthly aggregation, volume, MA20/60, MACD, RSI, Bollinger, ATR, support/resistance, eight chart ranges, six technical horizons, comparison, transmission carousel, favorites, fullscreen, PNG export, and authenticated personal alerts. Massive OHLCV is live for the US mega-cap set; source calendars, freshness and adjustment basis are disclosed without manufacturing unavailable adjusted prices. |
 | Phase 2 · Funds and advanced comparison | Complete    | A shared fund research workbench is live on both US-fund and A-share pages with normalized price/NAV comparison, 20/60/120-day rolling correlations, peer-proxy tracking error, current premium/discount and annual fees, local favorites/saved views, daily off-exchange investment-limit history, and price-versus-transmission divergence detection. |
 | Phase 3 · Options and event analysis    | In progress | The top-10 option research cards now combine Forward PE, stock technical score, Nasdaq transmission context, EPS revisions, earnings windows, and historical pre/post-earnings returns. A Massive-powered pipeline for 365–730 DTE IV, LEAPS IV Rank, Put/Call ratios, term structure, and earnings IV-implied move is implemented with explicit unavailable/partial states; production option-plan access and the minimum 20-day IV history are not yet verified. |
 | Phase 4 · Backtesting and calibration   | Complete    | The asset chart runs a chronological 70/30 holdout test and reports 5/21/63-day hit rate, returns, adverse excursion, and invalidation time. Cross-asset and per-asset technical weights are selected on the training segment only, unsafe candidates fall back to configured weights, driver ablation and confidence gates feed the quant module, and personal alerts include horizon, confidence, and validated-resonance preferences. |
@@ -425,6 +425,14 @@ The status table is an implementation ledger, not a change to the scope below. A
 - 可解释的技术状态总结
 - 图表 PNG 下载
 - 基础预警配置
+
+当前实现证据：
+
+- 33 个股票、利率、外汇、大宗商品和加密资产序列共用同一图表工作台
+- 支持折线、面积和真实 OHLC K 线，有成交量的来源额外展示成交量子图
+- 支持日线、周线和月线聚合，以及 1 日、1 周、1 月、3 月、半年、1 年、3 年和 5 年图表范围
+- 指标随图表周期重算；页面披露数据源、交易日历、最新日期、下次预计更新和复权口径
+- 支持单一基准对比、传导链轮播、自选、全屏、PNG 下载和登录后的个人技术预警
 
 完成标准：核心资产能够稳定展示最新走势、指标解释、多周期结论和关联传导链。
 

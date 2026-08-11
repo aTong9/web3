@@ -77,6 +77,8 @@ const technicalAlertHorizons = new Set<TechnicalAlertHorizon>([
   'year',
 ])
 const technicalRanges = new Set<TechnicalIndicatorConfig['display']['defaultRange']>([
+  'day',
+  'week',
   'month',
   'quarter',
   'halfYear',
