@@ -1190,6 +1190,7 @@ const messages: Record<Locale, DictionaryNode> = {
         minimumConfidence: '最低技术置信度（%）',
         requireResonance: '仅在跨资产驱动通过增量验证时触发',
         comparisonRequired: '请先在图表上方选择一个对比资产。',
+        conditionUnavailable: '当前资产缺少该预警所需的数据或市场映射。',
         create: '创建预警',
         saving: '保存中…',
         created: '预警已创建',
@@ -1222,6 +1223,11 @@ const messages: Record<Locale, DictionaryNode> = {
           gapAbove: '跳空缺口超过阈值',
           earningsWithinDays: '财报窗口临近',
           correlationStructureChange: '资产相关性结构变化',
+          volatilityPercentileAbove: '波动率进入历史高分位',
+          technicalDivergence: '价格与 RSI 发生背离',
+          transmissionDivergence: '价格与传导链发生背离',
+          fundPremiumAbove: '场内基金溢价超过阈值',
+          fundLimitChanged: '场外基金定投额度变化',
         },
         explanation: {
           priceAbove: '{asset}最新价格 {current}，突破预设压力阈值 {threshold}。',
@@ -1238,7 +1244,18 @@ const messages: Record<Locale, DictionaryNode> = {
           earningsWithinDays: '{asset}距离下一财报约 {current} 天，进入 {threshold} 天风险窗口。',
           correlationStructureChange:
             '{asset} 与 {compare} 的60日相关性从 {previousCorrelation} 变为 {currentCorrelation}，绝对变化 {current}，状态为“{regime}”，达到阈值 {threshold}。',
+          volatilityPercentileAbove:
+            '{asset}当前年化历史波动率为 {volatility}%，位于 {observations} 个滚动观测的第 {current} 百分位，达到阈值 {threshold}。',
+          technicalDivergence:
+            '{asset}出现{direction}背离：价格从 {priceFrom} 变到 {priceTo}，RSI 从 {rsiFrom} 变到 {rsiTo}，指标差 {current}，达到阈值 {threshold}。',
+          transmissionDivergence:
+            '{asset}最近涨跌 {marketMove}%，而跨资产驱动净贡献为 {contribution}，方向背离且绝对贡献 {current} 达到阈值 {threshold}。',
+          fundPremiumAbove:
+            '{asset}当前场内溢价率为 {current}%，达到预设阈值 {threshold}%；需额外核对净值时点、流动性和申赎状态。',
+          fundLimitChanged:
+            '{asset}场外定投/申购额度由 {previousLimit} 元变为 {currentLimit} 元；状态或定投开关的变化也会触发。',
         },
+        divergenceDirection: { bullish: '底', bearish: '顶' },
       },
     },
     admin: {
@@ -2543,6 +2560,7 @@ const messages: Record<Locale, DictionaryNode> = {
         minimumConfidence: 'Minimum technical confidence (%)',
         requireResonance: 'Trigger only when cross-asset drivers pass incremental validation',
         comparisonRequired: 'Select a comparison asset above before creating this alert.',
+        conditionUnavailable: 'This asset lacks the data or market mapping required by the alert.',
         create: 'Create alert',
         saving: 'Saving…',
         created: 'Alert created',
@@ -2575,6 +2593,11 @@ const messages: Record<Locale, DictionaryNode> = {
           gapAbove: 'Price gap above threshold',
           earningsWithinDays: 'Earnings window approaching',
           correlationStructureChange: 'Asset correlation structure change',
+          volatilityPercentileAbove: 'Volatility enters a high historical percentile',
+          technicalDivergence: 'Price diverges from RSI',
+          transmissionDivergence: 'Price diverges from transmission drivers',
+          fundPremiumAbove: 'Exchange-fund premium above threshold',
+          fundLimitChanged: 'Off-exchange recurring limit changed',
         },
         explanation: {
           priceAbove:
@@ -2596,7 +2619,18 @@ const messages: Record<Locale, DictionaryNode> = {
             '{asset} is about {current} days from its next earnings event, inside the {threshold}-day risk window.',
           correlationStructureChange:
             '{asset} versus {compare} 60-day correlation moved from {previousCorrelation} to {currentCorrelation}; absolute change {current}, classified as “{regime}”, meeting the {threshold} threshold.',
+          volatilityPercentileAbove:
+            '{asset} annualized historical volatility is {volatility}%, at percentile {current} across {observations} rolling observations, meeting the {threshold} threshold.',
+          technicalDivergence:
+            '{asset} has a {direction} divergence: price moved from {priceFrom} to {priceTo} while RSI moved from {rsiFrom} to {rsiTo}; indicator difference {current} meets the {threshold} threshold.',
+          transmissionDivergence:
+            '{asset} latest move is {marketMove}% while cross-asset net contribution is {contribution}; directions diverge and absolute contribution {current} meets the {threshold} threshold.',
+          fundPremiumAbove:
+            '{asset} exchange premium is {current}%, meeting the {threshold}% threshold; verify NAV timing, liquidity, and creation/redemption status.',
+          fundLimitChanged:
+            '{asset} off-exchange recurring/purchase limit changed from CNY {previousLimit} to CNY {currentLimit}; status or recurring-investment availability changes also trigger.',
         },
+        divergenceDirection: { bullish: 'bullish', bearish: 'bearish' },
       },
     },
     admin: {

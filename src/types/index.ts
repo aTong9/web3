@@ -1059,6 +1059,7 @@ export interface TechnicalChartAsset {
     annualFeePct: number
     dailyInvestmentLimitCny: number | null
     recurringInvestmentOpen: boolean | null
+    investmentLimitHistory: FundInvestmentLimitPoint[]
     trackingErrorPct: number | null
   }
   points: AssetPricePoint[]
@@ -1177,6 +1178,11 @@ export type TechnicalAlertCondition =
   | 'gapAbove'
   | 'earningsWithinDays'
   | 'correlationStructureChange'
+  | 'volatilityPercentileAbove'
+  | 'technicalDivergence'
+  | 'transmissionDivergence'
+  | 'fundPremiumAbove'
+  | 'fundLimitChanged'
 
 export type TechnicalAlertHorizon = TechnicalHorizonReading['id']
 

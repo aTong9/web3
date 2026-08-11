@@ -49,6 +49,7 @@ const mapFund = (fund, market) => {
         (fund.serviceFeePct ?? 0),
       dailyInvestmentLimitCny: fund.dailyInvestmentLimitCny ?? null,
       recurringInvestmentOpen: fund.recurringInvestmentOpen ?? null,
+      investmentLimitHistory: (fund.investmentLimitHistory ?? []).slice(-30),
       trackingErrorPct: fund.trackingErrorPct ?? null,
     },
     points,

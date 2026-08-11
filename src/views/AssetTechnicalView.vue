@@ -27,6 +27,10 @@ import { analyzeAdvancedTechnicals } from '@/utils/advanced-technical-analysis'
 import { analyzeTechnicalSignals, rollingCorrelation } from '@/utils/technical-analysis'
 import { backtestTechnicalSignals } from '@/utils/technical-backtest'
 import {
+  historicalVolatilityPercentile,
+  technicalDivergence,
+} from '@/utils/technical-alert-evaluation'
+import {
   defaultTechnicalIndicatorConfig,
   technicalConfigApi,
 } from '@/utils/technical-config'
@@ -247,14 +251,20 @@ const relevantChains = computed(() => {
         )
   return source.length ? source : crossAsset.transmissionChains.slice(0, 5)
 })
+const selectedMarketId = computed(() => {
+  if (selectedAsset.value.id.startsWith('us-')) return 'nasdaq'
+  if (selectedAsset.value.fundMetrics?.market === 'us-related') return 'nasdaq'
+  if (selectedAsset.value.fundMetrics?.market === 'a-share') return 'shanghai'
+  return selectedAsset.value.id
+})
 const selectedMarket = computed(() =>
-  crossAsset.marketBrief.markets.find((market) => market.id === selectedId.value),
+  crossAsset.marketBrief.markets.find((market) => market.id === selectedMarketId.value),
 )
 const activeChain = computed(
   () => relevantChains.value[activeChainIndex.value % relevantChains.value.length],
 )
 const selectedForecastEvents = computed(() => {
-  const targetId = selectedAsset.value.id.startsWith('us-') ? 'nasdaq' : selectedAsset.value.id
+  const targetId = selectedMarketId.value
   const byDate = new Map<string, ForecastHistoryRecord>()
   for (const record of technicalEvents.events) {
     if (record.marketId !== targetId || record.bias === 'neutral') continue
@@ -973,6 +983,25 @@ const evaluateAlert = (rule: TechnicalAlertRule): TechnicalAlertEvaluation => {
     selectedAsset.value,
     alertCompareAsset,
   )
+  const volatilityPercentile = historicalVolatilityPercentile(
+    selectedAsset.value.points,
+    technicalConfig.value.parameters.historicalVolatilityPeriod,
+  )
+  const divergence = technicalDivergence(
+    selectedAsset.value.points,
+    analysis.value.rsi14,
+    rule.condition === 'technicalDivergence' ? rule.threshold ?? 5 : 5,
+  )
+  const transmissionAttribution = selectedMarket.value?.dailyAttribution ?? null
+  const fundLimitHistory = selectedAsset.value.fundMetrics?.investmentLimitHistory ?? []
+  const latestFundLimit = fundLimitHistory[fundLimitHistory.length - 1] ?? null
+  const previousFundLimit = fundLimitHistory[fundLimitHistory.length - 2] ?? null
+  const fundLimitChanged =
+    latestFundLimit !== null &&
+    previousFundLimit !== null &&
+    (latestFundLimit.limitCny !== previousFundLimit.limitCny ||
+      latestFundLimit.purchaseStatus !== previousFundLimit.purchaseStatus ||
+      latestFundLimit.recurringInvestmentOpen !== previousFundLimit.recurringInvestmentOpen)
   let triggered = false
   let currentValue: number | null = null
   if (rule.condition === 'priceAbove') {
@@ -1013,6 +1042,31 @@ const evaluateAlert = (rule: TechnicalAlertRule): TechnicalAlertEvaluation => {
       correlationStructure.regime !== 'stable' &&
       rule.threshold !== null &&
       correlationStructure.change >= rule.threshold
+  } else if (rule.condition === 'volatilityPercentileAbove') {
+    currentValue = volatilityPercentile?.percentilePct ?? null
+    triggered = currentValue !== null && rule.threshold !== null && currentValue >= rule.threshold
+  } else if (rule.condition === 'technicalDivergence') {
+    currentValue = divergence?.rsiDifference ?? null
+    triggered =
+      divergence !== null &&
+      rule.threshold !== null &&
+      divergence.rsiDifference >= rule.threshold
+  } else if (rule.condition === 'transmissionDivergence') {
+    currentValue =
+      transmissionAttribution === null
+        ? null
+        : Math.abs(transmissionAttribution.netContribution)
+    triggered =
+      transmissionAttribution?.alignment === 'diverging' &&
+      rule.threshold !== null &&
+      currentValue !== null &&
+      currentValue >= rule.threshold
+  } else if (rule.condition === 'fundPremiumAbove') {
+    currentValue = selectedAsset.value.fundMetrics?.premiumRatePct ?? null
+    triggered = currentValue !== null && rule.threshold !== null && currentValue >= rule.threshold
+  } else if (rule.condition === 'fundLimitChanged') {
+    currentValue = latestFundLimit?.limitCny ?? null
+    triggered = fundLimitChanged
   } else {
     currentValue = macd === null || signal === null ? null : macd - signal
     const crossedUp =
@@ -1057,6 +1111,19 @@ const evaluateAlert = (rule: TechnicalAlertRule): TechnicalAlertEvaluation => {
     regime: correlationStructure
       ? t(`assetTechnical.correlationRegime.${correlationStructure.regime}`)
       : t('assetTechnical.correlationRegime.insufficient'),
+    direction: divergence
+      ? t(`assetTechnical.alert.divergenceDirection.${divergence.direction}`)
+      : '—',
+    priceFrom: formatValue(divergence?.priceFrom ?? null),
+    priceTo: formatValue(divergence?.priceTo ?? null),
+    rsiFrom: formatValue(divergence?.rsiFrom ?? null),
+    rsiTo: formatValue(divergence?.rsiTo ?? null),
+    volatility: formatValue(volatilityPercentile?.currentVolatilityPct ?? null),
+    observations: volatilityPercentile?.observations ?? 0,
+    marketMove: formatValue(selectedMarket.value?.dailyMove ?? null),
+    contribution: formatValue(transmissionAttribution?.netContribution ?? null),
+    previousLimit: formatValue(previousFundLimit?.limitCny ?? null),
+    currentLimit: formatValue(latestFundLimit?.limitCny ?? null),
   })
   return {
     triggered: rule.enabled && triggered && preferencePassed,
@@ -1088,8 +1155,29 @@ const defaultAlertThreshold = () => {
   if (alertCondition.value === 'gapAbove') return 2
   if (alertCondition.value === 'earningsWithinDays') return 7
   if (alertCondition.value === 'correlationStructureChange') return 0.35
+  if (alertCondition.value === 'volatilityPercentileAbove') return 80
+  if (alertCondition.value === 'technicalDivergence') return 5
+  if (alertCondition.value === 'transmissionDivergence') return 0.2
+  if (alertCondition.value === 'fundPremiumAbove') return 1
+  if (alertCondition.value === 'fundLimitChanged') return null
   return null
 }
+const alertRequiresThreshold = computed(
+  () => !alertCondition.value.startsWith('macd') && alertCondition.value !== 'fundLimitChanged',
+)
+const isAlertConditionAvailable = (condition: TechnicalAlertCondition) => {
+  if (condition === 'correlationStructureChange') return Boolean(compareAsset.value)
+  if (condition === 'transmissionDivergence') return Boolean(selectedMarket.value)
+  if (condition === 'fundPremiumAbove')
+    return (
+      selectedAsset.value.fundMetrics?.venue === 'exchange' &&
+      selectedAsset.value.fundMetrics.premiumRatePct !== null
+    )
+  if (condition === 'fundLimitChanged')
+    return selectedAsset.value.fundMetrics?.venue === 'offExchange'
+  return true
+}
+const alertConditionAvailable = computed(() => isAlertConditionAvailable(alertCondition.value))
 const resetAlertThreshold = () => {
   alertThreshold.value = defaultAlertThreshold()
 }
@@ -1957,21 +2045,33 @@ onBeforeUnmount(() => {
                     'gapAbove',
                     'earningsWithinDays',
                     'correlationStructureChange',
+                    'volatilityPercentileAbove',
+                    'technicalDivergence',
+                    'transmissionDivergence',
+                    'fundPremiumAbove',
+                    'fundLimitChanged',
                   ] as TechnicalAlertCondition[]"
                   :key="condition"
                   :value="condition"
+                  :disabled="!isAlertConditionAvailable(condition)"
                 >
                   {{ t(`assetTechnical.alert.conditionName.${condition}`) }}
                 </option>
               </select>
             </label>
-            <label v-if="!alertCondition.startsWith('macd')">
+            <label v-if="alertRequiresThreshold">
               <span>{{ t('assetTechnical.alert.threshold') }}</span>
               <input
                 v-model.number="alertThreshold"
                 type="number"
                 :min="alertCondition === 'correlationStructureChange' ? 0.01 : undefined"
-                :max="alertCondition === 'correlationStructureChange' ? 2 : undefined"
+                :max="
+                  alertCondition === 'correlationStructureChange'
+                    ? 2
+                    : ['volatilityPercentileAbove', 'technicalDivergence'].includes(alertCondition)
+                      ? 100
+                      : undefined
+                "
                 step="any"
                 required
               />
@@ -2004,15 +2104,19 @@ onBeforeUnmount(() => {
               <span>{{ t('assetTechnical.alert.requireResonance') }}</span>
             </label>
             <small
-              v-if="alertCondition === 'correlationStructureChange' && !compareAsset"
+              v-if="!alertConditionAvailable"
               class="alert-comparison-required"
             >
-              {{ t('assetTechnical.alert.comparisonRequired') }}
+              {{
+                alertCondition === 'correlationStructureChange'
+                  ? t('assetTechnical.alert.comparisonRequired')
+                  : t('assetTechnical.alert.conditionUnavailable')
+              }}
             </small>
             <button
               :disabled="
                 alertsLoading ||
-                (alertCondition === 'correlationStructureChange' && !compareAsset)
+                !alertConditionAvailable
               "
               type="submit"
             >

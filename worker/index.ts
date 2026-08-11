@@ -74,6 +74,11 @@ const technicalAlertConditions = new Set<TechnicalAlertCondition>([
   'gapAbove',
   'earningsWithinDays',
   'correlationStructureChange',
+  'volatilityPercentileAbove',
+  'technicalDivergence',
+  'transmissionDivergence',
+  'fundPremiumAbove',
+  'fundLimitChanged',
 ])
 const technicalAlertHorizons = new Set<TechnicalAlertHorizon>([
   'day',
@@ -427,7 +432,7 @@ const createTechnicalAlert = async (request: Request, env: Env, userId: string) 
     throw new HttpError(400, '最低置信度无效')
   }
   if (typeof input.requireResonance !== 'boolean') throw new HttpError(400, '共振偏好无效')
-  const requiresThreshold = !condition.startsWith('macd')
+  const requiresThreshold = !condition.startsWith('macd') && condition !== 'fundLimitChanged'
   const threshold = input.threshold === null ? null : Number(input.threshold)
   if (requiresThreshold && (!Number.isFinite(threshold) || threshold === null)) {
     throw new HttpError(400, '预警阈值无效')
@@ -438,7 +443,25 @@ const createTechnicalAlert = async (request: Request, env: Env, userId: string) 
   ) {
     throw new HttpError(400, '相关性变化阈值必须大于0且不超过2')
   }
-  if (!requiresThreshold && threshold !== null) throw new HttpError(400, 'MACD预警不需要阈值')
+  if (
+    ['volatilityPercentileAbove', 'technicalDivergence'].includes(condition) &&
+    (threshold === null || threshold < 0 || threshold > 100)
+  ) {
+    throw new HttpError(400, '百分比或指标差阈值必须在0至100之间')
+  }
+  if (
+    condition === 'transmissionDivergence' &&
+    (threshold === null || threshold < 0 || threshold > 10)
+  ) {
+    throw new HttpError(400, '传导背离阈值必须在0至10之间')
+  }
+  if (
+    condition === 'fundPremiumAbove' &&
+    (threshold === null || threshold < 0 || threshold > 1000)
+  ) {
+    throw new HttpError(400, '基金溢价率阈值必须在0至1000之间')
+  }
+  if (!requiresThreshold && threshold !== null) throw new HttpError(400, '该预警不需要阈值')
   const now = new Date().toISOString()
   const id = crypto.randomUUID()
   try {
