@@ -23,6 +23,7 @@ import type {
   TechnicalSignalStatus,
 } from '@/types'
 import { technicalAlertApi } from '@/utils/technical-alert-api'
+import { analyzeAdvancedTechnicals } from '@/utils/advanced-technical-analysis'
 import { analyzeTechnicalSignals, rollingCorrelation } from '@/utils/technical-analysis'
 import { backtestTechnicalSignals } from '@/utils/technical-backtest'
 import {
@@ -341,6 +342,7 @@ const chartEvents = computed(() => {
     })
     .filter((event): event is NonNullable<typeof event> => Boolean(event))
 })
+const advancedSnapshot = computed(() => analyzeAdvancedTechnicals(intervalPoints.value))
 const displayedPoints = computed(() => {
   const points = intervalPoints.value
   const latestDate = points[points.length - 1]?.date
@@ -1476,6 +1478,44 @@ onBeforeUnmount(() => {
             </p>
           </article>
         </section>
+        <details class="advanced-diagnostics" open>
+          <summary>{{ t('assetTechnical.advanced.title') }}</summary>
+          <p>{{ t('assetTechnical.advanced.explainer') }}</p>
+          <div class="advanced-grid">
+            <article>
+              <span>{{ t('assetTechnical.advanced.structure') }}</span>
+              <strong>{{ t(`assetTechnical.advanced.structureState.${advancedSnapshot.structure}`) }}</strong>
+              <small>ADX14 {{ advancedSnapshot.adx14?.toFixed(1) ?? '—' }}</small>
+            </article>
+            <article>
+              <span>MA / EMA</span>
+              <strong>MA5 {{ formatValue(advancedSnapshot.movingAverages.ma5) }}</strong>
+              <small>MA10 {{ formatValue(advancedSnapshot.movingAverages.ma10) }} · EMA20 {{ formatValue(advancedSnapshot.movingAverages.ema20) }}</small>
+              <small>MA120 {{ formatValue(advancedSnapshot.movingAverages.ma120) }} · MA250 {{ formatValue(advancedSnapshot.movingAverages.ma250) }}</small>
+            </article>
+            <article>
+              <span>{{ t('assetTechnical.advanced.momentum') }}</span>
+              <strong>ROC12 {{ formatSigned(advancedSnapshot.roc12Pct) }}</strong>
+              <small>Stoch K/D {{ advancedSnapshot.stochastic.k?.toFixed(1) ?? '—' }} / {{ advancedSnapshot.stochastic.d?.toFixed(1) ?? '—' }}</small>
+              <small>KDJ J {{ advancedSnapshot.stochastic.j?.toFixed(1) ?? '—' }} · CCI20 {{ advancedSnapshot.cci20?.toFixed(1) ?? '—' }}</small>
+            </article>
+            <article>
+              <span>{{ t('assetTechnical.advanced.volatility') }}</span>
+              <strong>HV20 {{ advancedSnapshot.historicalVolatility20Pct?.toFixed(1) ?? '—' }}%</strong>
+              <small>{{ t('assetTechnical.advanced.bandwidth') }} {{ advancedSnapshot.bollingerBandwidthPct?.toFixed(1) ?? '—' }}%</small>
+            </article>
+            <article>
+              <span>{{ t('assetTechnical.advanced.volume') }}</span>
+              <strong>VWAP20 {{ formatValue(advancedSnapshot.vwap20) }}</strong>
+              <small>OBV {{ advancedSnapshot.obv?.toLocaleString() ?? '—' }}</small>
+            </article>
+            <article>
+              <span>{{ t('assetTechnical.advanced.position') }}</span>
+              <strong>52W {{ advancedSnapshot.position52WeekPct?.toFixed(1) ?? '—' }}%</strong>
+              <small>{{ t('assetTechnical.advanced.gap') }} {{ formatSigned(advancedSnapshot.latestGapPct) }}</small>
+            </article>
+          </div>
+        </details>
         <section class="horizon-matrix">
           <header>
             <b>{{ t('assetTechnical.multiHorizon') }}</b
@@ -1836,6 +1876,46 @@ onBeforeUnmount(() => {
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
+}
+.advanced-diagnostics {
+  padding: 12px;
+}
+.advanced-diagnostics summary {
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.advanced-diagnostics > p {
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.55;
+}
+.advanced-grid {
+  display: grid;
+  gap: 6px;
+}
+.advanced-grid article {
+  padding: 7px 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+.advanced-grid span,
+.advanced-grid strong,
+.advanced-grid small {
+  display: block;
+}
+.advanced-grid span,
+.advanced-grid small {
+  color: var(--muted);
+  font-size: 7px;
+}
+.advanced-grid strong {
+  margin: 3px 0;
+  font-size: 9px;
+}
+.advanced-grid small + small {
+  margin-top: 2px;
 }
 .asset-picker {
   max-height: 780px;

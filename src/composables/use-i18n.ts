@@ -1038,6 +1038,23 @@ const messages: Record<Locale, DictionaryNode> = {
         volume: '成交确认',
         crossAsset: '跨资产确认',
       },
+      advanced: {
+        title: '高级指标与市场结构',
+        explainer: '诊断层按当前图表周期重算，用于解释，暂不进入未校准的综合评分。',
+        structure: '市场结构',
+        momentum: '动量组',
+        volatility: '波动组',
+        bandwidth: '布林带宽',
+        volume: '成交与资金',
+        position: '关键位置',
+        gap: '最近60期缺口',
+        structureState: {
+          uptrend: '上行结构',
+          downtrend: '下行结构',
+          range: '震荡 / 过渡结构',
+          insufficient: '数据不足',
+        },
+      },
       change: {
         rising: '最近上升',
         falling: '最近下降',
@@ -2295,6 +2312,24 @@ const messages: Record<Locale, DictionaryNode> = {
         volatility: 'Volatility · ATR/Bands',
         volume: 'Volume confirmation',
         crossAsset: 'Cross-asset confirmation',
+      },
+      advanced: {
+        title: 'Advanced indicators & market structure',
+        explainer:
+          'This diagnostic layer recalculates on the selected chart interval. It explains state but does not enter the uncalibrated composite score.',
+        structure: 'Market structure',
+        momentum: 'Momentum set',
+        volatility: 'Volatility set',
+        bandwidth: 'Bollinger width',
+        volume: 'Volume & flow',
+        position: 'Key position',
+        gap: 'Latest 60-bar gap',
+        structureState: {
+          uptrend: 'Uptrend structure',
+          downtrend: 'Downtrend structure',
+          range: 'Range / transition',
+          insufficient: 'Insufficient data',
+        },
       },
       change: {
         rising: 'Recently rising',
