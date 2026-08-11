@@ -156,11 +156,18 @@ npm run auth:recovery-code -- --email your-admin@example.com
 长期期权市场数据使用 Massive 的
 [Option Chain Snapshot](https://massive.com/docs/rest/options/snapshots/option-chain-snapshot)。启用步骤：
 
+> 当前项目默认暂停实时期权市场数据接入，不会调用 Massive 期权接口，也不要求购买 Options 套餐。
+> 已有 Forward PE、股票技术面、财报与方向研究继续工作；依赖真实期权链的数据明确显示为不可用。
+
+如以后决定恢复：
+
 1. 在 Massive 创建 API Key，并确认当前 Options 套餐能返回期权链快照、隐含波动率与持仓量字段。
 2. 在 GitHub 仓库 `Settings → Secrets and variables → Actions` 新建 Repository secret，名称必须为
    `MASSIVE_API_KEY`。不要把密钥写入源码、README 或提交到 `.env`。
-3. 手动运行 `Update hot stocks` 工作流。量化页会分别显示最近尝试时间、最近成功取数时间和密钥配置状态。
-4. 先确认至少一个标的显示“数据完整”或“部分数据”；LEAPS IV Rank 需要累计至少20个每日成功观测，
+3. 在同一页面的 Repository variables 新建 `ENABLE_OPTION_MARKET`，值设为 `true`。未设置时工作流跳过
+   期权步骤，避免误请求受限或付费接口。
+4. 手动运行 `Update hot stocks` 工作流。量化页会分别显示最近尝试时间、最近成功取数时间和密钥配置状态。
+5. 先确认至少一个标的显示“数据完整”或“部分数据”；LEAPS IV Rank 需要累计至少20个每日成功观测，
    因此初次接入不会立即生成 IV Rank。
 
 官方当前列出 Options Basic 免费方案，但接口字段和套餐权限可能调整，应以 Massive 实际账户响应为准。

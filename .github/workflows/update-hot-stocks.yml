@@ -32,6 +32,7 @@ jobs:
           MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
         run: npm run update:us-stock-technicals
       - name: Refresh US mega-cap LEAPS market data
+        if: ${{ vars.ENABLE_OPTION_MARKET == 'true' }}
         env:
           MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
         run: npm run update:option-market
