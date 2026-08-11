@@ -112,6 +112,7 @@ const selectedId = ref(
 const compareId = ref('')
 const comparisonMode = ref<ComparisonMode>('normalized')
 const search = ref('')
+const assetPickerOpen = ref(false)
 const range = ref<RangeId>(technicalConfig.value.display.defaultRange)
 const chartMode = ref<ChartMode>('line')
 const chartInterval = ref<ChartInterval>('day')
@@ -709,6 +710,7 @@ const selectAsset = (id: string) => {
   selectedId.value = id
   recentAssetIds.value = [id, ...recentAssetIds.value.filter((item) => item !== id)].slice(0, 5)
   localStorage.setItem(recentStorageKey, JSON.stringify(recentAssetIds.value))
+  if (window.matchMedia('(max-width: 760px)').matches) assetPickerOpen.value = false
   activeChainIndex.value = 0
   if (compareId.value === id) compareId.value = ''
 }
@@ -1022,7 +1024,17 @@ onBeforeUnmount(() => {
     </section>
 
     <div class="research-layout">
-      <aside class="asset-picker">
+      <button
+        class="asset-drawer-toggle"
+        :aria-expanded="assetPickerOpen"
+        aria-controls="technical-asset-picker"
+        @click="assetPickerOpen = !assetPickerOpen"
+      >
+        <span>{{ t('assetTechnical.assets') }}</span>
+        <strong>{{ assetLabel(selectedAsset) }}</strong>
+        <b>{{ assetPickerOpen ? '−' : '+' }}</b>
+      </button>
+      <aside id="technical-asset-picker" class="asset-picker" :class="{ open: assetPickerOpen }">
         <header>
           <b>{{ t('assetTechnical.assets') }}</b
           ><small>{{ resolvedAssets.length }}</small>
@@ -1867,6 +1879,9 @@ onBeforeUnmount(() => {
   grid-template-columns: 210px minmax(0, 1fr) 260px;
   gap: 16px;
   align-items: start;
+}
+.asset-drawer-toggle {
+  display: none;
 }
 .asset-picker,
 .signal-panel > section,
@@ -2726,8 +2741,51 @@ onBeforeUnmount(() => {
   .research-layout {
     grid-template-columns: 1fr;
   }
+  .asset-drawer-toggle {
+    width: 100%;
+    min-height: 44px;
+    padding: 9px 11px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 8px;
+    align-items: center;
+    text-align: left;
+    cursor: pointer;
+  }
+  .asset-drawer-toggle span {
+    color: var(--muted);
+    font-size: 8px;
+  }
+  .asset-drawer-toggle strong {
+    overflow: hidden;
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .asset-picker {
-    max-height: 280px;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      max-height 180ms ease,
+      opacity 180ms ease;
+  }
+  .asset-picker.open {
+    max-height: 420px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    border-width: 1px;
+    overflow-y: auto;
+    opacity: 1;
+    visibility: visible;
   }
   .asset-picker > section {
     display: inline;
