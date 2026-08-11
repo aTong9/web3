@@ -1078,6 +1078,34 @@ export interface TechnicalAnalysisResult {
   horizons: TechnicalHorizonReading[]
 }
 
+export interface TechnicalBacktestHorizon {
+  observations: 5 | 21 | 63
+  sampleSize: number
+  winRatePct: number | null
+  averageDirectionalReturnPct: number | null
+  medianDirectionalReturnPct: number | null
+  maximumAdverseExcursionPct: number | null
+  medianInvalidationBars: number | null
+  status: 'available' | 'insufficient'
+}
+
+export interface TechnicalBacktestResult {
+  formulaVersion: string
+  methodology: 'chronological-holdout'
+  generatedAt: string
+  trainingEndDate: string | null
+  holdoutStartDate: string | null
+  holdoutEndDate: string | null
+  minimumSamples: number
+  signalThreshold: number
+  samplingInterval: number
+  totalSignals: number
+  bullishSignals: number
+  bearishSignals: number
+  horizons: TechnicalBacktestHorizon[]
+  limitations: string[]
+}
+
 export type TechnicalAlertCondition =
   | 'priceAbove'
   | 'priceBelow'

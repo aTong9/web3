@@ -21,6 +21,7 @@ import type {
 } from '@/types'
 import { technicalAlertApi } from '@/utils/technical-alert-api'
 import { analyzeTechnicalSignals } from '@/utils/technical-analysis'
+import { backtestTechnicalSignals } from '@/utils/technical-backtest'
 import {
   defaultTechnicalIndicatorConfig,
   technicalConfigApi,
@@ -148,6 +149,9 @@ const analysis = computed(() =>
     selectedAsset.value?.stale ?? true,
     technicalConfig.value,
   ),
+)
+const backtest = computed(() =>
+  backtestTechnicalSignals(selectedAsset.value?.points ?? [], technicalConfig.value),
 )
 const currentAssetAlerts = computed(() =>
   alertRules.value.filter((rule) => rule.assetId === selectedAsset.value.id),
@@ -812,6 +816,81 @@ onBeforeUnmount(() => {
             >{{ dataset.source }} ↗</a
           >
         </details>
+        <section class="backtest-panel">
+          <header>
+            <div>
+              <span>{{ t('assetTechnical.backtest.eyebrow') }}</span>
+              <b>{{ t('assetTechnical.backtest.title') }}</b>
+            </div>
+            <small>{{
+              t('assetTechnical.backtest.holdout', {
+                start: backtest.holdoutStartDate ?? '—',
+                end: backtest.holdoutEndDate ?? '—',
+              })
+            }}</small>
+          </header>
+          <div class="backtest-summary">
+            <article>
+              <span>{{ t('assetTechnical.backtest.samples') }}</span>
+              <strong>{{ backtest.totalSignals }}</strong>
+              <small>{{
+                t('assetTechnical.backtest.directionSamples', {
+                  bullish: backtest.bullishSignals,
+                  bearish: backtest.bearishSignals,
+                })
+              }}</small>
+            </article>
+            <article v-for="item in backtest.horizons" :key="item.observations">
+              <span>{{ t('assetTechnical.backtest.forward', { days: item.observations }) }}</span>
+              <strong v-if="item.status === 'available'">{{
+                `${item.winRatePct?.toFixed(1)}%`
+              }}</strong>
+              <strong v-else>—</strong>
+              <small v-if="item.status === 'available'">{{
+                t('assetTechnical.backtest.average', {
+                  value: formatSigned(item.averageDirectionalReturnPct),
+                })
+              }}</small>
+              <small v-else>{{
+                t('assetTechnical.backtest.insufficient', {
+                  count: item.sampleSize,
+                  minimum: backtest.minimumSamples,
+                })
+              }}</small>
+            </article>
+          </div>
+          <div class="backtest-table" role="table" :aria-label="t('assetTechnical.backtest.title')">
+            <div class="backtest-row backtest-head" role="row">
+              <span>{{ t('assetTechnical.backtest.horizon') }}</span>
+              <span>{{ t('assetTechnical.backtest.winRate') }}</span>
+              <span>{{ t('assetTechnical.backtest.medianReturn') }}</span>
+              <span>{{ t('assetTechnical.backtest.maxAdverse') }}</span>
+              <span>{{ t('assetTechnical.backtest.invalidation') }}</span>
+            </div>
+            <div v-for="item in backtest.horizons" :key="`detail-${item.observations}`" class="backtest-row" role="row">
+              <b>{{ t('assetTechnical.backtest.forward', { days: item.observations }) }}</b>
+              <span>{{ item.winRatePct === null ? '—' : `${item.winRatePct.toFixed(1)}%` }}</span>
+              <span>{{ formatSigned(item.medianDirectionalReturnPct) }}</span>
+              <span>{{ formatSigned(item.maximumAdverseExcursionPct) }}</span>
+              <span>{{
+                item.medianInvalidationBars === null
+                  ? '—'
+                  : t('assetTechnical.backtest.bars', { value: item.medianInvalidationBars })
+              }}</span>
+            </div>
+          </div>
+          <details>
+            <summary>{{ t('assetTechnical.backtest.methodology') }}</summary>
+            <p>{{
+              t('assetTechnical.backtest.methodologyText', {
+                threshold: backtest.signalThreshold,
+                interval: backtest.samplingInterval,
+                formula: backtest.formulaVersion,
+              })
+            }}</p>
+            <p>{{ t('assetTechnical.backtest.exclusions') }}</p>
+          </details>
+        </section>
       </section>
 
       <aside class="signal-panel">
@@ -1385,6 +1464,86 @@ onBeforeUnmount(() => {
   color: var(--accent);
   font-size: 9px;
 }
+.backtest-panel {
+  margin-top: 10px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.backtest-panel > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: end;
+}
+.backtest-panel > header div {
+  display: grid;
+  gap: 4px;
+}
+.backtest-panel > header span {
+  color: var(--accent);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+}
+.backtest-panel > header b {
+  font-size: 12px;
+}
+.backtest-panel > header small,
+.backtest-summary small,
+.backtest-panel details p {
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.55;
+}
+.backtest-summary {
+  margin: 14px 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+.backtest-summary article {
+  min-width: 0;
+  padding: 10px;
+  border-radius: 7px;
+  background: var(--surface-soft);
+  display: grid;
+  gap: 4px;
+}
+.backtest-summary article > span {
+  color: var(--muted);
+  font-size: 8px;
+}
+.backtest-summary strong {
+  font: 500 20px Georgia, serif;
+}
+.backtest-table {
+  min-width: 540px;
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+}
+.backtest-row {
+  min-height: 34px;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1.05fr repeat(4, 1fr);
+  gap: 8px;
+  align-items: center;
+  font-size: 8px;
+}
+.backtest-head {
+  color: var(--muted);
+}
+.backtest-panel details {
+  margin-top: 8px;
+}
+.backtest-panel summary {
+  padding: 6px 0;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
 .signal-panel {
   display: grid;
   gap: 10px;
@@ -1673,6 +1832,15 @@ onBeforeUnmount(() => {
   .range-tabs {
     overflow-x: auto;
     flex-wrap: nowrap;
+  }
+  .backtest-panel {
+    overflow-x: auto;
+  }
+  .backtest-panel > header {
+    min-width: 540px;
+  }
+  .backtest-summary {
+    min-width: 540px;
   }
   .range-tabs button {
     flex: 0 0 auto;

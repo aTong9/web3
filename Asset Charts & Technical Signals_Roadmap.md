@@ -8,7 +8,7 @@
 | Phase 1 · Core MVP                      | In progress | 24 cross-asset series, line/real-candle modes, MA20/60, MACD, RSI, Bollinger, ATR, support/resistance, six horizons, comparison, transmission carousel, favorites, fullscreen, PNG export, and authenticated personal alerts are implemented. Massive OHLCV is live for the US mega-cap set; the free plan supplies two years of history and the workflow now respects its five-calls-per-minute limit while retaining stale fallback data on transient failures. |
 | Phase 2 · Funds and advanced comparison | Complete    | A shared fund research workbench is live on both US-fund and A-share pages with normalized price/NAV comparison, 20/60/120-day rolling correlations, peer-proxy tracking error, current premium/discount and annual fees, local favorites/saved views, daily off-exchange investment-limit history, and price-versus-transmission divergence detection. |
 | Phase 3 · Options and event analysis    | In progress | The top-10 option research cards now combine Forward PE, stock technical score, Nasdaq transmission context, EPS revisions, earnings windows, and historical pre/post-earnings returns. A Massive-powered pipeline for 365–730 DTE IV, LEAPS IV Rank, Put/Call ratios, term structure, and earnings IV-implied move is implemented with explicit unavailable/partial states; production option-plan access and the minimum 20-day IV history are not yet verified. |
-| Phase 4 · Backtesting and calibration   | Planned     | Not started.                                                                                                                                                                                                                                       |
+| Phase 4 · Backtesting and calibration   | In progress | The asset chart now runs a chronological 70/30 holdout test for the active technical formula, samples signals at least five observations apart, and reports 5/21/63-day directional hit rate, forward return, maximum adverse excursion, and median invalidation time. Cross-asset resonance validation, calibrated weights, and feedback into quant signals remain. |
 
 The status table is an implementation ledger, not a change to the scope below. A phase is complete only after all its listed acceptance conditions are verified.
 
@@ -476,6 +476,15 @@ The status table is an implementation ledger, not a change to the scope below. A
 - 记录信号后续收益、最大回撤和失效时间
 - 根据用户偏好生成个性化预警
 - 将结果反馈到量化信号模块
+
+当前实现证据：
+
+- 走势图按时间顺序将前70%数据作为训练观察段、后30%作为留出段，指标参数不使用留出结果拟合
+- 每个信号只读取当日及以前的行情；未来5、21和63个交易日收益从信号收盘后开始统计
+- 综合分绝对值达到30才入样，相邻样本至少间隔5个观测，减少同一行情段的重叠计数
+- 每个期限展示方向命中率、方向调整后平均/中位收益、最大不利变动和信号反向失效的中位交易日
+- 少于12个完整样本时只展示样本不足，不生成胜率或收益结论
+- 回测主动关闭跨资产评分权重，因为当前尚无逐日、时点一致的历史驱动快照；页面同时披露费用、滑点、税费、融资、分红和可交易性未纳入
 
 完成标准：每项核心规则均有样本外表现、适用条件和失效条件。
 
