@@ -559,6 +559,9 @@ export interface CrossAssetItem {
   name: string
   category: CrossAssetCategory
   series: string
+  source: string
+  sourceUrl: string
+  calendar: MarketCalendarId
   unit: string
   mode: 'return' | 'difference' | 'absolute'
   releaseLagDays?: number
@@ -1039,14 +1042,28 @@ export interface TechnicalChartAsset {
   mode: CrossAssetItem['mode']
   date: string | null
   stale: boolean
+  source: string
+  sourceUrl: string
+  calendar: MarketCalendarId
   dataShape: 'close' | 'ohlcv'
   points: AssetPricePoint[]
 }
+
+export type MarketCalendarId =
+  | 'nyse'
+  | 'sse'
+  | 'hkex'
+  | 'jpx'
+  | 'europe'
+  | 'fred-business'
+  | 'crypto-24x7'
+  | 'monthly'
 
 export interface AssetTechnicalDataset {
   updatedAt: string
   source: string
   sourceUrl: string
+  sourcePriority: string[]
   limitations: string[]
   assets: TechnicalChartAsset[]
 }

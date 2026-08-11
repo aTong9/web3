@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-11T02:53:05.577Z",
+  "updatedAt": "2026-08-11T04:47:36.433Z",
   "correlationWindow": "20/60/120个共同观测日",
   "source": "FRED、新浪、腾讯、DefiLlama、Coin Metrics公开数据及透明派生指标",
   "sourceUrl": "https://fred.stlouisfed.org/",
@@ -24,6 +24,9 @@
       "series": "SP500",
       "unit": "点",
       "mode": "return",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "nyse",
       "value": 7753.11,
       "date": "2026-08-10",
       "availableDate": "2026-08-10",
@@ -51,23 +54,26 @@
       "series": "NASDAQCOM",
       "unit": "点",
       "mode": "return",
-      "value": 26690.62,
-      "date": "2026-08-07",
-      "availableDate": "2026-08-07",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "nyse",
+      "value": 26605.36,
+      "date": "2026-08-10",
+      "availableDate": "2026-08-10",
       "stale": false,
       "changes": {
-        "day": 1.3,
-        "week": 5.19,
-        "month": 1.85,
-        "quarter": 3.43,
-        "halfYear": 18.41,
-        "yearToDate": 14.84,
-        "year": 26.08
+        "day": -0.32,
+        "week": 2.67,
+        "month": 1.23,
+        "quarter": 1.37,
+        "halfYear": 15.52,
+        "yearToDate": 14.47,
+        "year": 25.24
       },
       "flow": {
         "status": "proxy",
         "label": "5日价格动量代理",
-        "value": 5.19,
+        "value": 2.67,
         "note": "不是申赎或净买入数据"
       }
     },
@@ -78,6 +84,9 @@
       "series": "NIKKEI225",
       "unit": "点",
       "mode": "return",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "jpx",
       "value": 66970.22,
       "date": "2026-08-10",
       "availableDate": "2026-08-10",
@@ -103,9 +112,11 @@
       "name": "上证综指",
       "category": "stocks",
       "series": "sh000001",
-      "source": "sina",
+      "source": "新浪财经",
       "unit": "点",
       "mode": "return",
+      "sourceUrl": "https://finance.sina.com.cn/",
+      "calendar": "sse",
       "value": 3966.594,
       "date": "2026-08-10",
       "availableDate": "2026-08-10",
@@ -131,26 +142,28 @@
       "name": "恒生指数",
       "category": "stocks",
       "series": "hkHSI",
-      "source": "tencent",
+      "source": "腾讯财经",
       "unit": "点",
       "mode": "return",
-      "value": 25806.48,
+      "sourceUrl": "https://stockapp.finance.qq.com/",
+      "calendar": "hkex",
+      "value": 25773.56,
       "date": "2026-08-11",
       "availableDate": "2026-08-11",
       "stale": false,
       "changes": {
-        "day": -0.51,
-        "week": -0.18,
-        "month": 6.58,
-        "quarter": -2.27,
-        "halfYear": -3.62,
-        "yearToDate": 0.69,
-        "year": 4.17
+        "day": -0.63,
+        "week": -0.31,
+        "month": 6.44,
+        "quarter": -2.4,
+        "halfYear": -3.74,
+        "yearToDate": 0.56,
+        "year": 4.04
       },
       "flow": {
         "status": "proxy",
         "label": "5日价格动量代理",
-        "value": -0.18,
+        "value": -0.31,
         "note": "不是申赎或净买入数据"
       }
     },
@@ -161,23 +174,26 @@
       "series": "NASDAQNQEURO50",
       "unit": "点",
       "mode": "return",
-      "value": 1645.16,
-      "date": "2026-08-07",
-      "availableDate": "2026-08-07",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "europe",
+      "value": 1648.32,
+      "date": "2026-08-10",
+      "availableDate": "2026-08-10",
       "stale": false,
       "changes": {
-        "day": 0.35,
-        "week": 2.74,
-        "month": 3.59,
-        "quarter": 12.15,
-        "halfYear": 8.94,
-        "yearToDate": 12.72,
-        "year": 19.46
+        "day": 0.19,
+        "week": 1.94,
+        "month": 4.11,
+        "quarter": 11.29,
+        "halfYear": 9.7,
+        "yearToDate": 12.93,
+        "year": 19.85
       },
       "flow": {
         "status": "proxy",
         "label": "5日价格动量代理",
-        "value": 2.74,
+        "value": 1.94,
         "note": "不是申赎或净买入数据"
       }
     },
@@ -188,6 +204,9 @@
       "series": "DGS2",
       "unit": "%",
       "mode": "difference",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 4.19,
       "date": "2026-08-07",
       "availableDate": "2026-08-07",
@@ -217,6 +236,9 @@
       "mode": "difference",
       "releaseLagDays": 1,
       "maxStaleDays": 7,
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 3.63,
       "date": "2026-08-07",
       "availableDate": "2026-08-08",
@@ -246,6 +268,9 @@
       "mode": "difference",
       "releaseLagDays": 1,
       "maxStaleDays": 7,
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 3.62,
       "date": "2026-08-07",
       "availableDate": "2026-08-08",
@@ -271,10 +296,12 @@
       "name": "2Y−EFFR政策路径差",
       "category": "macro",
       "series": "POLICY_GAP",
-      "source": "derived",
+      "source": "系统派生",
       "unit": "%",
       "mode": "difference",
       "releaseLagDays": 1,
+      "sourceUrl": "",
+      "calendar": "fred-business",
       "value": 0.5600000000000005,
       "date": "2026-08-07",
       "availableDate": "2026-08-08",
@@ -300,10 +327,12 @@
       "name": "SOFR−EFFR资金压力差",
       "category": "macro",
       "series": "FUNDING_SPREAD",
-      "source": "derived",
+      "source": "系统派生",
       "unit": "%",
       "mode": "difference",
       "releaseLagDays": 1,
+      "sourceUrl": "",
+      "calendar": "fred-business",
       "value": -0.009999999999999787,
       "date": "2026-08-07",
       "availableDate": "2026-08-08",
@@ -331,6 +360,9 @@
       "series": "DGS10",
       "unit": "%",
       "mode": "difference",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 4.65,
       "date": "2026-08-07",
       "availableDate": "2026-08-07",
@@ -358,6 +390,9 @@
       "series": "DGS30",
       "unit": "%",
       "mode": "difference",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 5.19,
       "date": "2026-08-07",
       "availableDate": "2026-08-07",
@@ -385,6 +420,9 @@
       "series": "DFII10",
       "unit": "%",
       "mode": "difference",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 2.4,
       "date": "2026-08-07",
       "availableDate": "2026-08-07",
@@ -414,6 +452,9 @@
       "mode": "difference",
       "releaseLagDays": 4,
       "maxStaleDays": 10,
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 0.8681,
       "date": "2026-07-31",
       "availableDate": "2026-08-04",
@@ -439,11 +480,13 @@
       "name": "美国10Y预期短率成分代理",
       "category": "bonds",
       "series": "EXPECTED_RATE_10Y_PROXY",
-      "source": "derived",
+      "source": "系统派生",
       "unit": "%",
       "mode": "difference",
       "releaseLagDays": 4,
       "maxStaleDays": 10,
+      "sourceUrl": "",
+      "calendar": "fred-business",
       "value": 3.7819000000000003,
       "date": "2026-08-07",
       "availableDate": "2026-08-11",
@@ -471,6 +514,9 @@
       "series": "T10YIE",
       "unit": "%",
       "mode": "difference",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 2.29,
       "date": "2026-08-10",
       "availableDate": "2026-08-10",
@@ -498,6 +544,9 @@
       "series": "BAMLC0A0CM",
       "unit": "%",
       "mode": "difference",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 0.78,
       "date": "2026-08-07",
       "availableDate": "2026-08-07",
@@ -525,6 +574,9 @@
       "series": "BAMLH0A0HYM2",
       "unit": "%",
       "mode": "difference",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 2.7,
       "date": "2026-08-07",
       "availableDate": "2026-08-07",
@@ -553,6 +605,9 @@
       "unit": "点",
       "mode": "absolute",
       "releaseLagDays": 5,
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": -0.529,
       "date": "2026-07-31",
       "availableDate": "2026-08-05",
@@ -582,6 +637,9 @@
       "mode": "absolute",
       "releaseLagDays": 5,
       "maxStaleDays": 14,
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": -0.5063,
       "date": "2026-07-31",
       "availableDate": "2026-08-05",
@@ -611,6 +669,9 @@
       "mode": "return",
       "releaseLagDays": 1,
       "maxStaleDays": 7,
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 6748567,
       "date": "2026-08-05",
       "availableDate": "2026-08-06",
@@ -639,6 +700,9 @@
       "unit": "百万美元",
       "mode": "return",
       "releaseLagDays": 1,
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 2993349,
       "date": "2026-08-05",
       "availableDate": "2026-08-06",
@@ -666,6 +730,9 @@
       "series": "RRPONTSYD",
       "unit": "十亿美元",
       "mode": "absolute",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 0.975,
       "date": "2026-08-10",
       "availableDate": "2026-08-10",
@@ -693,6 +760,9 @@
       "series": "T10Y2Y",
       "unit": "%",
       "mode": "difference",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 0.47,
       "date": "2026-08-10",
       "availableDate": "2026-08-10",
@@ -720,6 +790,9 @@
       "series": "T10Y3M",
       "unit": "%",
       "mode": "difference",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 0.83,
       "date": "2026-08-10",
       "availableDate": "2026-08-10",
@@ -747,6 +820,9 @@
       "series": "T5YIFR",
       "unit": "%",
       "mode": "difference",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 2.33,
       "date": "2026-08-10",
       "availableDate": "2026-08-10",
@@ -774,6 +850,9 @@
       "series": "BAMLEMHBHYCRPIEY",
       "unit": "%",
       "mode": "difference",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 7.19,
       "date": "2026-08-07",
       "availableDate": "2026-08-07",
@@ -802,6 +881,9 @@
       "unit": "人",
       "mode": "return",
       "releaseLagDays": 5,
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 199000,
       "date": "2026-08-01",
       "availableDate": "2026-08-06",
@@ -829,6 +911,9 @@
       "series": "DTWEXBGS",
       "unit": "点",
       "mode": "return",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 119.0649,
       "date": "2026-08-07",
       "availableDate": "2026-08-07",
@@ -856,6 +941,9 @@
       "series": "VIXCLS",
       "unit": "点",
       "mode": "return",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "nyse",
       "value": 14.9,
       "date": "2026-08-07",
       "availableDate": "2026-08-07",
@@ -881,26 +969,28 @@
       "name": "全球股指上涨参与率",
       "category": "stocks",
       "series": "GLOBAL_EQUITY_BREADTH",
-      "source": "derived",
+      "source": "系统派生",
       "unit": "%",
       "mode": "absolute",
-      "value": 75,
+      "sourceUrl": "",
+      "calendar": "fred-business",
+      "value": 66.66666666666666,
       "date": "2026-08-10",
       "availableDate": "2026-08-10",
       "stale": false,
       "changes": {
-        "day": -8.33,
-        "week": 8.33,
-        "month": 8.33,
-        "quarter": 58.33,
-        "halfYear": 58.33,
-        "yearToDate": 55,
-        "year": 58.33
+        "day": -16.67,
+        "week": 0,
+        "month": 0,
+        "quarter": 50,
+        "halfYear": 50,
+        "yearToDate": 46.67,
+        "year": 50
       },
       "flow": {
         "status": "proxy",
         "label": "5日水平变化代理",
-        "value": 8.33,
+        "value": 0,
         "note": "不是申赎或净买入数据"
       }
     },
@@ -909,9 +999,11 @@
       "name": "跨资产风险上涨参与率",
       "category": "macro",
       "series": "CROSS_ASSET_RISK_BREADTH",
-      "source": "derived",
+      "source": "系统派生",
       "unit": "%",
       "mode": "absolute",
+      "sourceUrl": "",
+      "calendar": "fred-business",
       "value": 50,
       "date": "2026-08-10",
       "availableDate": "2026-08-10",
@@ -937,9 +1029,11 @@
       "name": "全球风险压力共振指数",
       "category": "macro",
       "series": "GLOBAL_RISK_STRESS_RESONANCE",
-      "source": "derived",
+      "source": "系统派生",
       "unit": "σ",
       "mode": "absolute",
+      "sourceUrl": "",
+      "calendar": "fred-business",
       "value": -0.6852,
       "date": "2026-08-07",
       "availableDate": "2026-08-07",
@@ -967,6 +1061,9 @@
       "series": "DEXUSEU",
       "unit": "",
       "mode": "return",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 1.1559,
       "date": "2026-08-07",
       "availableDate": "2026-08-07",
@@ -994,6 +1091,9 @@
       "series": "DEXJPUS",
       "unit": "",
       "mode": "return",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 157.54,
       "date": "2026-08-07",
       "availableDate": "2026-08-07",
@@ -1021,6 +1121,9 @@
       "series": "DEXCHUS",
       "unit": "",
       "mode": "return",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 6.7474,
       "date": "2026-08-07",
       "availableDate": "2026-08-07",
@@ -1048,6 +1151,9 @@
       "series": "DCOILWTICO",
       "unit": "美元",
       "mode": "return",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 81.96,
       "date": "2026-08-03",
       "availableDate": "2026-08-03",
@@ -1075,6 +1181,9 @@
       "series": "DCOILBRENTEU",
       "unit": "美元",
       "mode": "return",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 88.9,
       "date": "2026-08-03",
       "availableDate": "2026-08-03",
@@ -1102,23 +1211,26 @@
       "series": "NASDAQNQXAUGLD",
       "unit": "点",
       "mode": "return",
-      "value": 4733.93,
-      "date": "2026-08-07",
-      "availableDate": "2026-08-07",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
+      "value": 4759.44,
+      "date": "2026-08-10",
+      "availableDate": "2026-08-10",
       "stale": false,
       "changes": {
-        "day": 6.97,
-        "week": 20.78,
-        "month": 18.66,
-        "quarter": -8.56,
-        "halfYear": -11.14,
-        "yearToDate": 3.3,
-        "year": 56.25
+        "day": 0.54,
+        "week": 20.15,
+        "month": 19.67,
+        "quarter": -8.01,
+        "halfYear": -13.26,
+        "yearToDate": 3.85,
+        "year": 53.94
       },
       "flow": {
         "status": "proxy",
         "label": "5日价格动量代理",
-        "value": 20.78,
+        "value": 20.15,
         "note": "不是申赎或净买入数据"
       }
     },
@@ -1129,6 +1241,9 @@
       "series": "PCOPPUSDM",
       "unit": "美元/吨",
       "mode": "return",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "monthly",
       "value": 13552.04090909091,
       "date": "2026-06-01",
       "availableDate": "2026-06-01",
@@ -1156,6 +1271,9 @@
       "series": "DHHNGSP",
       "unit": "美元",
       "mode": "return",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "fred-business",
       "value": 2.81,
       "date": "2026-08-03",
       "availableDate": "2026-08-03",
@@ -1183,6 +1301,9 @@
       "series": "CBBTCUSD",
       "unit": "美元",
       "mode": "return",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "crypto-24x7",
       "value": 63876.26,
       "date": "2026-08-10",
       "availableDate": "2026-08-10",
@@ -1210,6 +1331,9 @@
       "series": "CBETHUSD",
       "unit": "美元",
       "mode": "return",
+      "source": "FRED",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "calendar": "crypto-24x7",
       "value": 1870.59,
       "date": "2026-08-10",
       "availableDate": "2026-08-10",
@@ -1235,10 +1359,12 @@
       "name": "稳定币总供应",
       "category": "crypto",
       "series": "STABLECOINS_USD",
-      "source": "defillama",
+      "source": "DefiLlama",
       "unit": "美元",
       "mode": "return",
       "releaseLagDays": 1,
+      "sourceUrl": "https://defillama.com/",
+      "calendar": "fred-business",
       "value": 306323699584,
       "date": "2026-08-10",
       "availableDate": "2026-08-11",
@@ -1264,11 +1390,13 @@
       "name": "BTC核心加密市值份额",
       "category": "crypto",
       "series": "BTC_CORE_SHARE",
-      "source": "derived",
+      "source": "系统派生",
       "unit": "%",
       "mode": "difference",
       "releaseLagDays": 1,
       "maxStaleDays": 7,
+      "sourceUrl": "",
+      "calendar": "fred-business",
       "value": 72.64752166681983,
       "date": "2026-05-23",
       "availableDate": "2026-05-24",
@@ -1294,11 +1422,13 @@
       "name": "ETH核心加密市值份额",
       "category": "crypto",
       "series": "ETH_CORE_SHARE",
-      "source": "derived",
+      "source": "系统派生",
       "unit": "%",
       "mode": "difference",
       "releaseLagDays": 1,
       "maxStaleDays": 7,
+      "sourceUrl": "",
+      "calendar": "fred-business",
       "value": 12.191081957157914,
       "date": "2026-05-23",
       "availableDate": "2026-05-24",
@@ -1324,11 +1454,13 @@
       "name": "BTC活跃地址数",
       "category": "crypto",
       "series": "BTC_ACTIVE_ADDRESSES",
-      "source": "coinmetrics",
+      "source": "Coin Metrics",
       "unit": "个",
       "mode": "return",
       "releaseLagDays": 1,
       "maxStaleDays": 7,
+      "sourceUrl": "https://github.com/coinmetrics/data",
+      "calendar": "fred-business",
       "value": 573855,
       "date": "2026-05-23",
       "availableDate": "2026-05-24",
@@ -1354,11 +1486,13 @@
       "name": "ETH活跃地址数",
       "category": "crypto",
       "series": "ETH_ACTIVE_ADDRESSES",
-      "source": "coinmetrics",
+      "source": "Coin Metrics",
       "unit": "个",
       "mode": "return",
       "releaseLagDays": 1,
       "maxStaleDays": 7,
+      "sourceUrl": "https://github.com/coinmetrics/data",
+      "calendar": "fred-business",
       "value": 820999,
       "date": "2026-05-23",
       "availableDate": "2026-05-24",
@@ -1402,7 +1536,7 @@
         "id": "sp500",
         "values": [
           1,
-          0.96,
+          0.97,
           0.23,
           0.13,
           0.59,
@@ -1420,10 +1554,10 @@
       {
         "id": "nasdaq",
         "values": [
-          0.96,
+          0.97,
           1,
-          0.27,
-          0.15,
+          0.26,
+          0.14,
           0.52,
           -0.49,
           -0.51,
@@ -1431,25 +1565,25 @@
           -0.2,
           -0.24,
           0.51,
-          0.34,
-          0.43,
-          -0.26
+          0.35,
+          0.44,
+          -0.28
         ]
       },
       {
         "id": "shanghai",
         "values": [
           0.23,
-          0.27,
+          0.26,
           1,
           0.31,
-          0.31,
+          0.29,
           0.01,
           -0.17,
           -0.16,
           -0.03,
           -0.08,
-          0.37,
+          0.36,
           0.13,
           0.14,
           0.13
@@ -1459,7 +1593,7 @@
         "id": "hangseng",
         "values": [
           0.13,
-          0.15,
+          0.14,
           0.31,
           1,
           0.05,
@@ -1479,7 +1613,7 @@
         "values": [
           0.59,
           0.52,
-          0.31,
+          0.29,
           0.05,
           1,
           -0.25,
@@ -1490,7 +1624,7 @@
           0.58,
           0.18,
           0.17,
-          -0.15
+          -0.16
         ]
       },
       {
@@ -1593,7 +1727,7 @@
         "values": [
           0.57,
           0.51,
-          0.37,
+          0.36,
           0.1,
           0.58,
           -0.37,
@@ -1611,7 +1745,7 @@
         "id": "btc",
         "values": [
           0.36,
-          0.34,
+          0.35,
           0.13,
           0.03,
           0.18,
@@ -1630,7 +1764,7 @@
         "id": "eth",
         "values": [
           0.44,
-          0.43,
+          0.44,
           0.14,
           0.12,
           0.17,
@@ -1649,10 +1783,10 @@
         "id": "stablecoins",
         "values": [
           -0.27,
-          -0.26,
+          -0.28,
           0.13,
           0.03,
-          -0.15,
+          -0.16,
           0.17,
           0,
           0.14,
@@ -1904,8 +2038,8 @@
         "samples": 260,
         "ciLow": -0.07,
         "ciHigh": 0.17,
-        "pValue": 0.435048,
-        "qValue": 0.885853,
+        "pValue": 0.437264,
+        "qValue": 0.879702,
         "evidence": "uncertain"
       },
       "shock": {
@@ -1967,15 +2101,15 @@
         "short": {
           "value": 0.8,
           "samples": 20,
-          "ciLow": 0.54,
+          "ciLow": 0.56,
           "ciHigh": 0.92,
-          "pValue": 0.000008
+          "pValue": 0.000005
         },
         "medium": {
           "value": 0.59,
           "samples": 60,
           "ciLow": 0.4,
-          "ciHigh": 0.74,
+          "ciHigh": 0.73,
           "pValue": 0
         },
         "long": {
@@ -2825,7 +2959,7 @@
         "ciLow": -0.17,
         "ciHigh": 0.07,
         "pValue": 0.447228,
-        "qValue": 0.893236,
+        "qValue": 0.879702,
         "evidence": "uncertain"
       },
       "shock": {
@@ -2971,17 +3105,17 @@
       "expectedSign": "context",
       "signal": 0.54,
       "windows": {
-        "short": 0.47,
+        "short": 0.44,
         "medium": 0.57,
         "long": 0.57
       },
       "statistics": {
         "short": {
-          "value": 0.47,
+          "value": 0.44,
           "samples": 20,
-          "ciLow": 0.04,
-          "ciHigh": 0.76,
-          "pValue": 0.034359
+          "ciLow": 0,
+          "ciHigh": 0.74,
+          "pValue": 0.049502
         },
         "medium": {
           "value": 0.57,
@@ -3009,15 +3143,15 @@
         "ciLow": -0.17,
         "ciHigh": 0.08,
         "pValue": 0.458911,
-        "qValue": 0.893236,
+        "qValue": 0.879702,
         "evidence": "uncertain"
       },
       "shock": {
         "tail": "upper10pct",
         "horizon": 5,
         "threshold": 0.025023,
-        "currentMove": 0.06974,
-        "triggered": true,
+        "currentMove": 0.005389,
+        "triggered": false,
         "eventSamples": 51,
         "controlSamples": 451,
         "eventUpRatePct": 64.71,
@@ -3032,7 +3166,7 @@
         "tail": "lower10pct",
         "horizon": 5,
         "threshold": -0.022834,
-        "currentMove": 0.06974,
+        "currentMove": 0.005389,
         "triggered": false,
         "eventSamples": 51,
         "controlSamples": 451,
@@ -3377,7 +3511,7 @@
         "ciLow": -0.16,
         "ciHigh": 0.08,
         "pValue": 0.496474,
-        "qValue": 0.893236,
+        "qValue": 0.879702,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3508,98 +3642,6 @@
       "status": "confirming"
     },
     {
-      "group": "避险资产状态",
-      "title": "黄金—BTC状态链",
-      "steps": [
-        "黄金与BTC相关性变化",
-        "识别货币贬值共振或风险偏好分化",
-        "判断数字资产当前属性"
-      ],
-      "interpretation": "正相关可能反映流动性/货币属性；负相关偏风险资产属性",
-      "sourceTitle": "BIS · Cryptoassets and financial stability",
-      "sourceUrl": "https://www.bis.org/topics/fintech.htm",
-      "left": "gold",
-      "right": "btc",
-      "expectedSign": "context",
-      "signal": 0.48,
-      "windows": {
-        "short": 0.55,
-        "medium": 0.51,
-        "long": 0.33
-      },
-      "statistics": {
-        "short": {
-          "value": 0.55,
-          "samples": 20,
-          "ciLow": 0.14,
-          "ciHigh": 0.8,
-          "pValue": 0.010855
-        },
-        "medium": {
-          "value": 0.51,
-          "samples": 60,
-          "ciLow": 0.3,
-          "ciHigh": 0.68,
-          "pValue": 0.00002
-        },
-        "long": {
-          "value": 0.33,
-          "samples": 120,
-          "ciLow": 0.16,
-          "ciHigh": 0.48,
-          "pValue": 0.00021
-        }
-      },
-      "stability": "stable",
-      "regimeShift": false,
-      "evidence": "strong",
-      "predictive": {
-        "horizon": 5,
-        "overlapping": false,
-        "value": 0.01,
-        "samples": 260,
-        "ciLow": -0.11,
-        "ciHigh": 0.13,
-        "pValue": 0.879039,
-        "qValue": 0.963682,
-        "evidence": "uncertain"
-      },
-      "shock": {
-        "tail": "upper10pct",
-        "horizon": 5,
-        "threshold": 0.024803,
-        "currentMove": 0.06974,
-        "triggered": true,
-        "eventSamples": 52,
-        "controlSamples": 468,
-        "eventUpRatePct": 53.85,
-        "baselineUpRatePct": 54.27,
-        "liftPct": -0.42,
-        "medianOutcome": 0.002769,
-        "pValue": 0.95401,
-        "qValue": 0.981775,
-        "evidence": "uncertain"
-      },
-      "lowerShock": {
-        "tail": "lower10pct",
-        "horizon": 5,
-        "threshold": -0.019028,
-        "currentMove": 0.06974,
-        "triggered": false,
-        "eventSamples": 52,
-        "controlSamples": 468,
-        "eventUpRatePct": 55.77,
-        "baselineUpRatePct": 54.06,
-        "liftPct": 1.71,
-        "medianOutcome": 0.007783,
-        "pValue": 0.814359,
-        "qValue": 0.970457,
-        "evidence": "uncertain"
-      },
-      "strength": "medium",
-      "status": "context"
-    },
-    {
       "group": "实际利率与估值",
       "title": "实际利率—科技估值链",
       "steps": [
@@ -3653,7 +3695,7 @@
         "ciLow": -0.19,
         "ciHigh": 0.05,
         "pValue": 0.268074,
-        "qValue": 0.767267,
+        "qValue": 0.754332,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3690,6 +3732,98 @@
       },
       "strength": "medium",
       "status": "confirming"
+    },
+    {
+      "group": "避险资产状态",
+      "title": "黄金—BTC状态链",
+      "steps": [
+        "黄金与BTC相关性变化",
+        "识别货币贬值共振或风险偏好分化",
+        "判断数字资产当前属性"
+      ],
+      "interpretation": "正相关可能反映流动性/货币属性；负相关偏风险资产属性",
+      "sourceTitle": "BIS · Cryptoassets and financial stability",
+      "sourceUrl": "https://www.bis.org/topics/fintech.htm",
+      "left": "gold",
+      "right": "btc",
+      "expectedSign": "context",
+      "signal": 0.47,
+      "windows": {
+        "short": 0.51,
+        "medium": 0.51,
+        "long": 0.34
+      },
+      "statistics": {
+        "short": {
+          "value": 0.51,
+          "samples": 20,
+          "ciLow": 0.09,
+          "ciHigh": 0.78,
+          "pValue": 0.019395
+        },
+        "medium": {
+          "value": 0.51,
+          "samples": 60,
+          "ciLow": 0.29,
+          "ciHigh": 0.68,
+          "pValue": 0.000022
+        },
+        "long": {
+          "value": 0.34,
+          "samples": 120,
+          "ciLow": 0.17,
+          "ciHigh": 0.49,
+          "pValue": 0.000115
+        }
+      },
+      "stability": "stable",
+      "regimeShift": false,
+      "evidence": "strong",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": 0.01,
+        "samples": 260,
+        "ciLow": -0.11,
+        "ciHigh": 0.13,
+        "pValue": 0.879039,
+        "qValue": 0.963682,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 0.024803,
+        "currentMove": 0.005389,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 53.85,
+        "baselineUpRatePct": 54.27,
+        "liftPct": -0.42,
+        "medianOutcome": 0.002769,
+        "pValue": 0.95401,
+        "qValue": 0.981775,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -0.019028,
+        "currentMove": 0.005389,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 55.77,
+        "baselineUpRatePct": 54.06,
+        "liftPct": 1.71,
+        "medianOutcome": 0.007783,
+        "pValue": 0.814359,
+        "qValue": 0.970457,
+        "evidence": "uncertain"
+      },
+      "strength": "medium",
+      "status": "context"
     },
     {
       "group": "美元流动性",
@@ -3745,7 +3879,7 @@
         "ciLow": -0.16,
         "ciHigh": 0.08,
         "pValue": 0.50052,
-        "qValue": 0.893236,
+        "qValue": 0.879702,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3837,7 +3971,7 @@
         "ciLow": -0.17,
         "ciHigh": 0.07,
         "pValue": 0.43529,
-        "qValue": 0.885853,
+        "qValue": 0.879702,
         "evidence": "uncertain"
       },
       "shock": {
@@ -3966,98 +4100,6 @@
       },
       "strength": "medium",
       "status": "context"
-    },
-    {
-      "group": "科技与加密",
-      "title": "科技股—ETH链",
-      "steps": [
-        "科技成长风险偏好变化",
-        "高久期与高波动资产共同重估",
-        "ETH跟随全球风险周期"
-      ],
-      "interpretation": "纳指收益与ETH后续收益关系",
-      "sourceTitle": "BIS · Cryptoassets",
-      "sourceUrl": "https://www.bis.org/topics/fintech.htm",
-      "left": "nasdaq",
-      "right": "eth",
-      "expectedSign": "positive",
-      "signal": 0.42,
-      "windows": {
-        "short": 0.36,
-        "medium": 0.43,
-        "long": 0.44
-      },
-      "statistics": {
-        "short": {
-          "value": 0.36,
-          "samples": 20,
-          "ciLow": -0.1,
-          "ciHigh": 0.69,
-          "pValue": 0.119114
-        },
-        "medium": {
-          "value": 0.43,
-          "samples": 60,
-          "ciLow": 0.2,
-          "ciHigh": 0.62,
-          "pValue": 0.000471
-        },
-        "long": {
-          "value": 0.44,
-          "samples": 120,
-          "ciLow": 0.29,
-          "ciHigh": 0.58,
-          "pValue": 0
-        }
-      },
-      "stability": "stable",
-      "regimeShift": false,
-      "evidence": "strong",
-      "predictive": {
-        "horizon": 5,
-        "overlapping": false,
-        "value": -0.06,
-        "samples": 260,
-        "ciLow": -0.18,
-        "ciHigh": 0.06,
-        "pValue": 0.332356,
-        "qValue": 0.784718,
-        "evidence": "uncertain"
-      },
-      "shock": {
-        "tail": "upper10pct",
-        "horizon": 5,
-        "threshold": 0.014344,
-        "currentMove": 0.01299,
-        "triggered": false,
-        "eventSamples": 52,
-        "controlSamples": 468,
-        "eventUpRatePct": 48.08,
-        "baselineUpRatePct": 51.71,
-        "liftPct": -3.63,
-        "medianOutcome": -0.00781,
-        "pValue": 0.619302,
-        "qValue": 0.958771,
-        "evidence": "uncertain"
-      },
-      "lowerShock": {
-        "tail": "lower10pct",
-        "horizon": 5,
-        "threshold": -0.014294,
-        "currentMove": 0.01299,
-        "triggered": false,
-        "eventSamples": 52,
-        "controlSamples": 468,
-        "eventUpRatePct": 48.08,
-        "baselineUpRatePct": 51.71,
-        "liftPct": -3.63,
-        "medianOutcome": -0.003742,
-        "pValue": 0.619302,
-        "qValue": 0.958771,
-        "evidence": "uncertain"
-      },
-      "strength": "medium",
-      "status": "confirming"
     },
     {
       "group": "长期通胀与利率",
@@ -4244,6 +4286,98 @@
       "status": "confirming"
     },
     {
+      "group": "科技与加密",
+      "title": "科技股—ETH链",
+      "steps": [
+        "科技成长风险偏好变化",
+        "高久期与高波动资产共同重估",
+        "ETH跟随全球风险周期"
+      ],
+      "interpretation": "纳指收益与ETH后续收益关系",
+      "sourceTitle": "BIS · Cryptoassets",
+      "sourceUrl": "https://www.bis.org/topics/fintech.htm",
+      "left": "nasdaq",
+      "right": "eth",
+      "expectedSign": "positive",
+      "signal": 0.41,
+      "windows": {
+        "short": 0.33,
+        "medium": 0.44,
+        "long": 0.44
+      },
+      "statistics": {
+        "short": {
+          "value": 0.33,
+          "samples": 20,
+          "ciLow": -0.13,
+          "ciHigh": 0.68,
+          "pValue": 0.152377
+        },
+        "medium": {
+          "value": 0.44,
+          "samples": 60,
+          "ciLow": 0.21,
+          "ciHigh": 0.62,
+          "pValue": 0.000415
+        },
+        "long": {
+          "value": 0.44,
+          "samples": 120,
+          "ciLow": 0.29,
+          "ciHigh": 0.58,
+          "pValue": 0
+        }
+      },
+      "stability": "stable",
+      "regimeShift": false,
+      "evidence": "strong",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": -0.06,
+        "samples": 260,
+        "ciLow": -0.18,
+        "ciHigh": 0.06,
+        "pValue": 0.332356,
+        "qValue": 0.782977,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 0.014344,
+        "currentMove": -0.003194,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 48.08,
+        "baselineUpRatePct": 51.71,
+        "liftPct": -3.63,
+        "medianOutcome": -0.00781,
+        "pValue": 0.619302,
+        "qValue": 0.958771,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -0.014294,
+        "currentMove": -0.003194,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 48.08,
+        "baselineUpRatePct": 51.71,
+        "liftPct": -3.63,
+        "medianOutcome": -0.003742,
+        "pValue": 0.619302,
+        "qValue": 0.958771,
+        "evidence": "uncertain"
+      },
+      "strength": "medium",
+      "status": "confirming"
+    },
+    {
       "group": "全球风险压力共振",
       "title": "风险压力共振—ETH链",
       "steps": [
@@ -4359,23 +4493,23 @@
         "short": {
           "value": 0.56,
           "samples": 20,
-          "ciLow": 0.15,
+          "ciLow": 0.16,
           "ciHigh": 0.8,
-          "pValue": 0.009437
+          "pValue": 0.009147
         },
         "medium": {
           "value": 0.35,
           "samples": 60,
           "ciLow": 0.1,
           "ciHigh": 0.55,
-          "pValue": 0.006416
+          "pValue": 0.006358
         },
         "long": {
           "value": 0.34,
           "samples": 120,
           "ciLow": 0.17,
           "ciHigh": 0.49,
-          "pValue": 0.00011
+          "pValue": 0.000109
         }
       },
       "stability": "stable",
@@ -4396,7 +4530,7 @@
         "tail": "upper10pct",
         "horizon": 5,
         "threshold": 50,
-        "currentMove": -25.714286,
+        "currentMove": -28.571429,
         "triggered": false,
         "eventSamples": 57,
         "controlSamples": 463,
@@ -4412,7 +4546,7 @@
         "tail": "lower10pct",
         "horizon": 5,
         "threshold": -50,
-        "currentMove": -25.714286,
+        "currentMove": -28.571429,
         "triggered": false,
         "eventSamples": 62,
         "controlSamples": 458,
@@ -4533,31 +4667,31 @@
       "left": "nasdaq",
       "right": "btc",
       "expectedSign": "positive",
-      "signal": 0.39,
+      "signal": 0.38,
       "windows": {
-        "short": 0.45,
-        "medium": 0.34,
-        "long": 0.41
+        "short": 0.4,
+        "medium": 0.35,
+        "long": 0.42
       },
       "statistics": {
         "short": {
-          "value": 0.45,
+          "value": 0.4,
           "samples": 20,
-          "ciLow": 0.01,
-          "ciHigh": 0.74,
-          "pValue": 0.046355
+          "ciLow": -0.05,
+          "ciHigh": 0.72,
+          "pValue": 0.077116
         },
         "medium": {
-          "value": 0.34,
+          "value": 0.35,
           "samples": 60,
-          "ciLow": 0.1,
-          "ciHigh": 0.55,
-          "pValue": 0.006772
+          "ciLow": 0.11,
+          "ciHigh": 0.56,
+          "pValue": 0.005292
         },
         "long": {
-          "value": 0.41,
+          "value": 0.42,
           "samples": 120,
-          "ciLow": 0.25,
+          "ciLow": 0.26,
           "ciHigh": 0.55,
           "pValue": 0.000002
         }
@@ -4580,7 +4714,7 @@
         "tail": "upper10pct",
         "horizon": 5,
         "threshold": 0.014344,
-        "currentMove": 0.01299,
+        "currentMove": -0.003194,
         "triggered": false,
         "eventSamples": 52,
         "controlSamples": 468,
@@ -4596,7 +4730,7 @@
         "tail": "lower10pct",
         "horizon": 5,
         "threshold": -0.014294,
-        "currentMove": 0.01299,
+        "currentMove": -0.003194,
         "triggered": false,
         "eventSamples": 52,
         "controlSamples": 468,
@@ -4888,98 +5022,6 @@
       "status": "confirming"
     },
     {
-      "group": "全球市场广度",
-      "title": "全球股指广度—科技股链",
-      "steps": [
-        "全球股指同步上涨",
-        "区域风险偏好改善",
-        "科技股趋势获得外部确认"
-      ],
-      "interpretation": "六大股指上涨参与率变化与纳指后续收益关系",
-      "sourceTitle": "Derived · Tracked index participation",
-      "sourceUrl": "https://fred.stlouisfed.org/",
-      "left": "globalbreadth_ex_nasdaq",
-      "right": "nasdaq",
-      "expectedSign": "positive",
-      "signal": 0.37,
-      "windows": {
-        "short": 0.38,
-        "medium": 0.37,
-        "long": 0.35
-      },
-      "statistics": {
-        "short": {
-          "value": 0.38,
-          "samples": 20,
-          "ciLow": -0.08,
-          "ciHigh": 0.7,
-          "pValue": 0.102656
-        },
-        "medium": {
-          "value": 0.37,
-          "samples": 60,
-          "ciLow": 0.13,
-          "ciHigh": 0.57,
-          "pValue": 0.00335
-        },
-        "long": {
-          "value": 0.35,
-          "samples": 120,
-          "ciLow": 0.18,
-          "ciHigh": 0.5,
-          "pValue": 0.000079
-        }
-      },
-      "stability": "stable",
-      "regimeShift": false,
-      "evidence": "strong",
-      "predictive": {
-        "horizon": 5,
-        "overlapping": false,
-        "value": -0.07,
-        "samples": 260,
-        "ciLow": -0.19,
-        "ciHigh": 0.05,
-        "pValue": 0.236698,
-        "qValue": 0.74208,
-        "evidence": "uncertain"
-      },
-      "shock": {
-        "tail": "upper10pct",
-        "horizon": 5,
-        "threshold": 66.666667,
-        "currentMove": -5,
-        "triggered": false,
-        "eventSamples": 66,
-        "controlSamples": 430,
-        "eventUpRatePct": 59.09,
-        "baselineUpRatePct": 59.3,
-        "liftPct": -0.21,
-        "medianOutcome": 0.005144,
-        "pValue": 0.974208,
-        "qValue": 0.981775,
-        "evidence": "uncertain"
-      },
-      "lowerShock": {
-        "tail": "lower10pct",
-        "horizon": 5,
-        "threshold": -66.666667,
-        "currentMove": -5,
-        "triggered": false,
-        "eventSamples": 63,
-        "controlSamples": 433,
-        "eventUpRatePct": 63.49,
-        "baselineUpRatePct": 58.66,
-        "liftPct": 4.83,
-        "medianOutcome": 0.006394,
-        "pValue": 0.465976,
-        "qValue": 0.937347,
-        "evidence": "uncertain"
-      },
-      "strength": "medium",
-      "status": "confirming"
-    },
-    {
       "group": "中国与全球需求",
       "title": "中国—港股链",
       "steps": [
@@ -5125,7 +5167,7 @@
         "ciLow": -0.18,
         "ciHigh": 0.06,
         "pValue": 0.302961,
-        "qValue": 0.780181,
+        "qValue": 0.763928,
         "evidence": "uncertain"
       },
       "shock": {
@@ -5158,6 +5200,98 @@
         "medianOutcome": 0.014934,
         "pValue": 0.093627,
         "qValue": 0.698859,
+        "evidence": "uncertain"
+      },
+      "strength": "medium",
+      "status": "confirming"
+    },
+    {
+      "group": "全球市场广度",
+      "title": "全球股指广度—科技股链",
+      "steps": [
+        "全球股指同步上涨",
+        "区域风险偏好改善",
+        "科技股趋势获得外部确认"
+      ],
+      "interpretation": "六大股指上涨参与率变化与纳指后续收益关系",
+      "sourceTitle": "Derived · Tracked index participation",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "left": "globalbreadth_ex_nasdaq",
+      "right": "nasdaq",
+      "expectedSign": "positive",
+      "signal": 0.35,
+      "windows": {
+        "short": 0.33,
+        "medium": 0.36,
+        "long": 0.35
+      },
+      "statistics": {
+        "short": {
+          "value": 0.33,
+          "samples": 20,
+          "ciLow": -0.13,
+          "ciHigh": 0.67,
+          "pValue": 0.155777
+        },
+        "medium": {
+          "value": 0.36,
+          "samples": 60,
+          "ciLow": 0.11,
+          "ciHigh": 0.56,
+          "pValue": 0.004938
+        },
+        "long": {
+          "value": 0.35,
+          "samples": 120,
+          "ciLow": 0.18,
+          "ciHigh": 0.5,
+          "pValue": 0.000076
+        }
+      },
+      "stability": "stable",
+      "regimeShift": false,
+      "evidence": "strong",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": -0.07,
+        "samples": 260,
+        "ciLow": -0.19,
+        "ciHigh": 0.05,
+        "pValue": 0.236698,
+        "qValue": 0.74208,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 66.666667,
+        "currentMove": 0,
+        "triggered": false,
+        "eventSamples": 66,
+        "controlSamples": 430,
+        "eventUpRatePct": 59.09,
+        "baselineUpRatePct": 59.3,
+        "liftPct": -0.21,
+        "medianOutcome": 0.005144,
+        "pValue": 0.974208,
+        "qValue": 0.981775,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -66.666667,
+        "currentMove": 0,
+        "triggered": false,
+        "eventSamples": 63,
+        "controlSamples": 433,
+        "eventUpRatePct": 63.49,
+        "baselineUpRatePct": 58.66,
+        "liftPct": 4.83,
+        "medianOutcome": 0.006394,
+        "pValue": 0.465976,
+        "qValue": 0.937347,
         "evidence": "uncertain"
       },
       "strength": "medium",
@@ -5309,7 +5443,7 @@
         "ciLow": -0.16,
         "ciHigh": 0.08,
         "pValue": 0.490127,
-        "qValue": 0.893236,
+        "qValue": 0.879702,
         "evidence": "uncertain"
       },
       "shock": {
@@ -5637,33 +5771,33 @@
       "left": "globalbreadth_ex_shanghai",
       "right": "shanghai",
       "expectedSign": "positive",
-      "signal": 0.31,
+      "signal": 0.3,
       "windows": {
-        "short": 0.43,
+        "short": 0.42,
         "medium": 0.28,
-        "long": 0.23
+        "long": 0.22
       },
       "statistics": {
         "short": {
-          "value": 0.43,
+          "value": 0.42,
           "samples": 20,
           "ciLow": -0.02,
           "ciHigh": 0.73,
-          "pValue": 0.058999
+          "pValue": 0.063071
         },
         "medium": {
           "value": 0.28,
           "samples": 60,
           "ciLow": 0.03,
           "ciHigh": 0.5,
-          "pValue": 0.028895
+          "pValue": 0.030234
         },
         "long": {
-          "value": 0.23,
+          "value": 0.22,
           "samples": 120,
           "ciLow": 0.05,
           "ciHigh": 0.39,
-          "pValue": 0.012994
+          "pValue": 0.013424
         }
       },
       "stability": "stable",
@@ -5684,7 +5818,7 @@
         "tail": "upper10pct",
         "horizon": 5,
         "threshold": 44,
-        "currentMove": -13.333333,
+        "currentMove": -20,
         "triggered": false,
         "eventSamples": 8,
         "controlSamples": 71,
@@ -5700,7 +5834,7 @@
         "tail": "lower10pct",
         "horizon": 5,
         "threshold": -56,
-        "currentMove": -13.333333,
+        "currentMove": -20,
         "triggered": false,
         "eventSamples": 8,
         "controlSamples": 71,
@@ -5741,21 +5875,21 @@
           "samples": 20,
           "ciLow": -0.17,
           "ciHigh": 0.65,
-          "pValue": 0.214488
+          "pValue": 0.214431
         },
         "medium": {
           "value": 0.31,
           "samples": 60,
           "ciLow": 0.06,
           "ciHigh": 0.52,
-          "pValue": 0.015686
+          "pValue": 0.015733
         },
         "long": {
           "value": 0.27,
           "samples": 120,
           "ciLow": 0.09,
           "ciHigh": 0.43,
-          "pValue": 0.00287
+          "pValue": 0.002873
         }
       },
       "stability": "stable",
@@ -5776,7 +5910,7 @@
         "tail": "upper10pct",
         "horizon": 5,
         "threshold": 50,
-        "currentMove": -25.714286,
+        "currentMove": -28.571429,
         "triggered": false,
         "eventSamples": 59,
         "controlSamples": 442,
@@ -5792,7 +5926,7 @@
         "tail": "lower10pct",
         "horizon": 5,
         "threshold": -50,
-        "currentMove": -25.714286,
+        "currentMove": -28.571429,
         "triggered": false,
         "eventSamples": 60,
         "controlSamples": 441,
@@ -6291,23 +6425,23 @@
         "short": {
           "value": 0.16,
           "samples": 20,
-          "ciLow": -0.31,
+          "ciLow": -0.3,
           "ciHigh": 0.56,
-          "pValue": 0.518803
+          "pValue": 0.497997
         },
         "medium": {
           "value": 0.28,
           "samples": 60,
           "ciLow": 0.03,
           "ciHigh": 0.5,
-          "pValue": 0.028442
+          "pValue": 0.027293
         },
         "long": {
           "value": 0.29,
           "samples": 120,
           "ciLow": 0.11,
           "ciHigh": 0.44,
-          "pValue": 0.001401
+          "pValue": 0.001344
         }
       },
       "stability": "stable",
@@ -6328,7 +6462,7 @@
         "tail": "upper10pct",
         "horizon": 5,
         "threshold": 66.666667,
-        "currentMove": 20,
+        "currentMove": 0,
         "triggered": false,
         "eventSamples": 71,
         "controlSamples": 425,
@@ -6344,7 +6478,7 @@
         "tail": "lower10pct",
         "horizon": 5,
         "threshold": -66.666667,
-        "currentMove": 20,
+        "currentMove": 0,
         "triggered": false,
         "eventSamples": 63,
         "controlSamples": 433,
@@ -6446,98 +6580,6 @@
         "medianOutcome": 0.004008,
         "pValue": 0.796212,
         "qValue": null,
-        "evidence": "uncertain"
-      },
-      "strength": "weak",
-      "status": "confirming"
-    },
-    {
-      "group": "美债利率来源分解",
-      "title": "预期短率成分—纳指链",
-      "steps": [
-        "预期政策路径抬升",
-        "区分期限风险补偿与预期政策路径",
-        "长久期科技股现金流折现压力提高"
-      ],
-      "interpretation": "10Y恒定期限收益率减Kim–Wright期限溢价的透明代理；不是可直接观测的政策预期",
-      "sourceTitle": "Federal Reserve · Three-Factor Nominal Term Structure Model",
-      "sourceUrl": "https://www.federalreserve.gov/data/three-factor-nominal-term-structure-model.htm",
-      "left": "expectedrate10y",
-      "right": "nasdaq",
-      "expectedSign": "negative",
-      "signal": -0.23,
-      "windows": {
-        "short": -0.39,
-        "medium": -0.16,
-        "long": -0.21
-      },
-      "statistics": {
-        "short": {
-          "value": -0.39,
-          "samples": 20,
-          "ciLow": -0.71,
-          "ciHigh": 0.06,
-          "pValue": 0.08577
-        },
-        "medium": {
-          "value": -0.16,
-          "samples": 60,
-          "ciLow": -0.4,
-          "ciHigh": 0.1,
-          "pValue": 0.228002
-        },
-        "long": {
-          "value": -0.21,
-          "samples": 120,
-          "ciLow": -0.37,
-          "ciHigh": -0.03,
-          "pValue": 0.02371
-        }
-      },
-      "stability": "stable",
-      "regimeShift": false,
-      "evidence": "supported",
-      "predictive": {
-        "horizon": 5,
-        "overlapping": false,
-        "value": -0.03,
-        "samples": 260,
-        "ciLow": -0.16,
-        "ciHigh": 0.09,
-        "pValue": 0.580195,
-        "qValue": 0.907514,
-        "evidence": "uncertain"
-      },
-      "shock": {
-        "tail": "upper10pct",
-        "horizon": 5,
-        "threshold": 0.03895,
-        "currentMove": -0.04,
-        "triggered": false,
-        "eventSamples": 52,
-        "controlSamples": 468,
-        "eventUpRatePct": 55.77,
-        "baselineUpRatePct": 60.47,
-        "liftPct": -4.7,
-        "medianOutcome": 0.002403,
-        "pValue": 0.511619,
-        "qValue": 0.937347,
-        "evidence": "uncertain"
-      },
-      "lowerShock": {
-        "tail": "lower10pct",
-        "horizon": 5,
-        "threshold": -0.03921,
-        "currentMove": -0.04,
-        "triggered": true,
-        "eventSamples": 52,
-        "controlSamples": 468,
-        "eventUpRatePct": 59.62,
-        "baselineUpRatePct": 60.04,
-        "liftPct": -0.42,
-        "medianOutcome": 0.009135,
-        "pValue": 0.953231,
-        "qValue": 0.981775,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -6743,31 +6785,31 @@
       "expectedSign": "negative",
       "signal": -0.2,
       "windows": {
-        "short": -0.34,
-        "medium": -0.13,
-        "long": -0.19
+        "short": -0.32,
+        "medium": -0.14,
+        "long": -0.2
       },
       "statistics": {
         "short": {
-          "value": -0.34,
+          "value": -0.32,
           "samples": 20,
-          "ciLow": -0.68,
-          "ciHigh": 0.12,
-          "pValue": 0.141373
+          "ciLow": -0.67,
+          "ciHigh": 0.15,
+          "pValue": 0.174853
         },
         "medium": {
-          "value": -0.13,
+          "value": -0.14,
           "samples": 60,
           "ciLow": -0.38,
           "ciHigh": 0.12,
-          "pValue": 0.308079
+          "pValue": 0.283848
         },
         "long": {
-          "value": -0.19,
+          "value": -0.2,
           "samples": 120,
           "ciLow": -0.36,
           "ciHigh": -0.02,
-          "pValue": 0.032925
+          "pValue": 0.030468
         }
       },
       "stability": "stable",
@@ -6873,7 +6915,7 @@
         "ciLow": -0.07,
         "ciHigh": 0.23,
         "pValue": 0.29899,
-        "qValue": 0.780181,
+        "qValue": 0.763928,
         "evidence": "uncertain"
       },
       "shock": {
@@ -6906,6 +6948,98 @@
         "medianOutcome": 0.00869,
         "pValue": 0.714338,
         "qValue": 0.970457,
+        "evidence": "uncertain"
+      },
+      "strength": "weak",
+      "status": "confirming"
+    },
+    {
+      "group": "全球市场广度",
+      "title": "全球股指广度—欧洲股市链",
+      "steps": [
+        "全球上涨参与率提高",
+        "跨区域配置风险偏好改善",
+        "欧洲股市获得支撑"
+      ],
+      "interpretation": "全球股指参与率变化与Euro 50后续收益关系",
+      "sourceTitle": "Derived · Tracked index participation",
+      "sourceUrl": "https://fred.stlouisfed.org/",
+      "left": "globalbreadth_ex_euro50",
+      "right": "euro50",
+      "expectedSign": "positive",
+      "signal": 0.19,
+      "windows": {
+        "short": -0.09,
+        "medium": 0.26,
+        "long": 0.33
+      },
+      "statistics": {
+        "short": {
+          "value": -0.09,
+          "samples": 20,
+          "ciLow": -0.51,
+          "ciHigh": 0.37,
+          "pValue": 0.715271
+        },
+        "medium": {
+          "value": 0.26,
+          "samples": 60,
+          "ciLow": 0,
+          "ciHigh": 0.48,
+          "pValue": 0.048715
+        },
+        "long": {
+          "value": 0.33,
+          "samples": 120,
+          "ciLow": 0.16,
+          "ciHigh": 0.48,
+          "pValue": 0.000237
+        }
+      },
+      "stability": "stable",
+      "regimeShift": true,
+      "evidence": "supported",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": 0.01,
+        "samples": 260,
+        "ciLow": -0.11,
+        "ciHigh": 0.13,
+        "pValue": 0.89917,
+        "qValue": 0.963682,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 66.666667,
+        "currentMove": -20,
+        "triggered": false,
+        "eventSamples": 60,
+        "controlSamples": 450,
+        "eventUpRatePct": 60,
+        "baselineUpRatePct": 60.22,
+        "liftPct": -0.22,
+        "medianOutcome": 0.002657,
+        "pValue": 0.973912,
+        "qValue": 0.981775,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -66.666667,
+        "currentMove": -20,
+        "triggered": false,
+        "eventSamples": 57,
+        "controlSamples": 453,
+        "eventUpRatePct": 63.16,
+        "baselineUpRatePct": 59.82,
+        "liftPct": 3.34,
+        "medianOutcome": 0.003643,
+        "pValue": 0.627312,
+        "qValue": 0.963395,
         "evidence": "uncertain"
       },
       "strength": "weak",
@@ -7096,190 +7230,6 @@
       "status": "diverging"
     },
     {
-      "group": "通胀预期与黄金",
-      "title": "通胀预期—黄金链",
-      "steps": [
-        "通胀预期上升",
-        "货币购买力对冲需求增强",
-        "黄金获得支撑"
-      ],
-      "interpretation": "10Y盈亏平衡通胀率日变化与黄金策略代理收益相关性",
-      "sourceTitle": "FRED · 10-Year Breakeven Inflation",
-      "sourceUrl": "https://fred.stlouisfed.org/series/T10YIE",
-      "left": "breakeven10y",
-      "right": "gold",
-      "expectedSign": "positive",
-      "signal": -0.18,
-      "windows": {
-        "short": -0.17,
-        "medium": -0.15,
-        "long": -0.26
-      },
-      "statistics": {
-        "short": {
-          "value": -0.17,
-          "samples": 20,
-          "ciLow": -0.57,
-          "ciHigh": 0.29,
-          "pValue": 0.470874
-        },
-        "medium": {
-          "value": -0.15,
-          "samples": 60,
-          "ciLow": -0.39,
-          "ciHigh": 0.11,
-          "pValue": 0.260809
-        },
-        "long": {
-          "value": -0.26,
-          "samples": 120,
-          "ciLow": -0.42,
-          "ciHigh": -0.09,
-          "pValue": 0.003482
-        }
-      },
-      "stability": "stable",
-      "regimeShift": false,
-      "evidence": "supported",
-      "predictive": {
-        "horizon": 5,
-        "overlapping": false,
-        "value": -0.02,
-        "samples": 260,
-        "ciLow": -0.14,
-        "ciHigh": 0.1,
-        "pValue": 0.73211,
-        "qValue": 0.963682,
-        "evidence": "uncertain"
-      },
-      "shock": {
-        "tail": "upper10pct",
-        "horizon": 5,
-        "threshold": 0.03,
-        "currentMove": 0.04,
-        "triggered": true,
-        "eventSamples": 59,
-        "controlSamples": 461,
-        "eventUpRatePct": 54.24,
-        "baselineUpRatePct": 51.63,
-        "liftPct": 2.61,
-        "medianOutcome": 0.011559,
-        "pValue": 0.705576,
-        "qValue": 0.970457,
-        "evidence": "uncertain"
-      },
-      "lowerShock": {
-        "tail": "lower10pct",
-        "horizon": 5,
-        "threshold": -0.03,
-        "currentMove": 0.04,
-        "triggered": false,
-        "eventSamples": 52,
-        "controlSamples": 468,
-        "eventUpRatePct": 38.46,
-        "baselineUpRatePct": 53.42,
-        "liftPct": -14.96,
-        "medianOutcome": -0.007533,
-        "pValue": 0.040525,
-        "qValue": 0.564648,
-        "evidence": "uncertain"
-      },
-      "strength": "weak",
-      "status": "diverging"
-    },
-    {
-      "group": "全球市场广度",
-      "title": "全球股指广度—欧洲股市链",
-      "steps": [
-        "全球上涨参与率提高",
-        "跨区域配置风险偏好改善",
-        "欧洲股市获得支撑"
-      ],
-      "interpretation": "全球股指参与率变化与Euro 50后续收益关系",
-      "sourceTitle": "Derived · Tracked index participation",
-      "sourceUrl": "https://fred.stlouisfed.org/",
-      "left": "globalbreadth_ex_euro50",
-      "right": "euro50",
-      "expectedSign": "positive",
-      "signal": 0.18,
-      "windows": {
-        "short": -0.06,
-        "medium": 0.23,
-        "long": 0.33
-      },
-      "statistics": {
-        "short": {
-          "value": -0.06,
-          "samples": 20,
-          "ciLow": -0.49,
-          "ciHigh": 0.39,
-          "pValue": 0.7891
-        },
-        "medium": {
-          "value": 0.23,
-          "samples": 60,
-          "ciLow": -0.02,
-          "ciHigh": 0.46,
-          "pValue": 0.075177
-        },
-        "long": {
-          "value": 0.33,
-          "samples": 120,
-          "ciLow": 0.16,
-          "ciHigh": 0.48,
-          "pValue": 0.000181
-        }
-      },
-      "stability": "stable",
-      "regimeShift": true,
-      "evidence": "supported",
-      "predictive": {
-        "horizon": 5,
-        "overlapping": false,
-        "value": 0.01,
-        "samples": 260,
-        "ciLow": -0.11,
-        "ciHigh": 0.13,
-        "pValue": 0.89917,
-        "qValue": 0.963682,
-        "evidence": "uncertain"
-      },
-      "shock": {
-        "tail": "upper10pct",
-        "horizon": 5,
-        "threshold": 66.666667,
-        "currentMove": -5,
-        "triggered": false,
-        "eventSamples": 60,
-        "controlSamples": 450,
-        "eventUpRatePct": 60,
-        "baselineUpRatePct": 60.22,
-        "liftPct": -0.22,
-        "medianOutcome": 0.002657,
-        "pValue": 0.973912,
-        "qValue": 0.981775,
-        "evidence": "uncertain"
-      },
-      "lowerShock": {
-        "tail": "lower10pct",
-        "horizon": 5,
-        "threshold": -66.666667,
-        "currentMove": -5,
-        "triggered": false,
-        "eventSamples": 57,
-        "controlSamples": 453,
-        "eventUpRatePct": 63.16,
-        "baselineUpRatePct": 59.82,
-        "liftPct": 3.34,
-        "medianOutcome": 0.003643,
-        "pValue": 0.627312,
-        "qValue": 0.963395,
-        "evidence": "uncertain"
-      },
-      "strength": "weak",
-      "status": "confirming"
-    },
-    {
       "group": "跨资产风险广度",
       "title": "风险广度—原油链",
       "steps": [
@@ -7372,6 +7322,190 @@
       "status": "diverging"
     },
     {
+      "group": "美债利率来源分解",
+      "title": "预期短率成分—纳指链",
+      "steps": [
+        "预期政策路径抬升",
+        "区分期限风险补偿与预期政策路径",
+        "长久期科技股现金流折现压力提高"
+      ],
+      "interpretation": "10Y恒定期限收益率减Kim–Wright期限溢价的透明代理；不是可直接观测的政策预期",
+      "sourceTitle": "Federal Reserve · Three-Factor Nominal Term Structure Model",
+      "sourceUrl": "https://www.federalreserve.gov/data/three-factor-nominal-term-structure-model.htm",
+      "left": "expectedrate10y",
+      "right": "nasdaq",
+      "expectedSign": "negative",
+      "signal": -0.18,
+      "windows": {
+        "short": -0.25,
+        "medium": -0.13,
+        "long": -0.21
+      },
+      "statistics": {
+        "short": {
+          "value": -0.25,
+          "samples": 20,
+          "ciLow": -0.62,
+          "ciHigh": 0.22,
+          "pValue": 0.298248
+        },
+        "medium": {
+          "value": -0.13,
+          "samples": 60,
+          "ciLow": -0.38,
+          "ciHigh": 0.12,
+          "pValue": 0.307331
+        },
+        "long": {
+          "value": -0.21,
+          "samples": 120,
+          "ciLow": -0.37,
+          "ciHigh": -0.03,
+          "pValue": 0.021579
+        }
+      },
+      "stability": "stable",
+      "regimeShift": false,
+      "evidence": "supported",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": -0.04,
+        "samples": 260,
+        "ciLow": -0.16,
+        "ciHigh": 0.08,
+        "pValue": 0.481654,
+        "qValue": 0.879702,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 0.03895,
+        "currentMove": -0.04,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 55.77,
+        "baselineUpRatePct": 60.47,
+        "liftPct": -4.7,
+        "medianOutcome": 0.002403,
+        "pValue": 0.511619,
+        "qValue": 0.937347,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -0.03921,
+        "currentMove": -0.04,
+        "triggered": true,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 59.62,
+        "baselineUpRatePct": 60.04,
+        "liftPct": -0.42,
+        "medianOutcome": 0.009135,
+        "pValue": 0.953231,
+        "qValue": 0.981775,
+        "evidence": "uncertain"
+      },
+      "strength": "weak",
+      "status": "confirming"
+    },
+    {
+      "group": "通胀预期与黄金",
+      "title": "通胀预期—黄金链",
+      "steps": [
+        "通胀预期上升",
+        "货币购买力对冲需求增强",
+        "黄金获得支撑"
+      ],
+      "interpretation": "10Y盈亏平衡通胀率日变化与黄金策略代理收益相关性",
+      "sourceTitle": "FRED · 10-Year Breakeven Inflation",
+      "sourceUrl": "https://fred.stlouisfed.org/series/T10YIE",
+      "left": "breakeven10y",
+      "right": "gold",
+      "expectedSign": "positive",
+      "signal": -0.17,
+      "windows": {
+        "short": -0.14,
+        "medium": -0.14,
+        "long": -0.27
+      },
+      "statistics": {
+        "short": {
+          "value": -0.14,
+          "samples": 20,
+          "ciLow": -0.55,
+          "ciHigh": 0.32,
+          "pValue": 0.552952
+        },
+        "medium": {
+          "value": -0.14,
+          "samples": 60,
+          "ciLow": -0.38,
+          "ciHigh": 0.12,
+          "pValue": 0.300152
+        },
+        "long": {
+          "value": -0.27,
+          "samples": 120,
+          "ciLow": -0.43,
+          "ciHigh": -0.1,
+          "pValue": 0.002491
+        }
+      },
+      "stability": "stable",
+      "regimeShift": false,
+      "evidence": "supported",
+      "predictive": {
+        "horizon": 5,
+        "overlapping": false,
+        "value": -0.02,
+        "samples": 260,
+        "ciLow": -0.14,
+        "ciHigh": 0.1,
+        "pValue": 0.73211,
+        "qValue": 0.963682,
+        "evidence": "uncertain"
+      },
+      "shock": {
+        "tail": "upper10pct",
+        "horizon": 5,
+        "threshold": 0.03,
+        "currentMove": 0.04,
+        "triggered": true,
+        "eventSamples": 59,
+        "controlSamples": 461,
+        "eventUpRatePct": 54.24,
+        "baselineUpRatePct": 51.63,
+        "liftPct": 2.61,
+        "medianOutcome": 0.011559,
+        "pValue": 0.705576,
+        "qValue": 0.970457,
+        "evidence": "uncertain"
+      },
+      "lowerShock": {
+        "tail": "lower10pct",
+        "horizon": 5,
+        "threshold": -0.03,
+        "currentMove": 0.04,
+        "triggered": false,
+        "eventSamples": 52,
+        "controlSamples": 468,
+        "eventUpRatePct": 38.46,
+        "baselineUpRatePct": 53.42,
+        "liftPct": -14.96,
+        "medianOutcome": -0.007533,
+        "pValue": 0.040525,
+        "qValue": 0.564648,
+        "evidence": "uncertain"
+      },
+      "strength": "weak",
+      "status": "diverging"
+    },
+    {
       "group": "全球市场广度",
       "title": "全球股指广度—日股链",
       "steps": [
@@ -7387,31 +7521,31 @@
       "expectedSign": "positive",
       "signal": 0.16,
       "windows": {
-        "short": 0.27,
+        "short": 0.26,
         "medium": 0.14,
         "long": 0.09
       },
       "statistics": {
         "short": {
-          "value": 0.27,
+          "value": 0.26,
           "samples": 20,
-          "ciLow": -0.2,
+          "ciLow": -0.21,
           "ciHigh": 0.63,
-          "pValue": 0.259372
+          "pValue": 0.281644
         },
         "medium": {
           "value": 0.14,
           "samples": 60,
           "ciLow": -0.12,
           "ciHigh": 0.38,
-          "pValue": 0.280349
+          "pValue": 0.290514
         },
         "long": {
           "value": 0.09,
           "samples": 120,
           "ciLow": -0.09,
           "ciHigh": 0.27,
-          "pValue": 0.320773
+          "pValue": 0.327358
         }
       },
       "stability": "stable",
@@ -7432,7 +7566,7 @@
         "tail": "upper10pct",
         "horizon": 5,
         "threshold": 80,
-        "currentMove": -33.333333,
+        "currentMove": -40,
         "triggered": false,
         "eventSamples": 51,
         "controlSamples": 432,
@@ -7448,7 +7582,7 @@
         "tail": "lower10pct",
         "horizon": 5,
         "threshold": -66.666667,
-        "currentMove": -33.333333,
+        "currentMove": -40,
         "triggered": false,
         "eventSamples": 80,
         "controlSamples": 403,
@@ -7517,7 +7651,7 @@
         "ciLow": -0.18,
         "ciHigh": 0.06,
         "pValue": 0.358454,
-        "qValue": 0.784718,
+        "qValue": 0.784541,
         "evidence": "uncertain"
       },
       "shock": {
@@ -7701,7 +7835,7 @@
         "ciLow": -0.08,
         "ciHigh": 0.24,
         "pValue": 0.316108,
-        "qValue": 0.780181,
+        "qValue": 0.763928,
         "evidence": "uncertain"
       },
       "shock": {
@@ -7755,31 +7889,31 @@
       "expectedSign": "positive",
       "signal": 0.14,
       "windows": {
-        "short": 0.04,
+        "short": 0.03,
         "medium": 0.21,
         "long": 0.11
       },
       "statistics": {
         "short": {
-          "value": 0.04,
+          "value": 0.03,
           "samples": 20,
-          "ciLow": -0.41,
+          "ciLow": -0.42,
           "ciHigh": 0.47,
-          "pValue": 0.875747
+          "pValue": 0.89238
         },
         "medium": {
           "value": 0.21,
           "samples": 60,
           "ciLow": -0.05,
           "ciHigh": 0.44,
-          "pValue": 0.106581
+          "pValue": 0.11106
         },
         "long": {
           "value": 0.11,
           "samples": 120,
           "ciLow": -0.07,
           "ciHigh": 0.28,
-          "pValue": 0.229644
+          "pValue": 0.234321
         }
       },
       "stability": "stable",
@@ -7792,7 +7926,7 @@
         "samples": 80,
         "ciLow": -0.16,
         "ciHigh": 0.28,
-        "pValue": 0.589271,
+        "pValue": 0.591892,
         "qValue": 0.907514,
         "evidence": "uncertain"
       },
@@ -7800,7 +7934,7 @@
         "tail": "upper10pct",
         "horizon": 5,
         "threshold": 60,
-        "currentMove": -13.333333,
+        "currentMove": -20,
         "triggered": false,
         "eventSamples": 10,
         "controlSamples": 70,
@@ -7816,7 +7950,7 @@
         "tail": "lower10pct",
         "horizon": 5,
         "threshold": -60,
-        "currentMove": -13.333333,
+        "currentMove": -20,
         "triggered": false,
         "eventSamples": 9,
         "controlSamples": 71,
@@ -8161,7 +8295,7 @@
         "ciLow": -0.1,
         "ciHigh": 0.34,
         "pValue": 0.266452,
-        "qValue": 0.767267,
+        "qValue": 0.754332,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8253,7 +8387,7 @@
         "ciLow": -0.07,
         "ciHigh": 0.17,
         "pValue": 0.419044,
-        "qValue": 0.883802,
+        "qValue": 0.879702,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8345,7 +8479,7 @@
         "ciLow": -0.06,
         "ciHigh": 0.19,
         "pValue": 0.284418,
-        "qValue": 0.767267,
+        "qValue": 0.754332,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8432,12 +8566,12 @@
       "predictive": {
         "horizon": 5,
         "overlapping": false,
-        "value": -0.06,
+        "value": -0.07,
         "samples": 260,
-        "ciLow": -0.18,
+        "ciLow": -0.19,
         "ciHigh": 0.06,
-        "pValue": 0.358535,
-        "qValue": 0.784718,
+        "pValue": 0.286126,
+        "qValue": 0.754332,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8583,31 +8717,31 @@
       "expectedSign": "positive",
       "signal": -0.11,
       "windows": {
-        "short": -0.14,
-        "medium": -0.09,
+        "short": -0.13,
+        "medium": -0.08,
         "long": -0.14
       },
       "statistics": {
         "short": {
-          "value": -0.14,
+          "value": -0.13,
           "samples": 20,
-          "ciLow": -0.55,
+          "ciLow": -0.54,
           "ciHigh": 0.33,
-          "pValue": 0.570049
+          "pValue": 0.593697
         },
         "medium": {
-          "value": -0.09,
+          "value": -0.08,
           "samples": 60,
-          "ciLow": -0.34,
-          "ciHigh": 0.16,
-          "pValue": 0.476113
+          "ciLow": -0.33,
+          "ciHigh": 0.17,
+          "pValue": 0.522851
         },
         "long": {
           "value": -0.14,
           "samples": 120,
-          "ciLow": -0.31,
+          "ciLow": -0.32,
           "ciHigh": 0.04,
-          "pValue": 0.122313
+          "pValue": 0.116586
         }
       },
       "stability": "stable",
@@ -8621,7 +8755,7 @@
         "ciLow": -0.06,
         "ciHigh": 0.18,
         "pValue": 0.313,
-        "qValue": 0.780181,
+        "qValue": 0.763928,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8677,7 +8811,7 @@
       "windows": {
         "short": -0.23,
         "medium": -0.08,
-        "long": -0.04
+        "long": -0.05
       },
       "statistics": {
         "short": {
@@ -8685,21 +8819,21 @@
           "samples": 20,
           "ciLow": -0.61,
           "ciHigh": 0.23,
-          "pValue": 0.329836
+          "pValue": 0.328745
         },
         "medium": {
           "value": -0.08,
           "samples": 60,
           "ciLow": -0.33,
           "ciHigh": 0.18,
-          "pValue": 0.545293
+          "pValue": 0.544354
         },
         "long": {
-          "value": -0.04,
+          "value": -0.05,
           "samples": 120,
-          "ciLow": -0.22,
-          "ciHigh": 0.14,
-          "pValue": 0.627018
+          "ciLow": -0.23,
+          "ciHigh": 0.13,
+          "pValue": 0.588583
         }
       },
       "stability": "insufficient",
@@ -8713,7 +8847,7 @@
         "ciLow": -0.16,
         "ciHigh": 0.08,
         "pValue": 0.485212,
-        "qValue": 0.893236,
+        "qValue": 0.879702,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8805,7 +8939,7 @@
         "ciLow": -0.43,
         "ciHigh": -0.01,
         "pValue": 0.038041,
-        "qValue": 0.440655,
+        "qValue": 0.44041,
         "evidence": "uncertain"
       },
       "shock": {
@@ -8951,31 +9085,31 @@
       "expectedSign": "negative",
       "signal": -0.11,
       "windows": {
-        "short": -0.16,
-        "medium": -0.11,
+        "short": -0.17,
+        "medium": -0.1,
         "long": -0.08
       },
       "statistics": {
         "short": {
-          "value": -0.16,
+          "value": -0.17,
           "samples": 20,
-          "ciLow": -0.56,
-          "ciHigh": 0.31,
-          "pValue": 0.508566
+          "ciLow": -0.57,
+          "ciHigh": 0.3,
+          "pValue": 0.489034
         },
         "medium": {
-          "value": -0.11,
+          "value": -0.1,
           "samples": 60,
-          "ciLow": -0.35,
-          "ciHigh": 0.15,
-          "pValue": 0.424943
+          "ciLow": -0.34,
+          "ciHigh": 0.16,
+          "pValue": 0.450585
         },
         "long": {
           "value": -0.08,
           "samples": 120,
           "ciLow": -0.26,
           "ciHigh": 0.1,
-          "pValue": 0.366109
+          "pValue": 0.383005
         }
       },
       "stability": "stable",
@@ -9725,7 +9859,7 @@
         "ciLow": -0.19,
         "ciHigh": 0.05,
         "pValue": 0.278998,
-        "qValue": 0.767267,
+        "qValue": 0.754332,
         "evidence": "uncertain"
       },
       "shock": {
@@ -9909,7 +10043,7 @@
         "ciLow": -0.18,
         "ciHigh": 0.06,
         "pValue": 0.343364,
-        "qValue": 0.784718,
+        "qValue": 0.782977,
         "evidence": "uncertain"
       },
       "shock": {
@@ -10001,7 +10135,7 @@
         "ciLow": -0.18,
         "ciHigh": 0.06,
         "pValue": 0.35591,
-        "qValue": 0.784718,
+        "qValue": 0.784541,
         "evidence": "uncertain"
       },
       "shock": {
@@ -10461,7 +10595,7 @@
         "ciLow": -0.16,
         "ciHigh": 0.08,
         "pValue": 0.499035,
-        "qValue": 0.893236,
+        "qValue": 0.879702,
         "evidence": "uncertain"
       },
       "shock": {
@@ -10645,7 +10779,7 @@
         "ciLow": -0.11,
         "ciHigh": 0.36,
         "pValue": 0.272022,
-        "qValue": 0.767267,
+        "qValue": 0.754332,
         "evidence": "uncertain"
       },
       "shock": {
@@ -11105,7 +11239,7 @@
         "ciLow": -0.08,
         "ciHigh": 0.16,
         "pValue": 0.497918,
-        "qValue": 0.893236,
+        "qValue": 0.879702,
         "evidence": "uncertain"
       },
       "shock": {
@@ -11473,7 +11607,7 @@
         "ciLow": -0.19,
         "ciHigh": 0.05,
         "pValue": 0.253712,
-        "qValue": 0.767267,
+        "qValue": 0.754332,
         "evidence": "uncertain"
       },
       "shock": {
@@ -11657,7 +11791,7 @@
         "ciLow": -0.32,
         "ciHigh": 0.12,
         "pValue": 0.34424,
-        "qValue": 0.784718,
+        "qValue": 0.782977,
         "evidence": "uncertain"
       },
       "shock": {
@@ -12300,8 +12434,8 @@
         "samples": 80,
         "ciLow": -0.43,
         "ciHigh": -0.01,
-        "pValue": 0.041894,
-        "qValue": 0.440655,
+        "pValue": 0.041763,
+        "qValue": 0.44041,
         "evidence": "uncertain"
       },
       "shock": {
@@ -12454,23 +12588,23 @@
     },
     "breadth": {
       "title": "市场参与度分化",
-      "summary": "最近交易日有数据的六大股指跟踪池中75%上涨，股票/商品/加密十项风险跟踪池中50%上涨；5日参与率分别上涨 8.33点、下跌 5.56点。这是跟踪标的参与率，不是交易所成分股涨跌家数。"
+      "summary": "最近交易日有数据的六大股指跟踪池中67%上涨，股票/商品/加密十项风险跟踪池中50%上涨；5日参与率分别持平 0.00点、下跌 5.56点。这是跟踪标的参与率，不是交易所成分股涨跌家数。"
     },
     "leaders": [
-      {
-        "id": "gold",
-        "name": "黄金策略指数",
-        "move": 6.97
-      },
       {
         "id": "nikkei",
         "name": "日经225",
         "move": 2.08
       },
       {
-        "id": "nasdaq",
-        "name": "纳斯达克综合",
-        "move": 1.3
+        "id": "shanghai",
+        "name": "上证综指",
+        "move": 0.67
+      },
+      {
+        "id": "gold",
+        "name": "黄金策略指数",
+        "move": 0.54
       }
     ],
     "laggards": [
@@ -12496,24 +12630,14 @@
         "name": "标普500",
         "date": "2026-08-10",
         "dailyMove": -0.06,
-        "dailySummary": "标普500最近交易日下跌 0.06%。现有跨资产贡献与价格方向相反（净贡献+1.00），本次涨跌更可能由品种自身事件、新闻或尚未覆盖的驱动造成。",
+        "dailySummary": "标普500最近交易日下跌 0.06%。现有跨资产贡献与价格方向相反（净贡献+0.80），本次涨跌更可能由品种自身事件、新闻或尚未覆盖的驱动造成。",
         "dailyAttribution": {
           "alignment": "diverging",
-          "netContribution": 1,
+          "netContribution": 0.8,
           "alignedDrivers": 0,
           "totalDrivers": 3
         },
         "drivers": [
-          {
-            "chain": "黄金—股票状态链",
-            "driver": "黄金策略指数",
-            "driverMove": 6.97,
-            "driverZ": 2.25,
-            "correlation": 0.54,
-            "contribution": 0.44,
-            "effect": "tailwind",
-            "text": "黄金策略指数上涨 6.97%（+2.25σ），结合当前ρ 0.54，对标普500的共振贡献+0.44"
-          },
           {
             "chain": "新兴市场HY收益率—美股链",
             "driver": "新兴市场高收益公司债有效收益率",
@@ -12533,6 +12657,16 @@
             "contribution": 0.24,
             "effect": "tailwind",
             "text": "美元广义指数下跌 0.37%（-1.24σ），结合当前ρ -0.43，对标普500的共振贡献+0.24"
+          },
+          {
+            "chain": "原油—美股增长链",
+            "driver": "WTI原油",
+            "driverMove": -4.87,
+            "driverZ": -1.3,
+            "correlation": -0.42,
+            "contribution": 0.24,
+            "effect": "tailwind",
+            "text": "WTI原油下跌 4.87%（-1.30σ），结合当前ρ -0.42，对标普500的共振贡献+0.24"
           }
         ],
         "horizonOutlooks": [
@@ -13286,13 +13420,13 @@
       {
         "id": "nasdaq",
         "name": "纳斯达克综合",
-        "date": "2026-08-07",
-        "dailyMove": 1.3,
-        "dailySummary": "纳斯达克综合最近交易日上涨 1.30%。标准化共振贡献同向（净贡献+0.66），主要来自美债10Y实际利率、美债10Y、美债2Y。",
+        "date": "2026-08-10",
+        "dailyMove": -0.32,
+        "dailySummary": "纳斯达克综合最近交易日下跌 0.32%。现有跨资产贡献与价格方向相反（净贡献+0.66），本次涨跌更可能由品种自身事件、新闻或尚未覆盖的驱动造成。",
         "dailyAttribution": {
-          "alignment": "confirming",
+          "alignment": "diverging",
           "netContribution": 0.66,
-          "alignedDrivers": 3,
+          "alignedDrivers": 0,
           "totalDrivers": 3
         },
         "drivers": [
@@ -13333,26 +13467,26 @@
             "label": "未来1日",
             "observations": 1,
             "direction": "bullish",
-            "score": 1,
+            "score": 0.38,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 53.49,
+            "upProbabilityPct": 53.44,
             "historicalReturnRangePct": {
               "low": -0.55,
-              "high": 0.74,
-              "samples": 785
+              "high": 0.73,
+              "samples": 784
             },
             "ruleName": "纯动量趋势方向",
             "threshold": 0.35,
             "training": {
               "samples": 1302,
-              "accuracyPct": 48.46,
+              "accuracyPct": 48.39,
               "accuracyIntervalPct": {
-                "low": 45.76,
-                "high": 51.18
+                "low": 45.68,
+                "high": 51.1
               },
-              "bestBaselinePct": 51.84,
-              "liftPct": -3.38
+              "bestBaselinePct": 51.61,
+              "liftPct": -3.22
             },
             "validation": {
               "samples": 560,
@@ -13361,19 +13495,19 @@
                 "low": 45.7,
                 "high": 53.95
               },
-              "bestBaselinePct": 54.64,
-              "liftPct": -4.82
+              "bestBaselinePct": 54.46,
+              "liftPct": -4.64
             },
             "factors": [
               {
                 "name": "1观测动量",
-                "value": 0.43,
-                "text": "1个观测期变化上涨 1.30%，波动调整信号+0.43"
+                "value": -0.11,
+                "text": "1个观测期变化下跌 0.32%，波动调整信号-0.11"
               },
               {
                 "name": "5观测趋势",
-                "value": 0.68,
-                "text": "5个观测期变化上涨 5.19%，波动调整信号+0.68"
+                "value": 0.4,
+                "text": "5个观测期变化上涨 2.67%，波动调整信号+0.40"
               }
             ]
           },
@@ -13385,44 +13519,44 @@
             "score": 1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 60.89,
+            "upProbabilityPct": 60.67,
             "historicalReturnRangePct": {
-              "low": -1.16,
-              "high": 2.15,
-              "samples": 177
+              "low": -0.84,
+              "high": 2.16,
+              "samples": 176
             },
             "ruleName": "纯动量趋势方向",
             "threshold": 0.2,
             "training": {
               "samples": 279,
-              "accuracyPct": 53.41,
+              "accuracyPct": 54.84,
               "accuracyIntervalPct": {
-                "low": 47.54,
-                "high": 59.17
+                "low": 48.97,
+                "high": 60.57
               },
-              "bestBaselinePct": 59.14,
-              "liftPct": -5.73
+              "bestBaselinePct": 55.2,
+              "liftPct": -0.36
             },
             "validation": {
-              "samples": 119,
-              "accuracyPct": 57.14,
+              "samples": 120,
+              "accuracyPct": 55.83,
               "accuracyIntervalPct": {
-                "low": 48.17,
-                "high": 65.67
+                "low": 46.9,
+                "high": 64.4
               },
-              "bestBaselinePct": 59.66,
-              "liftPct": -2.52
+              "bestBaselinePct": 55.83,
+              "liftPct": 0
             },
             "factors": [
               {
                 "name": "5观测动量",
-                "value": 0.68,
-                "text": "5个观测期变化上涨 5.19%，波动调整信号+0.68"
+                "value": 0.4,
+                "text": "5个观测期变化上涨 2.67%，波动调整信号+0.40"
               },
               {
                 "name": "21观测趋势",
-                "value": 0.14,
-                "text": "21个观测期变化上涨 1.85%，波动调整信号+0.14"
+                "value": 0.1,
+                "text": "21个观测期变化上涨 1.23%，波动调整信号+0.10"
               }
             ]
           },
@@ -13434,44 +13568,44 @@
             "score": 1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 68.09,
+            "upProbabilityPct": 69.77,
             "historicalReturnRangePct": {
-              "low": -3.27,
-              "high": 5.07,
-              "samples": 45
+              "low": -0.77,
+              "high": 5.31,
+              "samples": 41
             },
-            "ruleName": "纯动量趋势方向",
+            "ruleName": "纯动量短线方向",
             "threshold": 0.35,
             "training": {
-              "samples": 65,
+              "samples": 60,
               "accuracyPct": 60,
               "accuracyIntervalPct": {
-                "low": 47.86,
-                "high": 71.03
+                "low": 47.37,
+                "high": 71.43
               },
-              "bestBaselinePct": 64.62,
-              "liftPct": -4.62
+              "bestBaselinePct": 63.33,
+              "liftPct": -3.33
             },
             "validation": {
-              "samples": 28,
-              "accuracyPct": 67.86,
+              "samples": 27,
+              "accuracyPct": 59.26,
               "accuracyIntervalPct": {
-                "low": 49.34,
-                "high": 82.07
+                "low": 40.73,
+                "high": 75.49
               },
-              "bestBaselinePct": 67.86,
-              "liftPct": 0
+              "bestBaselinePct": 66.67,
+              "liftPct": -7.41
             },
             "factors": [
               {
                 "name": "21观测动量",
-                "value": 0.14,
-                "text": "21个观测期变化上涨 1.85%，波动调整信号+0.14"
+                "value": 0.1,
+                "text": "21个观测期变化上涨 1.23%，波动调整信号+0.10"
               },
               {
                 "name": "63观测趋势",
-                "value": 0.15,
-                "text": "63个观测期变化上涨 3.43%，波动调整信号+0.15"
+                "value": 0.06,
+                "text": "63个观测期变化上涨 1.37%，波动调整信号+0.06"
               }
             ]
           },
@@ -13485,8 +13619,8 @@
             "confidence": "watch",
             "upProbabilityPct": 81.25,
             "historicalReturnRangePct": {
-              "low": 2.17,
-              "high": 9.06,
+              "low": 3.69,
+              "high": 7.77,
               "samples": 14
             },
             "ruleName": "纯动量趋势方向",
@@ -13514,13 +13648,13 @@
             "factors": [
               {
                 "name": "63观测动量",
-                "value": 0.15,
-                "text": "63个观测期变化上涨 3.43%，波动调整信号+0.15"
+                "value": 0.06,
+                "text": "63个观测期变化上涨 1.37%，波动调整信号+0.06"
               },
               {
                 "name": "126观测趋势",
-                "value": 0.53,
-                "text": "126个观测期变化上涨 18.41%，波动调整信号+0.53"
+                "value": 0.46,
+                "text": "126个观测期变化上涨 15.52%，波动调整信号+0.46"
               }
             ]
           },
@@ -13534,21 +13668,21 @@
             "confidence": "watch",
             "upProbabilityPct": 62.5,
             "historicalReturnRangePct": {
-              "low": -2.46,
-              "high": 17.23,
+              "low": -0.11,
+              "high": 14.59,
               "samples": 6
             },
-            "ruleName": "纯动量趋势方向",
-            "threshold": 0.35,
+            "ruleName": "纯动量均衡方向",
+            "threshold": 0.2,
             "training": {
-              "samples": 9,
-              "accuracyPct": 66.67,
+              "samples": 10,
+              "accuracyPct": 60,
               "accuracyIntervalPct": {
-                "low": 35.42,
-                "high": 87.94
+                "low": 31.27,
+                "high": 83.18
               },
-              "bestBaselinePct": 55.56,
-              "liftPct": 11.11
+              "bestBaselinePct": 60,
+              "liftPct": 0
             },
             "validation": {
               "samples": 5,
@@ -13563,13 +13697,13 @@
             "factors": [
               {
                 "name": "126观测动量",
-                "value": 0.53,
-                "text": "126个观测期变化上涨 18.41%，波动调整信号+0.53"
+                "value": 0.46,
+                "text": "126个观测期变化上涨 15.52%，波动调整信号+0.46"
               },
               {
                 "name": "252观测趋势",
-                "value": 0.53,
-                "text": "252个观测期变化上涨 26.08%，波动调整信号+0.53"
+                "value": 0.52,
+                "text": "252个观测期变化上涨 25.24%，波动调整信号+0.52"
               }
             ]
           },
@@ -13578,13 +13712,13 @@
             "label": "未来1年",
             "observations": 252,
             "direction": "bullish",
-            "score": 0.62,
+            "score": 0.63,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 40,
             "historicalReturnRangePct": {
-              "low": -9.42,
-              "high": 15.19,
+              "low": -8.57,
+              "high": 15.01,
               "samples": 3
             },
             "ruleName": "纯动量均衡（波动调整）",
@@ -13612,13 +13746,13 @@
             "factors": [
               {
                 "name": "252观测动量",
-                "value": 0.53,
-                "text": "252个观测期变化上涨 26.08%，波动调整信号+0.53"
+                "value": 0.52,
+                "text": "252个观测期变化上涨 25.24%，波动调整信号+0.52"
               },
               {
                 "name": "504观测趋势",
-                "value": 0.74,
-                "text": "504个观测期变化上涨 59.10%，波动调整信号+0.74"
+                "value": 0.77,
+                "text": "504个观测期变化上涨 64.23%，波动调整信号+0.77"
               }
             ]
           }
@@ -13627,61 +13761,60 @@
           "horizon": "未来5个交易日",
           "bias": "neutral",
           "confidence": "low",
-          "score": 0.03,
+          "score": 0.04,
           "momentumSignals": {
-            "week": 0.68,
-            "month": 0.14
+            "week": 0.4,
+            "month": 0.1
           },
           "probability": {
-            "upProbabilityPct": 64,
-            "downProbabilityPct": 36,
+            "upProbabilityPct": 57.14,
+            "downProbabilityPct": 42.86,
             "intervalPct": {
-              "low": 44.89,
-              "high": 81.19
+              "low": 36.28,
+              "high": 76.86
             },
-            "trainingSamples": 23,
+            "trainingSamples": 19,
             "signalDirection": "bullish",
             "source": "macro-regime",
             "macroRegime": "再通胀增长",
-            "validationBrierScore": 0.2326,
-            "validationClimatologyBrierScore": 0.2301,
-            "validationBrierSkillPct": -1.09,
-            "validationBrierAdvantagePValue": 0.549904,
+            "validationBrierScore": 0.2811,
+            "validationClimatologyBrierScore": 0.2778,
+            "validationBrierSkillPct": -1.19,
+            "validationBrierAdvantagePValue": 0.796418,
             "validated": false
           },
           "liveEvaluation": {
             "modelVersion": "cross-asset-v1.5-rate-decomposition",
-            "totalSnapshots": 6,
-            "allVersionSnapshots": 43,
-            "resolvedSamples": 1,
+            "totalSnapshots": 7,
+            "allVersionSnapshots": 50,
+            "resolvedSamples": 2,
             "directionalSamples": 0,
             "directionalAccuracyPct": null,
             "brierScore": 0.1837,
-            "latestOutcomeDate": "2026-08-07"
+            "latestOutcomeDate": "2026-08-10"
           },
           "directionGate": {
             "eligible": false,
             "reasons": [
-              "可靠性收缩后得分仅0.03，低于0.20门槛",
-              "训练期相对最佳素朴基线无正增量（-6.3%）",
+              "可靠性收缩后得分仅0.04，低于0.20门槛",
               "留出期强信号命中率46.1%低于50%",
-              "留出期强信号相对最佳基线无正增量（-3.9%）",
-              "留出期Brier技能未跑赢历史上涨频率（-1.1%）",
-              "当前再通胀增长状态的留出表现未跑赢最佳基线（-7.2%）",
-              "留出期强信号同方向命中率46.1%低于50%"
+              "留出期强信号相对最佳基线无正增量（0.0%）",
+              "留出期Brier技能未跑赢历史上涨频率（-1.2%）",
+              "当前再通胀增长状态的留出表现未跑赢最佳基线（0.0%）",
+              "留出期强信号同方向命中率41.7%低于50%"
             ]
           },
           "scenario": {
             "direction": "bullish",
-            "samples": 59,
-            "directionalAccuracyPct": 59.32,
+            "samples": 48,
+            "directionalAccuracyPct": 54.17,
             "accuracyIntervalPct": {
-              "low": 46.59,
-              "high": 70.91
+              "low": 40.29,
+              "high": 67.42
             },
-            "medianReturnPct": 0.51,
-            "q25ReturnPct": -1.29,
-            "q75ReturnPct": 1.77
+            "medianReturnPct": 0.55,
+            "q25ReturnPct": -1.36,
+            "q75ReturnPct": 1.57
           },
           "consensus": {
             "aligned": 0,
@@ -13690,7 +13823,7 @@
           },
           "predictiveDrivers": [],
           "reasons": [
-            "近5个交易日上涨 5.19%（波动标准化+0.68），近1个月上涨 1.85%（标准化+0.14）",
+            "近5个交易日上涨 2.67%（波动标准化+0.40），近1个月上涨 1.23%（标准化+0.10）",
             "训练期选择的是纯动量规则，跨资产驱动仅用于解释、不进入方向得分",
             "当前没有通过95%区间筛选的跨资产领先线索"
           ],
@@ -13700,102 +13833,102 @@
           ],
           "backtest": {
             "horizon": "后续5个观测日",
-            "samples": 66,
-            "directionalAccuracyPct": 51.52,
+            "samples": 54,
+            "directionalAccuracyPct": 48.15,
             "accuracyIntervalPct": {
-              "low": 39.71,
-              "high": 63.15
+              "low": 35.39,
+              "high": 61.15
             },
-            "baselineAccuracyPct": 51.52,
-            "majorityBaselineAccuracyPct": 63.64,
-            "bestBaselineAccuracyPct": 63.64,
-            "liftPct": 0,
-            "liftVsBestBaselinePct": -12.12,
+            "baselineAccuracyPct": 50,
+            "majorityBaselineAccuracyPct": 51.85,
+            "bestBaselineAccuracyPct": 51.85,
+            "liftPct": -1.85,
+            "liftVsBestBaselinePct": -3.7,
             "regime": "平稳市",
-            "regimeSamples": 37,
-            "regimeAccuracyPct": 54.05,
-            "regimeBaselineAccuracyPct": 51.35,
-            "regimeLiftPct": 2.7,
+            "regimeSamples": 32,
+            "regimeAccuracyPct": 40.63,
+            "regimeBaselineAccuracyPct": 40.63,
+            "regimeLiftPct": 0,
             "directionalBuckets": {
               "bullish": {
                 "direction": "bullish",
-                "samples": 44,
-                "directionalAccuracyPct": 61.36,
+                "samples": 37,
+                "directionalAccuracyPct": 51.35,
                 "accuracyIntervalPct": {
-                  "low": 46.62,
-                  "high": 74.28
+                  "low": 35.89,
+                  "high": 66.55
                 },
-                "medianReturnPct": 0.66,
-                "q25ReturnPct": -0.72,
-                "q75ReturnPct": 1.93
+                "medianReturnPct": 0.24,
+                "q25ReturnPct": -1.28,
+                "q75ReturnPct": 1.52
               },
               "bearish": {
                 "direction": "bearish",
-                "samples": 22,
-                "directionalAccuracyPct": 31.82,
+                "samples": 17,
+                "directionalAccuracyPct": 47.06,
                 "accuracyIntervalPct": {
-                  "low": 16.36,
-                  "high": 52.68
+                  "low": 26.16,
+                  "high": 69.04
                 },
-                "medianReturnPct": 1.95,
-                "q25ReturnPct": -0.74,
-                "q75ReturnPct": 4.16
+                "medianReturnPct": 0.58,
+                "q25ReturnPct": -0.66,
+                "q75ReturnPct": 2.88
               }
             },
             "validation": {
               "split": "按时间顺序最后30%",
-              "startDate": "2025-12-24",
-              "endDate": "2026-07-27",
-              "samples": 20,
-              "directionalAccuracyPct": 45,
+              "startDate": "2026-01-20",
+              "endDate": "2026-07-28",
+              "samples": 17,
+              "directionalAccuracyPct": 52.94,
               "accuracyIntervalPct": {
-                "low": 25.82,
-                "high": 65.79
+                "low": 30.96,
+                "high": 73.84
               },
-              "baselineAccuracyPct": 40,
-              "majorityBaselineAccuracyPct": 60,
-              "bestBaselineAccuracyPct": 60,
-              "liftPct": 5,
-              "liftVsBestBaselinePct": -15,
+              "baselineAccuracyPct": 52.94,
+              "majorityBaselineAccuracyPct": 52.94,
+              "bestBaselineAccuracyPct": 52.94,
+              "liftPct": 0,
+              "liftVsBestBaselinePct": 0,
               "directionalBuckets": {
                 "bullish": {
                   "direction": "bullish",
-                  "samples": 11,
-                  "directionalAccuracyPct": 54.55,
+                  "samples": 8,
+                  "directionalAccuracyPct": 62.5,
                   "accuracyIntervalPct": {
-                    "low": 28.01,
-                    "high": 78.73
+                    "low": 30.57,
+                    "high": 86.32
                   },
-                  "medianReturnPct": 0.06,
-                  "q25ReturnPct": -0.58,
-                  "q75ReturnPct": 2.57
+                  "medianReturnPct": 1.63,
+                  "q25ReturnPct": -1.55,
+                  "q75ReturnPct": 3.33
                 },
                 "bearish": {
                   "direction": "bearish",
                   "samples": 9,
-                  "directionalAccuracyPct": 33.33,
+                  "directionalAccuracyPct": 55.56,
                   "accuracyIntervalPct": {
-                    "low": 12.06,
-                    "high": 64.58
+                    "low": 26.66,
+                    "high": 81.12
                   },
-                  "medianReturnPct": 1.26,
-                  "q25ReturnPct": -0.79,
-                  "q75ReturnPct": 3.26
+                  "medianReturnPct": -0.01,
+                  "q25ReturnPct": -0.41,
+                  "q75ReturnPct": 1.75
                 }
               }
             },
             "selectivity": {
               "candidateCount": 42,
-              "selectedThreshold": 0.35,
+              "selectedThreshold": 0.2,
               "selectedRule": {
-                "id": "momentumPersistentDirection",
-                "name": "纯动量趋势方向",
+                "id": "momentumBalancedDirection",
+                "name": "纯动量均衡方向",
                 "featureMode": "direction",
-                "weekWeight": 0.31,
-                "monthWeight": 0.69,
+                "weekWeight": 0.56,
+                "monthWeight": 0.44,
                 "driverWeight": 0
               },
-              "selectedConservativeEdgePct": -18.41,
+              "selectedConservativeEdgePct": -12.26,
               "driverAblation": {
                 "selectedUsesCrossAsset": false,
                 "samples": 26,
@@ -13811,212 +13944,212 @@
                 "trainingProbabilities": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 46,
-                    "upProbabilityPct": 62.5,
+                    "samples": 36,
+                    "upProbabilityPct": 57.89,
                     "intervalPct": {
-                      "low": 48.6,
-                      "high": 75.48
+                      "low": 42.2,
+                      "high": 72.86
                     }
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 18,
-                    "upProbabilityPct": 60,
+                    "samples": 9,
+                    "upProbabilityPct": 45.45,
                     "intervalPct": {
-                      "low": 38.62,
-                      "high": 79.7
+                      "low": 18.88,
+                      "high": 73.34
                     }
                   }
                 },
-                "trainingClimatologyUpPct": 62.12,
+                "trainingClimatologyUpPct": 55.32,
                 "samples": 26,
-                "meanForecastUpPct": 61.25,
-                "observedUpPct": 50,
-                "brierScore": 0.2638,
-                "climatologyBrierScore": 0.2647,
-                "brierSkillPct": 0.34,
-                "brierAdvantagePValue": 0.382357
+                "meanForecastUpPct": 51.19,
+                "observedUpPct": 42.31,
+                "brierScore": 0.2566,
+                "climatologyBrierScore": 0.261,
+                "brierSkillPct": 1.69,
+                "brierAdvantagePValue": 0.382564
               },
               "macroRegime": {
                 "id": "reflation",
                 "name": "再通胀增长",
                 "training": {
-                  "samples": 27,
-                  "directionalAccuracyPct": 62.96,
+                  "samples": 22,
+                  "directionalAccuracyPct": 54.55,
                   "accuracyIntervalPct": {
-                    "low": 44.23,
-                    "high": 78.47
+                    "low": 34.66,
+                    "high": 73.08
                   },
-                  "momentumBaselineAccuracyPct": 48.15,
-                  "majorityBaselineAccuracyPct": 62.96,
-                  "bestBaselineAccuracyPct": 62.96,
-                  "liftVsBestBaselinePct": 0,
+                  "momentumBaselineAccuracyPct": 50,
+                  "majorityBaselineAccuracyPct": 59.09,
+                  "bestBaselineAccuracyPct": 59.09,
+                  "liftVsBestBaselinePct": -4.54,
                   "directionalBuckets": {
                     "bullish": {
                       "direction": "bullish",
-                      "samples": 23,
-                      "directionalAccuracyPct": 65.22,
+                      "samples": 19,
+                      "directionalAccuracyPct": 57.89,
                       "accuracyIntervalPct": {
-                        "low": 44.89,
-                        "high": 81.19
+                        "low": 36.28,
+                        "high": 76.86
                       },
-                      "medianReturnPct": 0.97,
-                      "q25ReturnPct": -1.3,
-                      "q75ReturnPct": 1.61
+                      "medianReturnPct": 0.75,
+                      "q25ReturnPct": -0.94,
+                      "q75ReturnPct": 1.34
                     },
                     "bearish": {
                       "direction": "bearish",
-                      "samples": 4,
-                      "directionalAccuracyPct": 50,
+                      "samples": 3,
+                      "directionalAccuracyPct": 33.33,
                       "accuracyIntervalPct": {
-                        "low": 15,
-                        "high": 85
+                        "low": 6.15,
+                        "high": 79.23
                       },
-                      "medianReturnPct": -0.18,
-                      "q25ReturnPct": -0.83,
-                      "q75ReturnPct": 0.81
+                      "medianReturnPct": 2.88,
+                      "q25ReturnPct": 1.24,
+                      "q75ReturnPct": 3.19
                     }
                   }
                 },
                 "validation": {
-                  "samples": 14,
-                  "directionalAccuracyPct": 57.14,
+                  "samples": 16,
+                  "directionalAccuracyPct": 56.25,
                   "accuracyIntervalPct": {
-                    "low": 32.59,
-                    "high": 78.62
+                    "low": 33.18,
+                    "high": 76.9
                   },
-                  "momentumBaselineAccuracyPct": 42.86,
-                  "majorityBaselineAccuracyPct": 64.29,
-                  "bestBaselineAccuracyPct": 64.29,
-                  "liftVsBestBaselinePct": -7.15,
+                  "momentumBaselineAccuracyPct": 56.25,
+                  "majorityBaselineAccuracyPct": 37.5,
+                  "bestBaselineAccuracyPct": 56.25,
+                  "liftVsBestBaselinePct": 0,
                   "directionalBuckets": {
                     "bullish": {
                       "direction": "bullish",
+                      "samples": 7,
+                      "directionalAccuracyPct": 42.86,
+                      "accuracyIntervalPct": {
+                        "low": 15.82,
+                        "high": 74.95
+                      },
+                      "medianReturnPct": -0.84,
+                      "q25ReturnPct": -1.82,
+                      "q75ReturnPct": 2.53
+                    },
+                    "bearish": {
+                      "direction": "bearish",
                       "samples": 9,
                       "directionalAccuracyPct": 66.67,
                       "accuracyIntervalPct": {
                         "low": 35.42,
                         "high": 87.94
                       },
-                      "medianReturnPct": 0.37,
-                      "q25ReturnPct": -0.5,
-                      "q75ReturnPct": 2.46
-                    },
-                    "bearish": {
-                      "direction": "bearish",
-                      "samples": 5,
-                      "directionalAccuracyPct": 40,
-                      "accuracyIntervalPct": {
-                        "low": 11.76,
-                        "high": 76.93
-                      },
-                      "medianReturnPct": 1.88,
-                      "q25ReturnPct": -0.79,
-                      "q75ReturnPct": 3.94
+                      "medianReturnPct": -0.66,
+                      "q25ReturnPct": -1.51,
+                      "q75ReturnPct": 1.45
                     }
                   }
                 },
                 "trainingProbabilities": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 23,
-                    "upProbabilityPct": 64,
+                    "samples": 19,
+                    "upProbabilityPct": 57.14,
                     "intervalPct": {
-                      "low": 44.89,
-                      "high": 81.19
+                      "low": 36.28,
+                      "high": 76.86
                     }
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 4,
-                    "upProbabilityPct": 50,
+                    "samples": 3,
+                    "upProbabilityPct": 60,
                     "intervalPct": {
-                      "low": 15,
-                      "high": 85
+                      "low": 20.77,
+                      "high": 93.85
                     }
                   }
                 },
                 "probabilityValidation": {
-                  "samples": 14,
-                  "brierScore": 0.2326,
-                  "climatologyBrierScore": 0.2301,
-                  "brierSkillPct": -1.09,
-                  "brierAdvantagePValue": 0.549904
+                  "samples": 16,
+                  "brierScore": 0.2811,
+                  "climatologyBrierScore": 0.2778,
+                  "brierSkillPct": -1.19,
+                  "brierAdvantagePValue": 0.796418
                 }
               },
               "overall": {
-                "samples": 90,
-                "directionalAccuracyPct": 53.33,
+                "samples": 71,
+                "directionalAccuracyPct": 53.52,
                 "accuracyIntervalPct": {
-                  "low": 43.1,
-                  "high": 63.29
+                  "low": 42.04,
+                  "high": 64.64
                 },
-                "momentumBaselineAccuracyPct": 44.44,
-                "majorityBaselineAccuracyPct": 58.89,
-                "bestBaselineAccuracyPct": 58.89,
-                "liftVsBestBaselinePct": -5.56,
+                "momentumBaselineAccuracyPct": 52.11,
+                "majorityBaselineAccuracyPct": 50.7,
+                "bestBaselineAccuracyPct": 52.11,
+                "liftVsBestBaselinePct": 1.41,
                 "directionalBuckets": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 59,
-                    "directionalAccuracyPct": 59.32,
+                    "samples": 48,
+                    "directionalAccuracyPct": 54.17,
                     "accuracyIntervalPct": {
-                      "low": 46.59,
-                      "high": 70.91
+                      "low": 40.29,
+                      "high": 67.42
                     },
-                    "medianReturnPct": 0.51,
-                    "q25ReturnPct": -1.29,
-                    "q75ReturnPct": 1.77
+                    "medianReturnPct": 0.55,
+                    "q25ReturnPct": -1.36,
+                    "q75ReturnPct": 1.57
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 31,
-                    "directionalAccuracyPct": 41.94,
+                    "samples": 23,
+                    "directionalAccuracyPct": 56.52,
                     "accuracyIntervalPct": {
-                      "low": 26.42,
-                      "high": 59.23
+                      "low": 36.81,
+                      "high": 74.37
                     },
-                    "medianReturnPct": 0.8,
-                    "q25ReturnPct": -1.21,
-                    "q75ReturnPct": 2.69
+                    "medianReturnPct": -0.4,
+                    "q25ReturnPct": -2,
+                    "q75ReturnPct": 1.6
                   }
                 }
               },
               "training": {
-                "samples": 64,
-                "directionalAccuracyPct": 56.25,
+                "samples": 45,
+                "directionalAccuracyPct": 57.78,
                 "accuracyIntervalPct": {
-                  "low": 44.09,
-                  "high": 67.71
+                  "low": 43.3,
+                  "high": 71.03
                 },
-                "momentumBaselineAccuracyPct": 48.44,
-                "majorityBaselineAccuracyPct": 62.5,
-                "bestBaselineAccuracyPct": 62.5,
-                "liftVsBestBaselinePct": -6.25,
+                "momentumBaselineAccuracyPct": 55.56,
+                "majorityBaselineAccuracyPct": 55.56,
+                "bestBaselineAccuracyPct": 55.56,
+                "liftVsBestBaselinePct": 2.22,
                 "directionalBuckets": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 46,
-                    "directionalAccuracyPct": 63.04,
+                    "samples": 36,
+                    "directionalAccuracyPct": 58.33,
                     "accuracyIntervalPct": {
-                      "low": 48.6,
-                      "high": 75.48
+                      "low": 42.2,
+                      "high": 72.86
                     },
-                    "medianReturnPct": 0.66,
-                    "q25ReturnPct": -1.05,
-                    "q75ReturnPct": 1.65
+                    "medianReturnPct": 0.74,
+                    "q25ReturnPct": -1.1,
+                    "q75ReturnPct": 1.43
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 18,
-                    "directionalAccuracyPct": 38.89,
+                    "samples": 9,
+                    "directionalAccuracyPct": 55.56,
                     "accuracyIntervalPct": {
-                      "low": 20.3,
-                      "high": 61.38
+                      "low": 26.66,
+                      "high": 81.12
                     },
-                    "medianReturnPct": 0.62,
-                    "q25ReturnPct": -1.27,
-                    "q75ReturnPct": 2.59
+                    "medianReturnPct": -0.4,
+                    "q25ReturnPct": -2.74,
+                    "q75ReturnPct": 2.88
                   }
                 }
               },
@@ -14027,34 +14160,34 @@
                   "low": 28.76,
                   "high": 64.54
                 },
-                "momentumBaselineAccuracyPct": 34.62,
-                "majorityBaselineAccuracyPct": 50,
-                "bestBaselineAccuracyPct": 50,
-                "liftVsBestBaselinePct": -3.85,
+                "momentumBaselineAccuracyPct": 46.15,
+                "majorityBaselineAccuracyPct": 42.31,
+                "bestBaselineAccuracyPct": 46.15,
+                "liftVsBestBaselinePct": 0,
                 "directionalBuckets": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 13,
-                    "directionalAccuracyPct": 46.15,
+                    "samples": 12,
+                    "directionalAccuracyPct": 41.67,
                     "accuracyIntervalPct": {
-                      "low": 23.21,
-                      "high": 70.86
+                      "low": 19.33,
+                      "high": 68.05
                     },
-                    "medianReturnPct": -0.32,
-                    "q25ReturnPct": -1.5,
-                    "q75ReturnPct": 2.18
+                    "medianReturnPct": -0.93,
+                    "q25ReturnPct": -1.58,
+                    "q75ReturnPct": 2.2
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 13,
-                    "directionalAccuracyPct": 46.15,
+                    "samples": 14,
+                    "directionalAccuracyPct": 57.14,
                     "accuracyIntervalPct": {
-                      "low": 23.21,
-                      "high": 70.86
+                      "low": 32.59,
+                      "high": 78.62
                     },
-                    "medianReturnPct": 0.8,
-                    "q25ReturnPct": -0.96,
-                    "q75ReturnPct": 2.74
+                    "medianReturnPct": -0.2,
+                    "q25ReturnPct": -0.92,
+                    "q75ReturnPct": 1.36
                   }
                 }
               },
@@ -14072,7 +14205,7 @@
         "dailySummary": "上证综指最近交易日上涨 0.67%。当前跨资产贡献不足，无法可靠解释本次涨跌。",
         "dailyAttribution": {
           "alignment": "insufficient",
-          "netContribution": -0.04,
+          "netContribution": -0.06,
           "alignedDrivers": 0,
           "totalDrivers": 2
         },
@@ -14080,12 +14213,12 @@
           {
             "chain": "全球股指广度—A股链",
             "driver": "全球股指参与率（剔除上证综指）",
-            "driverMove": -13.33,
-            "driverZ": -0.31,
-            "correlation": 0.31,
-            "contribution": -0.05,
-            "effect": "neutral",
-            "text": "全球股指参与率（剔除上证综指）下跌 13.33点（-0.31σ），结合当前ρ 0.31，对上证综指的共振贡献-0.05"
+            "driverMove": -20,
+            "driverZ": -0.48,
+            "correlation": 0.3,
+            "contribution": -0.07,
+            "effect": "headwind",
+            "text": "全球股指参与率（剔除上证综指）下跌 20.00点（-0.48σ），结合当前ρ 0.30，对上证综指的共振贡献-0.07"
           },
           {
             "chain": "USD/CNY—A股链",
@@ -14840,8 +14973,8 @@
         "id": "hangseng",
         "name": "恒生指数",
         "date": "2026-08-11",
-        "dailyMove": -0.51,
-        "dailySummary": "恒生指数最近交易日下跌 0.51%。现有跨资产贡献与价格方向相反（净贡献+0.13），本次涨跌更可能由品种自身事件、新闻或尚未覆盖的驱动造成。",
+        "dailyMove": -0.63,
+        "dailySummary": "恒生指数最近交易日下跌 0.63%。现有跨资产贡献与价格方向相反（净贡献+0.13），本次涨跌更可能由品种自身事件、新闻或尚未覆盖的驱动造成。",
         "dailyAttribution": {
           "alignment": "diverging",
           "netContribution": 0.13,
@@ -14876,7 +15009,7 @@
             "label": "未来1日",
             "observations": 1,
             "direction": "bearish",
-            "score": -0.75,
+            "score": -1,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 52.63,
@@ -14910,13 +15043,13 @@
             "factors": [
               {
                 "name": "1观测动量",
-                "value": -0.21,
-                "text": "1个观测期变化下跌 0.51%，波动调整信号-0.21"
+                "value": -0.26,
+                "text": "1个观测期变化下跌 0.63%，波动调整信号-0.26"
               },
               {
                 "name": "5观测趋势",
-                "value": -0.03,
-                "text": "5个观测期变化下跌 0.18%，波动调整信号-0.03"
+                "value": -0.06,
+                "text": "5个观测期变化下跌 0.31%，波动调整信号-0.06"
               }
             ]
           },
@@ -14925,7 +15058,7 @@
             "label": "未来1周",
             "observations": 5,
             "direction": "bullish",
-            "score": 0.11,
+            "score": 0.09,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 43.75,
@@ -14959,13 +15092,13 @@
             "factors": [
               {
                 "name": "5观测动量",
-                "value": -0.03,
-                "text": "5个观测期变化下跌 0.18%，波动调整信号-0.03"
+                "value": -0.06,
+                "text": "5个观测期变化下跌 0.31%，波动调整信号-0.06"
               },
               {
                 "name": "21观测趋势",
-                "value": 0.54,
-                "text": "21个观测期变化上涨 6.58%，波动调整信号+0.54"
+                "value": 0.53,
+                "text": "21个观测期变化上涨 6.44%，波动调整信号+0.53"
               }
             ]
           },
@@ -14974,7 +15107,7 @@
             "label": "未来1月",
             "observations": 21,
             "direction": "bullish",
-            "score": 0.25,
+            "score": 0.24,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 50,
@@ -15008,13 +15141,13 @@
             "factors": [
               {
                 "name": "21观测动量",
-                "value": 0.54,
-                "text": "21个观测期变化上涨 6.58%，波动调整信号+0.54"
+                "value": 0.53,
+                "text": "21个观测期变化上涨 6.44%，波动调整信号+0.53"
               },
               {
                 "name": "63观测趋势",
-                "value": -0.12,
-                "text": "63个观测期变化下跌 2.27%，波动调整信号-0.12"
+                "value": -0.13,
+                "text": "63个观测期变化下跌 2.40%，波动调整信号-0.13"
               }
             ]
           },
@@ -15057,13 +15190,13 @@
             "factors": [
               {
                 "name": "63观测动量",
-                "value": -0.12,
-                "text": "63个观测期变化下跌 2.27%，波动调整信号-0.12"
+                "value": -0.13,
+                "text": "63个观测期变化下跌 2.40%，波动调整信号-0.13"
               },
               {
                 "name": "126观测趋势",
-                "value": -0.13,
-                "text": "126个观测期变化下跌 3.62%，波动调整信号-0.13"
+                "value": -0.14,
+                "text": "126个观测期变化下跌 3.74%，波动调整信号-0.14"
               }
             ]
           },
@@ -15106,13 +15239,13 @@
             "factors": [
               {
                 "name": "126观测动量",
-                "value": -0.13,
-                "text": "126个观测期变化下跌 3.62%，波动调整信号-0.13"
+                "value": -0.14,
+                "text": "126个观测期变化下跌 3.74%，波动调整信号-0.14"
               },
               {
                 "name": "252观测趋势",
                 "value": 0.11,
-                "text": "252个观测期变化上涨 4.17%，波动调整信号+0.11"
+                "text": "252个观测期变化上涨 4.04%，波动调整信号+0.11"
               }
             ]
           },
@@ -15156,12 +15289,12 @@
               {
                 "name": "252观测动量",
                 "value": 0.11,
-                "text": "252个观测期变化上涨 4.17%，波动调整信号+0.11"
+                "text": "252个观测期变化上涨 4.04%，波动调整信号+0.11"
               },
               {
                 "name": "504观测趋势",
                 "value": 0,
-                "text": "504个观测期变化上涨 30.65%，波动调整信号+0.00"
+                "text": "504个观测期变化上涨 30.48%，波动调整信号+0.00"
               }
             ]
           }
@@ -15172,8 +15305,8 @@
           "confidence": "low",
           "score": 0.01,
           "momentumSignals": {
-            "week": -0.03,
-            "month": 0.54
+            "week": -0.06,
+            "month": 0.53
           },
           "probability": {
             "upProbabilityPct": 40,
@@ -15219,7 +15352,7 @@
           },
           "predictiveDrivers": [],
           "reasons": [
-            "近5个交易日下跌 0.18%（波动标准化-0.03），近1个月上涨 6.58%（标准化+0.54）",
+            "近5个交易日下跌 0.31%（波动标准化-0.06），近1个月上涨 6.44%（标准化+0.53）",
             "跨资产驱动未通过留出期消融检验（完整模型75.0%，纯动量75.0%），本次评分已将其归零",
             "当前没有通过95%区间筛选的跨资产领先线索"
           ],
@@ -15596,9 +15729,9 @@
       {
         "id": "euro50",
         "name": "NASDAQ Euro 50",
-        "date": "2026-08-07",
-        "dailyMove": 0.35,
-        "dailySummary": "NASDAQ Euro 50最近交易日上涨 0.35%。标准化共振贡献同向（净贡献+0.33），主要来自美元广义指数、全球风险压力共振指数、标普500。",
+        "date": "2026-08-10",
+        "dailyMove": 0.19,
+        "dailySummary": "NASDAQ Euro 50最近交易日上涨 0.19%。标准化共振贡献同向（净贡献+0.33），主要来自美元广义指数、全球风险压力共振指数、标普500。",
         "dailyAttribution": {
           "alignment": "confirming",
           "netContribution": 0.33,
@@ -15661,29 +15794,29 @@
                 "low": 43.46,
                 "high": 48.72
               },
-              "bestBaselinePct": 50.29,
-              "liftPct": -4.21
+              "bestBaselinePct": 50.22,
+              "liftPct": -4.14
             },
             "validation": {
               "samples": 596,
-              "accuracyPct": 45.81,
+              "accuracyPct": 45.97,
               "accuracyIntervalPct": {
-                "low": 41.84,
-                "high": 49.82
+                "low": 42.01,
+                "high": 49.99
               },
               "bestBaselinePct": 49.33,
-              "liftPct": -3.52
+              "liftPct": -3.36
             },
             "factors": [
               {
                 "name": "1观测动量",
-                "value": 0.18,
-                "text": "1个观测期变化上涨 0.35%，波动调整信号+0.18"
+                "value": 0.11,
+                "text": "1个观测期变化上涨 0.19%，波动调整信号+0.11"
               },
               {
                 "name": "5观测趋势",
-                "value": 0.57,
-                "text": "5个观测期变化上涨 2.74%，波动调整信号+0.57"
+                "value": 0.44,
+                "text": "5个观测期变化上涨 1.94%，波动调整信号+0.44"
               }
             ]
           },
@@ -15695,44 +15828,44 @@
             "score": 1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 65.41,
+            "upProbabilityPct": 60.95,
             "historicalReturnRangePct": {
-              "low": -0.51,
-              "high": 1.44,
-              "samples": 157
+              "low": -0.74,
+              "high": 1.5,
+              "samples": 167
             },
             "ruleName": "纯动量短线方向",
-            "threshold": 0.35,
+            "threshold": 0.2,
             "training": {
-              "samples": 249,
-              "accuracyPct": 55.82,
+              "samples": 274,
+              "accuracyPct": 52.55,
               "accuracyIntervalPct": {
-                "low": 49.61,
-                "high": 61.86
+                "low": 46.65,
+                "high": 58.39
               },
-              "bestBaselinePct": 61.45,
-              "liftPct": -5.63
+              "bestBaselinePct": 60.58,
+              "liftPct": -8.03
             },
             "validation": {
-              "samples": 113,
-              "accuracyPct": 46.02,
+              "samples": 120,
+              "accuracyPct": 42.5,
               "accuracyIntervalPct": {
-                "low": 37.11,
-                "high": 55.19
+                "low": 34.02,
+                "high": 51.44
               },
-              "bestBaselinePct": 55.75,
-              "liftPct": -9.73
+              "bestBaselinePct": 55.83,
+              "liftPct": -13.33
             },
             "factors": [
               {
                 "name": "5观测动量",
-                "value": 0.57,
-                "text": "5个观测期变化上涨 2.74%，波动调整信号+0.57"
+                "value": 0.44,
+                "text": "5个观测期变化上涨 1.94%，波动调整信号+0.44"
               },
               {
                 "name": "21观测趋势",
-                "value": 0.39,
-                "text": "21个观测期变化上涨 3.59%，波动调整信号+0.39"
+                "value": 0.46,
+                "text": "21个观测期变化上涨 4.11%，波动调整信号+0.46"
               }
             ]
           },
@@ -15741,47 +15874,47 @@
             "label": "未来1月",
             "observations": 21,
             "direction": "bullish",
-            "score": 1,
+            "score": 0.54,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 58.33,
+            "upProbabilityPct": 56.67,
             "historicalReturnRangePct": {
-              "low": -2.65,
-              "high": 2.52,
-              "samples": 34
+              "low": -2.35,
+              "high": 2.93,
+              "samples": 28
             },
-            "ruleName": "纯动量趋势方向",
-            "threshold": 0.5,
+            "ruleName": "纯动量均衡（波动调整）",
+            "threshold": 0.2,
             "training": {
-              "samples": 49,
-              "accuracyPct": 53.06,
+              "samples": 40,
+              "accuracyPct": 50,
               "accuracyIntervalPct": {
-                "low": 39.38,
-                "high": 66.3
+                "low": 35.2,
+                "high": 64.8
               },
-              "bestBaselinePct": 59.18,
-              "liftPct": -6.12
+              "bestBaselinePct": 60,
+              "liftPct": -10
             },
             "validation": {
-              "samples": 19,
-              "accuracyPct": 36.84,
+              "samples": 14,
+              "accuracyPct": 35.71,
               "accuracyIntervalPct": {
-                "low": 19.15,
-                "high": 58.96
+                "low": 16.34,
+                "high": 61.24
               },
-              "bestBaselinePct": 57.89,
-              "liftPct": -21.05
+              "bestBaselinePct": 50,
+              "liftPct": -14.29
             },
             "factors": [
               {
                 "name": "21观测动量",
-                "value": 0.39,
-                "text": "21个观测期变化上涨 3.59%，波动调整信号+0.39"
+                "value": 0.46,
+                "text": "21个观测期变化上涨 4.11%，波动调整信号+0.46"
               },
               {
                 "name": "63观测趋势",
-                "value": 0.67,
-                "text": "63个观测期变化上涨 12.15%，波动调整信号+0.67"
+                "value": 0.65,
+                "text": "63个观测期变化上涨 11.29%，波动调整信号+0.65"
               }
             ]
           },
@@ -15793,11 +15926,11 @@
             "score": 1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 71.43,
+            "upProbabilityPct": 73.33,
             "historicalReturnRangePct": {
-              "low": 0.03,
-              "high": 5.32,
-              "samples": 12
+              "low": 0.56,
+              "high": 6.31,
+              "samples": 13
             },
             "ruleName": "纯动量短线方向",
             "threshold": 0.2,
@@ -15808,8 +15941,8 @@
                 "low": 45.37,
                 "high": 82.81
               },
-              "bestBaselinePct": 61.9,
-              "liftPct": 4.77
+              "bestBaselinePct": 66.67,
+              "liftPct": 0
             },
             "validation": {
               "samples": 10,
@@ -15818,19 +15951,19 @@
                 "low": 16.82,
                 "high": 68.73
               },
-              "bestBaselinePct": 60,
-              "liftPct": -20
+              "bestBaselinePct": 70,
+              "liftPct": -30
             },
             "factors": [
               {
                 "name": "63观测动量",
-                "value": 0.67,
-                "text": "63个观测期变化上涨 12.15%，波动调整信号+0.67"
+                "value": 0.65,
+                "text": "63个观测期变化上涨 11.29%，波动调整信号+0.65"
               },
               {
                 "name": "126观测趋势",
-                "value": 0.4,
-                "text": "126个观测期变化上涨 8.94%，波动调整信号+0.40"
+                "value": 0.44,
+                "text": "126个观测期变化上涨 9.70%，波动调整信号+0.44"
               }
             ]
           },
@@ -15839,16 +15972,16 @@
             "label": "未来半年",
             "observations": 126,
             "direction": "bullish",
-            "score": 0.47,
+            "score": 1,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 33.33,
             "historicalReturnRangePct": {
-              "low": -15.65,
-              "high": -3.03,
+              "low": -15.11,
+              "high": -0.49,
               "samples": 4
             },
-            "ruleName": "纯动量均衡（波动调整）",
+            "ruleName": "纯动量均衡方向",
             "threshold": 0.2,
             "training": {
               "samples": 8,
@@ -15861,25 +15994,25 @@
               "liftPct": -25
             },
             "validation": {
-              "samples": 2,
-              "accuracyPct": 50,
+              "samples": 4,
+              "accuracyPct": 75,
               "accuracyIntervalPct": {
-                "low": 9.45,
-                "high": 90.55
+                "low": 30.06,
+                "high": 95.44
               },
-              "bestBaselinePct": 50,
+              "bestBaselinePct": 75,
               "liftPct": 0
             },
             "factors": [
               {
                 "name": "126观测动量",
-                "value": 0.4,
-                "text": "126个观测期变化上涨 8.94%，波动调整信号+0.40"
+                "value": 0.44,
+                "text": "126个观测期变化上涨 9.70%，波动调整信号+0.44"
               },
               {
                 "name": "252观测趋势",
-                "value": 0.57,
-                "text": "252个观测期变化上涨 19.46%，波动调整信号+0.57"
+                "value": 0.6,
+                "text": "252个观测期变化上涨 19.85%，波动调整信号+0.60"
               }
             ]
           },
@@ -15888,13 +16021,13 @@
             "label": "未来1年",
             "observations": 252,
             "direction": "bullish",
-            "score": 0.61,
+            "score": 0.64,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 25,
             "historicalReturnRangePct": {
-              "low": -16.7,
-              "high": -11.24,
+              "low": -16.99,
+              "high": -10.6,
               "samples": 2
             },
             "ruleName": "纯动量均衡（波动调整）",
@@ -15922,13 +16055,13 @@
             "factors": [
               {
                 "name": "252观测动量",
-                "value": 0.57,
-                "text": "252个观测期变化上涨 19.46%，波动调整信号+0.57"
+                "value": 0.6,
+                "text": "252个观测期变化上涨 19.85%，波动调整信号+0.60"
               },
               {
                 "name": "504观测趋势",
-                "value": 0.66,
-                "text": "504个观测期变化上涨 33.85%，波动调整信号+0.66"
+                "value": 0.7,
+                "text": "504个观测期变化上涨 35.75%，波动调整信号+0.70"
               }
             ]
           }
@@ -15939,59 +16072,58 @@
           "confidence": "low",
           "score": 0.02,
           "momentumSignals": {
-            "week": 0.57,
-            "month": 0.39
+            "week": 0.44,
+            "month": 0.46
           },
           "probability": {
-            "upProbabilityPct": 55,
-            "downProbabilityPct": 45,
+            "upProbabilityPct": 60.71,
+            "downProbabilityPct": 39.29,
             "intervalPct": {
-              "low": 33.72,
-              "high": 75.44
+              "low": 42.53,
+              "high": 77.57
             },
-            "trainingSamples": 18,
+            "trainingSamples": 26,
             "signalDirection": "bullish",
             "source": "macro-regime",
             "macroRegime": "再通胀增长",
-            "validationBrierScore": 0.2429,
-            "validationClimatologyBrierScore": 0.2427,
-            "validationBrierSkillPct": -0.08,
-            "validationBrierAdvantagePValue": 0.567825,
+            "validationBrierScore": 0.2567,
+            "validationClimatologyBrierScore": 0.2422,
+            "validationBrierSkillPct": -5.99,
+            "validationBrierAdvantagePValue": 0.863246,
             "validated": false
           },
           "liveEvaluation": {
             "modelVersion": "cross-asset-v1.5-rate-decomposition",
-            "totalSnapshots": 6,
-            "allVersionSnapshots": 43,
-            "resolvedSamples": 1,
+            "totalSnapshots": 7,
+            "allVersionSnapshots": 50,
+            "resolvedSamples": 2,
             "directionalSamples": 0,
             "directionalAccuracyPct": null,
-            "brierScore": 0.2025,
-            "latestOutcomeDate": "2026-08-07"
+            "brierScore": 0.1931,
+            "latestOutcomeDate": "2026-08-10"
           },
           "directionGate": {
             "eligible": false,
             "reasons": [
               "可靠性收缩后得分仅0.02，低于0.20门槛",
-              "训练期相对最佳素朴基线无正增量（-5.9%）",
-              "留出期强信号命中率40.0%低于50%",
-              "留出期强信号相对最佳基线无正增量（-16.7%）",
-              "留出期Brier技能未跑赢历史上涨频率（-0.1%）",
-              "当前再通胀增长状态的留出表现未跑赢最佳基线（-6.7%）",
-              "留出期强信号同方向命中率47.1%低于50%"
+              "训练期相对最佳素朴基线无正增量（-10.2%）",
+              "留出期强信号命中率43.3%低于50%",
+              "留出期强信号相对最佳基线无正增量（-6.7%）",
+              "留出期Brier技能未跑赢历史上涨频率（-6.0%）",
+              "当前再通胀增长状态的留出表现未跑赢最佳基线（-17.6%）"
             ]
           },
           "scenario": {
             "direction": "bullish",
-            "samples": 57,
-            "directionalAccuracyPct": 57.89,
+            "samples": 68,
+            "directionalAccuracyPct": 55.88,
             "accuracyIntervalPct": {
-              "low": 44.98,
-              "high": 69.81
+              "low": 44.08,
+              "high": 67.05
             },
-            "medianReturnPct": 0.49,
-            "q25ReturnPct": -0.9,
-            "q75ReturnPct": 1.6
+            "medianReturnPct": 0.15,
+            "q25ReturnPct": -0.75,
+            "q75ReturnPct": 1.45
           },
           "consensus": {
             "aligned": 0,
@@ -16000,7 +16132,7 @@
           },
           "predictiveDrivers": [],
           "reasons": [
-            "近5个交易日上涨 2.74%（波动标准化+0.57），近1个月上涨 3.59%（标准化+0.39）",
+            "近5个交易日上涨 1.94%（波动标准化+0.44），近1个月上涨 4.11%（标准化+0.46）",
             "训练期选择的是纯动量规则，跨资产驱动仅用于解释、不进入方向得分",
             "当前没有通过95%区间筛选的跨资产领先线索"
           ],
@@ -16010,87 +16142,87 @@
           ],
           "backtest": {
             "horizon": "后续5个观测日",
-            "samples": 49,
-            "directionalAccuracyPct": 42.86,
+            "samples": 51,
+            "directionalAccuracyPct": 45.1,
             "accuracyIntervalPct": {
-              "low": 30.02,
-              "high": 56.73
+              "low": 32.27,
+              "high": 58.62
             },
-            "baselineAccuracyPct": 40.82,
-            "majorityBaselineAccuracyPct": 57.14,
-            "bestBaselineAccuracyPct": 57.14,
-            "liftPct": 2.04,
-            "liftVsBestBaselinePct": -14.28,
+            "baselineAccuracyPct": 45.1,
+            "majorityBaselineAccuracyPct": 58.82,
+            "bestBaselineAccuracyPct": 58.82,
+            "liftPct": 0,
+            "liftVsBestBaselinePct": -13.72,
             "regime": "平稳市",
-            "regimeSamples": 25,
-            "regimeAccuracyPct": 44,
-            "regimeBaselineAccuracyPct": 40,
-            "regimeLiftPct": 4,
+            "regimeSamples": 32,
+            "regimeAccuracyPct": 50,
+            "regimeBaselineAccuracyPct": 50,
+            "regimeLiftPct": 0,
             "directionalBuckets": {
               "bullish": {
                 "direction": "bullish",
                 "samples": 36,
-                "directionalAccuracyPct": 52.78,
+                "directionalAccuracyPct": 55.56,
                 "accuracyIntervalPct": {
-                  "low": 37.01,
-                  "high": 68.01
+                  "low": 39.58,
+                  "high": 70.46
                 },
-                "medianReturnPct": 0.08,
-                "q25ReturnPct": -1.24,
-                "q75ReturnPct": 1.04
+                "medianReturnPct": 0.22,
+                "q25ReturnPct": -0.75,
+                "q75ReturnPct": 1.27
               },
               "bearish": {
                 "direction": "bearish",
-                "samples": 13,
-                "directionalAccuracyPct": 23.08,
+                "samples": 15,
+                "directionalAccuracyPct": 26.67,
                 "accuracyIntervalPct": {
-                  "low": 8.18,
-                  "high": 50.26
+                  "low": 10.9,
+                  "high": 51.95
                 },
-                "medianReturnPct": 1.19,
-                "q25ReturnPct": 0.09,
-                "q75ReturnPct": 2.41
+                "medianReturnPct": 1.16,
+                "q25ReturnPct": -0.08,
+                "q75ReturnPct": 2.06
               }
             },
             "validation": {
               "split": "按时间顺序最后30%",
-              "startDate": "2026-02-02",
-              "endDate": "2026-07-06",
-              "samples": 15,
-              "directionalAccuracyPct": 40,
+              "startDate": "2025-12-02",
+              "endDate": "2026-06-30",
+              "samples": 16,
+              "directionalAccuracyPct": 43.75,
               "accuracyIntervalPct": {
-                "low": 19.82,
-                "high": 64.25
+                "low": 23.1,
+                "high": 66.82
               },
-              "baselineAccuracyPct": 40,
-              "majorityBaselineAccuracyPct": 46.67,
-              "bestBaselineAccuracyPct": 46.67,
+              "baselineAccuracyPct": 43.75,
+              "majorityBaselineAccuracyPct": 43.75,
+              "bestBaselineAccuracyPct": 43.75,
               "liftPct": 0,
-              "liftVsBestBaselinePct": -6.67,
+              "liftVsBestBaselinePct": 0,
               "directionalBuckets": {
                 "bullish": {
                   "direction": "bullish",
-                  "samples": 10,
-                  "directionalAccuracyPct": 40,
+                  "samples": 12,
+                  "directionalAccuracyPct": 50,
                   "accuracyIntervalPct": {
-                    "low": 16.82,
-                    "high": 68.73
+                    "low": 25.38,
+                    "high": 74.62
                   },
-                  "medianReturnPct": -1.45,
-                  "q25ReturnPct": -1.86,
-                  "q75ReturnPct": 1.12
+                  "medianReturnPct": -0.18,
+                  "q25ReturnPct": -0.92,
+                  "q75ReturnPct": 0.7
                 },
                 "bearish": {
                   "direction": "bearish",
-                  "samples": 5,
-                  "directionalAccuracyPct": 40,
+                  "samples": 4,
+                  "directionalAccuracyPct": 50,
                   "accuracyIntervalPct": {
-                    "low": 11.76,
-                    "high": 76.93
+                    "low": 15,
+                    "high": 85
                   },
-                  "medianReturnPct": 1.02,
-                  "q25ReturnPct": -0.6,
-                  "q75ReturnPct": 2.41
+                  "medianReturnPct": 0.44,
+                  "q25ReturnPct": -1.03,
+                  "q75ReturnPct": 1.19
                 }
               }
             },
@@ -16098,19 +16230,19 @@
               "candidateCount": 42,
               "selectedThreshold": 0.2,
               "selectedRule": {
-                "id": "momentumFastDirection",
-                "name": "纯动量短线方向",
+                "id": "momentumPersistentDirection",
+                "name": "纯动量趋势方向",
                 "featureMode": "direction",
-                "weekWeight": 0.75,
-                "monthWeight": 0.25,
+                "weekWeight": 0.31,
+                "monthWeight": 0.69,
                 "driverWeight": 0
               },
-              "selectedConservativeEdgePct": -17.52,
+              "selectedConservativeEdgePct": -21.66,
               "driverAblation": {
                 "selectedUsesCrossAsset": false,
                 "samples": 30,
-                "fullAccuracyPct": 40,
-                "momentumOnlyAccuracyPct": 40,
+                "fullAccuracyPct": 43.33,
+                "momentumOnlyAccuracyPct": 43.33,
                 "liftPct": 0,
                 "fullWins": 0,
                 "momentumWins": 0,
@@ -16121,250 +16253,250 @@
                 "trainingProbabilities": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 40,
-                    "upProbabilityPct": 61.9,
+                    "samples": 48,
+                    "upProbabilityPct": 58,
                     "intervalPct": {
-                      "low": 47.03,
-                      "high": 75.78
+                      "low": 44.28,
+                      "high": 71.15
                     }
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 28,
-                    "upProbabilityPct": 56.67,
+                    "samples": 21,
+                    "upProbabilityPct": 65.22,
                     "intervalPct": {
-                      "low": 39.07,
-                      "high": 73.49
+                      "low": 45.37,
+                      "high": 82.81
                     }
                   }
                 },
-                "trainingClimatologyUpPct": 60,
+                "trainingClimatologyUpPct": 60.56,
                 "samples": 30,
-                "meanForecastUpPct": 59.63,
-                "observedUpPct": 56.67,
-                "brierScore": 0.2528,
-                "climatologyBrierScore": 0.2467,
-                "brierSkillPct": -2.47,
-                "brierAdvantagePValue": 0.908765
+                "meanForecastUpPct": 60.41,
+                "observedUpPct": 53.33,
+                "brierScore": 0.2518,
+                "climatologyBrierScore": 0.2541,
+                "brierSkillPct": 0.91,
+                "brierAdvantagePValue": 0.358635
               },
               "macroRegime": {
                 "id": "reflation",
                 "name": "再通胀增长",
                 "training": {
-                  "samples": 29,
-                  "directionalAccuracyPct": 51.72,
+                  "samples": 34,
+                  "directionalAccuracyPct": 58.82,
                   "accuracyIntervalPct": {
-                    "low": 34.43,
-                    "high": 68.61
+                    "low": 42.22,
+                    "high": 73.63
                   },
-                  "momentumBaselineAccuracyPct": 48.28,
-                  "majorityBaselineAccuracyPct": 55.17,
-                  "bestBaselineAccuracyPct": 55.17,
-                  "liftVsBestBaselinePct": -3.45,
+                  "momentumBaselineAccuracyPct": 50,
+                  "majorityBaselineAccuracyPct": 58.82,
+                  "bestBaselineAccuracyPct": 58.82,
+                  "liftVsBestBaselinePct": 0,
                   "directionalBuckets": {
                     "bullish": {
                       "direction": "bullish",
-                      "samples": 18,
-                      "directionalAccuracyPct": 55.56,
+                      "samples": 26,
+                      "directionalAccuracyPct": 61.54,
                       "accuracyIntervalPct": {
-                        "low": 33.72,
-                        "high": 75.44
+                        "low": 42.53,
+                        "high": 77.57
                       },
-                      "medianReturnPct": 0.52,
-                      "q25ReturnPct": -0.7,
-                      "q75ReturnPct": 1.68
+                      "medianReturnPct": 0.61,
+                      "q25ReturnPct": -0.35,
+                      "q75ReturnPct": 1.63
                     },
                     "bearish": {
                       "direction": "bearish",
-                      "samples": 11,
-                      "directionalAccuracyPct": 45.45,
+                      "samples": 8,
+                      "directionalAccuracyPct": 50,
                       "accuracyIntervalPct": {
-                        "low": 21.27,
-                        "high": 71.99
+                        "low": 21.52,
+                        "high": 78.48
                       },
-                      "medianReturnPct": 0.09,
-                      "q25ReturnPct": -0.74,
-                      "q75ReturnPct": 0.78
+                      "medianReturnPct": -0.09,
+                      "q25ReturnPct": -1.15,
+                      "q75ReturnPct": 0.59
                     }
                   }
                 },
                 "validation": {
-                  "samples": 15,
-                  "directionalAccuracyPct": 53.33,
+                  "samples": 17,
+                  "directionalAccuracyPct": 35.29,
                   "accuracyIntervalPct": {
-                    "low": 30.12,
-                    "high": 75.19
+                    "low": 17.31,
+                    "high": 58.7
                   },
-                  "momentumBaselineAccuracyPct": 53.33,
-                  "majorityBaselineAccuracyPct": 60,
-                  "bestBaselineAccuracyPct": 60,
-                  "liftVsBestBaselinePct": -6.67,
+                  "momentumBaselineAccuracyPct": 29.41,
+                  "majorityBaselineAccuracyPct": 52.94,
+                  "bestBaselineAccuracyPct": 52.94,
+                  "liftVsBestBaselinePct": -17.65,
                   "directionalBuckets": {
                     "bullish": {
                       "direction": "bullish",
                       "samples": 10,
-                      "directionalAccuracyPct": 60,
+                      "directionalAccuracyPct": 50,
                       "accuracyIntervalPct": {
-                        "low": 31.27,
-                        "high": 83.18
+                        "low": 23.66,
+                        "high": 76.34
                       },
-                      "medianReturnPct": 0.87,
-                      "q25ReturnPct": -1.39,
-                      "q75ReturnPct": 1.51
+                      "medianReturnPct": -0.28,
+                      "q25ReturnPct": -1,
+                      "q75ReturnPct": 0.72
                     },
                     "bearish": {
                       "direction": "bearish",
-                      "samples": 5,
-                      "directionalAccuracyPct": 40,
+                      "samples": 7,
+                      "directionalAccuracyPct": 28.57,
                       "accuracyIntervalPct": {
-                        "low": 11.76,
-                        "high": 76.93
+                        "low": 8.22,
+                        "high": 64.11
                       },
-                      "medianReturnPct": 0.46,
-                      "q25ReturnPct": -0.6,
-                      "q75ReturnPct": 2.45
+                      "medianReturnPct": 1.28,
+                      "q25ReturnPct": 0.19,
+                      "q75ReturnPct": 3.54
                     }
                   }
                 },
                 "trainingProbabilities": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 18,
-                    "upProbabilityPct": 55,
+                    "samples": 26,
+                    "upProbabilityPct": 60.71,
                     "intervalPct": {
-                      "low": 33.72,
-                      "high": 75.44
+                      "low": 42.53,
+                      "high": 77.57
                     }
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 11,
-                    "upProbabilityPct": 53.85,
+                    "samples": 8,
+                    "upProbabilityPct": 50,
                     "intervalPct": {
-                      "low": 28.01,
-                      "high": 78.73
+                      "low": 21.52,
+                      "high": 78.48
                     }
                   }
                 },
                 "probabilityValidation": {
-                  "samples": 15,
-                  "brierScore": 0.2429,
-                  "climatologyBrierScore": 0.2427,
-                  "brierSkillPct": -0.08,
-                  "brierAdvantagePValue": 0.567825
+                  "samples": 17,
+                  "brierScore": 0.2567,
+                  "climatologyBrierScore": 0.2422,
+                  "brierSkillPct": -5.99,
+                  "brierAdvantagePValue": 0.863246
                 }
               },
               "overall": {
-                "samples": 98,
-                "directionalAccuracyPct": 47.96,
+                "samples": 99,
+                "directionalAccuracyPct": 48.48,
                 "accuracyIntervalPct": {
-                  "low": 38.33,
-                  "high": 57.74
+                  "low": 38.88,
+                  "high": 58.2
                 },
-                "momentumBaselineAccuracyPct": 45.92,
-                "majorityBaselineAccuracyPct": 57.14,
-                "bestBaselineAccuracyPct": 57.14,
-                "liftVsBestBaselinePct": -9.18,
+                "momentumBaselineAccuracyPct": 44.44,
+                "majorityBaselineAccuracyPct": 57.58,
+                "bestBaselineAccuracyPct": 57.58,
+                "liftVsBestBaselinePct": -9.1,
                 "directionalBuckets": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 57,
-                    "directionalAccuracyPct": 57.89,
+                    "samples": 68,
+                    "directionalAccuracyPct": 55.88,
                     "accuracyIntervalPct": {
-                      "low": 44.98,
-                      "high": 69.81
+                      "low": 44.08,
+                      "high": 67.05
                     },
-                    "medianReturnPct": 0.49,
-                    "q25ReturnPct": -0.9,
-                    "q75ReturnPct": 1.6
+                    "medianReturnPct": 0.15,
+                    "q25ReturnPct": -0.75,
+                    "q75ReturnPct": 1.45
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 41,
-                    "directionalAccuracyPct": 39.02,
+                    "samples": 31,
+                    "directionalAccuracyPct": 35.48,
                     "accuracyIntervalPct": {
-                      "low": 25.66,
-                      "high": 54.27
+                      "low": 21.12,
+                      "high": 53.05
                     },
-                    "medianReturnPct": 0.46,
-                    "q25ReturnPct": -0.63,
-                    "q75ReturnPct": 1.69
+                    "medianReturnPct": 0.66,
+                    "q25ReturnPct": -0.34,
+                    "q75ReturnPct": 2.07
                   }
                 }
               },
               "training": {
-                "samples": 68,
-                "directionalAccuracyPct": 51.47,
+                "samples": 69,
+                "directionalAccuracyPct": 50.72,
                 "accuracyIntervalPct": {
-                  "low": 39.83,
-                  "high": 62.95
+                  "low": 39.21,
+                  "high": 62.17
                 },
-                "momentumBaselineAccuracyPct": 48.53,
-                "majorityBaselineAccuracyPct": 57.35,
-                "bestBaselineAccuracyPct": 57.35,
-                "liftVsBestBaselinePct": -5.88,
+                "momentumBaselineAccuracyPct": 52.17,
+                "majorityBaselineAccuracyPct": 60.87,
+                "bestBaselineAccuracyPct": 60.87,
+                "liftVsBestBaselinePct": -10.15,
                 "directionalBuckets": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 40,
-                    "directionalAccuracyPct": 62.5,
+                    "samples": 48,
+                    "directionalAccuracyPct": 58.33,
                     "accuracyIntervalPct": {
-                      "low": 47.03,
-                      "high": 75.78
+                      "low": 44.28,
+                      "high": 71.15
                     },
-                    "medianReturnPct": 0.51,
-                    "q25ReturnPct": -0.49,
-                    "q75ReturnPct": 1.64
+                    "medianReturnPct": 0.35,
+                    "q25ReturnPct": -0.67,
+                    "q75ReturnPct": 1.45
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 28,
-                    "directionalAccuracyPct": 42.86,
+                    "samples": 21,
+                    "directionalAccuracyPct": 33.33,
                     "accuracyIntervalPct": {
-                      "low": 26.51,
-                      "high": 60.93
+                      "low": 17.19,
+                      "high": 54.63
                     },
-                    "medianReturnPct": 0.32,
-                    "q25ReturnPct": -0.79,
-                    "q75ReturnPct": 1.52
+                    "medianReturnPct": 0.62,
+                    "q25ReturnPct": -0.3,
+                    "q75ReturnPct": 1.85
                   }
                 }
               },
               "validation": {
                 "samples": 30,
-                "directionalAccuracyPct": 40,
+                "directionalAccuracyPct": 43.33,
                 "accuracyIntervalPct": {
-                  "low": 24.59,
-                  "high": 57.68
+                  "low": 27.38,
+                  "high": 60.8
                 },
-                "momentumBaselineAccuracyPct": 40,
-                "majorityBaselineAccuracyPct": 56.67,
-                "bestBaselineAccuracyPct": 56.67,
-                "liftVsBestBaselinePct": -16.67,
+                "momentumBaselineAccuracyPct": 26.67,
+                "majorityBaselineAccuracyPct": 50,
+                "bestBaselineAccuracyPct": 50,
+                "liftVsBestBaselinePct": -6.67,
                 "directionalBuckets": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 17,
-                    "directionalAccuracyPct": 47.06,
+                    "samples": 20,
+                    "directionalAccuracyPct": 50,
                     "accuracyIntervalPct": {
-                      "low": 26.16,
-                      "high": 69.04
+                      "low": 29.93,
+                      "high": 70.07
                     },
-                    "medianReturnPct": -0.9,
-                    "q25ReturnPct": -1.69,
-                    "q75ReturnPct": 1.54
+                    "medianReturnPct": -0.18,
+                    "q25ReturnPct": -0.92,
+                    "q75ReturnPct": 0.99
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 13,
-                    "directionalAccuracyPct": 30.77,
+                    "samples": 10,
+                    "directionalAccuracyPct": 40,
                     "accuracyIntervalPct": {
-                      "low": 12.68,
-                      "high": 57.63
+                      "low": 16.82,
+                      "high": 68.73
                     },
-                    "medianReturnPct": 0.75,
-                    "q25ReturnPct": -0.6,
-                    "q75ReturnPct": 2.45
+                    "medianReturnPct": 0.91,
+                    "q25ReturnPct": -0.43,
+                    "q75ReturnPct": 2.81
                   }
                 }
               },
@@ -17906,9 +18038,9 @@
       {
         "id": "gold",
         "name": "黄金策略指数",
-        "date": "2026-08-07",
-        "dailyMove": 6.97,
-        "dailySummary": "黄金策略指数最近交易日上涨 6.97%。标准化共振贡献同向（净贡献+0.80），主要来自美元广义指数、圣路易斯联储金融压力指数、美债10Y实际利率。",
+        "date": "2026-08-10",
+        "dailyMove": 0.54,
+        "dailySummary": "黄金策略指数最近交易日上涨 0.54%。标准化共振贡献同向（净贡献+0.80），主要来自美元广义指数、圣路易斯联储金融压力指数、美债10Y实际利率。",
         "dailyAttribution": {
           "alignment": "confirming",
           "netContribution": 0.8,
@@ -17958,7 +18090,7 @@
             "confidence": "watch",
             "upProbabilityPct": 53.51,
             "historicalReturnRangePct": {
-              "low": -0.87,
+              "low": -0.88,
               "high": 1.21,
               "samples": 710
             },
@@ -17971,29 +18103,29 @@
                 "low": 49.14,
                 "high": 54.39
               },
-              "bestBaselinePct": 48.52,
-              "liftPct": 3.25
+              "bestBaselinePct": 48.45,
+              "liftPct": 3.32
             },
             "validation": {
               "samples": 598,
-              "accuracyPct": 51,
+              "accuracyPct": 51.17,
               "accuracyIntervalPct": {
-                "low": 47,
-                "high": 54.99
+                "low": 47.17,
+                "high": 55.16
               },
-              "bestBaselinePct": 56.19,
-              "liftPct": -5.19
+              "bestBaselinePct": 56.35,
+              "liftPct": -5.18
             },
             "factors": [
               {
                 "name": "1观测动量",
-                "value": 0.79,
-                "text": "1个观测期变化上涨 6.97%，波动调整信号+0.79"
+                "value": 0.09,
+                "text": "1个观测期变化上涨 0.54%，波动调整信号+0.09"
               },
               {
                 "name": "5观测趋势",
                 "value": 0.89,
-                "text": "5个观测期变化上涨 20.78%，波动调整信号+0.89"
+                "text": "5个观测期变化上涨 20.15%，波动调整信号+0.89"
               }
             ]
           },
@@ -18002,47 +18134,47 @@
             "label": "未来1周",
             "observations": 5,
             "direction": "bullish",
-            "score": 1,
+            "score": 0.69,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 53.15,
+            "upProbabilityPct": 50.46,
             "historicalReturnRangePct": {
-              "low": -2.6,
-              "high": 3.14,
-              "samples": 109
+              "low": -2.7,
+              "high": 2.84,
+              "samples": 107
             },
-            "ruleName": "纯动量均衡方向",
+            "ruleName": "纯动量趋势（波动调整）",
             "threshold": 0.2,
             "training": {
-              "samples": 206,
-              "accuracyPct": 51.94,
+              "samples": 192,
+              "accuracyPct": 52.6,
               "accuracyIntervalPct": {
-                "low": 45.15,
-                "high": 58.67
+                "low": 45.56,
+                "high": 59.55
               },
-              "bestBaselinePct": 48.06,
-              "liftPct": 3.88
+              "bestBaselinePct": 47.4,
+              "liftPct": 5.2
             },
             "validation": {
-              "samples": 82,
-              "accuracyPct": 50,
+              "samples": 83,
+              "accuracyPct": 49.4,
               "accuracyIntervalPct": {
-                "low": 39.42,
-                "high": 60.58
+                "low": 38.91,
+                "high": 59.94
               },
-              "bestBaselinePct": 60.98,
-              "liftPct": -10.98
+              "bestBaselinePct": 53.01,
+              "liftPct": -3.61
             },
             "factors": [
               {
                 "name": "5观测动量",
                 "value": 0.89,
-                "text": "5个观测期变化上涨 20.78%，波动调整信号+0.89"
+                "text": "5个观测期变化上涨 20.15%，波动调整信号+0.89"
               },
               {
                 "name": "21观测趋势",
-                "value": 0.55,
-                "text": "21个观测期变化上涨 18.66%，波动调整信号+0.55"
+                "value": 0.59,
+                "text": "21个观测期变化上涨 19.67%，波动调整信号+0.59"
               }
             ]
           },
@@ -18051,47 +18183,47 @@
             "label": "未来1月",
             "observations": 21,
             "direction": "bullish",
-            "score": 0.06,
+            "score": 0.07,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 53.13,
+            "upProbabilityPct": 54.84,
             "historicalReturnRangePct": {
-              "low": -6.16,
-              "high": 7.18,
-              "samples": 30
+              "low": -4.36,
+              "high": 5.81,
+              "samples": 29
             },
             "ruleName": "纯动量趋势（波动调整）",
             "threshold": 0.2,
             "training": {
-              "samples": 48,
-              "accuracyPct": 52.08,
+              "samples": 47,
+              "accuracyPct": 53.19,
               "accuracyIntervalPct": {
-                "low": 38.33,
-                "high": 65.53
+                "low": 39.23,
+                "high": 66.67
               },
-              "bestBaselinePct": 52.08,
-              "liftPct": 0
+              "bestBaselinePct": 51.06,
+              "liftPct": 2.13
             },
             "validation": {
-              "samples": 22,
-              "accuracyPct": 68.18,
+              "samples": 23,
+              "accuracyPct": 69.57,
               "accuracyIntervalPct": {
-                "low": 47.32,
-                "high": 83.64
+                "low": 49.13,
+                "high": 84.4
               },
-              "bestBaselinePct": 63.64,
-              "liftPct": 4.54
+              "bestBaselinePct": 65.22,
+              "liftPct": 4.35
             },
             "factors": [
               {
                 "name": "21观测动量",
-                "value": 0.55,
-                "text": "21个观测期变化上涨 18.66%，波动调整信号+0.55"
+                "value": 0.59,
+                "text": "21个观测期变化上涨 19.67%，波动调整信号+0.59"
               },
               {
                 "name": "63观测趋势",
                 "value": -0.16,
-                "text": "63个观测期变化下跌 8.56%，波动调整信号-0.16"
+                "text": "63个观测期变化下跌 8.01%，波动调整信号-0.16"
               }
             ]
           },
@@ -18100,47 +18232,47 @@
             "label": "未来1季度",
             "observations": 63,
             "direction": "bearish",
-            "score": -1,
+            "score": -0.17,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 50,
+            "upProbabilityPct": 37.5,
             "historicalReturnRangePct": {
               "low": -5.16,
-              "high": 10.32,
-              "samples": 10
+              "high": 4.8,
+              "samples": 6
             },
-            "ruleName": "纯动量短线方向",
+            "ruleName": "纯动量均衡（波动调整）",
             "threshold": 0.2,
             "training": {
-              "samples": 21,
-              "accuracyPct": 52.38,
+              "samples": 15,
+              "accuracyPct": 60,
               "accuracyIntervalPct": {
-                "low": 32.37,
-                "high": 71.66
+                "low": 35.75,
+                "high": 80.18
               },
-              "bestBaselinePct": 52.38,
-              "liftPct": 0
+              "bestBaselinePct": 53.33,
+              "liftPct": 6.67
             },
             "validation": {
-              "samples": 10,
-              "accuracyPct": 70,
+              "samples": 8,
+              "accuracyPct": 75,
               "accuracyIntervalPct": {
-                "low": 39.68,
-                "high": 89.22
+                "low": 40.93,
+                "high": 92.85
               },
-              "bestBaselinePct": 80,
-              "liftPct": -10
+              "bestBaselinePct": 75,
+              "liftPct": 0
             },
             "factors": [
               {
                 "name": "63观测动量",
                 "value": -0.16,
-                "text": "63个观测期变化下跌 8.56%，波动调整信号-0.16"
+                "text": "63个观测期变化下跌 8.01%，波动调整信号-0.16"
               },
               {
                 "name": "126观测趋势",
-                "value": -0.15,
-                "text": "126个观测期变化下跌 11.14%，波动调整信号-0.15"
+                "value": -0.19,
+                "text": "126个观测期变化下跌 13.26%，波动调整信号-0.19"
               }
             ]
           },
@@ -18152,23 +18284,23 @@
             "score": 0.38,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 62.5,
+            "upProbabilityPct": 71.43,
             "historicalReturnRangePct": {
-              "low": -9.9,
-              "high": 23.82,
-              "samples": 6
+              "low": 5.99,
+              "high": 27.74,
+              "samples": 5
             },
             "ruleName": "纯动量趋势方向",
             "threshold": 0.2,
             "training": {
               "samples": 10,
-              "accuracyPct": 50,
+              "accuracyPct": 60,
               "accuracyIntervalPct": {
-                "low": 23.66,
-                "high": 76.34
+                "low": 31.27,
+                "high": 83.18
               },
               "bestBaselinePct": 70,
-              "liftPct": -20
+              "liftPct": -10
             },
             "validation": {
               "samples": 5,
@@ -18183,13 +18315,13 @@
             "factors": [
               {
                 "name": "126观测动量",
-                "value": -0.15,
-                "text": "126个观测期变化下跌 11.14%，波动调整信号-0.15"
+                "value": -0.19,
+                "text": "126个观测期变化下跌 13.26%，波动调整信号-0.19"
               },
               {
                 "name": "252观测趋势",
                 "value": 0.49,
-                "text": "252个观测期变化上涨 56.25%，波动调整信号+0.49"
+                "text": "252个观测期变化上涨 53.94%，波动调整信号+0.49"
               }
             ]
           },
@@ -18198,13 +18330,13 @@
             "label": "未来1年",
             "observations": 252,
             "direction": "bullish",
-            "score": 0.61,
+            "score": 0.63,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 50,
             "historicalReturnRangePct": {
-              "low": 4.78,
-              "high": 34.18,
+              "low": 4.98,
+              "high": 34,
               "samples": 2
             },
             "ruleName": "纯动量均衡（波动调整）",
@@ -18233,12 +18365,12 @@
               {
                 "name": "252观测动量",
                 "value": 0.49,
-                "text": "252个观测期变化上涨 56.25%，波动调整信号+0.49"
+                "text": "252个观测期变化上涨 53.94%，波动调整信号+0.49"
               },
               {
                 "name": "504观测趋势",
-                "value": 0.77,
-                "text": "504个观测期变化上涨 148.65%，波动调整信号+0.77"
+                "value": 0.81,
+                "text": "504个观测期变化上涨 158.83%，波动调整信号+0.81"
               }
             ]
           }
@@ -18247,59 +18379,60 @@
           "horizon": "未来5个交易日",
           "bias": "neutral",
           "confidence": "low",
-          "score": 0.03,
+          "score": 0.02,
           "momentumSignals": {
             "week": 0.89,
-            "month": 0.55
+            "month": 0.59
           },
           "probability": {
-            "upProbabilityPct": 56.25,
-            "downProbabilityPct": 43.75,
+            "upProbabilityPct": 55,
+            "downProbabilityPct": 45,
             "intervalPct": {
-              "low": 32.59,
-              "high": 78.62
+              "low": 33.72,
+              "high": 75.44
             },
-            "trainingSamples": 14,
+            "trainingSamples": 18,
             "signalDirection": "bullish",
             "source": "macro-regime",
             "macroRegime": "再通胀增长",
-            "validationBrierScore": 0.2514,
-            "validationClimatologyBrierScore": 0.25,
-            "validationBrierSkillPct": -0.56,
-            "validationBrierAdvantagePValue": 0.531538,
-            "validated": false
+            "validationBrierScore": 0.2369,
+            "validationClimatologyBrierScore": 0.2416,
+            "validationBrierSkillPct": 1.95,
+            "validationBrierAdvantagePValue": 0.055899,
+            "validated": true
           },
           "liveEvaluation": {
             "modelVersion": "cross-asset-v1.5-rate-decomposition",
-            "totalSnapshots": 6,
-            "allVersionSnapshots": 43,
-            "resolvedSamples": 1,
+            "totalSnapshots": 7,
+            "allVersionSnapshots": 50,
+            "resolvedSamples": 2,
             "directionalSamples": 0,
             "directionalAccuracyPct": null,
-            "brierScore": 0.3265,
-            "latestOutcomeDate": "2026-08-07"
+            "brierScore": 0.2883,
+            "latestOutcomeDate": "2026-08-10"
           },
           "directionGate": {
             "eligible": false,
             "reasons": [
-              "可靠性收缩后得分仅0.03，低于0.20门槛",
-              "训练期相对最佳素朴基线无正增量（-3.2%）",
-              "留出期强信号相对最佳基线无正增量（-3.5%）",
-              "留出期Brier技能未跑赢历史上涨频率（-0.6%）",
-              "当前再通胀增长状态的留出表现未跑赢最佳基线（-13.3%）"
+              "可靠性收缩后得分仅0.02，低于0.20门槛",
+              "训练期相对最佳素朴基线无正增量（-2.1%）",
+              "留出期强信号命中率35.3%低于50%",
+              "留出期强信号相对最佳基线无正增量（-11.8%）",
+              "当前再通胀增长状态的留出表现未跑赢最佳基线（-30.0%）",
+              "留出期强信号同方向命中率33.3%低于50%"
             ]
           },
           "scenario": {
             "direction": "bullish",
-            "samples": 54,
-            "directionalAccuracyPct": 61.11,
+            "samples": 45,
+            "directionalAccuracyPct": 55.56,
             "accuracyIntervalPct": {
-              "low": 47.79,
-              "high": 72.96
+              "low": 41.18,
+              "high": 69.06
             },
-            "medianReturnPct": 1.71,
-            "q25ReturnPct": -1.64,
-            "q75ReturnPct": 5.17
+            "medianReturnPct": 0.15,
+            "q25ReturnPct": -2.8,
+            "q75ReturnPct": 4.78
           },
           "consensus": {
             "aligned": 0,
@@ -18308,7 +18441,7 @@
           },
           "predictiveDrivers": [],
           "reasons": [
-            "近5个交易日上涨 20.78%（波动标准化+0.89），近1个月上涨 18.66%（标准化+0.55）",
+            "近5个交易日上涨 20.15%（波动标准化+0.89），近1个月上涨 19.67%（标准化+0.59）",
             "训练期选择的是纯动量规则，跨资产驱动仅用于解释、不进入方向得分",
             "当前没有通过95%区间筛选的跨资产领先线索"
           ],
@@ -18318,21 +18451,21 @@
           ],
           "backtest": {
             "horizon": "后续5个观测日",
-            "samples": 67,
-            "directionalAccuracyPct": 50.75,
+            "samples": 64,
+            "directionalAccuracyPct": 51.56,
             "accuracyIntervalPct": {
-              "low": 39.06,
-              "high": 62.35
+              "low": 39.58,
+              "high": 63.37
             },
-            "baselineAccuracyPct": 52.24,
-            "majorityBaselineAccuracyPct": 56.72,
-            "bestBaselineAccuracyPct": 56.72,
-            "liftPct": -1.49,
-            "liftVsBestBaselinePct": -5.97,
+            "baselineAccuracyPct": 53.13,
+            "majorityBaselineAccuracyPct": 56.25,
+            "bestBaselineAccuracyPct": 56.25,
+            "liftPct": -1.57,
+            "liftVsBestBaselinePct": -4.69,
             "regime": "平稳市",
-            "regimeSamples": 38,
-            "regimeAccuracyPct": 60.53,
-            "regimeBaselineAccuracyPct": 60.53,
+            "regimeSamples": 39,
+            "regimeAccuracyPct": 58.97,
+            "regimeBaselineAccuracyPct": 58.97,
             "regimeLiftPct": 0,
             "directionalBuckets": {
               "bullish": {
@@ -18343,82 +18476,82 @@
                   "low": 41.18,
                   "high": 69.06
                 },
-                "medianReturnPct": 0.4,
-                "q25ReturnPct": -3.25,
-                "q75ReturnPct": 4
+                "medianReturnPct": 0.15,
+                "q25ReturnPct": -2.8,
+                "q75ReturnPct": 4.78
               },
               "bearish": {
                 "direction": "bearish",
-                "samples": 22,
-                "directionalAccuracyPct": 40.91,
+                "samples": 19,
+                "directionalAccuracyPct": 42.11,
                 "accuracyIntervalPct": {
-                  "low": 23.26,
-                  "high": 61.27
+                  "low": 23.14,
+                  "high": 63.72
                 },
-                "medianReturnPct": 1.19,
-                "q25ReturnPct": -3.5,
-                "q75ReturnPct": 6.04
+                "medianReturnPct": 3.8,
+                "q25ReturnPct": -2.88,
+                "q75ReturnPct": 6.86
               }
             },
             "validation": {
               "split": "按时间顺序最后30%",
-              "startDate": "2026-01-26",
-              "endDate": "2026-07-27",
-              "samples": 21,
-              "directionalAccuracyPct": 38.1,
+              "startDate": "2025-12-02",
+              "endDate": "2026-07-14",
+              "samples": 20,
+              "directionalAccuracyPct": 40,
               "accuracyIntervalPct": {
-                "low": 20.75,
-                "high": 59.12
+                "low": 21.88,
+                "high": 61.34
               },
-              "baselineAccuracyPct": 38.1,
-              "majorityBaselineAccuracyPct": 52.38,
-              "bestBaselineAccuracyPct": 52.38,
+              "baselineAccuracyPct": 40,
+              "majorityBaselineAccuracyPct": 50,
+              "bestBaselineAccuracyPct": 50,
               "liftPct": 0,
-              "liftVsBestBaselinePct": -14.28,
+              "liftVsBestBaselinePct": -10,
               "directionalBuckets": {
                 "bullish": {
                   "direction": "bullish",
-                  "samples": 10,
-                  "directionalAccuracyPct": 40,
+                  "samples": 12,
+                  "directionalAccuracyPct": 41.67,
                   "accuracyIntervalPct": {
-                    "low": 16.82,
-                    "high": 68.73
+                    "low": 19.33,
+                    "high": 68.05
                   },
-                  "medianReturnPct": -2.99,
-                  "q25ReturnPct": -9.32,
-                  "q75ReturnPct": 1.36
+                  "medianReturnPct": -2.82,
+                  "q25ReturnPct": -7.16,
+                  "q75ReturnPct": 5.17
                 },
                 "bearish": {
                   "direction": "bearish",
-                  "samples": 11,
-                  "directionalAccuracyPct": 36.36,
+                  "samples": 8,
+                  "directionalAccuracyPct": 37.5,
                   "accuracyIntervalPct": {
-                    "low": 15.17,
-                    "high": 64.62
+                    "low": 13.68,
+                    "high": 69.43
                   },
-                  "medianReturnPct": 3.53,
-                  "q25ReturnPct": -5.45,
-                  "q75ReturnPct": 7.29
+                  "medianReturnPct": 3.29,
+                  "q25ReturnPct": -1.43,
+                  "q75ReturnPct": 9.08
                 }
               }
             },
             "selectivity": {
               "candidateCount": 42,
-              "selectedThreshold": 0.35,
+              "selectedThreshold": 0.2,
               "selectedRule": {
-                "id": "momentumFastDirection",
-                "name": "纯动量短线方向",
-                "featureMode": "direction",
-                "weekWeight": 0.75,
-                "monthWeight": 0.25,
+                "id": "momentumBalancedNormalized",
+                "name": "纯动量均衡（波动调整）",
+                "featureMode": "normalized",
+                "weekWeight": 0.56,
+                "monthWeight": 0.44,
                 "driverWeight": 0
               },
-              "selectedConservativeEdgePct": -15.59,
+              "selectedConservativeEdgePct": -16.29,
               "driverAblation": {
                 "selectedUsesCrossAsset": false,
-                "samples": 29,
-                "fullAccuracyPct": 51.72,
-                "momentumOnlyAccuracyPct": 51.72,
+                "samples": 17,
+                "fullAccuracyPct": 35.29,
+                "momentumOnlyAccuracyPct": 35.29,
                 "liftPct": 0,
                 "fullWins": 0,
                 "momentumWins": 0,
@@ -18429,254 +18562,254 @@
                 "trainingProbabilities": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 38,
-                    "upProbabilityPct": 62.5,
+                    "samples": 36,
+                    "upProbabilityPct": 60.53,
                     "intervalPct": {
-                      "low": 47.28,
-                      "high": 76.62
+                      "low": 44.86,
+                      "high": 75.22
                     }
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 24,
+                    "samples": 11,
                     "upProbabilityPct": 53.85,
                     "intervalPct": {
-                      "low": 35.07,
-                      "high": 72.11
+                      "low": 28.01,
+                      "high": 78.73
                     }
                   }
                 },
-                "trainingClimatologyUpPct": 59.38,
-                "samples": 29,
-                "meanForecastUpPct": 58.62,
-                "observedUpPct": 55.17,
-                "brierScore": 0.2493,
-                "climatologyBrierScore": 0.2491,
-                "brierSkillPct": -0.08,
-                "brierAdvantagePValue": 0.511918
+                "trainingClimatologyUpPct": 59.18,
+                "samples": 17,
+                "meanForecastUpPct": 57.39,
+                "observedUpPct": 47.06,
+                "brierScore": 0.2706,
+                "climatologyBrierScore": 0.2638,
+                "brierSkillPct": -2.58,
+                "brierAdvantagePValue": 0.770718
               },
               "macroRegime": {
                 "id": "reflation",
                 "name": "再通胀增长",
                 "training": {
-                  "samples": 26,
-                  "directionalAccuracyPct": 57.69,
+                  "samples": 23,
+                  "directionalAccuracyPct": 52.17,
                   "accuracyIntervalPct": {
-                    "low": 38.95,
-                    "high": 74.46
+                    "low": 32.96,
+                    "high": 70.76
                   },
-                  "momentumBaselineAccuracyPct": 57.69,
-                  "majorityBaselineAccuracyPct": 50,
-                  "bestBaselineAccuracyPct": 57.69,
-                  "liftVsBestBaselinePct": 0,
+                  "momentumBaselineAccuracyPct": 56.52,
+                  "majorityBaselineAccuracyPct": 56.52,
+                  "bestBaselineAccuracyPct": 56.52,
+                  "liftVsBestBaselinePct": -4.35,
                   "directionalBuckets": {
                     "bullish": {
                       "direction": "bullish",
-                      "samples": 14,
-                      "directionalAccuracyPct": 57.14,
+                      "samples": 18,
+                      "directionalAccuracyPct": 55.56,
                       "accuracyIntervalPct": {
-                        "low": 32.59,
-                        "high": 78.62
+                        "low": 33.72,
+                        "high": 75.44
                       },
-                      "medianReturnPct": 0.5,
-                      "q25ReturnPct": -0.96,
-                      "q75ReturnPct": 4.05
+                      "medianReturnPct": 0.1,
+                      "q25ReturnPct": -2.19,
+                      "q75ReturnPct": 3.95
                     },
                     "bearish": {
                       "direction": "bearish",
-                      "samples": 12,
-                      "directionalAccuracyPct": 58.33,
+                      "samples": 5,
+                      "directionalAccuracyPct": 40,
                       "accuracyIntervalPct": {
-                        "low": 31.95,
-                        "high": 80.67
+                        "low": 11.76,
+                        "high": 76.93
                       },
-                      "medianReturnPct": -0.25,
-                      "q25ReturnPct": -1.46,
-                      "q75ReturnPct": 0.89
+                      "medianReturnPct": 3.8,
+                      "q25ReturnPct": -2.16,
+                      "q75ReturnPct": 3.8
                     }
                   }
                 },
                 "validation": {
-                  "samples": 15,
-                  "directionalAccuracyPct": 53.33,
+                  "samples": 10,
+                  "directionalAccuracyPct": 30,
                   "accuracyIntervalPct": {
-                    "low": 30.12,
-                    "high": 75.19
+                    "low": 10.78,
+                    "high": 60.32
                   },
-                  "momentumBaselineAccuracyPct": 53.33,
-                  "majorityBaselineAccuracyPct": 66.67,
-                  "bestBaselineAccuracyPct": 66.67,
-                  "liftVsBestBaselinePct": -13.34,
+                  "momentumBaselineAccuracyPct": 30,
+                  "majorityBaselineAccuracyPct": 60,
+                  "bestBaselineAccuracyPct": 60,
+                  "liftVsBestBaselinePct": -30,
                   "directionalBuckets": {
                     "bullish": {
                       "direction": "bullish",
-                      "samples": 9,
-                      "directionalAccuracyPct": 66.67,
+                      "samples": 7,
+                      "directionalAccuracyPct": 42.86,
                       "accuracyIntervalPct": {
-                        "low": 35.42,
-                        "high": 87.94
+                        "low": 15.82,
+                        "high": 74.95
                       },
-                      "medianReturnPct": 1.6,
-                      "q25ReturnPct": -0.6,
-                      "q75ReturnPct": 4.29
+                      "medianReturnPct": -2.8,
+                      "q25ReturnPct": -8.03,
+                      "q75ReturnPct": 5.34
                     },
                     "bearish": {
                       "direction": "bearish",
-                      "samples": 6,
-                      "directionalAccuracyPct": 33.33,
+                      "samples": 3,
+                      "directionalAccuracyPct": 0,
                       "accuracyIntervalPct": {
-                        "low": 9.68,
-                        "high": 70
+                        "low": 0,
+                        "high": 56.15
                       },
-                      "medianReturnPct": 2.19,
-                      "q25ReturnPct": -5,
-                      "q75ReturnPct": 7
+                      "medianReturnPct": 8.12,
+                      "q25ReturnPct": 6.86,
+                      "q75ReturnPct": 10.51
                     }
                   }
                 },
                 "trainingProbabilities": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 14,
-                    "upProbabilityPct": 56.25,
+                    "samples": 18,
+                    "upProbabilityPct": 55,
                     "intervalPct": {
-                      "low": 32.59,
-                      "high": 78.62
+                      "low": 33.72,
+                      "high": 75.44
                     }
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 12,
-                    "upProbabilityPct": 42.86,
+                    "samples": 5,
+                    "upProbabilityPct": 57.14,
                     "intervalPct": {
-                      "low": 19.33,
-                      "high": 68.05
+                      "low": 23.07,
+                      "high": 88.24
                     }
                   }
                 },
                 "probabilityValidation": {
-                  "samples": 15,
-                  "brierScore": 0.2514,
-                  "climatologyBrierScore": 0.25,
-                  "brierSkillPct": -0.56,
-                  "brierAdvantagePValue": 0.531538
+                  "samples": 10,
+                  "brierScore": 0.2369,
+                  "climatologyBrierScore": 0.2416,
+                  "brierSkillPct": 1.95,
+                  "brierAdvantagePValue": 0.055899
                 }
               },
               "overall": {
-                "samples": 91,
-                "directionalAccuracyPct": 54.95,
+                "samples": 64,
+                "directionalAccuracyPct": 51.56,
                 "accuracyIntervalPct": {
-                  "low": 44.73,
-                  "high": 64.76
+                  "low": 39.58,
+                  "high": 63.37
                 },
-                "momentumBaselineAccuracyPct": 54.95,
-                "majorityBaselineAccuracyPct": 58.24,
-                "bestBaselineAccuracyPct": 58.24,
-                "liftVsBestBaselinePct": -3.29,
+                "momentumBaselineAccuracyPct": 53.13,
+                "majorityBaselineAccuracyPct": 56.25,
+                "bestBaselineAccuracyPct": 56.25,
+                "liftVsBestBaselinePct": -4.69,
                 "directionalBuckets": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 54,
-                    "directionalAccuracyPct": 61.11,
+                    "samples": 45,
+                    "directionalAccuracyPct": 55.56,
                     "accuracyIntervalPct": {
-                      "low": 47.79,
-                      "high": 72.96
+                      "low": 41.18,
+                      "high": 69.06
                     },
-                    "medianReturnPct": 1.71,
-                    "q25ReturnPct": -1.64,
-                    "q75ReturnPct": 5.17
+                    "medianReturnPct": 0.15,
+                    "q25ReturnPct": -2.8,
+                    "q75ReturnPct": 4.78
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 37,
-                    "directionalAccuracyPct": 45.95,
+                    "samples": 19,
+                    "directionalAccuracyPct": 42.11,
                     "accuracyIntervalPct": {
-                      "low": 31.04,
-                      "high": 61.62
+                      "low": 23.14,
+                      "high": 63.72
                     },
-                    "medianReturnPct": 0.85,
-                    "q25ReturnPct": -3.25,
-                    "q75ReturnPct": 3.42
+                    "medianReturnPct": 3.8,
+                    "q25ReturnPct": -2.88,
+                    "q75ReturnPct": 6.86
                   }
                 }
               },
               "training": {
-                "samples": 62,
-                "directionalAccuracyPct": 56.45,
+                "samples": 47,
+                "directionalAccuracyPct": 57.45,
                 "accuracyIntervalPct": {
-                  "low": 44.09,
-                  "high": 68.06
+                  "low": 43.28,
+                  "high": 70.49
                 },
-                "momentumBaselineAccuracyPct": 56.45,
-                "majorityBaselineAccuracyPct": 59.68,
-                "bestBaselineAccuracyPct": 59.68,
-                "liftVsBestBaselinePct": -3.23,
+                "momentumBaselineAccuracyPct": 59.57,
+                "majorityBaselineAccuracyPct": 59.57,
+                "bestBaselineAccuracyPct": 59.57,
+                "liftVsBestBaselinePct": -2.12,
                 "directionalBuckets": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 38,
-                    "directionalAccuracyPct": 63.16,
+                    "samples": 36,
+                    "directionalAccuracyPct": 61.11,
                     "accuracyIntervalPct": {
-                      "low": 47.28,
-                      "high": 76.62
+                      "low": 44.86,
+                      "high": 75.22
                     },
-                    "medianReturnPct": 1.94,
-                    "q25ReturnPct": -1.11,
-                    "q75ReturnPct": 4.77
+                    "medianReturnPct": 0.3,
+                    "q25ReturnPct": -2.37,
+                    "q75ReturnPct": 4.26
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 24,
-                    "directionalAccuracyPct": 45.83,
+                    "samples": 11,
+                    "directionalAccuracyPct": 45.45,
                     "accuracyIntervalPct": {
-                      "low": 27.89,
-                      "high": 64.93
+                      "low": 21.27,
+                      "high": 71.99
                     },
-                    "medianReturnPct": 0.58,
-                    "q25ReturnPct": -1.01,
-                    "q75ReturnPct": 2.8
+                    "medianReturnPct": 3.8,
+                    "q25ReturnPct": -2.89,
+                    "q75ReturnPct": 4.32
                   }
                 }
               },
               "validation": {
-                "samples": 29,
-                "directionalAccuracyPct": 51.72,
+                "samples": 17,
+                "directionalAccuracyPct": 35.29,
                 "accuracyIntervalPct": {
-                  "low": 34.43,
-                  "high": 68.61
+                  "low": 17.31,
+                  "high": 58.7
                 },
-                "momentumBaselineAccuracyPct": 51.72,
-                "majorityBaselineAccuracyPct": 55.17,
-                "bestBaselineAccuracyPct": 55.17,
-                "liftVsBestBaselinePct": -3.45,
+                "momentumBaselineAccuracyPct": 35.29,
+                "majorityBaselineAccuracyPct": 47.06,
+                "bestBaselineAccuracyPct": 47.06,
+                "liftVsBestBaselinePct": -11.77,
                 "directionalBuckets": {
                   "bullish": {
                     "direction": "bullish",
-                    "samples": 16,
-                    "directionalAccuracyPct": 56.25,
+                    "samples": 9,
+                    "directionalAccuracyPct": 33.33,
                     "accuracyIntervalPct": {
-                      "low": 33.18,
-                      "high": 76.9
+                      "low": 12.06,
+                      "high": 64.58
                     },
-                    "medianReturnPct": 1.13,
-                    "q25ReturnPct": -5.6,
-                    "q75ReturnPct": 5.57
+                    "medianReturnPct": -4.75,
+                    "q25ReturnPct": -9.76,
+                    "q75ReturnPct": 5.01
                   },
                   "bearish": {
                     "direction": "bearish",
-                    "samples": 13,
-                    "directionalAccuracyPct": 46.15,
+                    "samples": 8,
+                    "directionalAccuracyPct": 37.5,
                     "accuracyIntervalPct": {
-                      "low": 23.21,
-                      "high": 70.86
+                      "low": 13.68,
+                      "high": 69.43
                     },
-                    "medianReturnPct": 0.85,
-                    "q25ReturnPct": -6.99,
-                    "q75ReturnPct": 6.54
+                    "medianReturnPct": 3.29,
+                    "q25ReturnPct": -1.43,
+                    "q75ReturnPct": 9.08
                   }
                 }
               },
-              "validationCoveragePct": 96.67
+              "validationCoveragePct": 56.67
             },
             "note": "最近约500个观测日内按5日步长进行非重叠检验；历史与实时驱动均在每个目标的预设链家族内使用相同Bonferroni时点门槛。仅在前70%训练期从纯动量与跨资产增强共14组预设规则×3档门槛中按“命中率95%下界−最佳素朴基线”选择，最后30%留出验证；跨资产分量还需在同日样本消融检验中显著优于移除驱动后的规则，否则实时贡献归零。"
           }
@@ -18687,34 +18820,14 @@
         "name": "比特币",
         "date": "2026-08-10",
         "dailyMove": -1.51,
-        "dailySummary": "比特币最近交易日下跌 1.51%。现有跨资产贡献与价格方向相反（净贡献+0.73），本次涨跌更可能由品种自身事件、新闻或尚未覆盖的驱动造成。",
+        "dailySummary": "比特币最近交易日下跌 1.51%。当前跨资产贡献不足，无法可靠解释本次涨跌。",
         "dailyAttribution": {
-          "alignment": "diverging",
-          "netContribution": 0.73,
-          "alignedDrivers": 0,
+          "alignment": "insufficient",
+          "netContribution": 0.09,
+          "alignedDrivers": 1,
           "totalDrivers": 3
         },
         "drivers": [
-          {
-            "chain": "黄金—BTC状态链",
-            "driver": "黄金策略指数",
-            "driverMove": 6.97,
-            "driverZ": 2.25,
-            "correlation": 0.48,
-            "contribution": 0.39,
-            "effect": "tailwind",
-            "text": "黄金策略指数上涨 6.97%（+2.25σ），结合当前ρ 0.48，对比特币的共振贡献+0.39"
-          },
-          {
-            "chain": "科技股—BTC链",
-            "driver": "纳斯达克综合",
-            "driverMove": 1.3,
-            "driverZ": 0.92,
-            "correlation": 0.39,
-            "contribution": 0.17,
-            "effect": "tailwind",
-            "text": "纳斯达克综合上涨 1.30%（+0.92σ），结合当前ρ 0.39，对比特币的共振贡献+0.17"
-          },
           {
             "chain": "美元—加密链",
             "driver": "美元广义指数",
@@ -18724,6 +18837,26 @@
             "contribution": 0.17,
             "effect": "tailwind",
             "text": "美元广义指数下跌 0.37%（-1.24σ），结合当前ρ -0.31，对比特币的共振贡献+0.17"
+          },
+          {
+            "chain": "风险广度—BTC链",
+            "driver": "跨资产风险参与率（剔除BTC）",
+            "driverMove": -28.57,
+            "driverZ": -0.85,
+            "correlation": 0.4,
+            "contribution": -0.16,
+            "effect": "headwind",
+            "text": "跨资产风险参与率（剔除BTC）下跌 28.57点（-0.85σ），结合当前ρ 0.40，对比特币的共振贡献-0.16"
+          },
+          {
+            "chain": "风险压力共振—BTC链",
+            "driver": "全球风险压力共振指数",
+            "driverMove": -0.42,
+            "driverZ": -0.4,
+            "correlation": -0.42,
+            "contribution": 0.08,
+            "effect": "tailwind",
+            "text": "全球风险压力共振指数下跌 0.42点（-0.40σ），结合当前ρ -0.42，对比特币的共振贡献+0.08"
           }
         ],
         "horizonOutlooks": [
@@ -19466,10 +19599,10 @@
         "name": "以太坊",
         "date": "2026-08-10",
         "dailyMove": -2.04,
-        "dailySummary": "以太坊最近交易日下跌 2.04%。当前跨资产贡献不足，无法可靠解释本次涨跌。",
+        "dailySummary": "以太坊最近交易日下跌 2.04%。标准化共振贡献同向（净贡献-0.11），主要来自比特币、美元广义指数、美债10Y实际利率。",
         "dailyAttribution": {
-          "alignment": "insufficient",
-          "netContribution": -0.06,
+          "alignment": "confirming",
+          "netContribution": -0.11,
           "alignedDrivers": 1,
           "totalDrivers": 3
         },
@@ -19485,16 +19618,6 @@
             "text": "比特币下跌 1.51%（-1.03σ），结合当前ρ 0.88，对以太坊的共振贡献-0.42"
           },
           {
-            "chain": "科技股—ETH链",
-            "driver": "纳斯达克综合",
-            "driverMove": 1.3,
-            "driverZ": 0.92,
-            "correlation": 0.42,
-            "contribution": 0.18,
-            "effect": "tailwind",
-            "text": "纳斯达克综合上涨 1.30%（+0.92σ），结合当前ρ 0.42，对以太坊的共振贡献+0.18"
-          },
-          {
             "chain": "美元—ETH链",
             "driver": "美元广义指数",
             "driverMove": -0.37,
@@ -19503,6 +19626,16 @@
             "contribution": 0.18,
             "effect": "tailwind",
             "text": "美元广义指数下跌 0.37%（-1.24σ），结合当前ρ -0.33，对以太坊的共振贡献+0.18"
+          },
+          {
+            "chain": "实际利率—ETH链",
+            "driver": "美债10Y实际利率",
+            "driverMove": -3,
+            "driverZ": -1.05,
+            "correlation": -0.26,
+            "contribution": 0.13,
+            "effect": "tailwind",
+            "text": "美债10Y实际利率下跌 3.00bp（-1.05σ），结合当前ρ -0.26，对以太坊的共振贡献+0.13"
           }
         ],
         "horizonOutlooks": [

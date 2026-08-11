@@ -97,6 +97,9 @@ const main = async () => {
         mode: 'return',
         date: latest.date,
         stale: false,
+        source: 'Massive',
+        sourceUrl: 'https://massive.com/docs/rest/stocks/aggregates/custom-bars',
+        calendar: 'nyse',
         dataShape: 'ohlcv',
         points,
       })
@@ -115,6 +118,7 @@ const main = async () => {
     updatedAt: new Date().toISOString(),
     source: 'Massive Stocks Aggregate Bars',
     sourceUrl: 'https://massive.com/docs/rest/stocks/aggregates/custom-bars',
+    sourcePriority: ['Massive'],
     limitations: [
       '美股数据为复权日线 OHLCV；免费数据计划提供最近2年历史，公司范围跟随每日市值前10排名，历史成分不做回溯修正。',
       ...(failures.length ? [`本次部分标的更新失败：${failures.join('；')}`] : []),

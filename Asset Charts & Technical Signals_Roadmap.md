@@ -4,7 +4,7 @@
 
 | Phase                                   | Status      | Current evidence                                                                                                                                                                                                                                   |
 | --------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Phase 0 · Data and interfaces           | In progress | Versioned asset history dataset, source metadata, optional OHLCV model, indicator/result/alert types, role permissions, authenticated Cloudflare Worker API, D1 migrations, daily refresh workflows, global indicator configuration, parameter templates, and an append-only formula/configuration ledger are implemented. Unified trading calendars and runtime enforcement of source priority remain. |
+| Phase 0 · Data and interfaces           | Complete    | Versioned asset history, per-asset source/calendar metadata, optional OHLCV, indicator/result/alert types, role permissions, authenticated Worker APIs, D1 migrations, daily workflows, global configuration, templates, and append-only ledgers are implemented. Daily generation now reads the live source priority, selects/falls back between equivalent providers, and runtime freshness uses unified timezone/session/publication rules. |
 | Phase 1 · Core MVP                      | In progress | 24 cross-asset series, line/real-candle modes, MA20/60, MACD, RSI, Bollinger, ATR, support/resistance, six horizons, comparison, transmission carousel, favorites, fullscreen, PNG export, and authenticated personal alerts are implemented. Massive OHLCV is live for the US mega-cap set; the free plan supplies two years of history and the workflow now respects its five-calls-per-minute limit while retaining stale fallback data on transient failures. |
 | Phase 2 · Funds and advanced comparison | Complete    | A shared fund research workbench is live on both US-fund and A-share pages with normalized price/NAV comparison, 20/60/120-day rolling correlations, peer-proxy tracking error, current premium/discount and annual fees, local favorites/saved views, daily off-exchange investment-limit history, and price-versus-transmission divergence detection. |
 | Phase 3 · Options and event analysis    | In progress | The top-10 option research cards now combine Forward PE, stock technical score, Nasdaq transmission context, EPS revisions, earnings windows, and historical pre/post-earnings returns. A Massive-powered pipeline for 365–730 DTE IV, LEAPS IV Rank, Put/Call ratios, term structure, and earnings IV-implied move is implemented with explicit unavailable/partial states; production option-plan access and the minimum 20-day IV history are not yet verified. |
@@ -398,6 +398,10 @@ The status table is an implementation ledger, not a change to the scope below. A
 - Admin 可应用趋势、波段和期权三类参数模板，并将每次修改保存为新的只追加版本
 - Cloudflare D1 保存配置版本、公式版本、修改人和修改时间；Worker 同时校验周期关系、阈值关系和评分权重
 - Viewer/Editor 只能读取公共生效配置，只有 Admin 拥有 `technicalConfig.manage` 修改权限
+- 每日跨资产生成任务从 Cloudflare 公共配置接口读取当前数据源优先级；同一资产存在多个有效候选时按配置排序，首选源无有效历史时自动回退
+- 上证综指已接入新浪和腾讯双源，BTC/ETH价格已接入 FRED 与 Coin Metrics 双源；生成结果逐资产保存最终采用的来源、来源链接和市场日历
+- 统一日历服务覆盖美股、A股、港股、日本、欧洲、FRED工作日、7×24加密和月度发布，按市场时区、收盘/发布延迟及容忍会话数动态判断新鲜度和下次预计时间
+- 页面直接展示当前资产的数据来源、日历口径、新鲜度和下次预计更新时间；月度铜数据能够被正确识别为落后发布预期，而非继续显示“正常”
 
 完成标准：数据模型、API 契约、权限矩阵和来源清单通过评审。
 

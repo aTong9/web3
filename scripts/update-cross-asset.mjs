@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { selectSourceCandidate } from './lib/source-policy.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const outputPath = resolve(root, 'src/data/cross-asset.json')
@@ -493,6 +494,58 @@ const fetchText = async (url) => {
   throw lastError
 }
 
+const defaultSourcePriority = [
+  'Massive',
+  'FRED',
+  '新浪财经',
+  '腾讯财经',
+  'DefiLlama',
+  'Coin Metrics',
+]
+const technicalConfigUrl =
+  process.env.TECHNICAL_CONFIG_URL?.trim() ||
+  'https://web3-quant-api.binson0426.workers.dev/api/technical-config'
+const sourcePriority = await (async () => {
+  try {
+    const response = await fetch(technicalConfigUrl, { signal: AbortSignal.timeout(8_000) })
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const config = await response.json()
+    if (!Array.isArray(config.sourcePriority) || !config.sourcePriority.length) {
+      throw new Error('sourcePriority is empty')
+    }
+    return config.sourcePriority.map((source) => String(source).trim()).filter(Boolean)
+  } catch (error) {
+    console.warn(`读取运行时数据源优先级失败，使用仓库默认值: ${error.message}`)
+    return defaultSourcePriority
+  }
+})()
+const selectedProviderBySeries = {}
+const providerUrls = {
+  FRED: 'https://fred.stlouisfed.org/',
+  新浪财经: 'https://finance.sina.com.cn/',
+  腾讯财经: 'https://stockapp.finance.qq.com/',
+  DefiLlama: 'https://defillama.com/',
+  'Coin Metrics': 'https://github.com/coinmetrics/data',
+  系统派生: '',
+}
+const sourceLabel = (definition) =>
+  selectedProviderBySeries[definition.series] ??
+  ({ derived: '系统派生', defillama: 'DefiLlama', coinmetrics: 'Coin Metrics' }[
+    definition.source
+  ] ||
+    definition.source ||
+    'FRED')
+const calendarForDefinition = (definition) => {
+  if (['btc', 'eth'].includes(definition.id)) return 'crypto-24x7'
+  if (definition.id === 'shanghai') return 'sse'
+  if (definition.id === 'hangseng') return 'hkex'
+  if (definition.id === 'nikkei') return 'jpx'
+  if (definition.id === 'euro50') return 'europe'
+  if (['sp500', 'nasdaq', 'vix'].includes(definition.id)) return 'nyse'
+  if (definition.id === 'copper') return 'monthly'
+  return 'fred-business'
+}
+
 const seriesIds = definitions.filter((item) => !item.source).map((item) => item.series)
 const histories = Object.fromEntries(
   await Promise.all(
@@ -513,13 +566,20 @@ const histories = Object.fromEntries(
     }),
   ),
 )
+for (const id of seriesIds) selectedProviderBySeries[id] = 'FRED'
 
 const marketBars = {}
-const sinaText = await fetchText(
-  'https://quotes.sina.cn/cn/api/jsonp.php/var%20_data=/CN_MarketDataService.getKLineData?symbol=sh000001&scale=240&ma=no&datalen=400',
-)
-const sinaMatch = sinaText.match(/var _data=\((\[[\s\S]*\])\);/)
-marketBars.shanghai = sinaMatch
+const [sinaShanghaiResult, tencentShanghaiResult] = await Promise.allSettled([
+  fetchText(
+    'https://quotes.sina.cn/cn/api/jsonp.php/var%20_data=/CN_MarketDataService.getKLineData?symbol=sh000001&scale=240&ma=no&datalen=400',
+  ),
+  fetchText('https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh000001,day,,,400,qfq'),
+])
+const sinaMatch =
+  sinaShanghaiResult.status === 'fulfilled'
+    ? sinaShanghaiResult.value.match(/var _data=\((\[[\s\S]*\])\);/)
+    : null
+const sinaShanghaiBars = sinaMatch
   ? JSON.parse(sinaMatch[1]).map((item) => ({
       date: item.day,
       open: Number(item.open),
@@ -529,7 +589,36 @@ marketBars.shanghai = sinaMatch
       volume: Number(item.volume),
     }))
   : []
-histories.sh000001 = marketBars.shanghai.map((item) => ({ date: item.date, value: item.close }))
+const tencentShanghaiPayload =
+  tencentShanghaiResult.status === 'fulfilled' ? JSON.parse(tencentShanghaiResult.value) : {}
+const tencentShanghaiBars = (
+  tencentShanghaiPayload.data?.sh000001?.qfqday ??
+  tencentShanghaiPayload.data?.sh000001?.day ??
+  []
+).map((item) => ({
+  date: item[0],
+  open: Number(item[1]),
+  close: Number(item[2]),
+  high: Number(item[3]),
+  low: Number(item[4]),
+  volume: Number(item[5]),
+}))
+const selectedShanghai = selectSourceCandidate([
+  {
+    source: '新浪财经',
+    bars: sinaShanghaiBars,
+    history: sinaShanghaiBars.map((item) => ({ date: item.date, value: item.close })),
+  },
+  {
+    source: '腾讯财经',
+    bars: tencentShanghaiBars,
+    history: tencentShanghaiBars.map((item) => ({ date: item.date, value: item.close })),
+  },
+], sourcePriority)
+if (!selectedShanghai) throw new Error('上证综指的新浪与腾讯数据源均不可用')
+marketBars.shanghai = selectedShanghai.bars
+histories.sh000001 = selectedShanghai.history
+selectedProviderBySeries.sh000001 = selectedShanghai.source
 const tencentPayload = JSON.parse(
   await fetchText('https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=hkHSI,day,,,400,qfq'),
 )
@@ -542,6 +631,7 @@ marketBars.hangseng = (tencentPayload.data?.hkHSI?.day ?? []).map((item) => ({
   volume: Number(item[5]),
 }))
 histories.hkHSI = marketBars.hangseng.map((item) => ({ date: item.date, value: item.close }))
+selectedProviderBySeries.hkHSI = '腾讯财经'
 const stablecoinPayload = JSON.parse(
   await fetchText('https://stablecoins.llama.fi/stablecoincharts/all'),
 )
@@ -562,6 +652,7 @@ const parseCoinMetrics = (csv) => {
       date: values[indexes.time],
       marketCap: Number(values[indexes.CapMrktCurUSD]),
       activeAddresses: Number(values[indexes.AdrActCnt]),
+      price: Number(values[indexes.PriceUSD]),
     }
   })
 }
@@ -571,6 +662,22 @@ const [btcMetrics, ethMetrics] = await Promise.all(
     'https://cdn.jsdelivr.net/gh/coinmetrics/data@master/csv/eth.csv',
   ].map(async (url) => parseCoinMetrics(await fetchText(url))),
 )
+for (const [series, metrics] of [
+  ['CBBTCUSD', btcMetrics],
+  ['CBETHUSD', ethMetrics],
+]) {
+  const coinMetricsHistory = metrics
+    .filter((item) => Number.isFinite(item.price) && item.price > 0)
+    .map((item) => ({ date: item.date, value: item.price }))
+  const selected = selectSourceCandidate([
+    { source: 'FRED', history: histories[series] ?? [] },
+    { source: 'Coin Metrics', history: coinMetricsHistory },
+  ], sourcePriority)
+  if (selected) {
+    histories[series] = selected.history
+    selectedProviderBySeries[series] = selected.source
+  }
+}
 histories.BTC_ACTIVE_ADDRESSES = btcMetrics
   .filter((item) => Number.isFinite(item.activeAddresses) && item.activeAddresses > 0)
   .map((item) => ({ date: item.date, value: item.activeAddresses }))
@@ -770,6 +877,9 @@ const assets = definitions.map((definition) => {
       : false
   return {
     ...definition,
+    source: sourceLabel(definition),
+    sourceUrl: providerUrls[sourceLabel(definition)] ?? '',
+    calendar: calendarForDefinition(definition),
     value: latest?.value ?? null,
     date: latest?.date ?? null,
     availableDate,
@@ -3954,10 +4064,12 @@ const technicalSignalsOutput = {
   updatedAt: output.updatedAt,
   source: output.source,
   sourceUrl: output.sourceUrl,
+  sourcePriority,
   limitations: [
     '多数公开宏观与跨资产序列只提供收盘值，因此仅在数据源提供真实开高低收时开放K线。',
     '技术指标用于描述价格状态，不构成买卖建议；不同资产的数据频率和交易日历可能不同。',
     '黄金使用公开策略指数代理，铜为月度序列，短周期技术指标可能不可用。',
+    '统一交易日历使用各市场时区、工作日、收盘时间和发布延迟，并以两至五个会话容忍交易所假期与临时休市；不替代交易所官方日历。',
   ],
   assets: assets
     .filter((asset) => technicalAssetIds.has(asset.id))
@@ -3974,6 +4086,9 @@ const technicalSignalsOutput = {
         mode: asset.mode,
         date: asset.date,
         stale: asset.stale,
+        source: asset.source,
+        sourceUrl: asset.sourceUrl,
+        calendar: asset.calendar,
         dataShape: bars?.length ? 'ohlcv' : 'close',
         points: bars?.length
           ? bars.slice(-1260)

@@ -952,6 +952,21 @@ const messages: Record<Locale, DictionaryNode> = {
       notAdvice: '状态描述，不是买卖指令',
       multiHorizon: '多周期结论',
       closeBased: '按共同收盘观测',
+      calendar: {
+        nyse: '美股交易日',
+        sse: 'A股交易日',
+        hkex: '港股交易日',
+        jpx: '日本交易日',
+        europe: '欧洲交易日',
+        'fred-business': '宏观工作日',
+        'crypto-24x7': '7×24小时',
+        monthly: '月度发布',
+      },
+      freshness: {
+        current: '日历校验正常',
+        stale: '落后预期 {lag} 个会话',
+        next: '下次预计 {value}',
+      },
       crossAssetEvidence: '跨资产证据 · {count}',
       noDrivers: '当前资产暂无足够稳定的跨资产驱动贡献。',
       disclaimer:
@@ -2159,6 +2174,21 @@ const messages: Record<Locale, DictionaryNode> = {
       notAdvice: 'State description, not an order',
       multiHorizon: 'Multi-horizon view',
       closeBased: 'Common closing observations',
+      calendar: {
+        nyse: 'U.S. trading sessions',
+        sse: 'A-share sessions',
+        hkex: 'Hong Kong sessions',
+        jpx: 'Japan sessions',
+        europe: 'Europe sessions',
+        'fred-business': 'Macro business days',
+        'crypto-24x7': '24/7',
+        monthly: 'Monthly release',
+      },
+      freshness: {
+        current: 'Calendar check current',
+        stale: '{lag} sessions behind expected',
+        next: 'Next expected {value}',
+      },
       crossAssetEvidence: 'Cross-asset evidence · {count}',
       noDrivers:
         'No sufficiently stable cross-asset driver contribution is available for this asset.',

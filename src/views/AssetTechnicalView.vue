@@ -28,6 +28,7 @@ import {
   technicalConfigApi,
 } from '@/utils/technical-config'
 import { useTheme } from '@/utils/use-theme'
+import { evaluateAssetFreshness } from '@/utils/market-calendar'
 
 type RangeId = TechnicalChartRange
 type ChartMode = 'line' | 'candle'
@@ -55,8 +56,45 @@ const technicalConfig = ref<TechnicalIndicatorConfig>(
   structuredClone(defaultTechnicalIndicatorConfig),
 )
 
-const fallbackAsset = dataset.assets[0] as TechnicalChartAsset
-const selectedId = ref(dataset.assets.find((asset) => asset.id === 'sp500')?.id ?? fallbackAsset.id)
+const inferCalendar = (asset: TechnicalChartAsset) => {
+  if (asset.calendar) return asset.calendar
+  if (asset.id.startsWith('us-') || ['sp500', 'nasdaq', 'vix'].includes(asset.id)) return 'nyse'
+  if (asset.id === 'shanghai') return 'sse'
+  if (asset.id === 'hangseng') return 'hkex'
+  if (asset.id === 'nikkei') return 'jpx'
+  if (asset.id === 'euro50') return 'europe'
+  if (['btc', 'eth'].includes(asset.id)) return 'crypto-24x7'
+  if (asset.id === 'copper') return 'monthly'
+  return 'fred-business'
+}
+const assetCandidates = dataset.assets.map((asset) => ({
+  ...asset,
+  source: asset.source || (asset.id.startsWith('us-') ? 'Massive' : 'FRED'),
+  sourceUrl: asset.sourceUrl || dataset.sourceUrl,
+  calendar: inferCalendar(asset),
+}))
+const sourceRank = (source: string) => {
+  const normalized = source.toLowerCase()
+  const index = technicalConfig.value.sourcePriority.findIndex((item) =>
+    item.toLowerCase().includes(normalized),
+  )
+  return index === -1 ? technicalConfig.value.sourcePriority.length : index
+}
+const resolvedAssets = computed(() => {
+  const selected = new Map<string, TechnicalChartAsset>()
+  for (const asset of [...assetCandidates].sort(
+    (left, right) =>
+      sourceRank(left.source) - sourceRank(right.source) ||
+      String(right.date ?? '').localeCompare(String(left.date ?? '')),
+  )) {
+    if (!selected.has(asset.id)) selected.set(asset.id, asset)
+  }
+  return [...selected.values()]
+})
+const fallbackAsset = assetCandidates[0] as TechnicalChartAsset
+const selectedId = ref(
+  assetCandidates.find((asset) => asset.id === 'sp500')?.id ?? fallbackAsset.id,
+)
 const compareId = ref('')
 const search = ref('')
 const range = ref<RangeId>(technicalConfig.value.display.defaultRange)
@@ -96,13 +134,31 @@ const overlayOptions = computed(() => [
 ])
 
 const selectedAsset = computed(
-  () => dataset.assets.find((asset) => asset.id === selectedId.value) ?? fallbackAsset,
+  () => resolvedAssets.value.find((asset) => asset.id === selectedId.value) ?? fallbackAsset,
 )
-const compareAsset = computed(() => dataset.assets.find((asset) => asset.id === compareId.value))
+const compareAsset = computed(() =>
+  resolvedAssets.value.find((asset) => asset.id === compareId.value),
+)
+const selectedFreshness = computed(() => evaluateAssetFreshness(selectedAsset.value))
+const freshnessLabel = computed(() =>
+  selectedFreshness.value.stale
+    ? t('assetTechnical.freshness.stale', {
+        lag: selectedFreshness.value.lagSessions,
+      })
+    : t('assetTechnical.freshness.current'),
+)
+const nextExpectedLabel = computed(() =>
+  new Intl.DateTimeFormat(locale.value === 'zh' ? 'zh-CN' : 'en-US', {
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(selectedFreshness.value.nextExpectedAt)),
+)
 const categoryOrder = ['stocks', 'bonds', 'fx', 'commodities', 'crypto'] as const
 const visibleAssets = computed(() => {
   const query = search.value.trim().toLowerCase()
-  return dataset.assets.filter(
+  return resolvedAssets.value.filter(
     (asset) =>
       !query ||
       asset.name.toLowerCase().includes(query) ||
@@ -186,7 +242,7 @@ const analysis = computed(() =>
   analyzeTechnicalSignals(
     selectedAsset.value?.points ?? [],
     crossAssetScore.value,
-    selectedAsset.value?.stale ?? true,
+    selectedFreshness.value.stale,
     calibratedTechnicalConfig.value,
   ),
 )
@@ -434,7 +490,7 @@ const indicatorValue = (id: string, value: number | null) => {
   return formatValue(value)
 }
 const chainAssetName = (id: string) => {
-  const asset = dataset.assets.find((item) => item.id === id)
+  const asset = resolvedAssets.value.find((item) => item.id === id)
   return asset ? assetLabel(asset) : id.toUpperCase()
 }
 const selectAsset = (id: string) => {
@@ -734,7 +790,7 @@ onBeforeUnmount(() => {
       <aside class="asset-picker">
         <header>
           <b>{{ t('assetTechnical.assets') }}</b
-          ><small>{{ dataset.assets.length }}</small>
+          ><small>{{ resolvedAssets.length }}</small>
         </header>
         <label
           ><span>{{ t('assetTechnical.search') }}</span
@@ -746,7 +802,7 @@ onBeforeUnmount(() => {
         <div v-if="favorites.length" class="favorite-strip">
           <span>{{ t('assetTechnical.favorites') }}</span>
           <button v-for="id in favorites" :key="id" @click="selectAsset(id)">
-            {{ assetLabel(dataset.assets.find((asset) => asset.id === id)!) }}
+            {{ assetLabel(resolvedAssets.find((asset) => asset.id === id)!) }}
           </button>
         </div>
         <section v-for="group in groupedAssets" :key="group.category">
@@ -797,7 +853,7 @@ onBeforeUnmount(() => {
             <select v-model="compareId" :aria-label="t('assetTechnical.compare')">
               <option value="">{{ t('assetTechnical.noCompare') }}</option>
               <option
-                v-for="asset in dataset.assets.filter((item) => item.id !== selectedId)"
+                v-for="asset in resolvedAssets.filter((item) => item.id !== selectedId)"
                 :key="asset.id"
                 :value="asset.id"
               >
@@ -837,6 +893,14 @@ onBeforeUnmount(() => {
             <div>
               <span>{{ assetLabel(selectedAsset) }}</span
               ><strong>{{ formatValue(analysis.latest) }} {{ selectedAsset.unit }}</strong>
+              <small class="asset-source-meta">
+                <a :href="selectedAsset.sourceUrl" target="_blank" rel="noopener noreferrer">{{
+                  selectedAsset.source
+                }}</a>
+                · {{ t(`assetTechnical.calendar.${selectedAsset.calendar}`) }} ·
+                {{ freshnessLabel }}
+                · {{ t('assetTechnical.freshness.next', { value: nextExpectedLabel }) }}
+              </small>
             </div>
             <div>
               <small>{{
@@ -1660,6 +1724,14 @@ onBeforeUnmount(() => {
   font:
     500 19px Georgia,
     serif;
+}
+.chart-shell > header .asset-source-meta {
+  margin-top: 4px;
+  white-space: nowrap;
+}
+.asset-source-meta a {
+  color: var(--accent);
+  text-decoration: none;
 }
 .chart-shell > header b {
   margin-top: 3px;
