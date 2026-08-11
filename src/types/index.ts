@@ -1036,7 +1036,7 @@ export interface AssetPricePoint {
 export interface TechnicalChartAsset {
   id: string
   name: string
-  category: CrossAssetCategory
+  category: CrossAssetCategory | 'funds'
   series: string
   unit: string
   mode: CrossAssetItem['mode']
@@ -1047,6 +1047,17 @@ export interface TechnicalChartAsset {
   calendar: MarketCalendarId
   dataShape: 'close' | 'ohlcv'
   adjustmentBasis?: 'not-applicable' | 'forward-adjusted' | 'provider-adjusted' | 'as-published'
+  fundMetrics?: {
+    market: 'us-related' | 'a-share'
+    venue: 'exchange' | 'offExchange'
+    latestNav: number | null
+    navDate: string | null
+    premiumRatePct: number | null
+    annualFeePct: number
+    dailyInvestmentLimitCny: number | null
+    recurringInvestmentOpen: boolean | null
+    trackingErrorPct: number | null
+  }
   points: AssetPricePoint[]
 }
 

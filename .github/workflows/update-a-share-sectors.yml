@@ -18,14 +18,16 @@ jobs:
           node-version: 22
       - name: Fetch latest sector data
         run: node scripts/update-a-share-sectors.mjs
+      - name: Refresh chart fund index
+        run: node scripts/update-technical-funds.mjs
       - name: Commit changed data
         run: |
-          if git diff --quiet -- src/data/a-share-sectors.json; then
+          if git diff --quiet -- src/data/a-share-sectors.json src/data/technical-funds.json; then
             echo "No sector data changes"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/data/a-share-sectors.json
+          git add src/data/a-share-sectors.json src/data/technical-funds.json
           git commit -m "chore: update A-share sector data"
           git push

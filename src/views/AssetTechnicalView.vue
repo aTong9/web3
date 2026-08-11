@@ -81,12 +81,14 @@ const inferCalendar = (asset: TechnicalChartAsset) => {
   if (asset.id === 'copper') return 'monthly'
   return 'fred-business'
 }
-const assetCandidates = dataset.assets.map((asset) => ({
+const baseAssetCandidates = dataset.assets.map((asset) => ({
   ...asset,
   source: asset.source || (asset.id.startsWith('us-') ? 'Massive' : 'FRED'),
   sourceUrl: asset.sourceUrl || dataset.sourceUrl,
   calendar: inferCalendar(asset),
 }))
+const fundAssets = ref<TechnicalChartAsset[]>([])
+const fundsLoading = ref(false)
 const sourceRank = (source: string) => {
   const normalized = source.toLowerCase()
   const index = technicalConfig.value.sourcePriority.findIndex((item) =>
@@ -96,7 +98,7 @@ const sourceRank = (source: string) => {
 }
 const resolvedAssets = computed(() => {
   const selected = new Map<string, TechnicalChartAsset>()
-  for (const asset of [...assetCandidates].sort(
+  for (const asset of [...baseAssetCandidates, ...fundAssets.value].sort(
     (left, right) =>
       sourceRank(left.source) - sourceRank(right.source) ||
       String(right.date ?? '').localeCompare(String(left.date ?? '')),
@@ -105,9 +107,9 @@ const resolvedAssets = computed(() => {
   }
   return [...selected.values()]
 })
-const fallbackAsset = assetCandidates[0] as TechnicalChartAsset
+const fallbackAsset = baseAssetCandidates[0] as TechnicalChartAsset
 const selectedId = ref(
-  assetCandidates.find((asset) => asset.id === 'sp500')?.id ?? fallbackAsset.id,
+  baseAssetCandidates.find((asset) => asset.id === 'sp500')?.id ?? fallbackAsset.id,
 )
 const compareId = ref('')
 const comparisonMode = ref<ComparisonMode>('normalized')
@@ -188,7 +190,7 @@ const adjustmentBasis = computed(() => {
   if (selectedAsset.value.source === '腾讯财经') return 'forwardAdjusted'
   return 'sourcePublished'
 })
-const categoryOrder = ['stocks', 'bonds', 'fx', 'commodities', 'crypto'] as const
+const categoryOrder = ['stocks', 'bonds', 'fx', 'commodities', 'crypto', 'funds'] as const
 const visibleAssets = computed(() => {
   const query = search.value.trim().toLowerCase()
   return resolvedAssets.value.filter(
@@ -898,6 +900,18 @@ const toggleFavorite = (id: string) => {
     : [...favorites.value, id]
   localStorage.setItem(favoriteStorageKey, JSON.stringify(favorites.value))
 }
+const loadFundAssets = async () => {
+  if (fundAssets.value.length || fundsLoading.value) return
+  fundsLoading.value = true
+  try {
+    const module = await import('@/data/technical-funds.json')
+    fundAssets.value = (module.default as { assets: TechnicalChartAsset[] }).assets
+  } catch (error) {
+    console.error('Technical fund assets could not be loaded:', error)
+  } finally {
+    fundsLoading.value = false
+  }
+}
 const moveChain = (step: number) => {
   const length = relevantChains.value.length
   activeChainIndex.value = (activeChainIndex.value + step + length) % length
@@ -1051,6 +1065,15 @@ onBeforeUnmount(() => {
             type="search"
             :placeholder="t('assetTechnical.searchPlaceholder')"
         /></label>
+        <button class="load-funds" :disabled="fundsLoading" @click="loadFundAssets">
+          {{
+            fundAssets.length
+              ? t('assetTechnical.fundsLoaded', { count: fundAssets.length })
+              : fundsLoading
+                ? t('assetTechnical.loadingFunds')
+                : t('assetTechnical.loadFunds')
+          }}
+        </button>
         <div v-if="favorites.length" class="favorite-strip">
           <span>{{ t('assetTechnical.favorites') }}</span>
           <button v-for="id in favorites" :key="id" @click="selectAsset(id)">
@@ -1171,6 +1194,13 @@ onBeforeUnmount(() => {
             </strong>
             <small>{{ rangeMeasurement.start }} → {{ rangeMeasurement.end }}</small>
             <small>{{ t('assetTechnical.rangeHighLow', { high: formatValue(rangeMeasurement.high), low: formatValue(rangeMeasurement.low) }) }}</small>
+          </article>
+          <article v-if="selectedAsset.fundMetrics">
+            <span>{{ t('assetTechnical.fundSnapshot') }}</span>
+            <strong>{{ t(`assetTechnical.fundVenue.${selectedAsset.fundMetrics.venue}`) }}</strong>
+            <small>{{ t('assetTechnical.fundNav', { value: formatValue(selectedAsset.fundMetrics.latestNav), date: selectedAsset.fundMetrics.navDate ?? '—' }) }}</small>
+            <small>{{ t('assetTechnical.fundCosts', { premium: selectedAsset.fundMetrics.premiumRatePct?.toFixed(2) ?? '—', fee: selectedAsset.fundMetrics.annualFeePct.toFixed(2), tracking: selectedAsset.fundMetrics.trackingErrorPct?.toFixed(2) ?? '—' }) }}</small>
+            <small v-if="selectedAsset.fundMetrics.venue === 'offExchange'">{{ t('assetTechnical.fundLimit', { value: selectedAsset.fundMetrics.dailyInvestmentLimitCny?.toLocaleString() ?? '—' }) }}</small>
           </article>
           <article v-if="compareAsset">
             <span>{{ t('assetTechnical.relativePerformance') }}</span>
@@ -1980,6 +2010,21 @@ onBeforeUnmount(() => {
   border-radius: 7px;
   background: var(--surface-soft);
   padding: 8px;
+}
+.load-funds {
+  width: 100%;
+  min-height: 34px;
+  margin-bottom: 5px;
+  border: 1px dashed var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+  color: var(--accent);
+  font-size: 8px;
+  cursor: pointer;
+}
+.load-funds:disabled {
+  color: var(--muted);
+  cursor: wait;
 }
 .asset-picker h2 {
   margin: 16px 0 5px;
