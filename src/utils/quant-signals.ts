@@ -163,6 +163,14 @@ const buildAssetSignal = (
     ? selectedHorizons.reduce((sum, item) => sum + item.score, 0) / selectedHorizons.length
     : null
   const validatedCount = selectedHorizons?.filter((item) => item.validated).length ?? 0
+  const selectedValidation = market?.outlook.backtest.selectivity.validation
+  const validationEligible = Boolean(
+    selectedValidation &&
+      validatedCount > 0 &&
+      selectedValidation.samples >= 30 &&
+      (selectedValidation.accuracyIntervalPct.low ?? 0) > 50 &&
+      (selectedValidation.liftVsBestBaselinePct ?? 0) > 0,
+  )
   const momentumScore = changeScore(asset)
   const score = clamp(
     horizonScore === null ? momentumScore : horizonScore * 55 + momentumScore * 0.45,
@@ -178,11 +186,22 @@ const buildAssetSignal = (
     asset.changes.year,
   ].filter((value) => value !== null).length
   const evidenceScore = clamp(
-    30 + availableChanges * 6 + (market ? 12 : 0) + validatedCount * 8 - (asset.stale ? 45 : 0),
+    30 +
+      availableChanges * 6 +
+      (market ? 12 : 0) +
+      (validationEligible ? 12 : market ? -12 : -18) -
+      (asset.stale ? 45 : 0),
     0,
     100,
   )
-  const signal = asset.stale ? 'unavailable' : signalFromScore(score, evidenceScore)
+  const rawSignal = asset.stale ? 'unavailable' : signalFromScore(score, evidenceScore)
+  const signal: QuantSignalLevel = !validationEligible
+    ? rawSignal === 'buy'
+      ? 'accumulate'
+      : rawSignal === 'sell'
+        ? 'reduce'
+        : rawSignal
+    : rawSignal
   const reasons = [
     `1周变化 ${asset.changes.week === null ? '—' : `${asset.changes.week > 0 ? '+' : ''}${round(asset.changes.week, 2)}${asset.mode === 'return' ? '%' : ''}`}`,
     `1月变化 ${asset.changes.month === null ? '—' : `${asset.changes.month > 0 ? '+' : ''}${round(asset.changes.month, 2)}${asset.mode === 'return' ? '%' : ''}`}`,
@@ -192,12 +211,18 @@ const buildAssetSignal = (
       `中期方向 ${selectedHorizons.filter((item) => item.direction === 'bullish').length}/${selectedHorizons.length} 偏涨`,
     )
   }
+  if (selectedValidation) {
+    reasons.push(
+      `留出验证 ${selectedValidation.directionalAccuracyPct?.toFixed(2) ?? '—'}%，95%区间 ${selectedValidation.accuracyIntervalPct.low?.toFixed(2) ?? '—'}–${selectedValidation.accuracyIntervalPct.high?.toFixed(2) ?? '—'}%，相对最佳基准 ${selectedValidation.liftVsBestBaselinePct !== null && selectedValidation.liftVsBestBaselinePct >= 0 ? '+' : ''}${selectedValidation.liftVsBestBaselinePct?.toFixed(2) ?? '—'}%`,
+    )
+  }
   if (inversePriceProxyIds.has(asset.id)) {
     reasons.push('使用收益率的反向变化代理债券价格方向：收益率上行对应债券价格承压')
   }
   const risks = []
   if (asset.stale) risks.push('数据已过期，禁止生成交易候选')
-  if (validatedCount === 0 && market) risks.push('中期方向尚未通过留出验证')
+  if (!validationEligible)
+    risks.push('留出样本、置信区间或基准提升未通过研究门槛，强信号已自动降级')
   if (direction(asset.changes.week) !== direction(asset.changes.month))
     risks.push('周线与月线方向分歧')
   if (!market) risks.push('暂无专用方向模型，使用价格动量代理')
@@ -224,7 +249,21 @@ const buildAssetSignal = (
     reasons,
     risks,
     modelSource:
-      validatedCount > 0 ? 'validated-horizon' : market ? 'horizon-watch' : 'momentum-proxy',
+      validationEligible ? 'validated-horizon' : market ? 'horizon-watch' : 'momentum-proxy',
+    validation: {
+      status: validationEligible ? 'validated' : selectedValidation ? 'watch' : 'unavailable',
+      samples: selectedValidation?.samples ?? 0,
+      directionalAccuracyPct: selectedValidation?.directionalAccuracyPct ?? null,
+      accuracyIntervalPct: {
+        low: selectedValidation?.accuracyIntervalPct.low ?? null,
+        high: selectedValidation?.accuracyIntervalPct.high ?? null,
+      },
+      bestBaselineAccuracyPct: selectedValidation?.bestBaselineAccuracyPct ?? null,
+      liftVsBestBaselinePct: selectedValidation?.liftVsBestBaselinePct ?? null,
+      crossAssetDriverAccepted:
+        market?.outlook.backtest.selectivity.driverAblation.allowed === true &&
+        market.outlook.backtest.selectivity.driverAblation.selectedUsesCrossAsset,
+    },
   }
 }
 

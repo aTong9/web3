@@ -847,11 +847,22 @@ onBeforeUnmount(() => {
             </article>
             <article v-for="item in backtest.horizons" :key="item.observations">
               <span>{{ t('assetTechnical.backtest.forward', { days: item.observations }) }}</span>
-              <strong v-if="item.status === 'available'">{{
+              <strong v-if="item.status !== 'insufficient'">{{
                 `${item.winRatePct?.toFixed(1)}%`
               }}</strong>
               <strong v-else>—</strong>
-              <small v-if="item.status === 'available'">{{
+              <small v-if="item.status !== 'insufficient'" class="backtest-confidence">
+                <em :class="item.status">{{
+                  t(`assetTechnical.backtest.confidence.${item.status}`)
+                }}</em>
+                {{
+                  t('assetTechnical.backtest.confidenceInterval', {
+                    low: item.winRateIntervalPct?.low ?? '—',
+                    high: item.winRateIntervalPct?.high ?? '—',
+                  })
+                }}
+              </small>
+              <small v-if="item.status !== 'insufficient'">{{
                 t('assetTechnical.backtest.average', {
                   value: formatSigned(item.averageDirectionalReturnPct),
                 })
@@ -868,6 +879,7 @@ onBeforeUnmount(() => {
             <div class="backtest-row backtest-head" role="row">
               <span>{{ t('assetTechnical.backtest.horizon') }}</span>
               <span>{{ t('assetTechnical.backtest.winRate') }}</span>
+              <span>{{ t('assetTechnical.backtest.confidenceRange') }}</span>
               <span>{{ t('assetTechnical.backtest.medianReturn') }}</span>
               <span>{{ t('assetTechnical.backtest.maxAdverse') }}</span>
               <span>{{ t('assetTechnical.backtest.invalidation') }}</span>
@@ -875,6 +887,11 @@ onBeforeUnmount(() => {
             <div v-for="item in backtest.horizons" :key="`detail-${item.observations}`" class="backtest-row" role="row">
               <b>{{ t('assetTechnical.backtest.forward', { days: item.observations }) }}</b>
               <span>{{ item.winRatePct === null ? '—' : `${item.winRatePct.toFixed(1)}%` }}</span>
+              <span>{{
+                item.winRateIntervalPct
+                  ? `${item.winRateIntervalPct.low.toFixed(1)}–${item.winRateIntervalPct.high.toFixed(1)}%`
+                  : '—'
+              }}</span>
               <span>{{ formatSigned(item.medianDirectionalReturnPct) }}</span>
               <span>{{ formatSigned(item.maximumAdverseExcursionPct) }}</span>
               <span>{{
@@ -1581,6 +1598,29 @@ onBeforeUnmount(() => {
 .backtest-summary strong {
   font: 500 20px Georgia, serif;
 }
+.backtest-confidence {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.backtest-confidence em {
+  padding: 2px 5px;
+  border-radius: 99px;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 7px;
+  font-style: normal;
+}
+.backtest-confidence em.supported {
+  color: var(--positive);
+}
+.backtest-confidence em.contradicted {
+  color: var(--negative);
+}
+.backtest-confidence em.watch {
+  color: var(--warning);
+}
 .backtest-table {
   min-width: 540px;
   border-top: 1px solid var(--border);
@@ -1590,7 +1630,7 @@ onBeforeUnmount(() => {
   min-height: 34px;
   border-bottom: 1px solid var(--border);
   display: grid;
-  grid-template-columns: 1.05fr repeat(4, 1fr);
+  grid-template-columns: 1.05fr repeat(5, 1fr);
   gap: 8px;
   align-items: center;
   font-size: 8px;

@@ -191,7 +191,7 @@ const latestDashboard = async (env: Env): Promise<QuantDashboard> => {
           candidate.direction &&
           'optionMarket' in candidate &&
           'earningsEvent' in candidate,
-      )
+      ) && dashboard.assets.every((asset) => 'validation' in asset)
     if (currentSchema) return dashboard
   }
   return refreshSnapshot(env)

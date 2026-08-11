@@ -365,6 +365,41 @@ onMounted(async () => {
               <li v-if="!asset.risks.length">—</li>
             </ul>
           </section>
+          <section class="validation-proof">
+            <b>{{ t('quant.validation.title') }}</b>
+            <em :class="asset.validation.status">{{
+              t(`quant.validation.status.${asset.validation.status}`)
+            }}</em>
+            <dl>
+              <div>
+                <dt>{{ t('quant.validation.samples') }}</dt
+                ><dd>{{ asset.validation.samples }}</dd>
+              </div>
+              <div>
+                <dt>{{ t('quant.validation.accuracy') }}</dt
+                ><dd>{{ formatPct(asset.validation.directionalAccuracyPct) }}</dd>
+              </div>
+              <div>
+                <dt>{{ t('quant.validation.interval') }}</dt
+                ><dd>
+                  {{
+                    asset.validation.accuracyIntervalPct.low === null
+                      ? '—'
+                      : `${asset.validation.accuracyIntervalPct.low.toFixed(1)}–${asset.validation.accuracyIntervalPct.high?.toFixed(1)}%`
+                  }}
+                </dd>
+              </div>
+              <div>
+                <dt>{{ t('quant.validation.baselineLift') }}</dt
+                ><dd>{{ formatPct(asset.validation.liftVsBestBaselinePct) }}</dd>
+              </div>
+            </dl>
+            <small>{{
+              asset.validation.crossAssetDriverAccepted
+                ? t('quant.validation.driverAccepted')
+                : t('quant.validation.driverRejected')
+            }}</small>
+          </section>
         </div>
       </details>
     </section>
@@ -980,7 +1015,7 @@ onMounted(async () => {
   border-top: 1px solid var(--border);
   background: var(--surface-soft);
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 0.9fr;
   gap: 24px;
 }
 .asset-detail b,
@@ -994,6 +1029,46 @@ onMounted(async () => {
   color: var(--muted);
   font-size: 10px;
   line-height: 1.65;
+}
+.validation-proof {
+  min-width: 0;
+}
+.validation-proof > em {
+  float: right;
+  padding: 3px 6px;
+  border-radius: 99px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 8px;
+  font-style: normal;
+}
+.validation-proof > em.validated {
+  color: var(--positive);
+}
+.validation-proof > em.watch {
+  color: var(--warning);
+}
+.validation-proof dl {
+  margin: 9px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.validation-proof dl div {
+  padding: 7px;
+  border-radius: 6px;
+  background: var(--surface);
+}
+.validation-proof dt,
+.validation-proof small {
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.5;
+}
+.validation-proof dd {
+  margin: 3px 0 0;
+  font-size: 10px;
+  font-weight: 700;
 }
 .options-heading {
   margin-top: 48px;

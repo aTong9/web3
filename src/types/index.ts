@@ -372,6 +372,15 @@ export interface QuantAssetSignal {
   reasons: string[]
   risks: string[]
   modelSource: 'validated-horizon' | 'horizon-watch' | 'momentum-proxy'
+  validation: {
+    status: 'validated' | 'watch' | 'unavailable'
+    samples: number
+    directionalAccuracyPct: number | null
+    accuracyIntervalPct: { low: number | null; high: number | null }
+    bestBaselineAccuracyPct: number | null
+    liftVsBestBaselinePct: number | null
+    crossAssetDriverAccepted: boolean
+  }
 }
 
 export type OptionCandidateAction =
@@ -1082,11 +1091,13 @@ export interface TechnicalBacktestHorizon {
   observations: 5 | 21 | 63
   sampleSize: number
   winRatePct: number | null
+  winRateIntervalPct: { low: number; high: number } | null
+  liftVsRandomPct: number | null
   averageDirectionalReturnPct: number | null
   medianDirectionalReturnPct: number | null
   maximumAdverseExcursionPct: number | null
   medianInvalidationBars: number | null
-  status: 'available' | 'insufficient'
+  status: 'supported' | 'watch' | 'contradicted' | 'insufficient'
 }
 
 export interface TechnicalBacktestResult {

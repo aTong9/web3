@@ -15,6 +15,19 @@ const median = (values: number[]) => {
     ? sorted[middle]!
     : (sorted[middle - 1]! + sorted[middle]!) / 2
 }
+const wilsonInterval = (wins: number, samples: number, z = 1.96) => {
+  if (!samples) return null
+  const rate = wins / samples
+  const denominator = 1 + z ** 2 / samples
+  const center = (rate + z ** 2 / (2 * samples)) / denominator
+  const margin =
+    (z * Math.sqrt((rate * (1 - rate) + z ** 2 / (4 * samples)) / samples)) /
+    denominator
+  return {
+    low: round(Math.max(0, center - margin) * 100, 1),
+    high: round(Math.min(1, center + margin) * 100, 1),
+  }
+}
 
 interface BacktestSignal {
   index: number
@@ -65,12 +78,22 @@ const horizonResult = (
   })
 
   const enough = returns.length >= minimumSamples
+  const wins = returns.filter((value) => value > 0).length
+  const winRatePct = enough ? round((wins / returns.length) * 100, 1) : null
+  const winRateIntervalPct = enough ? wilsonInterval(wins, returns.length) : null
+  const status = !enough
+    ? 'insufficient'
+    : returns.length >= 30 && winRateIntervalPct && winRateIntervalPct.low > 50
+      ? 'supported'
+      : returns.length >= 30 && winRateIntervalPct && winRateIntervalPct.high < 50
+        ? 'contradicted'
+        : 'watch'
   return {
     observations,
     sampleSize: returns.length,
-    winRatePct: enough
-      ? round((returns.filter((value) => value > 0).length / returns.length) * 100, 1)
-      : null,
+    winRatePct,
+    winRateIntervalPct,
+    liftVsRandomPct: winRatePct === null ? null : round(winRatePct - 50, 1),
     averageDirectionalReturnPct: enough
       ? round(returns.reduce((sum, value) => sum + value, 0) / returns.length)
       : null,
@@ -78,7 +101,7 @@ const horizonResult = (
     maximumAdverseExcursionPct: enough ? round(Math.min(...adverseExcursions)) : null,
     medianInvalidationBars:
       enough && invalidationBars.length ? round(median(invalidationBars) ?? 0, 1) : null,
-    status: enough ? 'available' : 'insufficient',
+    status,
   }
 }
 
