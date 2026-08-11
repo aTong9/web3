@@ -930,6 +930,31 @@ const chainAssetName = (id: string) => {
   const asset = resolvedAssets.value.find((item) => item.id === id)
   return asset ? assetLabel(asset) : id.toUpperCase()
 }
+const localizedChainTitle = (chain: CrossAssetDataset['transmissionChains'][number]) =>
+  locale.value === 'zh'
+    ? chain.title
+    : t('assetTechnical.chainFallback.title', {
+        left: chainAssetName(chain.left),
+        right: chainAssetName(chain.right),
+      })
+const localizedChainSteps = (chain: CrossAssetDataset['transmissionChains'][number]) => {
+  if (locale.value === 'zh') return chain.steps
+  const relation =
+    chain.expectedSign === 'positive'
+      ? 'positive'
+      : chain.expectedSign === 'negative'
+        ? 'negative'
+        : 'context'
+  return [
+    t('assetTechnical.chainFallback.sourceMove', { asset: chainAssetName(chain.left) }),
+    t(`assetTechnical.chainFallback.${relation}`),
+    t('assetTechnical.chainFallback.targetResponse', { asset: chainAssetName(chain.right) }),
+  ]
+}
+const localizedUnit = (unit: string) => {
+  if (locale.value === 'zh' || !unit) return unit
+  return ({ 点: 'pts', 美元: 'USD', '美元/吨': 'USD/tonne' }[unit] ?? unit)
+}
 const selectAsset = (id: string) => {
   chainValidationActive.value = false
   selectedId.value = id
@@ -1398,13 +1423,13 @@ onBeforeUnmount(() => {
       <div v-if="activeChain" class="chain-content">
         <div class="chain-path">
           <i :class="activeChain.status"></i>
-          <span v-for="(step, index) in activeChain.steps" :key="step">
+          <span v-for="(step, index) in localizedChainSteps(activeChain)" :key="step">
             <b>{{ step }}</b
-            ><em v-if="index < activeChain.steps.length - 1">→</em>
+            ><em v-if="index < localizedChainSteps(activeChain).length - 1">→</em>
           </span>
         </div>
         <div class="chain-reading">
-          <strong>{{ activeChain.title }}</strong>
+          <strong>{{ localizedChainTitle(activeChain) }}</strong>
           <span>{{ t(`assetTechnical.chainStatus.${activeChain.status}`) }}</span>
           <span>ρ {{ activeChain.signal?.toFixed(2) ?? '—' }}</span>
           <span>{{ t(`assetTechnical.evidence.${activeChain.evidence}`) }}</span>
@@ -1668,7 +1693,7 @@ onBeforeUnmount(() => {
           </article>
         </section>
         <p v-if="chainValidationActive && activeChain" class="chain-validation-note">
-          {{ t('assetTechnical.chainValidationActive', { chain: activeChain.title }) }}
+          {{ t('assetTechnical.chainValidationActive', { chain: localizedChainTitle(activeChain) }) }}
         </p>
         <div class="indicator-toggles" role="group" :aria-label="t('assetTechnical.overlays')">
           <label v-for="indicator in overlayOptions" :key="indicator"
@@ -1685,7 +1710,7 @@ onBeforeUnmount(() => {
           <header>
             <div>
               <span>{{ assetLabel(selectedAsset) }}</span
-              ><strong>{{ formatValue(analysis.latest) }} {{ selectedAsset.unit }}</strong>
+              ><strong>{{ formatValue(analysis.latest) }} {{ localizedUnit(selectedAsset.unit) }}</strong>
               <small class="asset-source-meta">
                 <a :href="selectedAsset.sourceUrl" target="_blank" rel="noopener noreferrer">{{
                   selectedAsset.source
@@ -1795,7 +1820,11 @@ onBeforeUnmount(() => {
               </div>
               <em :class="backtest.calibration.status">
                 {{ t(`assetTechnical.backtest.calibrationStatus.${backtest.calibration.status}`) }}
-                · {{ backtest.calibration.selectedTemplate.name }}
+                · {{
+                  t(
+                    `assetTechnical.backtest.weightTemplate.${backtest.calibration.selectedTemplate.id}`,
+                  )
+                }}
               </em>
             </header>
             <p>{{

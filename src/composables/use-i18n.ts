@@ -1122,6 +1122,14 @@ const messages: Record<Locale, DictionaryNode> = {
         unavailable: '数据不足',
       },
       evidence: { strong: '强证据', supported: '有支持', uncertain: '待验证' },
+      chainFallback: {
+        title: '{left} → {right} 传导链',
+        sourceMove: '{asset} 发生变化',
+        positive: '按历史同向关系观察传导',
+        negative: '按历史反向关系观察传导',
+        context: '结合当前市场状态判断关系方向',
+        targetResponse: '监测 {asset} 的价格响应',
+      },
       effect: { tailwind: '顺风', headwind: '逆风', neutral: '中性' },
       backtest: {
         eyebrow: 'PHASE 4 · WALK-FORWARD EVIDENCE',
@@ -1147,6 +1155,14 @@ const messages: Record<Locale, DictionaryNode> = {
         calibrationIntro:
           '仅在前70%训练段比较 {count} 组候选权重，以21日方向命中率的95%区间下界优先选型；留出段不参与选择。',
         calibrationStatus: { calibrated: '已校准', fallback: '保留配置' },
+        weightTemplate: {
+          configured: '当前配置',
+          balanced: '均衡技术',
+          trend: '趋势优先',
+          momentum: '动量优先',
+          defensive: '波动防守',
+          volume: '成交确认',
+        },
         calibrationFallback:
           '候选权重没有同时满足最少样本和正向训练期平均收益，因此不启用新权重，继续使用当前配置并保留留出结果供观察。',
         trainingSamples: '训练信号',
@@ -2491,6 +2507,14 @@ const messages: Record<Locale, DictionaryNode> = {
         unavailable: 'Unavailable',
       },
       evidence: { strong: 'Strong evidence', supported: 'Supported', uncertain: 'Uncertain' },
+      chainFallback: {
+        title: '{left} → {right} transmission',
+        sourceMove: '{asset} changes',
+        positive: 'Monitor transmission under the historical positive relationship',
+        negative: 'Monitor transmission under the historical inverse relationship',
+        context: 'Interpret the relationship according to the current market regime',
+        targetResponse: 'Monitor the price response in {asset}',
+      },
       effect: { tailwind: 'Tailwind', headwind: 'Headwind', neutral: 'Neutral' },
       backtest: {
         eyebrow: 'PHASE 4 · WALK-FORWARD EVIDENCE',
@@ -2516,6 +2540,14 @@ const messages: Record<Locale, DictionaryNode> = {
         calibrationIntro:
           'Compares {count} candidate weight sets only on the first 70% training segment, prioritizing the lower bound of the 21-day directional hit-rate 95% interval. The holdout is never used for selection.',
         calibrationStatus: { calibrated: 'Calibrated', fallback: 'Config retained' },
+        weightTemplate: {
+          configured: 'Current configuration',
+          balanced: 'Balanced technicals',
+          trend: 'Trend priority',
+          momentum: 'Momentum priority',
+          defensive: 'Volatility defense',
+          volume: 'Volume confirmation',
+        },
         calibrationFallback:
           'No candidate met both the minimum-sample and positive training-average-return gates. New weights are not enabled; the configured weights remain active while holdout results stay visible for observation.',
         trainingSamples: 'Training signals',
