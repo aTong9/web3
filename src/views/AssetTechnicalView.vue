@@ -22,7 +22,7 @@ import type {
   TechnicalSignalStatus,
 } from '@/types'
 import { technicalAlertApi } from '@/utils/technical-alert-api'
-import { analyzeTechnicalSignals } from '@/utils/technical-analysis'
+import { analyzeTechnicalSignals, rollingCorrelation } from '@/utils/technical-analysis'
 import { backtestTechnicalSignals } from '@/utils/technical-backtest'
 import {
   defaultTechnicalIndicatorConfig,
@@ -35,6 +35,7 @@ type RangeId = TechnicalChartRange
 type ChartMode = 'line' | 'area' | 'candle'
 type ChartInterval = 'day' | 'week' | 'month'
 type ChainFilter = 'related' | 'strong'
+type ComparisonMode = 'normalized' | 'ratio'
 
 const baseDataset = technicalData as AssetTechnicalDataset
 const usStockDataset = usStockTechnicalData as AssetTechnicalDataset
@@ -98,6 +99,7 @@ const selectedId = ref(
   assetCandidates.find((asset) => asset.id === 'sp500')?.id ?? fallbackAsset.id,
 )
 const compareId = ref('')
+const comparisonMode = ref<ComparisonMode>('normalized')
 const search = ref('')
 const range = ref<RangeId>(technicalConfig.value.display.defaultRange)
 const chartMode = ref<ChartMode>('line')
@@ -109,6 +111,7 @@ const selectedIndicators = ref(['ma20', 'ma60', 'bollinger'])
 const chartRef = ref<InstanceType<typeof EChart> | null>(null)
 const chartShell = ref<HTMLElement | null>(null)
 const favorites = ref<string[]>([])
+const recentAssetIds = ref<string[]>([])
 const alertRules = ref<TechnicalAlertRule[]>([])
 const alertCondition = ref<TechnicalAlertCondition>('priceAbove')
 const alertThreshold = ref<number | null>(null)
@@ -122,6 +125,7 @@ const backtestCache = new Map<string, ReturnType<typeof backtestTechnicalSignals
 let carouselTimer: number | null = null
 
 const favoriteStorageKey = 'market-desk-technical-favorites-v1'
+const recentStorageKey = 'market-desk-technical-recent-v1'
 const rangeCalendarDays: Record<RangeId, number> = {
   day: 0,
   week: 7,
@@ -183,6 +187,11 @@ const groupedAssets = computed(() =>
       assets: visibleAssets.value.filter((asset) => asset.category === category),
     }))
     .filter((group) => group.assets.length),
+)
+const recentAssets = computed(() =>
+  recentAssetIds.value
+    .map((id) => resolvedAssets.value.find((asset) => asset.id === id))
+    .filter((asset): asset is TechnicalChartAsset => Boolean(asset)),
 )
 
 const relevantChains = computed(() => {
@@ -321,15 +330,56 @@ const chartAnalysis = computed(() =>
 const cssColor = (name: string) => {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 }
-const normalizedComparison = computed(() => {
+const alignedComparison = computed(() => {
   const asset = compareAsset.value
   if (!asset) return []
-  const targetDates = new Set(displayedPoints.value.map((point) => point.date))
-  const aligned = aggregatePoints(asset.points, chartInterval.value).filter((point) =>
-    targetDates.has(point.date),
+  const comparisonByDate = new Map(
+    aggregatePoints(asset.points, chartInterval.value).map((point) => [point.date, point.close]),
   )
-  const base = aligned[0]?.close
-  return base ? aligned.map((point) => [point.date, (point.close / base - 1) * 100]) : []
+  return displayedPoints.value
+    .filter((point) => comparisonByDate.has(point.date))
+    .map((point) => ({ date: point.date, left: point.close, right: comparisonByDate.get(point.date)! }))
+})
+const comparisonSeries = computed(() => {
+  const aligned = alignedComparison.value
+  if (!aligned.length) return []
+  if (comparisonMode.value === 'ratio')
+    return aligned.map((point) => [point.date, point.left / point.right])
+  const base = aligned[0]!.right
+  return aligned.map((point) => [point.date, (point.right / base - 1) * 100])
+})
+const comparisonMetrics = computed(() => {
+  const aligned = alignedComparison.value
+  const leftReturns = aligned.slice(1).map((point, index) => point.left / aligned[index]!.left - 1)
+  const rightReturns = aligned.slice(1).map((point, index) => point.right / aligned[index]!.right - 1)
+  const correlation = (window: number) => {
+    const values = rollingCorrelation(leftReturns, rightReturns, window)
+    return values[values.length - 1] ?? null
+  }
+  const first = aligned[0]
+  const last = aligned[aligned.length - 1]
+  return {
+    samples: aligned.length,
+    ratio: last ? last.left / last.right : null,
+    relativeReturnPct:
+      first && last ? ((last.left / first.left) / (last.right / first.right) - 1) * 100 : null,
+    correlations: [20, 60, 120].map((window) => ({ window, value: correlation(window) })),
+  }
+})
+const rangeMeasurement = computed(() => {
+  const points = displayedPoints.value
+  const first = points[0]
+  const last = points[points.length - 1]
+  if (!first || !last) return null
+  const highs = points.map((point) => point.high ?? point.close)
+  const lows = points.map((point) => point.low ?? point.close)
+  return {
+    start: first.date,
+    end: last.date,
+    returnPct: (last.close / first.close - 1) * 100,
+    high: Math.max(...highs),
+    low: Math.min(...lows),
+  }
 })
 
 const chartOption = computed<EChartsCoreOption>(() => {
@@ -456,18 +506,18 @@ const chartOption = computed<EChartsCoreOption>(() => {
       lineStyle: { color: border, type: 'dashed' },
     },
   })
-  if (normalizedComparison.value.length) {
+  if (comparisonSeries.value.length) {
     series.push({
-      name: `${compareAsset.value?.name} %`,
+      name: `${compareAsset.value?.name} ${comparisonMode.value === 'ratio' ? 'ratio' : '%'}`,
       type: 'line',
       xAxisIndex: 0,
       yAxisIndex: comparisonAxisIndex,
-      data: normalizedComparison.value,
+      data: comparisonSeries.value,
       showSymbol: false,
       lineStyle: { color: positive, width: 1.4, type: 'dashed' },
     })
   }
-  const commonGrid = { left: 54, right: normalizedComparison.value.length ? 58 : 24 }
+  const commonGrid = { left: 54, right: comparisonSeries.value.length ? 58 : 24 }
   const grids: Array<Record<string, unknown>> = [
     { ...commonGrid, top: 46, height: hasVolume ? '48%' : '61%' },
   ]
@@ -523,11 +573,15 @@ const chartOption = computed<EChartsCoreOption>(() => {
     axisLabel: { color: muted, fontSize: 9 },
     splitLine: { lineStyle: { color: border, opacity: 0.35 } },
   })
-  if (normalizedComparison.value.length)
+  if (comparisonSeries.value.length)
     yAxes.push({
       type: 'value',
       position: 'right',
-      axisLabel: { color: positive, fontSize: 9, formatter: '{value}%' },
+      axisLabel: {
+        color: positive,
+        fontSize: 9,
+        formatter: comparisonMode.value === 'ratio' ? '{value}' : '{value}%',
+      },
       splitLine: { show: false },
     })
   const zoomAxisIndexes = xAxes.map((_, index) => index)
@@ -596,6 +650,8 @@ const chainAssetName = (id: string) => {
 }
 const selectAsset = (id: string) => {
   selectedId.value = id
+  recentAssetIds.value = [id, ...recentAssetIds.value.filter((item) => item !== id)].slice(0, 5)
+  localStorage.setItem(recentStorageKey, JSON.stringify(recentAssetIds.value))
   activeChainIndex.value = 0
   if (compareId.value === id) compareId.value = ''
 }
@@ -820,6 +876,13 @@ onMounted(() => {
   } catch {
     favorites.value = []
   }
+  try {
+    const stored = JSON.parse(localStorage.getItem(recentStorageKey) ?? '[]')
+    recentAssetIds.value = Array.isArray(stored) ? stored : []
+  } catch {
+    recentAssetIds.value = []
+  }
+  selectAsset(selectedId.value)
   void restore().then(loadAlerts)
   void loadTechnicalConfig()
   resetAlertThreshold()
@@ -906,6 +969,12 @@ onBeforeUnmount(() => {
             {{ assetLabel(resolvedAssets.find((asset) => asset.id === id)!) }}
           </button>
         </div>
+        <div v-if="recentAssets.length" class="favorite-strip recent-strip">
+          <span>{{ t('assetTechnical.recent') }}</span>
+          <button v-for="asset in recentAssets" :key="asset.id" @click="selectAsset(asset.id)">
+            {{ assetLabel(asset) }}
+          </button>
+        </div>
         <section v-for="group in groupedAssets" :key="group.category">
           <h2>{{ categoryLabel(group.category) }}</h2>
           <div v-for="asset in group.assets" :key="asset.id" class="asset-row">
@@ -976,6 +1045,16 @@ onBeforeUnmount(() => {
                 {{ assetLabel(asset) }}
               </option>
             </select>
+            <div v-if="compareAsset" class="interval-tabs" role="group" :aria-label="t('assetTechnical.comparisonMode')">
+              <button
+                v-for="item in ['normalized', 'ratio'] as ComparisonMode[]"
+                :key="item"
+                :class="{ active: comparisonMode === item }"
+                @click="comparisonMode = item"
+              >
+                {{ t(`assetTechnical.comparisonModeOption.${item}`) }}
+              </button>
+            </div>
             <button :class="{ active: chartMode === 'line' }" @click="chartMode = 'line'">
               {{ t('assetTechnical.line') }}
             </button>
@@ -996,6 +1075,31 @@ onBeforeUnmount(() => {
             <button @click="downloadChart">PNG</button>
           </div>
         </div>
+        <section class="chart-evidence-strip">
+          <article v-if="rangeMeasurement">
+            <span>{{ t('assetTechnical.measurement') }}</span>
+            <strong :class="rangeMeasurement.returnPct >= 0 ? 'positive' : 'negative'">
+              {{ formatSigned(rangeMeasurement.returnPct) }}
+            </strong>
+            <small>{{ rangeMeasurement.start }} → {{ rangeMeasurement.end }}</small>
+            <small>{{ t('assetTechnical.rangeHighLow', { high: formatValue(rangeMeasurement.high), low: formatValue(rangeMeasurement.low) }) }}</small>
+          </article>
+          <article v-if="compareAsset">
+            <span>{{ t('assetTechnical.relativePerformance') }}</span>
+            <strong :class="(comparisonMetrics.relativeReturnPct ?? 0) >= 0 ? 'positive' : 'negative'">
+              {{ formatSigned(comparisonMetrics.relativeReturnPct) }}
+            </strong>
+            <small>{{ t('assetTechnical.commonSamples', { count: comparisonMetrics.samples }) }}</small>
+            <small>{{ t('assetTechnical.currentRatio', { value: comparisonMetrics.ratio?.toFixed(4) ?? '—' }) }}</small>
+          </article>
+          <article v-if="compareAsset" class="correlation-reading">
+            <span>{{ t('assetTechnical.rollingCorrelation') }}</span>
+            <strong v-for="item in comparisonMetrics.correlations" :key="item.window">
+              {{ item.window }}D ρ {{ item.value?.toFixed(2) ?? '—' }}
+            </strong>
+            <small>{{ t('assetTechnical.correlationCaution') }}</small>
+          </article>
+        </section>
         <div class="indicator-toggles" role="group" :aria-label="t('assetTechnical.overlays')">
           <label v-for="indicator in overlayOptions" :key="indicator"
             ><input v-model="selectedIndicators" type="checkbox" :value="indicator" />{{
@@ -1752,6 +1856,9 @@ onBeforeUnmount(() => {
   gap: 5px;
   flex-wrap: wrap;
 }
+.recent-strip {
+  margin-top: 7px;
+}
 .favorite-strip > span {
   width: 100%;
   color: var(--muted);
@@ -1807,6 +1914,43 @@ onBeforeUnmount(() => {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+}
+.chart-evidence-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-bottom: 8px;
+}
+.chart-evidence-strip article {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.chart-evidence-strip span,
+.chart-evidence-strip small {
+  color: var(--muted);
+  font-size: 8px;
+}
+.chart-evidence-strip span {
+  width: 100%;
+}
+.chart-evidence-strip strong {
+  font-size: 11px;
+}
+.chart-evidence-strip strong.positive {
+  color: var(--positive);
+}
+.chart-evidence-strip strong.negative {
+  color: var(--negative);
+}
+.correlation-reading strong {
+  font-size: 9px;
 }
 .indicator-toggles label {
   padding: 6px 9px;
@@ -2426,11 +2570,17 @@ onBeforeUnmount(() => {
   .chart-toolbar {
     display: grid;
   }
+  .chart-evidence-strip {
+    grid-template-columns: 1fr;
+  }
   .range-tabs {
     overflow-x: auto;
     flex-wrap: nowrap;
   }
   .backtest-panel {
+    width: 100%;
+    min-width: 0;
+    max-width: calc(100vw - 28px);
     overflow-x: auto;
   }
   .backtest-panel > header {
@@ -2456,7 +2606,19 @@ onBeforeUnmount(() => {
     padding: 10px;
   }
   .chart-shell > header {
-    gap: 12px;
+    min-height: 76px;
+    height: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+  }
+  .chart-shell > header > div:first-child {
+    grid-column: 1 / -1;
+    margin-right: 0;
+    min-width: 0;
+  }
+  .chart-shell > header .asset-source-meta {
+    white-space: normal;
   }
   .chart-shell :deep(.chart) {
     height: 400px;
