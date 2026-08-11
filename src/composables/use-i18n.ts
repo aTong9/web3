@@ -234,7 +234,15 @@ const messages: Record<Locale, DictionaryNode> = {
         nextEstimate: '{quarter} EPS共识',
         revisions: '近4周上修 / 下修',
         range: '预期区间',
+        expectedMove: '财报期权IV预期波动',
         annual: '{year}年度EPS共识',
+        eventWindow: '最近财报事件窗口回看',
+        pre5d: '财报前5日',
+        reaction1d: '事件反应1日',
+        post5d: '事件后5日',
+        post20d: '事件后20日',
+        eventWindowMethod:
+          '基准收盘 {baseline}；事件会话取财报日当日或之后首个可用收盘 {event}，因盘前/盘后发布时间未知，仅作近似窗口。',
         window: {
           preEarnings: '财报前14天',
           postEarnings: '财报后3天',
@@ -242,10 +250,23 @@ const messages: Record<Locale, DictionaryNode> = {
           unknown: '日期待确认',
         },
       },
+      optionMarket: {
+        title: 'LEAPS波动率与期限结构',
+        iv: '近端平值IV',
+        ivRank: 'LEAPS IV Rank',
+        pcVolume: 'Put/Call成交量比',
+        pcOi: 'Put/Call持仓比',
+        expiry: '到期日',
+        expectedMove: 'IV预期波动',
+        unavailable: '期权市场数据暂不可用',
+        method: '仅统计365–730 DTE选定LEAPS到期日；IV Rank至少需要20个每日观测。',
+        status: { ok: '数据完整', partial: '部分数据', unavailable: '不可用' },
+      },
       executable: '可执行',
       notExecutable: '仅研究，不可执行',
       rank: '市值第{rank}',
       peGap: '相对35x {value}',
+      technicalScore: '个股技术得分',
       addPaper: '加入模拟记录',
       permissionRequired: '登录后可操作',
       recorded: '已记录',
@@ -781,7 +802,8 @@ const messages: Record<Locale, DictionaryNode> = {
       trackingError: '年化跟踪误差',
       proxy: '同类代理 {code}',
       divergence: '基金价格与传导链背离',
-      divergenceHint: '将基金最近一个有效交易日涨跌，与对应宽基市场及其跨资产驱动贡献进行方向核对。',
+      divergenceHint:
+        '将基金最近一个有效交易日涨跌，与对应宽基市场及其跨资产驱动贡献进行方向核对。',
       transmissionUpdated: '传导数据截至 {date}',
       fundMove: '基金当日',
       relativeGap: '相对宽基差',
@@ -1010,8 +1032,10 @@ const messages: Record<Locale, DictionaryNode> = {
           priceBelow: '{asset}最新价格 {current}，低于预设支撑阈值 {threshold}。',
           rsiAbove: '{asset}当前 RSI 为 {current}，高于超买阈值 {threshold}。',
           rsiBelow: '{asset}当前 RSI 为 {current}，低于超卖阈值 {threshold}。',
-          macdBullishCross: '{asset}最新 MACD 与信号线差值为 {current}；仅在本期由下向上穿越时触发。',
-          macdBearishCross: '{asset}最新 MACD 与信号线差值为 {current}；仅在本期由上向下穿越时触发。',
+          macdBullishCross:
+            '{asset}最新 MACD 与信号线差值为 {current}；仅在本期由下向上穿越时触发。',
+          macdBearishCross:
+            '{asset}最新 MACD 与信号线差值为 {current}；仅在本期由上向下穿越时触发。',
         },
       },
     },
@@ -1301,7 +1325,15 @@ const messages: Record<Locale, DictionaryNode> = {
         nextEstimate: '{quarter} consensus EPS',
         revisions: '4-week up / down revisions',
         range: 'Estimate range',
+        expectedMove: 'Earnings IV-implied move',
         annual: '{year} annual consensus EPS',
+        eventWindow: 'Latest earnings event window',
+        pre5d: 'Pre-event 5D',
+        reaction1d: 'Event reaction 1D',
+        post5d: 'Post-event 5D',
+        post20d: 'Post-event 20D',
+        eventWindowMethod:
+          'Baseline close {baseline}; event session is the first available close on or after the report date ({event}). Pre/post-market release time is unavailable, so this is an approximate window.',
         window: {
           preEarnings: 'Within 14 days',
           postEarnings: 'Within 3 days after',
@@ -1309,10 +1341,24 @@ const messages: Record<Locale, DictionaryNode> = {
           unknown: 'Date unconfirmed',
         },
       },
+      optionMarket: {
+        title: 'LEAPS volatility & term structure',
+        iv: 'Near-term ATM IV',
+        ivRank: 'LEAPS IV Rank',
+        pcVolume: 'Put/Call volume',
+        pcOi: 'Put/Call open interest',
+        expiry: 'Expiration',
+        expectedMove: 'IV-implied move',
+        unavailable: 'Option market data is currently unavailable',
+        method:
+          'Covers selected 365–730 DTE LEAPS expirations only; IV Rank requires at least 20 daily observations.',
+        status: { ok: 'Complete', partial: 'Partial', unavailable: 'Unavailable' },
+      },
       executable: 'Executable',
       notExecutable: 'Research only',
       rank: 'Market-cap #{rank}',
       peGap: 'vs 35x {value}',
+      technicalScore: 'Stock technical score',
       addPaper: 'Add paper record',
       permissionRequired: 'Sign in to manage',
       recorded: 'Recorded',
@@ -1613,7 +1659,11 @@ const messages: Record<Locale, DictionaryNode> = {
         annualOpFee: 'Annual operating fee',
         channelNote: 'Data refresh and methodology follow off-venue source',
       },
-      status: { stopped: 'DCA paused', noLimit: 'No limit detected', changed: 'Changed since last check' },
+      status: {
+        stopped: 'DCA paused',
+        noLimit: 'No limit detected',
+        changed: 'Changed since last check',
+      },
       notice:
         'In-venue products still need real-time premium, turnover and broker commission. This ranking is not a recommendation and not investment advice.',
       caution:
@@ -1622,17 +1672,20 @@ const messages: Record<Locale, DictionaryNode> = {
     fundResearch: {
       eyebrow: 'FUND RESEARCH WORKBENCH',
       title: 'Unified Fund Research & Comparison',
-      intro: 'Compare performance, cost, premium, tracking divergence and dynamic correlation on one basis.',
+      intro:
+        'Compare performance, cost, premium, tracking divergence and dynamic correlation on one basis.',
       selected: '{count}/4 selected',
       choose: 'Choose comparison funds',
       saveView: 'Save view',
       resetView: 'Reset',
       favorite: 'Favorite {name}',
       normalized: 'Normalized NAV / price performance',
-      normalizedHint: 'Each series starts at 100 from its first usable observation; this compares relative performance, not price levels.',
+      normalizedHint:
+        'Each series starts at 100 from its first usable observation; this compares relative performance, not price levels.',
       base100: 'Start = 100',
       correlation: '20 / 60 / 120-day rolling correlation',
-      correlationHint: 'Calculated from daily returns on common dates; ρ near 1 is co-movement and near -1 is opposite movement.',
+      correlationHint:
+        'Calculated from daily returns on common dates; ρ near 1 is co-movement and near -1 is opposite movement.',
       assetA: 'Correlation asset A',
       assetB: 'Correlation asset B',
       correlationCaution: 'Correlation changes by regime and does not establish causality.',
@@ -1643,7 +1696,8 @@ const messages: Record<Locale, DictionaryNode> = {
       trackingError: 'Annual tracking error',
       proxy: 'Peer proxy {code}',
       divergence: 'Fund Price vs Transmission Divergence',
-      divergenceHint: 'Checks the fund’s latest valid daily move against its broad-market proxy and cross-asset driver contribution.',
+      divergenceHint:
+        'Checks the fund’s latest valid daily move against its broad-market proxy and cross-asset driver contribution.',
       transmissionUpdated: 'Transmission data through {date}',
       fundMove: 'Fund day',
       relativeGap: 'Gap vs proxy',
@@ -1655,8 +1709,10 @@ const messages: Record<Locale, DictionaryNode> = {
         insufficient: 'Insufficient',
       },
       divergenceReason: {
-        'missing-or-misaligned-observation': 'Fund and proxy observations differ by more than seven days, or valid price data is missing',
-        'fund-move-below-threshold': 'The fund’s absolute daily move is below 0.05%, so no direction is forced',
+        'missing-or-misaligned-observation':
+          'Fund and proxy observations differ by more than seven days, or valid price data is missing',
+        'fund-move-below-threshold':
+          'The fund’s absolute daily move is below 0.05%, so no direction is forced',
         'market-proxy-opposite': 'Fund move is opposite to its broad-market proxy',
         'driver-opposite': 'Fund move is opposite to net cross-asset driver contribution',
         'market-proxy-aligned': 'Fund and broad-market proxy move in the same direction',
@@ -2102,7 +2158,8 @@ const messages: Record<Locale, DictionaryNode> = {
           macdBearishCross: 'MACD bearish cross',
         },
         explanation: {
-          priceAbove: '{asset} last price is {current}, above the resistance threshold {threshold}.',
+          priceAbove:
+            '{asset} last price is {current}, above the resistance threshold {threshold}.',
           priceBelow: '{asset} last price is {current}, below the support threshold {threshold}.',
           rsiAbove: '{asset} RSI is {current}, above the overbought threshold {threshold}.',
           rsiBelow: '{asset} RSI is {current}, below the oversold threshold {threshold}.',

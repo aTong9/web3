@@ -5,10 +5,14 @@ import { useI18n } from '@/composables/use-i18n'
 import { useAuth } from '@/composables/use-auth'
 import crossAssetData from '@/data/cross-asset.json'
 import megaCapData from '@/data/us-megacaps.json'
+import optionMarketData from '@/data/option-market.json'
+import stockTechnicalData from '@/data/us-stock-technical-signals.json'
 import type {
   CrossAssetCategory,
   CrossAssetDataset,
+  AssetTechnicalDataset,
   OptionCandidateAction,
+  OptionMarketDataset,
   PaperSignalPosition,
   QuantAssetSignal,
   QuantDashboard,
@@ -26,7 +30,11 @@ const { locale, t } = useI18n()
 const { can } = useAuth()
 const dataset = crossAssetData as CrossAssetDataset
 const megaCaps = megaCapData as UsMegaCapDataset
-const dashboard = ref<QuantDashboard>(buildQuantDashboard(dataset, megaCaps))
+const optionMarket = optionMarketData as OptionMarketDataset
+const stockTechnicals = stockTechnicalData as AssetTechnicalDataset
+const dashboard = ref<QuantDashboard>(
+  buildQuantDashboard(dataset, megaCaps, optionMarket, stockTechnicals),
+)
 const category = ref<CategoryFilter>('all')
 const sortMode = ref<SortMode>('score')
 const paperPositions = ref<PaperSignalPosition[]>([])
@@ -97,6 +105,8 @@ const earningsWindowLabel = (window: QuantOptionCandidate['earningsWindow']) =>
           : window
     }`,
   )
+const optionMarketStatus = (candidate: QuantOptionCandidate) =>
+  t(`quant.optionMarket.status.${candidate.optionMarket?.status ?? 'unavailable'}`)
 const formatCalendarDate = (value: string | null) => {
   if (!value) return t('quant.earnings.datePending')
   const date = new Date(value.includes('/') ? `${value} 12:00:00 UTC` : `${value}T12:00:00Z`)
@@ -398,6 +408,14 @@ onMounted(async () => {
             <span>{{ t('quant.columns.score') }}</span
             ><strong>{{ candidate.score > 0 ? '+' : '' }}{{ candidate.score }}</strong>
           </div>
+          <div>
+            <span>{{ t('quant.technicalScore') }}</span
+            ><strong>{{
+              candidate.technical.score === null
+                ? '—'
+                : `${candidate.technical.score > 0 ? '+' : ''}${candidate.technical.score}`
+            }}</strong>
+          </div>
         </div>
         <section class="earnings-panel">
           <header>
@@ -450,7 +468,145 @@ onMounted(async () => {
                 }}
               </dd>
             </div>
+            <div>
+              <dt>{{ t('quant.earnings.expectedMove') }}</dt>
+              <dd>
+                {{
+                  candidate.optionMarket?.earningsExpectedMovePct !== null &&
+                  candidate.optionMarket?.earningsExpectedMovePct !== undefined
+                    ? `±${candidate.optionMarket.earningsExpectedMovePct.toFixed(1)}%`
+                    : '—'
+                }}
+                <small v-if="candidate.optionMarket?.earningsExpirationDate"
+                  >{{ candidate.optionMarket.earningsExpirationDate }} ·
+                  {{ candidate.optionMarket.earningsDte }} DTE</small
+                >
+              </dd>
+            </div>
           </dl>
+          <div class="event-window">
+            <header>
+              <b>{{ t('quant.earnings.eventWindow') }}</b
+              ><small>{{ candidate.earningsEvent.reportDate ?? '—' }}</small>
+            </header>
+            <dl>
+              <div>
+                <dt>{{ t('quant.earnings.pre5d') }}</dt>
+                <dd
+                  :class="
+                    (candidate.earningsEvent.pre5dReturnPct ?? 0) >= 0 ? 'positive' : 'negative'
+                  "
+                >
+                  {{ formatPct(candidate.earningsEvent.pre5dReturnPct) }}
+                </dd>
+              </div>
+              <div>
+                <dt>{{ t('quant.earnings.reaction1d') }}</dt>
+                <dd
+                  :class="
+                    (candidate.earningsEvent.reaction1dPct ?? 0) >= 0 ? 'positive' : 'negative'
+                  "
+                >
+                  {{ formatPct(candidate.earningsEvent.reaction1dPct) }}
+                </dd>
+              </div>
+              <div>
+                <dt>{{ t('quant.earnings.post5d') }}</dt>
+                <dd
+                  :class="
+                    (candidate.earningsEvent.post5dReturnPct ?? 0) >= 0 ? 'positive' : 'negative'
+                  "
+                >
+                  {{ formatPct(candidate.earningsEvent.post5dReturnPct) }}
+                </dd>
+              </div>
+              <div>
+                <dt>{{ t('quant.earnings.post20d') }}</dt>
+                <dd
+                  :class="
+                    (candidate.earningsEvent.post20dReturnPct ?? 0) >= 0 ? 'positive' : 'negative'
+                  "
+                >
+                  {{ formatPct(candidate.earningsEvent.post20dReturnPct) }}
+                </dd>
+              </div>
+            </dl>
+            <small>{{
+              t('quant.earnings.eventWindowMethod', {
+                baseline: candidate.earningsEvent.baselineDate ?? '—',
+                event: candidate.earningsEvent.eventSessionDate ?? '—',
+              })
+            }}</small>
+          </div>
+        </section>
+        <section class="market-option-panel">
+          <header>
+            <b>{{ t('quant.optionMarket.title') }}</b>
+            <em :class="candidate.optionMarket?.status ?? 'unavailable'">{{
+              optionMarketStatus(candidate)
+            }}</em>
+          </header>
+          <dl>
+            <div>
+              <dt>{{ t('quant.optionMarket.iv') }}</dt>
+              <dd>
+                {{ candidate.optionMarket?.leapsIvPct?.toFixed(2) ?? '—'
+                }}{{
+                  candidate.optionMarket?.leapsIvPct !== null &&
+                  candidate.optionMarket?.leapsIvPct !== undefined
+                    ? '%'
+                    : ''
+                }}
+              </dd>
+            </div>
+            <div>
+              <dt>{{ t('quant.optionMarket.ivRank') }}</dt>
+              <dd>
+                {{ candidate.optionMarket?.leapsIvRank52w?.toFixed(1) ?? '—'
+                }}{{
+                  candidate.optionMarket?.leapsIvRank52w !== null &&
+                  candidate.optionMarket?.leapsIvRank52w !== undefined
+                    ? '%'
+                    : ''
+                }}<small>{{ candidate.optionMarket?.ivRankObservations ?? 0 }}/20+</small>
+              </dd>
+            </div>
+            <div>
+              <dt>{{ t('quant.optionMarket.pcVolume') }}</dt>
+              <dd>{{ candidate.optionMarket?.putCallVolumeRatio?.toFixed(2) ?? '—' }}</dd>
+            </div>
+            <div>
+              <dt>{{ t('quant.optionMarket.pcOi') }}</dt>
+              <dd>{{ candidate.optionMarket?.putCallOpenInterestRatio?.toFixed(2) ?? '—' }}</dd>
+            </div>
+          </dl>
+          <div v-if="candidate.optionMarket?.termStructure.length" class="term-table">
+            <div class="term-head">
+              <span>{{ t('quant.optionMarket.expiry') }}</span
+              ><span>DTE</span><span>ATM IV</span
+              ><span>{{ t('quant.optionMarket.expectedMove') }}</span
+              ><span>P/C</span>
+            </div>
+            <div
+              v-for="point in candidate.optionMarket.termStructure"
+              :key="point.expirationDate"
+              class="term-row"
+            >
+              <span>{{ point.expirationDate }}</span
+              ><span>{{ point.dte }}</span
+              ><span>{{ point.atmIvPct?.toFixed(2) ?? '—' }}%</span
+              ><span>±{{ point.expectedMovePct?.toFixed(1) ?? '—' }}%</span
+              ><span>{{ point.putCallVolumeRatio?.toFixed(2) ?? '—' }}</span>
+            </div>
+          </div>
+          <p v-else>
+            {{
+              locale === 'zh'
+                ? (candidate.optionMarket?.message ?? t('quant.optionMarket.unavailable'))
+                : t('quant.optionMarket.unavailable')
+            }}
+          </p>
+          <small class="market-method">{{ t('quant.optionMarket.method') }}</small>
         </section>
         <details>
           <summary>{{ t('quant.detail') }}</summary>
@@ -898,7 +1054,7 @@ onMounted(async () => {
 .option-metrics {
   margin: 16px 0;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   border: 1px solid var(--border);
   border-radius: 8px;
 }
@@ -924,6 +1080,83 @@ onMounted(async () => {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface-soft);
+}
+.market-option-panel {
+  margin-top: 12px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+.market-option-panel > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.market-option-panel header em {
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-style: normal;
+}
+.market-option-panel header em.ok {
+  color: var(--negative);
+}
+.market-option-panel header em.partial {
+  color: var(--accent);
+}
+.market-option-panel header em.unavailable {
+  color: var(--muted);
+}
+.market-option-panel dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 10px 0;
+}
+.market-option-panel dl div {
+  padding: 0 8px;
+  border-left: 1px solid var(--border);
+}
+.market-option-panel dt {
+  color: var(--muted);
+  font-size: 9px;
+}
+.market-option-panel dd {
+  margin: 4px 0 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+.market-option-panel dd small {
+  display: block;
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 400;
+}
+.term-table {
+  margin-top: 9px;
+  border-top: 1px solid var(--border);
+}
+.term-head,
+.term-row {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(4, 0.7fr);
+  gap: 7px;
+  padding: 7px 0;
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+.term-head {
+  color: var(--muted);
+}
+.term-row + .term-row {
+  border-top: 1px solid var(--border);
+}
+.market-option-panel > p,
+.market-method {
+  display: block;
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 9px;
 }
 .earnings-panel > header {
   display: flex;
@@ -965,6 +1198,30 @@ onMounted(async () => {
   font-size: 10px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+.earnings-panel dd small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 8px;
+}
+.event-window {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.event-window > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.event-window > header small,
+.event-window > small {
+  color: var(--muted);
+  font-size: 8px;
+}
+.event-window dl {
+  grid-template-columns: repeat(4, 1fr);
 }
 .option-card details {
   border-top: 1px solid var(--border);
@@ -1148,15 +1405,28 @@ onMounted(async () => {
     grid-template-columns: 1fr 1fr;
   }
   .option-metrics div:nth-child(3) {
-    grid-column: 1 / -1;
     border-top: 1px solid var(--border);
     border-left: 0;
+  }
+  .option-metrics div:nth-child(4) {
+    border-top: 1px solid var(--border);
   }
   .paper-row {
     grid-template-columns: 1fr;
   }
   .earnings-panel dl {
     grid-template-columns: 1fr 1fr;
+  }
+  .market-option-panel dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 0;
+  }
+  .term-head,
+  .term-row {
+    min-width: 460px;
+  }
+  .term-table {
+    overflow-x: auto;
   }
 }
 </style>

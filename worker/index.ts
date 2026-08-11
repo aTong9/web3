@@ -1,5 +1,7 @@
 import type {
   CrossAssetDataset,
+  AssetTechnicalDataset,
+  OptionMarketDataset,
   PaperSignalPosition,
   QuantDashboard,
   TechnicalAlertCondition,
@@ -151,11 +153,13 @@ const fetchSource = async <T>(env: Env, filename: string): Promise<T> => {
 }
 
 const refreshSnapshot = async (env: Env) => {
-  const [crossAsset, megaCaps] = await Promise.all([
+  const [crossAsset, megaCaps, optionMarket, stockTechnicals] = await Promise.all([
     fetchSource<CrossAssetDataset>(env, 'cross-asset.json'),
     fetchSource<UsMegaCapDataset>(env, 'us-megacaps.json'),
+    fetchSource<OptionMarketDataset>(env, 'option-market.json'),
+    fetchSource<AssetTechnicalDataset>(env, 'us-stock-technical-signals.json'),
   ])
-  const dashboard = buildQuantDashboard(crossAsset, megaCaps)
+  const dashboard = buildQuantDashboard(crossAsset, megaCaps, optionMarket, stockTechnicals)
   const id = crypto.randomUUID()
   await env.DB.batch([
     env.DB.prepare(
@@ -181,7 +185,13 @@ const latestDashboard = async (env: Env): Promise<QuantDashboard> => {
     const dashboard = JSON.parse(row.payload) as QuantDashboard
     const currentSchema =
       dashboard.config.optionDteRange.min >= 365 &&
-      dashboard.options.every((candidate) => candidate.earnings && candidate.direction)
+      dashboard.options.every(
+        (candidate) =>
+          candidate.earnings &&
+          candidate.direction &&
+          'optionMarket' in candidate &&
+          'earningsEvent' in candidate,
+      )
     if (currentSchema) return dashboard
   }
   return refreshSnapshot(env)
@@ -394,12 +404,7 @@ const createTechnicalAlert = async (request: Request, env: Env, userId: string) 
   return rules.find((rule) => rule.id === id)
 }
 
-const updateTechnicalAlert = async (
-  request: Request,
-  env: Env,
-  userId: string,
-  id: string,
-) => {
+const updateTechnicalAlert = async (request: Request, env: Env, userId: string, id: string) => {
   const input = await requestJson<{ enabled?: unknown }>(request)
   if (typeof input.enabled !== 'boolean') throw new HttpError(400, '启用状态无效')
   const result = await env.DB.prepare(
@@ -550,11 +555,7 @@ const validateTechnicalConfig = (input: TechnicalIndicatorConfig) => {
   }
 }
 
-const saveTechnicalConfig = async (
-  request: Request,
-  env: Env,
-  actorId: string,
-) => {
+const saveTechnicalConfig = async (request: Request, env: Env, actorId: string) => {
   const input = await requestJson<TechnicalIndicatorConfig>(request)
   const payload = validateTechnicalConfig(input)
   const now = new Date().toISOString()
@@ -685,12 +686,7 @@ const handleApi = async (request: Request, env: Env) => {
   }
   if (url.pathname === '/api/technical-alerts' && request.method === 'POST') {
     const actor = await authenticate(request, env, 'technicalAlerts.manage')
-    return json(
-      request,
-      env,
-      { alert: await createTechnicalAlert(request, env, actor.id) },
-      201,
-    )
+    return json(request, env, { alert: await createTechnicalAlert(request, env, actor.id) }, 201)
   }
   const technicalAlertMatch = url.pathname.match(/^\/api\/technical-alerts\/([0-9a-f-]+)$/i)
   if (technicalAlertMatch && request.method === 'PATCH') {

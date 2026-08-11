@@ -309,6 +309,42 @@ export interface UsMegaCapDataset {
   stocks: UsMegaCapStock[]
 }
 
+export interface OptionTermPoint {
+  expirationDate: string
+  dte: number
+  atmIvPct: number | null
+  expectedMovePct: number | null
+  putCallVolumeRatio: number | null
+  putCallOpenInterestRatio: number | null
+  contracts: number
+}
+
+export interface OptionMarketSymbol {
+  symbol: string
+  status: 'ok' | 'partial' | 'unavailable'
+  message: string | null
+  underlyingPrice: number | null
+  leapsIvPct: number | null
+  leapsIvRank52w: number | null
+  ivRankObservations: number
+  putCallVolumeRatio: number | null
+  putCallOpenInterestRatio: number | null
+  earningsExpectedMovePct: number | null
+  earningsExpirationDate: string | null
+  earningsDte: number | null
+  termStructure: OptionTermPoint[]
+  ivHistory: Array<{ date: string; value: number }>
+}
+
+export interface OptionMarketDataset {
+  updatedAt: string
+  status: 'ok' | 'partial' | 'unavailable'
+  source: string
+  sourceUrl: string
+  methodology: string
+  symbols: OptionMarketSymbol[]
+}
+
 export type QuantSignalLevel = 'buy' | 'accumulate' | 'hold' | 'reduce' | 'sell' | 'unavailable'
 
 export interface QuantStrategyConfig {
@@ -371,6 +407,24 @@ export interface QuantOptionCandidate {
   direction: OptionDirection
   earningsWindow: 'pre-earnings' | 'post-earnings' | 'clear' | 'unknown'
   earnings: UsMegaCapStock['earnings']
+  optionMarket: OptionMarketSymbol | null
+  earningsEvent: {
+    status: 'available' | 'insufficient'
+    reportDate: string | null
+    baselineDate: string | null
+    eventSessionDate: string | null
+    pre5dReturnPct: number | null
+    reaction1dPct: number | null
+    post5dReturnPct: number | null
+    post20dReturnPct: number | null
+  }
+  technical: {
+    date: string | null
+    score: number | null
+    monthReturnPct: number | null
+    quarterReturnPct: number | null
+    stale: boolean
+  }
   executable: boolean
   reasons: string[]
   blockers: string[]

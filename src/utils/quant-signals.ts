@@ -1,6 +1,8 @@
 import type {
+  AssetTechnicalDataset,
   CrossAssetDataset,
   CrossAssetItem,
+  OptionMarketDataset,
   QuantAssetSignal,
   QuantDashboard,
   QuantOptionCandidate,
@@ -44,7 +46,8 @@ const inversePriceProxyIds = new Set(['us2y', 'us10y', 'us30y'])
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 const round = (value: number, decimals = 1) => Number(value.toFixed(decimals))
-const direction = (value: number | null) => (value === null ? 0 : value > 0 ? 1 : value < 0 ? -1 : 0)
+const direction = (value: number | null) =>
+  value === null ? 0 : value > 0 ? 1 : value < 0 ? -1 : 0
 const daysFromToday = (value: string | null) => {
   if (!value) return null
   const parsed = new Date(value.includes('/') ? `${value} 12:00:00 UTC` : `${value}T12:00:00Z`)
@@ -52,6 +55,79 @@ const daysFromToday = (value: string | null) => {
   const today = new Date()
   today.setUTCHours(12, 0, 0, 0)
   return Math.round((parsed.getTime() - today.getTime()) / 86_400_000)
+}
+const calendarIso = (value: string | null) => {
+  if (!value) return null
+  const parsed = new Date(value.includes('/') ? `${value} 12:00:00 UTC` : `${value}T12:00:00Z`)
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString().slice(0, 10)
+}
+
+const earningsEventWindow = (
+  stock: UsMegaCapDataset['stocks'][number],
+  technicals: AssetTechnicalDataset | null,
+): QuantOptionCandidate['earningsEvent'] => {
+  const reportDate = calendarIso(stock.earnings.lastReportedDate)
+  const asset = technicals?.assets.find(
+    (item) => item.id === `us-${stock.symbol.toLocaleLowerCase()}`,
+  )
+  if (!reportDate || !asset?.points.length)
+    return {
+      status: 'insufficient',
+      reportDate,
+      baselineDate: null,
+      eventSessionDate: null,
+      pre5dReturnPct: null,
+      reaction1dPct: null,
+      post5dReturnPct: null,
+      post20dReturnPct: null,
+    }
+  const eventIndex = asset.points.findIndex((point) => point.date >= reportDate)
+  const baseline = asset.points[eventIndex - 1]
+  const event = asset.points[eventIndex]
+  const beforeFive = asset.points[eventIndex - 6]
+  const afterFive = asset.points[eventIndex + 4]
+  const afterTwenty = asset.points[eventIndex + 19]
+  const returnFromBaseline = (point: typeof baseline) =>
+    point && baseline ? round((point.close / baseline.close - 1) * 100, 2) : null
+  return {
+    status: baseline && event ? 'available' : 'insufficient',
+    reportDate,
+    baselineDate: baseline?.date ?? null,
+    eventSessionDate: event?.date ?? null,
+    pre5dReturnPct:
+      beforeFive && baseline ? round((baseline.close / beforeFive.close - 1) * 100, 2) : null,
+    reaction1dPct: returnFromBaseline(event),
+    post5dReturnPct: returnFromBaseline(afterFive),
+    post20dReturnPct: returnFromBaseline(afterTwenty),
+  }
+}
+
+const stockTechnicalReading = (
+  stock: UsMegaCapDataset['stocks'][number],
+  technicals: AssetTechnicalDataset | null,
+): QuantOptionCandidate['technical'] => {
+  const asset = technicals?.assets.find(
+    (item) => item.id === `us-${stock.symbol.toLocaleLowerCase()}`,
+  )
+  const points = asset?.points ?? []
+  const latest = points[points.length - 1]
+  const monthBase = points[points.length - 21]
+  const quarterBase = points[points.length - 61]
+  const monthReturnPct =
+    latest && monthBase ? round((latest.close / monthBase.close - 1) * 100, 2) : null
+  const quarterReturnPct =
+    latest && quarterBase ? round((latest.close / quarterBase.close - 1) * 100, 2) : null
+  const score =
+    monthReturnPct === null || quarterReturnPct === null
+      ? null
+      : round(clamp(monthReturnPct * 1.4 + quarterReturnPct * 0.6, -30, 30))
+  return {
+    date: latest?.date ?? null,
+    score,
+    monthReturnPct,
+    quarterReturnPct,
+    stale: asset?.stale ?? true,
+  }
 }
 
 const changeScore = (asset: CrossAssetItem) => {
@@ -122,7 +198,8 @@ const buildAssetSignal = (
   const risks = []
   if (asset.stale) risks.push('数据已过期，禁止生成交易候选')
   if (validatedCount === 0 && market) risks.push('中期方向尚未通过留出验证')
-  if (direction(asset.changes.week) !== direction(asset.changes.month)) risks.push('周线与月线方向分歧')
+  if (direction(asset.changes.week) !== direction(asset.changes.month))
+    risks.push('周线与月线方向分歧')
   if (!market) risks.push('暂无专用方向模型，使用价格动量代理')
   return {
     id: asset.id,
@@ -154,6 +231,8 @@ const buildAssetSignal = (
 const buildOptionCandidates = (
   megaCaps: UsMegaCapDataset,
   dataset: CrossAssetDataset,
+  optionMarket: OptionMarketDataset | null,
+  technicals: AssetTechnicalDataset | null,
   config: QuantStrategyConfig,
 ): QuantOptionCandidate[] => {
   const nasdaq = dataset.marketBrief.markets.find((market) => market.id === 'nasdaq')
@@ -169,6 +248,10 @@ const buildOptionCandidates = (
 
   return megaCaps.stocks
     .map((stock) => {
+      const marketOptions =
+        optionMarket?.symbols.find((item) => item.symbol === stock.symbol) ?? null
+      const earningsEvent = earningsEventWindow(stock, technicals)
+      const technical = stockTechnicalReading(stock, technicals)
       const forwardPe = stock.forwardPe
       const discountToThresholdPct =
         forwardPe === null
@@ -181,7 +264,11 @@ const buildOptionCandidates = (
       const valuationScore =
         forwardPe === null
           ? 0
-          : clamp(((config.forwardPeThreshold - forwardPe) / config.forwardPeThreshold) * 100, -60, 60)
+          : clamp(
+              ((config.forwardPeThreshold - forwardPe) / config.forwardPeThreshold) * 100,
+              -60,
+              60,
+            )
       const revisionBalance =
         stock.earnings.revisionsUp === null || stock.earnings.revisionsDown === null
           ? null
@@ -192,7 +279,8 @@ const buildOptionCandidates = (
         -20,
         20,
       )
-      const score = clamp(valuationScore + marketScore + earningsScore, -100, 100)
+      const technicalScore = technical.stale ? 0 : (technical.score ?? 0)
+      const score = clamp(valuationScore + marketScore + earningsScore + technicalScore, -100, 100)
       const daysToEarnings = daysFromToday(stock.earnings.nextEarningsDate)
       const daysSinceEarnings = daysFromToday(stock.earnings.lastReportedDate)
       const earningsWindow: QuantOptionCandidate['earningsWindow'] =
@@ -204,11 +292,15 @@ const buildOptionCandidates = (
               ? 'unknown'
               : 'clear'
       const evidenceScore = clamp(
-        30 + (forwardPe !== null ? 20 : 0) + (stock.price !== null ? 10 : 0) +
+        30 +
+          (forwardPe !== null ? 20 : 0) +
+          (stock.price !== null ? 10 : 0) +
           (stock.historicalPeMedian5y !== null ? 15 : 0) +
           (marketValidated ? 15 : 0) +
           (stock.earnings.nextConsensusEps !== null ? 10 : 0) +
-          (revisionBalance !== null ? 10 : 0),
+          (revisionBalance !== null ? 10 : 0) +
+          (marketOptions?.status === 'ok' ? 10 : marketOptions?.status === 'partial' ? 5 : 0) +
+          (technical.score !== null && !technical.stale ? 10 : 0),
         0,
         100,
       )
@@ -228,24 +320,41 @@ const buildOptionCandidates = (
       if (earningsWindow === 'pre-earnings') direction = 'event-risk'
       else if (
         ['long-call-candidate', 'long-call-watch'].includes(action) &&
-        earningsSupportsBullish
+        earningsSupportsBullish &&
+        technicalScore >= 0
       )
         direction = 'bullish'
-      else if ((action === 'exit-long-call' || action === 'avoid') && marketScore < 0 && (revisionBalance ?? 0) <= 0) direction = 'bearish'
+      else if (
+        (action === 'exit-long-call' || action === 'avoid') &&
+        marketScore < 0 &&
+        technicalScore < 0 &&
+        (revisionBalance ?? 0) <= 0
+      )
+        direction = 'bearish'
 
       let strategy: QuantOptionCandidate['template']['strategy'] = 'wait'
       if (direction === 'bullish') {
-        strategy = action === 'long-call-candidate' ? 'long-call' : 'call-debit-spread'
+        strategy =
+          action === 'long-call-candidate' && (marketOptions?.leapsIvRank52w ?? 100) < 65
+            ? 'long-call'
+            : 'call-debit-spread'
       } else if (direction === 'bearish') {
         strategy = 'put-debit-spread'
       } else if (action === 'exit-long-call') {
         strategy = 'exit-or-avoid'
       }
 
-      const blockers = [
-        '尚未接入实时期权链、隐含波动率、成交量和买卖价差',
-      ]
-      if (earningsWindow === 'pre-earnings') blockers.push('14天内进入财报窗口，隐含波动率可能明显抬升，等待财报后重新评估')
+      const blockers = ['研究模式不连接券商，也不自动下单']
+      if (!marketOptions || marketOptions.status === 'unavailable')
+        blockers.push(marketOptions?.message ?? 'LEAPS期权链、隐含波动率与Put/Call数据不可用')
+      if (marketOptions?.status === 'partial')
+        blockers.push(marketOptions.message ?? '期权链数据不完整，禁止形成可执行合约建议')
+      if (marketOptions?.leapsIvRank52w === null)
+        blockers.push(
+          `LEAPS IV Rank历史不足，当前${marketOptions?.ivRankObservations ?? 0}/20个最低观测`,
+        )
+      if (earningsWindow === 'pre-earnings')
+        blockers.push('14天内进入财报窗口，隐含波动率可能明显抬升，等待财报后重新评估')
       if (earningsWindow === 'unknown') blockers.push('下一次财报日期尚未公布或数据源尚未更新')
       if (!marketValidated) blockers.push('纳指中期方向尚未通过留出验证')
       if (megaCaps.status !== 'ok') blockers.push('估值数据本次更新已降级')
@@ -264,7 +373,13 @@ const buildOptionCandidates = (
           ? '最近财报结果缺失'
           : !stock.earnings.lastResultReliable
             ? '最近财报EPS与共识口径异常，结果不参与方向评分'
-          : `最近财报EPS ${stock.earnings.lastActualEps?.toFixed(2) ?? '—'}，超预期 ${stock.earnings.lastSurprisePct > 0 ? '+' : ''}${stock.earnings.lastSurprisePct.toFixed(2)}%`,
+            : `最近财报EPS ${stock.earnings.lastActualEps?.toFixed(2) ?? '—'}，超预期 ${stock.earnings.lastSurprisePct > 0 ? '+' : ''}${stock.earnings.lastSurprisePct.toFixed(2)}%`,
+        marketOptions?.leapsIvPct === null || marketOptions?.leapsIvPct === undefined
+          ? '近端LEAPS平值IV不可用'
+          : `近端LEAPS平值IV ${marketOptions.leapsIvPct.toFixed(2)}%，IV Rank ${marketOptions.leapsIvRank52w?.toFixed(1) ?? '历史不足'}，Put/Call成交量比 ${marketOptions.putCallVolumeRatio?.toFixed(2) ?? '—'}`,
+        technical.score === null
+          ? '个股技术历史不足'
+          : `个股技术得分 ${technical.score > 0 ? '+' : ''}${technical.score}，1月/1季度 ${technical.monthReturnPct?.toFixed(2) ?? '—'}%/${technical.quarterReturnPct?.toFixed(2) ?? '—'}%`,
       ]
       return {
         symbol: stock.symbol,
@@ -281,6 +396,9 @@ const buildOptionCandidates = (
         direction,
         earningsWindow,
         earnings: stock.earnings,
+        optionMarket: marketOptions,
+        earningsEvent,
+        technical,
         executable: false,
         reasons,
         blockers,
@@ -299,6 +417,8 @@ const buildOptionCandidates = (
 export const buildQuantDashboard = (
   dataset: CrossAssetDataset,
   megaCaps: UsMegaCapDataset,
+  optionMarket: OptionMarketDataset | null = null,
+  technicals: AssetTechnicalDataset | null = null,
   overrides: Partial<QuantStrategyConfig> = {},
 ): QuantDashboard => {
   const config: QuantStrategyConfig = { ...defaultConfig, ...overrides }
@@ -306,17 +426,19 @@ export const buildQuantDashboard = (
     .map((asset) => buildAssetSignal(asset, dataset))
     .filter((asset): asset is QuantAssetSignal => asset !== null)
     .sort((left, right) => right.score - left.score)
-  const options = buildOptionCandidates(megaCaps, dataset, config)
+  const options = buildOptionCandidates(megaCaps, dataset, optionMarket, technicals, config)
   return {
-    generatedAt:
-      dataset.updatedAt > megaCaps.updatedAt ? dataset.updatedAt : megaCaps.updatedAt,
+    generatedAt: dataset.updatedAt > megaCaps.updatedAt ? dataset.updatedAt : megaCaps.updatedAt,
     asOfDate: dataset.marketBrief.asOfDate,
     config,
     summary: {
       buyCandidates: assets.filter((asset) => ['buy', 'accumulate'].includes(asset.signal)).length,
       sellCandidates: assets.filter((asset) => ['sell', 'reduce'].includes(asset.signal)).length,
-      optionLongCallCandidates: options.filter((item) => item.action === 'long-call-candidate').length,
-      optionExitCandidates: options.filter((item) => ['exit-long-call', 'avoid'].includes(item.action)).length,
+      optionLongCallCandidates: options.filter((item) => item.action === 'long-call-candidate')
+        .length,
+      optionExitCandidates: options.filter((item) =>
+        ['exit-long-call', 'avoid'].includes(item.action),
+      ).length,
       unavailable: assets.filter((asset) => asset.signal === 'unavailable').length,
     },
     assets,
@@ -324,7 +446,8 @@ export const buildQuantDashboard = (
     limitations: [
       '所有结果均为规则模型候选，不是交易指令。模型未接券商，不会自动下单。',
       '35x是可配置纪律线；低于或高于阈值本身不足以证明期权具有正期望。',
-      'EPS预期、修正和财报结果已接入；期权候选在实时期权链、IV与流动性接入前一律不可执行。',
+      'EPS预期、修正和财报结果已接入；LEAPS IV、IV Rank、Put/Call和期限结构来自独立期权数据集，缺失时明确降级。',
+      'IV Rank按近端LEAPS平值IV每日快照计算，至少20个观测后显示；不是常见30天恒定期限IV Rank。',
       '模拟记录只跟踪标的股票价格变化，不等同于期权收益。',
     ],
   }

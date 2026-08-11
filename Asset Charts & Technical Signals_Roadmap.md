@@ -7,7 +7,7 @@
 | Phase 0 · Data and interfaces           | In progress | Versioned asset history dataset, source metadata, optional OHLCV model, indicator/result/alert types, role permissions, authenticated Cloudflare Worker API, D1 migrations, daily refresh workflows, global indicator configuration, parameter templates, and an append-only formula/configuration ledger are implemented. Unified trading calendars and runtime enforcement of source priority remain. |
 | Phase 1 · Core MVP                      | In progress | 24 cross-asset series, line/real-candle modes, MA20/60, MACD, RSI, Bollinger, ATR, support/resistance, six horizons, comparison, transmission carousel, favorites, fullscreen, PNG export, and authenticated personal alerts are implemented. Massive OHLCV is live for the US mega-cap set; the free plan supplies two years of history and the workflow now respects its five-calls-per-minute limit while retaining stale fallback data on transient failures. |
 | Phase 2 · Funds and advanced comparison | Complete    | A shared fund research workbench is live on both US-fund and A-share pages with normalized price/NAV comparison, 20/60/120-day rolling correlations, peer-proxy tracking error, current premium/discount and annual fees, local favorites/saved views, daily off-exchange investment-limit history, and price-versus-transmission divergence detection. |
-| Phase 3 · Options and event analysis    | Planned     | Not started.                                                                                                                                                                                                                                       |
+| Phase 3 · Options and event analysis    | In progress | The top-10 option research cards now combine Forward PE, stock technical score, Nasdaq transmission context, EPS revisions, earnings windows, and historical pre/post-earnings returns. A Massive-powered pipeline for 365–730 DTE IV, LEAPS IV Rank, Put/Call ratios, term structure, and earnings IV-implied move is implemented with explicit unavailable/partial states; production option-plan access and the minimum 20-day IV history are not yet verified. |
 | Phase 4 · Backtesting and calibration   | Planned     | Not started.                                                                                                                                                                                                                                       |
 
 The status table is an implementation ledger, not a change to the scope below. A phase is complete only after all its listed acceptance conditions are verified.
@@ -455,6 +455,16 @@ The status table is an implementation ledger, not a change to the scope below. A
 - 展示财报日期、预期波动和财报前后表现
 - 将 Forward PE、技术状态和传导链共同用于期权方向研究
 - 增加事件窗口回看
+
+当前实现证据：
+
+- 美股巨头候选同时纳入 Forward PE、个股 1月/1季度技术得分、纳指中期传导环境、EPS 修正和财报窗口
+- 财报卡片展示最近报告日前5日、事件反应1日、事件后5日和20日收益；盘前/盘后发布时间未知时明确标注为近似窗口
+- 新增独立期权市场数据集和自动更新脚本，通过 Massive 合约目录与期权链快照选择约1年、18个月和2年的 LEAPS 到期日
+- 每个到期日计算平值 IV、IV 年化预期波动、Put/Call 成交量比、Put/Call 持仓比和合约覆盖数
+- LEAPS IV Rank 使用每日近端 LEAPS 平值 IV 快照，至少积累20个观测后才显示，并明确不等同于30天恒定期限 IV Rank
+- 下次财报日期可用时额外读取财报后首个到期日，计算财报窗口 IV 预期波动
+- 数据套餐无权限、合约达到返回上限或字段缺失时展示不可用/部分数据，不用估算值冒充实时链
 
 完成标准：期权模块能解释方向、期限、波动率和事件风险，但不自动下单。
 
