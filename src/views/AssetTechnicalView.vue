@@ -141,6 +141,7 @@ let carouselTimer: number | null = null
 
 const favoriteStorageKey = 'market-desk-technical-favorites-v1'
 const recentStorageKey = 'market-desk-technical-recent-v1'
+const selectedStorageKey = 'market-desk-technical-selected-v1'
 const rangeCalendarDays: Record<RangeId, number> = {
   day: 0,
   week: 7,
@@ -715,6 +716,7 @@ const chainAssetName = (id: string) => {
 const selectAsset = (id: string) => {
   chainValidationActive.value = false
   selectedId.value = id
+  localStorage.setItem(selectedStorageKey, id)
   recentAssetIds.value = [id, ...recentAssetIds.value.filter((item) => item !== id)].slice(0, 5)
   localStorage.setItem(recentStorageKey, JSON.stringify(recentAssetIds.value))
   if (window.matchMedia('(max-width: 760px)').matches) assetPickerOpen.value = false
@@ -971,7 +973,20 @@ onMounted(() => {
   } catch {
     recentAssetIds.value = []
   }
-  selectAsset(selectedId.value)
+  const storedSelected = localStorage.getItem(selectedStorageKey)
+  void (async () => {
+    if (
+      [...favorites.value, ...recentAssetIds.value, storedSelected].some((id) =>
+        id?.startsWith('fund-'),
+      )
+    )
+      await loadFundAssets()
+    selectAsset(
+      storedSelected && resolvedAssets.value.some((asset) => asset.id === storedSelected)
+        ? storedSelected
+        : selectedId.value,
+    )
+  })()
   void restore().then(loadAlerts)
   void loadTechnicalConfig()
   resetAlertThreshold()
