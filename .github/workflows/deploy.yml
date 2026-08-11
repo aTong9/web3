@@ -48,6 +48,9 @@ jobs:
       - name: Validate and build
         run: npm run build
 
+      - name: Add SPA fallback for direct route refreshes
+        run: cp dist/index.html dist/404.html
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 

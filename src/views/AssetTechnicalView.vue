@@ -6,6 +6,7 @@ import EChart from '@/components/EChart.vue'
 import { useI18n } from '@/composables/use-i18n'
 import technicalData from '@/data/asset-technical-signals.json'
 import crossAssetData from '@/data/cross-asset.json'
+import usStockTechnicalData from '@/data/us-stock-technical-signals.json'
 import type {
   AssetTechnicalDataset,
   CrossAssetDataset,
@@ -19,7 +20,20 @@ type RangeId = 'month' | 'quarter' | 'halfYear' | 'year' | 'threeYear' | 'fiveYe
 type ChartMode = 'line' | 'candle'
 type ChainFilter = 'related' | 'strong'
 
-const dataset = technicalData as AssetTechnicalDataset
+const baseDataset = technicalData as AssetTechnicalDataset
+const usStockDataset = usStockTechnicalData as AssetTechnicalDataset
+const latestDatasetUpdate = [baseDataset.updatedAt, usStockDataset.updatedAt]
+  .filter(Boolean)
+  .reduce((latest, value) => (value > latest ? value : latest), baseDataset.updatedAt)
+const dataset: AssetTechnicalDataset = {
+  ...baseDataset,
+  updatedAt: latestDatasetUpdate,
+  source: [baseDataset.source, ...(usStockDataset.assets.length ? [usStockDataset.source] : [])].join(
+    '；',
+  ),
+  limitations: [...baseDataset.limitations, ...usStockDataset.limitations],
+  assets: [...baseDataset.assets, ...usStockDataset.assets],
+}
 const crossAsset = crossAssetData as CrossAssetDataset
 const { locale, t } = useI18n()
 const { theme } = useTheme()
