@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: update-market-news
-  cancel-in-progress: true
+  group: market-data-writes
+  cancel-in-progress: false
 
 jobs:
   update:

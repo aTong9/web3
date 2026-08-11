@@ -10,8 +10,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: update-hot-stocks
-  cancel-in-progress: true
+  group: market-data-writes
+  cancel-in-progress: false
 
 jobs:
   update:
