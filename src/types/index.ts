@@ -1125,6 +1125,8 @@ export type TechnicalAlertCondition =
   | 'macdBullishCross'
   | 'macdBearishCross'
 
+export type TechnicalAlertHorizon = TechnicalHorizonReading['id']
+
 export interface TechnicalAlertRule {
   id: string
   assetId: string
@@ -1132,6 +1134,9 @@ export interface TechnicalAlertRule {
   series: string
   condition: TechnicalAlertCondition
   threshold: number | null
+  horizon: TechnicalAlertHorizon
+  minimumConfidence: number
+  requireResonance: boolean
   enabled: boolean
   createdAt: string
   updatedAt: string

@@ -13,6 +13,7 @@ import type {
   CrossAssetDataset,
   TechnicalAlertCondition,
   TechnicalAlertEvaluation,
+  TechnicalAlertHorizon,
   TechnicalAlertRule,
   TechnicalChartRange,
   TechnicalChartAsset,
@@ -70,6 +71,9 @@ const favorites = ref<string[]>([])
 const alertRules = ref<TechnicalAlertRule[]>([])
 const alertCondition = ref<TechnicalAlertCondition>('priceAbove')
 const alertThreshold = ref<number | null>(null)
+const alertHorizon = ref<TechnicalAlertHorizon>('month')
+const alertMinimumConfidence = ref(60)
+const alertRequireResonance = ref(false)
 const alertsLoading = ref(false)
 const alertBusyId = ref('')
 const alertMessage = ref('')
@@ -465,14 +469,34 @@ const evaluateAlert = (rule: TechnicalAlertRule): TechnicalAlertEvaluation => {
       previousMacd >= previousSignal
     triggered = rule.condition === 'macdBullishCross' ? crossedUp : crossedDown
   }
+  const horizon = analysis.value.horizons.find((item) => item.id === rule.horizon)
+  const bullishCondition = ['priceAbove', 'rsiBelow', 'macdBullishCross'].includes(rule.condition)
+  const horizonAligned =
+    horizon?.score !== undefined && (bullishCondition ? horizon.score >= 10 : horizon.score <= -10)
+  const confidencePassed = analysis.value.confidence >= rule.minimumConfidence
+  const resonancePassed = !rule.requireResonance || resonanceEvaluation.value?.allowed === true
+  const preferencePassed = horizonAligned && confidencePassed && resonancePassed
+  const explanation = t(`assetTechnical.alert.explanation.${rule.condition}`, {
+    asset: assetLabel(selectedAsset.value),
+    current: formatValue(currentValue),
+    threshold: formatValue(rule.threshold),
+  })
   return {
-    triggered: rule.enabled && triggered,
+    triggered: rule.enabled && triggered && preferencePassed,
     currentValue,
-    explanation: t(`assetTechnical.alert.explanation.${rule.condition}`, {
-      asset: assetLabel(selectedAsset.value),
-      current: formatValue(currentValue),
-      threshold: formatValue(rule.threshold),
-    }),
+    explanation: `${explanation} ${t('assetTechnical.alert.preferenceGate', {
+      horizon: t(`assetTechnical.horizon.${rule.horizon}`),
+      alignment: horizonAligned
+        ? t('assetTechnical.alert.directionAligned')
+        : t('assetTechnical.alert.directionWaiting'),
+      confidence: analysis.value.confidence,
+      minimum: rule.minimumConfidence,
+      resonance: rule.requireResonance
+        ? resonancePassed
+          ? t('assetTechnical.alert.resonancePassed')
+          : t('assetTechnical.alert.resonanceWaiting')
+        : t('assetTechnical.alert.resonanceOptional'),
+    })}`,
   }
 }
 const defaultAlertThreshold = () => {
@@ -524,6 +548,9 @@ const createAlert = async () => {
       series: selectedAsset.value.series,
       condition: alertCondition.value,
       threshold: alertThreshold.value,
+      horizon: alertHorizon.value,
+      minimumConfidence: alertMinimumConfidence.value,
+      requireResonance: alertRequireResonance.value,
     })
     alertRules.value.unshift(created)
     alertMessage.value = t('assetTechnical.alert.created')
@@ -1044,6 +1071,33 @@ onBeforeUnmount(() => {
               <span>{{ t('assetTechnical.alert.threshold') }}</span>
               <input v-model.number="alertThreshold" type="number" step="any" required />
             </label>
+            <label>
+              <span>{{ t('assetTechnical.alert.horizon') }}</span>
+              <select v-model="alertHorizon">
+                <option
+                  v-for="horizon in ['day', 'week', 'month', 'quarter', 'halfYear', 'year'] as TechnicalAlertHorizon[]"
+                  :key="horizon"
+                  :value="horizon"
+                >
+                  {{ t(`assetTechnical.horizon.${horizon}`) }}
+                </option>
+              </select>
+            </label>
+            <label>
+              <span>{{ t('assetTechnical.alert.minimumConfidence') }}</span>
+              <input
+                v-model.number="alertMinimumConfidence"
+                type="number"
+                min="0"
+                max="100"
+                step="5"
+                required
+              />
+            </label>
+            <label class="alert-checkbox">
+              <input v-model="alertRequireResonance" type="checkbox" />
+              <span>{{ t('assetTechnical.alert.requireResonance') }}</span>
+            </label>
             <button :disabled="alertsLoading" type="submit">
               {{ alertsLoading ? t('assetTechnical.alert.saving') : t('assetTechnical.alert.create') }}
             </button>
@@ -1077,7 +1131,11 @@ onBeforeUnmount(() => {
             </div>
             <p>{{ evaluateAlert(rule).explanation }}</p>
             <footer>
-              <small>{{ rule.series }} · {{ rule.updatedAt.slice(0, 10) }}</small>
+              <small>
+                {{ rule.series }} · {{ t(`assetTechnical.horizon.${rule.horizon}`) }} · ≥{{
+                  rule.minimumConfidence
+                }}% · {{ rule.updatedAt.slice(0, 10) }}
+              </small>
               <button
                 :disabled="alertBusyId === rule.id"
                 type="button"
@@ -1822,6 +1880,16 @@ onBeforeUnmount(() => {
 .alert-center form label span {
   color: var(--muted);
   font-size: 8px;
+}
+.alert-center form .alert-checkbox {
+  grid-template-columns: 16px 1fr;
+  align-items: center;
+}
+.alert-center form .alert-checkbox input {
+  width: 16px;
+  min-height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
 }
 .alert-center select,
 .alert-center input,

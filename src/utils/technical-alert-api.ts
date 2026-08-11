@@ -1,4 +1,8 @@
-import type { TechnicalAlertCondition, TechnicalAlertRule } from '@/types'
+import type {
+  TechnicalAlertCondition,
+  TechnicalAlertHorizon,
+  TechnicalAlertRule,
+} from '@/types'
 
 const apiBase =
   (import.meta.env.VITE_QUANT_API_BASE as string | undefined)?.replace(/\/$/, '') ||
@@ -29,6 +33,9 @@ export const technicalAlertApi = {
     series: string
     condition: TechnicalAlertCondition
     threshold: number | null
+    horizon: TechnicalAlertHorizon
+    minimumConfidence: number
+    requireResonance: boolean
   }) =>
     (
       await request<{ alert: TechnicalAlertRule }>('/api/technical-alerts', {

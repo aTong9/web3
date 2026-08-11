@@ -8,7 +8,7 @@
 | Phase 1 · Core MVP                      | In progress | 24 cross-asset series, line/real-candle modes, MA20/60, MACD, RSI, Bollinger, ATR, support/resistance, six horizons, comparison, transmission carousel, favorites, fullscreen, PNG export, and authenticated personal alerts are implemented. Massive OHLCV is live for the US mega-cap set; the free plan supplies two years of history and the workflow now respects its five-calls-per-minute limit while retaining stale fallback data on transient failures. |
 | Phase 2 · Funds and advanced comparison | Complete    | A shared fund research workbench is live on both US-fund and A-share pages with normalized price/NAV comparison, 20/60/120-day rolling correlations, peer-proxy tracking error, current premium/discount and annual fees, local favorites/saved views, daily off-exchange investment-limit history, and price-versus-transmission divergence detection. |
 | Phase 3 · Options and event analysis    | In progress | The top-10 option research cards now combine Forward PE, stock technical score, Nasdaq transmission context, EPS revisions, earnings windows, and historical pre/post-earnings returns. A Massive-powered pipeline for 365–730 DTE IV, LEAPS IV Rank, Put/Call ratios, term structure, and earnings IV-implied move is implemented with explicit unavailable/partial states; production option-plan access and the minimum 20-day IV history are not yet verified. |
-| Phase 4 · Backtesting and calibration   | In progress | The asset chart now runs a chronological 70/30 holdout test for the active technical formula, samples signals at least five observations apart, and reports 5/21/63-day directional hit rate, forward return, maximum adverse excursion, and median invalidation time. Cross-asset resonance validation, calibrated weights, and feedback into quant signals remain. |
+| Phase 4 · Backtesting and calibration   | In progress | The asset chart runs a chronological 70/30 holdout test and reports 5/21/63-day hit rate, returns, adverse excursion, and invalidation time. Cross-asset forecast weights/thresholds are selected on the training segment only, driver ablation and confidence gates feed the quant module, and personal alerts now include horizon, confidence, and validated-resonance preferences. Per-asset technical-weight calibration remains. |
 
 The status table is an implementation ledger, not a change to the scope below. A phase is complete only after all its listed acceptance conditions are verified.
 
@@ -488,6 +488,8 @@ The status table is an implementation ledger, not a change to the scope below. A
 - 回测主动关闭跨资产评分权重，因为当前尚无逐日、时点一致的历史驱动快照；页面同时披露费用、滑点、税费、融资、分红和可交易性未纳入
 - 对已有时点一致的跨资产预测样本，走势图读取生成器的驱动消融结果，在同一日期比较“动量+驱动”和“仅动量”的命中率、增量提升与配对优势检验；未证明增量时明确标记为未采用
 - 量化信号读取每个资产的留出样本、方向命中率、95%区间、最佳基准和驱动消融结论；样本、区间或基准提升未通过门槛时，自动将强买入/强卖出降级为积累/减仓观察，并降低证据分
+- 跨资产预测规则在前70%训练段内比较多组短期/月度/驱动权重与信号阈值，以置信区间保守优势选型；最后30%留出段不参与权重选择
+- 个人预警在价格、RSI、MACD基础条件之外保存关注周期、最低技术置信度和“必须通过跨资产驱动增量验证”偏好；只有全部门槛同时满足时才触发
 
 完成标准：每项核心规则均有样本外表现、适用条件和失效条件。
 

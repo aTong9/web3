@@ -5,6 +5,7 @@ import type {
   PaperSignalPosition,
   QuantDashboard,
   TechnicalAlertCondition,
+  TechnicalAlertHorizon,
   TechnicalAlertRule,
   TechnicalIndicatorConfig,
   TechnicalIndicatorConfigVersion,
@@ -51,6 +52,9 @@ interface TechnicalAlertRow {
   series: string
   condition: TechnicalAlertCondition
   threshold: number | null
+  horizon: TechnicalAlertHorizon
+  minimum_confidence: number
+  require_resonance: number
   enabled: number
   created_at: string
   updated_at: string
@@ -63,6 +67,14 @@ const technicalAlertConditions = new Set<TechnicalAlertCondition>([
   'rsiBelow',
   'macdBullishCross',
   'macdBearishCross',
+])
+const technicalAlertHorizons = new Set<TechnicalAlertHorizon>([
+  'day',
+  'week',
+  'month',
+  'quarter',
+  'halfYear',
+  'year',
 ])
 const technicalRanges = new Set<TechnicalIndicatorConfig['display']['defaultRange']>([
   'month',
@@ -338,6 +350,9 @@ const toTechnicalAlert = (row: TechnicalAlertRow): TechnicalAlertRule => ({
   series: row.series,
   condition: row.condition,
   threshold: row.threshold,
+  horizon: row.horizon,
+  minimumConfidence: row.minimum_confidence,
+  requireResonance: Boolean(row.require_resonance),
   enabled: Boolean(row.enabled),
   createdAt: row.created_at,
   updatedAt: row.updated_at,
@@ -346,7 +361,7 @@ const toTechnicalAlert = (row: TechnicalAlertRow): TechnicalAlertRule => ({
 const listTechnicalAlerts = async (env: Env, userId: string) => {
   const rows = await env.DB.prepare(
     `SELECT id, user_id, asset_id, asset_name, series, condition, threshold,
-            enabled, created_at, updated_at
+            horizon, minimum_confidence, require_resonance, enabled, created_at, updated_at
      FROM technical_alert_rules
      WHERE user_id = ?
      ORDER BY created_at DESC
@@ -370,6 +385,9 @@ const createTechnicalAlert = async (request: Request, env: Env, userId: string) 
     series?: unknown
     condition?: unknown
     threshold?: unknown
+    horizon?: unknown
+    minimumConfidence?: unknown
+    requireResonance?: unknown
   }>(request)
   const assetId = validateAlertText(input.assetId, '资产ID', 80)
   const assetName = validateAlertText(input.assetName, '资产名称', 120)
@@ -378,6 +396,15 @@ const createTechnicalAlert = async (request: Request, env: Env, userId: string) 
     throw new HttpError(400, '预警条件无效')
   }
   const condition = input.condition as TechnicalAlertCondition
+  if (!technicalAlertHorizons.has(input.horizon as TechnicalAlertHorizon)) {
+    throw new HttpError(400, '关注周期无效')
+  }
+  const horizon = input.horizon as TechnicalAlertHorizon
+  const minimumConfidence = Number(input.minimumConfidence)
+  if (!Number.isInteger(minimumConfidence) || minimumConfidence < 0 || minimumConfidence > 100) {
+    throw new HttpError(400, '最低置信度无效')
+  }
+  if (typeof input.requireResonance !== 'boolean') throw new HttpError(400, '共振偏好无效')
   const requiresThreshold = !condition.startsWith('macd')
   const threshold = input.threshold === null ? null : Number(input.threshold)
   if (requiresThreshold && (!Number.isFinite(threshold) || threshold === null)) {
@@ -389,10 +416,24 @@ const createTechnicalAlert = async (request: Request, env: Env, userId: string) 
   try {
     await env.DB.prepare(
       `INSERT INTO technical_alert_rules
-       (id, user_id, asset_id, asset_name, series, condition, threshold, enabled, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+       (id, user_id, asset_id, asset_name, series, condition, threshold, horizon,
+        minimum_confidence, require_resonance, enabled, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
     )
-      .bind(id, userId, assetId, assetName, series, condition, threshold, now, now)
+      .bind(
+        id,
+        userId,
+        assetId,
+        assetName,
+        series,
+        condition,
+        threshold,
+        horizon,
+        minimumConfidence,
+        input.requireResonance ? 1 : 0,
+        now,
+        now,
+      )
       .run()
   } catch (error) {
     if (error instanceof Error && error.message.includes('UNIQUE')) {
