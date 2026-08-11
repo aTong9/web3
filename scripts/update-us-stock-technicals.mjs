@@ -7,6 +7,7 @@ const megaCapsPath = resolve(root, 'src/data/us-megacaps.json')
 const outputPath = resolve(root, 'src/data/us-stock-technical-signals.json')
 const apiKey = process.env.MASSIVE_API_KEY?.trim()
 const apiBase = 'https://api.massive.com'
+const interRequestDelayMs = 13_000
 
 const readJson = async (path) => JSON.parse(await readFile(path, 'utf8'))
 const sleep = (milliseconds) => new Promise((resolveDelay) => setTimeout(resolveDelay, milliseconds))
@@ -31,7 +32,14 @@ const fetchAggregateBars = async (symbol, from, to) => {
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
       const response = await fetch(url, { signal: AbortSignal.timeout(30_000) })
-      if (!response.ok) throw new Error(`${symbol}: HTTP ${response.status}`)
+      if (!response.ok) {
+        if (response.status === 429 && attempt < 2) {
+          const retryAfterSeconds = Number(response.headers.get('retry-after') ?? 0)
+          await sleep(Math.max(interRequestDelayMs, retryAfterSeconds * 1_000))
+          continue
+        }
+        throw new Error(`${symbol}: HTTP ${response.status}`)
+      }
       const payload = await response.json()
       if (payload.status !== 'OK' && payload.status !== 'DELAYED') {
         throw new Error(`${symbol}: provider status ${payload.status ?? 'unknown'}`)
@@ -52,6 +60,7 @@ const main = async () => {
   }
 
   const megaCaps = await readJson(megaCapsPath)
+  const previousDataset = await readJson(outputPath).catch(() => ({ assets: [] }))
   const stocks = Array.isArray(megaCaps.stocks) ? megaCaps.stocks.slice(0, 10) : []
   if (!stocks.length) throw new Error('No US mega-cap constituents are available.')
 
@@ -95,8 +104,10 @@ const main = async () => {
     } catch (error) {
       failures.push(`${stock.symbol}: ${error instanceof Error ? error.message : String(error)}`)
       console.warn(failures.at(-1))
+      const previous = previousDataset.assets?.find((asset) => asset.series === stock.symbol)
+      if (previous) assets.push({ ...previous, stale: true })
     }
-    await sleep(250)
+    if (stock !== stocks.at(-1)) await sleep(interRequestDelayMs)
   }
 
   if (!assets.length) throw new Error(`All Massive requests failed: ${failures.join('; ')}`)
@@ -105,7 +116,7 @@ const main = async () => {
     source: 'Massive Stocks Aggregate Bars',
     sourceUrl: 'https://massive.com/docs/rest/stocks/aggregates/custom-bars',
     limitations: [
-      '美股数据为复权日线 OHLCV；公司范围跟随每日市值前10排名，历史成分不做回溯修正。',
+      '美股数据为复权日线 OHLCV；免费数据计划提供最近2年历史，公司范围跟随每日市值前10排名，历史成分不做回溯修正。',
       ...(failures.length ? [`本次部分标的更新失败：${failures.join('；')}`] : []),
     ],
     assets,
