@@ -185,6 +185,16 @@ const overlayOptions = computed(() => [
 const selectedAsset = computed(
   () => resolvedAssets.value.find((asset) => asset.id === selectedId.value) ?? fallbackAsset,
 )
+const calculationEvidence = computed(() => ({
+  marketDate: selectedAsset.value.points[selectedAsset.value.points.length - 1]?.date ?? '—',
+  systemTime: new Intl.DateTimeFormat(locale.value === 'zh' ? 'zh-CN' : 'en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(dataset.updatedAt)),
+}))
 const compareAsset = computed(() =>
   resolvedAssets.value.find((asset) => asset.id === compareId.value),
 )
@@ -1975,8 +1985,18 @@ onBeforeUnmount(() => {
       <aside class="signal-panel">
         <section class="score-breakdown">
           <header>
-            <b>{{ t('assetTechnical.signalBreakdown') }}</b
-            ><small>{{ t('assetTechnical.notAdvice') }}</small>
+            <div>
+              <b>{{ t('assetTechnical.signalBreakdown') }}</b>
+              <small>{{ t('assetTechnical.notAdvice') }}</small>
+            </div>
+            <small class="calculation-evidence">
+              {{
+                t('assetTechnical.calculationEvidence', {
+                  marketDate: calculationEvidence.marketDate,
+                  systemTime: calculationEvidence.systemTime,
+                })
+              }}
+            </small>
           </header>
           <article v-for="indicator in analysis.indicators" :key="indicator.id">
             <div>
@@ -2039,7 +2059,10 @@ onBeforeUnmount(() => {
         <section class="horizon-matrix">
           <header>
             <b>{{ t('assetTechnical.multiHorizon') }}</b
-            ><small>{{ t('assetTechnical.closeBased') }}</small>
+            ><small>
+              {{ t('assetTechnical.closeBased') }} ·
+              {{ calculationEvidence.marketDate }}
+            </small>
           </header>
           <div v-for="horizon in analysis.horizons" :key="horizon.id">
             <span>{{ t(`assetTechnical.horizon.${horizon.id}`) }}</span>
@@ -2506,6 +2529,15 @@ onBeforeUnmount(() => {
 .alert-center > header small {
   color: var(--muted);
   font-size: 8px;
+}
+.score-breakdown > header > div {
+  display: grid;
+  gap: 3px;
+}
+.score-breakdown > header .calculation-evidence {
+  max-width: 180px;
+  text-align: right;
+  line-height: 1.45;
 }
 .asset-picker label {
   display: grid;
