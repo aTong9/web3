@@ -3,11 +3,15 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { EChartsCoreOption } from 'echarts/core'
 import EChart from '@/components/EChart.vue'
 import { useI18n } from '@/composables/use-i18n'
+import transmissionData from '@/data/fund-transmission.json'
+import type { FundTransmissionDataset } from '@/types'
+import { evaluateFundDivergence } from '@/utils/fund-divergence'
 import type { FundResearchItem } from '@/utils/fund-research'
 import { normalizeFundHistory, rollingFundCorrelation } from '@/utils/fund-research'
 
 const props = defineProps<{ funds: FundResearchItem[]; initialCodes?: string[]; storageKey: string }>()
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const transmission = transmissionData as FundTransmissionDataset
 const selectedCodes = ref(
   (props.initialCodes?.length ? props.initialCodes : props.funds.slice(0, 3).map((fund) => fund.code))
     .filter((code) => props.funds.some((fund) => fund.code === code))
@@ -147,8 +151,20 @@ const latestCorrelation = (window: number) => {
   const points = correlationSeries.value.find((series) => series.window === window)?.points ?? []
   return points[points.length - 1]?.value ?? null
 }
+const divergenceReadings = computed(() =>
+  selectedFunds.value.map((fund) => ({ fund, reading: evaluateFundDivergence(fund, transmission) })),
+)
 const formatPct = (value: number | null) =>
   value === null ? '—' : `${value > 0 ? '+' : ''}${value.toFixed(2)}%`
+const driverEvidence = (driver: FundTransmissionDataset['markets'][number]['drivers'][number]) =>
+  locale.value === 'zh'
+    ? driver.text
+    : t('fundResearch.driverEvidence', {
+        driver: driver.driver,
+        move: formatPct(driver.driverMove),
+        correlation: driver.correlation.toFixed(2),
+        contribution: driver.contribution.toFixed(2),
+      })
 </script>
 
 <template>
@@ -232,6 +248,39 @@ const formatPct = (value: number | null) =>
         </tbody>
       </table>
     </div>
+
+    <section class="divergence-panel">
+      <header>
+        <div><strong>{{ t('fundResearch.divergence') }}</strong><span>{{ t('fundResearch.divergenceHint') }}</span></div>
+        <small>{{ t('fundResearch.transmissionUpdated', { date: transmission.asOfDate ?? '—' }) }}</small>
+      </header>
+      <div class="divergence-list">
+        <details v-for="item in divergenceReadings" :key="item.fund.code">
+          <summary>
+            <span><strong>{{ item.fund.code }}</strong><small>{{ item.fund.name }}</small></span>
+            <span class="signal-status" :class="item.reading.status">{{ t(`fundResearch.divergenceStatus.${item.reading.status}`) }}</span>
+            <span class="signal-number"><small>{{ t('fundResearch.fundMove') }}</small><strong>{{ formatPct(item.reading.fundMovePct) }}</strong></span>
+            <span class="signal-number"><small>{{ item.reading.marketName }}</small><strong>{{ formatPct(item.reading.marketMovePct) }}</strong></span>
+            <span class="signal-number"><small>{{ t('fundResearch.relativeGap') }}</small><strong>{{ formatPct(item.reading.relativeGapPct) }}</strong></span>
+            <span>⌄</span>
+          </summary>
+          <div class="divergence-detail">
+            <p>{{ item.reading.reasons.length ? item.reading.reasons.map((reason) => t(`fundResearch.divergenceReason.${reason}`)).join('；') : t('fundResearch.noSignal') }}</p>
+            <div v-if="item.reading.drivers.length" class="driver-list">
+              <article v-for="driver in item.reading.drivers" :key="`${item.fund.code}-${driver.chain}-${driver.driver}`">
+                <strong>{{ driver.chain }}</strong>
+                <span :class="driver.effect">{{ driver.effect === 'tailwind' ? '+' : driver.effect === 'headwind' ? '−' : '·' }} {{ driver.contribution.toFixed(2) }}</span>
+                <p>{{ driverEvidence(driver) }}</p>
+              </article>
+            </div>
+            <div v-if="item.reading.chains.length" class="related-chains">
+              <span v-for="chain in item.reading.chains" :key="chain.title">{{ chain.title }} · ρ {{ chain.signal?.toFixed(2) ?? '—' }}</span>
+            </div>
+          </div>
+        </details>
+      </div>
+      <p class="divergence-method">{{ t('fundResearch.divergenceMethod') }}</p>
+    </section>
     <footer>{{ t('fundResearch.methodology') }}</footer>
   </section>
 </template>
@@ -268,5 +317,29 @@ th,td { padding: 11px; border-bottom: 1px solid var(--border); text-align: left;
 th { color: var(--muted); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
 .number { font-variant-numeric: tabular-nums; text-align: right; }
 footer { margin-top: 12px; }
+.divergence-panel { margin-top: 16px; padding: 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-soft); }
+.divergence-panel > header { display: flex; justify-content: space-between; gap: 18px; }
+.divergence-panel header span { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+.divergence-panel header small { color: var(--muted); white-space: nowrap; }
+.divergence-list { display: grid; gap: 7px; margin-top: 14px; }
+.divergence-list details { border: 1px solid var(--border); border-radius: 8px; background: var(--paper); }
+.divergence-list summary { display: grid; grid-template-columns: minmax(140px,1.4fr) auto repeat(3,minmax(82px,.6fr)) auto; align-items: center; gap: 12px; padding: 12px; cursor: pointer; list-style: none; }
+.divergence-list summary > span:first-child small,.signal-number small { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+.signal-number { text-align: right; font-variant-numeric: tabular-nums; }
+.signal-status { padding: 5px 8px; border: 1px solid var(--border); border-radius: 999px; font-size: 10px; font-weight: 700; }
+.signal-status.confirming { color: var(--positive); }
+.signal-status.diverging { color: var(--negative); }
+.signal-status.insufficient { color: var(--muted); }
+.divergence-detail { padding: 0 12px 13px; border-top: 1px solid var(--border); }
+.divergence-detail > p,.divergence-method { color: var(--muted); font-size: 11px; }
+.driver-list { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+.driver-list article { padding: 10px; border: 1px solid var(--border); border-radius: 7px; }
+.driver-list article > span { float: right; font-variant-numeric: tabular-nums; }
+.driver-list article > span.tailwind { color: var(--positive); }
+.driver-list article > span.headwind { color: var(--negative); }
+.driver-list p { margin: 7px 0 0; color: var(--muted); font-size: 10px; }
+.related-chains { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.related-chains span { padding: 4px 7px; border-radius: 6px; background: var(--surface-soft); color: var(--muted); font-size: 10px; }
 @media (max-width: 760px) { .research-workbench { padding: 16px; } .research-workbench > header,.chart-heading { align-items: stretch; flex-direction: column; } .view-actions { flex-wrap: wrap; } .correlation-grid { grid-template-columns: 1fr; } .correlation-summary { grid-template-columns: repeat(3,1fr); } .correlation-summary p { grid-column: 1/-1; } }
+@media (max-width: 760px) { .divergence-list summary { grid-template-columns: 1fr auto; } .signal-number { text-align: left; } .driver-list { grid-template-columns: 1fr; } .divergence-panel > header { flex-direction: column; } }
 </style>

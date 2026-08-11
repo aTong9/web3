@@ -105,6 +105,42 @@ export interface FundHistoryPoint {
   value: number
 }
 
+export interface FundTransmissionDataset {
+  updatedAt: string
+  asOfDate: string | null
+  markets: Array<{
+    id: string
+    name: string
+    date: string | null
+    dailyMove: number | null
+    dailyAttribution: {
+      alignment: 'confirming' | 'diverging' | 'insufficient'
+      netContribution: number
+      alignedDrivers: number
+      totalDrivers: number
+    }
+    drivers: Array<{
+      chain: string
+      driver: string
+      driverMove: number | null
+      driverZ: number | null
+      correlation: number
+      contribution: number
+      effect: 'tailwind' | 'headwind' | 'neutral'
+      text: string
+    }>
+  }>
+  chains: Array<{
+    title: string
+    left: string
+    right: string
+    status: 'confirming' | 'diverging' | 'dormant' | 'context' | 'unavailable'
+    strength: 'strong' | 'medium' | 'weak' | 'unavailable'
+    signal: number | null
+    interpretation: string
+  }>
+}
+
 export interface FundInvestmentLimitPoint {
   date: string
   limitCny: number | null

@@ -10,6 +10,8 @@ export interface FundResearchItem {
   premiumRatePct: number | null
   trackingErrorPct: number | null
   trackingBenchmark: string | null
+  marketId: 'sp500' | 'nasdaq' | 'shanghai'
+  marketProxyLabel: string
   history: FundHistoryPoint[]
 }
 

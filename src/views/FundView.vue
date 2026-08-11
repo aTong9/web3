@@ -58,6 +58,8 @@ const researchFunds = computed<FundResearchItem[]>(() =>
     premiumRatePct: fund.premiumRatePct,
     trackingErrorPct: fund.trackingErrorPct,
     trackingBenchmark: fund.trackingBenchmark,
+    marketId: fund.index.includes('纳斯达克') ? 'nasdaq' : 'sp500',
+    marketProxyLabel: fund.index.includes('纳斯达克') ? 'NASDAQ Composite' : 'S&P 500',
     history: fund.priceHistory.length ? fund.priceHistory : fund.navHistory,
   })),
 )

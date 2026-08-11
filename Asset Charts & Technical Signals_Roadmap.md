@@ -6,7 +6,7 @@
 | --------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Phase 0 · Data and interfaces           | In progress | Versioned asset history dataset, source metadata, optional OHLCV model, indicator/result/alert types, role permissions, authenticated Cloudflare Worker API, D1 migrations, daily refresh workflows, global indicator configuration, parameter templates, and an append-only formula/configuration ledger are implemented. Unified trading calendars and runtime enforcement of source priority remain. |
 | Phase 1 · Core MVP                      | In progress | 24 cross-asset series, line/real-candle modes, MA20/60, MACD, RSI, Bollinger, ATR, support/resistance, six horizons, comparison, transmission carousel, favorites, fullscreen, PNG export, and authenticated personal alerts are implemented. Massive OHLCV is live for the US mega-cap set; the free plan supplies two years of history and the workflow now respects its five-calls-per-minute limit while retaining stale fallback data on transient failures. |
-| Phase 2 · Funds and advanced comparison | In progress | A shared fund research workbench is live on both US-fund and A-share pages with normalized price/NAV comparison, 20/60/120-day rolling correlations, peer-proxy tracking error, current premium/discount and annual fees, local favorites/saved views, and daily off-exchange investment-limit history. Price-versus-transmission-chain divergence detection remains. |
+| Phase 2 · Funds and advanced comparison | Complete    | A shared fund research workbench is live on both US-fund and A-share pages with normalized price/NAV comparison, 20/60/120-day rolling correlations, peer-proxy tracking error, current premium/discount and annual fees, local favorites/saved views, daily off-exchange investment-limit history, and price-versus-transmission divergence detection. |
 | Phase 3 · Options and event analysis    | Planned     | Not started.                                                                                                                                                                                                                                       |
 | Phase 4 · Backtesting and calibration   | Planned     | Not started.                                                                                                                                                                                                                                       |
 
@@ -443,6 +443,8 @@ The status table is an implementation ledger, not a change to the scope below. A
 - 场外基金每日写入定投额度、申购状态与定投开关历史，状态发生变化时在表格提示
 - 收藏与当前对比组合可在浏览器本地保存，A 股和美股视图相互隔离
 - 份额折算造成的单日绝对跳变超过 30% 时，从标准化收益、相关性和跟踪误差统计中剔除
+- 每只已选基金将最近一个有效交易日涨跌与对应宽基代理、跨资产驱动净贡献核对，展示确认、背离或证据不足，并可展开前三条驱动和相关传导链
+- 纳斯达克100、标普500和 A 股行业基金分别使用纳斯达克综合、标普500和上证综指作为透明披露的宽基代理；基金与代理日期相差超过 7 天时不生成方向结论
 
 完成标准：股票、指数和基金能够使用一致的研究流程进行横向比较。
 

@@ -92,6 +92,8 @@ const researchFunds = computed<FundResearchItem[]>(() =>
     premiumRatePct: fund.premiumRatePct,
     trackingErrorPct: fund.trackingErrorPct,
     trackingBenchmark: fund.trackingBenchmark,
+    marketId: 'shanghai',
+    marketProxyLabel: '上证综指',
     history: fund.priceHistory,
   })),
 )
