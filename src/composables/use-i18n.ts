@@ -930,6 +930,7 @@ const messages: Record<Locale, DictionaryNode> = {
       next: '下一条传导链',
       pause: '暂停',
       play: '播放',
+      validateChain: '进入联动验证',
       assets: '资产选择',
       search: '搜索',
       searchPlaceholder: '名称或代码…',
@@ -1016,6 +1017,9 @@ const messages: Record<Locale, DictionaryNode> = {
       currentRatio: '当前比值 {value}',
       rollingCorrelation: '滚动收益相关性',
       correlationCaution: '相关性不代表因果关系',
+      eventMarkers: '历史预测事件标记',
+      eventMarkerNote: '箭头表示当日已留存的多空偏向，不是事后信号',
+      chainValidationActive: '正在验证“{chain}”：已联动相关资产并定位到近 3 个月。',
       status: {
         strongBullish: '强趋势偏多',
         weakBullish: '弱趋势偏多',
@@ -2182,6 +2186,7 @@ const messages: Record<Locale, DictionaryNode> = {
       next: 'Next chain',
       pause: 'Pause',
       play: 'Play',
+      validateChain: 'Validate on chart',
       assets: 'Assets',
       search: 'Search',
       searchPlaceholder: 'Name or ticker…',
@@ -2269,6 +2274,10 @@ const messages: Record<Locale, DictionaryNode> = {
       currentRatio: 'Current ratio {value}',
       rollingCorrelation: 'Rolling return correlation',
       correlationCaution: 'Correlation does not imply causation',
+      eventMarkers: 'Historical forecast markers',
+      eventMarkerNote: 'Arrows are point-in-time directional records, not hindsight signals',
+      chainValidationActive:
+        'Validating “{chain}”: related assets are linked and the chart is focused on the latest quarter.',
       status: {
         strongBullish: 'Strong bullish trend',
         weakBullish: 'Weak bullish trend',

@@ -7,6 +7,7 @@ import { useAuth } from '@/composables/use-auth'
 import { useI18n } from '@/composables/use-i18n'
 import technicalData from '@/data/asset-technical-signals.json'
 import crossAssetData from '@/data/cross-asset.json'
+import technicalEventsData from '@/data/technical-events.json'
 import usStockTechnicalData from '@/data/us-stock-technical-signals.json'
 import type {
   AssetPricePoint,
@@ -36,6 +37,14 @@ type ChartMode = 'line' | 'area' | 'candle'
 type ChartInterval = 'day' | 'week' | 'month'
 type ChainFilter = 'related' | 'strong'
 type ComparisonMode = 'normalized' | 'ratio'
+interface ForecastHistoryRecord {
+  marketId: string
+  marketDate: string
+  bias: 'bullish' | 'bearish' | 'neutral'
+  score: number
+  horizonId?: string
+  ruleName: string
+}
 
 const baseDataset = technicalData as AssetTechnicalDataset
 const usStockDataset = usStockTechnicalData as AssetTechnicalDataset
@@ -52,6 +61,7 @@ const dataset: AssetTechnicalDataset = {
   assets: [...baseDataset.assets, ...usStockDataset.assets],
 }
 const crossAsset = crossAssetData as CrossAssetDataset
+const technicalEvents = technicalEventsData as { events: ForecastHistoryRecord[] }
 const { locale, t } = useI18n()
 const { theme } = useTheme()
 const { can, restore } = useAuth()
@@ -108,6 +118,7 @@ const chainFilter = ref<ChainFilter>('related')
 const activeChainIndex = ref(0)
 const carouselPlaying = ref(technicalConfig.value.display.carouselAutoPlay)
 const selectedIndicators = ref(['ma20', 'ma60', 'bollinger'])
+const chainValidationActive = ref(false)
 const chartRef = ref<InstanceType<typeof EChart> | null>(null)
 const chartShell = ref<HTMLElement | null>(null)
 const favorites = ref<string[]>([])
@@ -212,6 +223,16 @@ const selectedMarket = computed(() =>
 const activeChain = computed(
   () => relevantChains.value[activeChainIndex.value % relevantChains.value.length],
 )
+const selectedForecastEvents = computed(() => {
+  const targetId = selectedAsset.value.id.startsWith('us-') ? 'nasdaq' : selectedAsset.value.id
+  const byDate = new Map<string, ForecastHistoryRecord>()
+  for (const record of technicalEvents.events) {
+    if (record.marketId !== targetId || record.bias === 'neutral') continue
+    const previous = byDate.get(record.marketDate)
+    if (!previous || Math.abs(record.score) > Math.abs(previous.score)) byDate.set(record.marketDate, record)
+  }
+  return [...byDate.values()].slice(-12)
+})
 const marketDrivers = computed(
   () => selectedMarket.value?.drivers ?? [],
 )
@@ -305,6 +326,21 @@ const aggregatePoints = (points: AssetPricePoint[], interval: ChartInterval) => 
 const intervalPoints = computed(() =>
   aggregatePoints(selectedAsset.value?.points ?? [], chartInterval.value),
 )
+const chartEvents = computed(() => {
+  const pointsByDate = new Map(intervalPoints.value.map((point) => [point.date, point]))
+  return selectedForecastEvents.value
+    .map((event) => {
+      const date =
+        chartInterval.value === 'week'
+          ? startOfWeek(event.marketDate)
+          : chartInterval.value === 'month'
+            ? `${event.marketDate.slice(0, 7)}-01`
+            : event.marketDate
+      const point = pointsByDate.get(date)
+      return point ? { ...event, date, price: point.close } : null
+    })
+    .filter((event): event is NonNullable<typeof event> => Boolean(event))
+})
 const displayedPoints = computed(() => {
   const points = intervalPoints.value
   const latestDate = points[points.length - 1]?.date
@@ -412,6 +448,15 @@ const chartOption = computed<EChartsCoreOption>(() => {
         borderColor: positive,
         borderColor0: negative,
       },
+      markPoint: {
+        symbolSize: 28,
+        data: chartEvents.value.map((event) => ({
+          name: event.ruleName,
+          coord: [event.date, event.price],
+          value: event.bias === 'bullish' ? '↑' : '↓',
+          itemStyle: { color: event.bias === 'bullish' ? positive : negative },
+        })),
+      },
     })
   } else {
     series.push({
@@ -442,6 +487,15 @@ const chartOption = computed<EChartsCoreOption>(() => {
             lineStyle: { color: positive, type: 'dashed' },
           },
         ],
+      },
+      markPoint: {
+        symbolSize: 28,
+        data: chartEvents.value.map((event) => ({
+          name: event.ruleName,
+          coord: [event.date, event.price],
+          value: event.bias === 'bullish' ? '↑' : '↓',
+          itemStyle: { color: event.bias === 'bullish' ? positive : negative },
+        })),
       },
     })
   }
@@ -649,6 +703,7 @@ const chainAssetName = (id: string) => {
   return asset ? assetLabel(asset) : id.toUpperCase()
 }
 const selectAsset = (id: string) => {
+  chainValidationActive.value = false
   selectedId.value = id
   recentAssetIds.value = [id, ...recentAssetIds.value.filter((item) => item !== id)].slice(0, 5)
   localStorage.setItem(recentStorageKey, JSON.stringify(recentAssetIds.value))
@@ -838,6 +893,17 @@ const moveChain = (step: number) => {
   const length = relevantChains.value.length
   activeChainIndex.value = (activeChainIndex.value + step + length) % length
 }
+const validateActiveChain = () => {
+  const chain = activeChain.value
+  if (!chain) return
+  const selectedIsLeg = chain.left === selectedId.value || chain.right === selectedId.value
+  const target = selectedIsLeg ? selectedId.value : chain.right
+  if (resolvedAssets.value.some((asset) => asset.id === target)) selectAsset(target)
+  const comparison = chain.left === target ? chain.right : chain.left
+  compareId.value = resolvedAssets.value.some((asset) => asset.id === comparison) ? comparison : ''
+  range.value = 'quarter'
+  chainValidationActive.value = true
+}
 const resetCarousel = () => {
   if (carouselTimer !== null) window.clearInterval(carouselTimer)
   carouselTimer = null
@@ -938,6 +1004,9 @@ onBeforeUnmount(() => {
           <small
             >{{ chainAssetName(activeChain.left) }} → {{ chainAssetName(activeChain.right) }}</small
           >
+          <button class="chain-validate" @click="validateActiveChain">
+            {{ t('assetTechnical.validateChain') }}
+          </button>
         </div>
       </div>
       <div class="chain-controls">
@@ -1099,7 +1168,15 @@ onBeforeUnmount(() => {
             </strong>
             <small>{{ t('assetTechnical.correlationCaution') }}</small>
           </article>
+          <article v-if="chartEvents.length">
+            <span>{{ t('assetTechnical.eventMarkers') }}</span>
+            <strong>{{ chartEvents.length }}</strong>
+            <small>{{ t('assetTechnical.eventMarkerNote') }}</small>
+          </article>
         </section>
+        <p v-if="chainValidationActive && activeChain" class="chain-validation-note">
+          {{ t('assetTechnical.chainValidationActive', { chain: activeChain.title }) }}
+        </p>
         <div class="indicator-toggles" role="group" :aria-label="t('assetTechnical.overlays')">
           <label v-for="indicator in overlayOptions" :key="indicator"
             ><input v-model="selectedIndicators" type="checkbox" :value="indicator" />{{
@@ -1719,6 +1796,17 @@ onBeforeUnmount(() => {
   color: var(--muted);
   font-size: 8px;
 }
+.chain-validate {
+  min-height: 26px;
+  margin-left: auto;
+  padding: 4px 8px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 8px;
+  cursor: pointer;
+}
 .chain-controls {
   display: flex;
   align-items: center;
@@ -1951,6 +2039,14 @@ onBeforeUnmount(() => {
 }
 .correlation-reading strong {
   font-size: 9px;
+}
+.chain-validation-note {
+  margin: 0 0 8px;
+  padding: 7px 9px;
+  border-left: 2px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--muted);
+  font-size: 8px;
 }
 .indicator-toggles label {
   padding: 6px 9px;
