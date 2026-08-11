@@ -514,6 +514,43 @@ const rangeMeasurement = computed(() => {
     low: Math.min(...lows),
   }
 })
+const visibleKeyPositions = computed(() => {
+  const points = displayedPoints.value
+  const latest = points[points.length - 1]
+  if (!latest || points.length < 2) return null
+  const high = Math.max(...points.map((point) => point.high ?? point.close))
+  const low = Math.min(...points.map((point) => point.low ?? point.close))
+  const spread = high - low
+  if (spread <= 0) return null
+  const fibonacci = [0.236, 0.382, 0.5, 0.618, 0.786]
+    .map((ratio) => ({ ratio, value: high - spread * ratio }))
+    .sort((left, right) => Math.abs(left.value - latest.close) - Math.abs(right.value - latest.close))
+  const volumePoints = points.filter(
+    (point): point is AssetPricePoint & { volume: number } =>
+      typeof point.volume === 'number' && point.volume > 0,
+  )
+  const volumeProfile = (() => {
+    if (volumePoints.length < 10) return null
+    const binCount = 20
+    const binSize = spread / binCount
+    const bins = Array.from({ length: binCount }, () => 0)
+    volumePoints.forEach((point) => {
+      const typicalPrice = ((point.high ?? point.close) + (point.low ?? point.close) + point.close) / 3
+      const index = Math.min(binCount - 1, Math.max(0, Math.floor((typicalPrice - low) / binSize)))
+      bins[index] = (bins[index] ?? 0) + point.volume
+    })
+    const peakIndex = bins.reduce(
+      (best, volume, index) => (volume > (bins[best] ?? 0) ? index : best),
+      0,
+    )
+    return {
+      low: low + peakIndex * binSize,
+      high: low + (peakIndex + 1) * binSize,
+      samples: volumePoints.length,
+    }
+  })()
+  return { nearestFibonacci: fibonacci[0]!, volumeProfile }
+})
 
 const chartOption = computed<EChartsCoreOption>(() => {
   const points = displayedPoints.value
@@ -1394,6 +1431,28 @@ onBeforeUnmount(() => {
               }}
             </small>
             <small>{{ t('assetTechnical.correlationCaution') }}</small>
+          </article>
+          <article v-if="visibleKeyPositions">
+            <span>{{ t('assetTechnical.keyPositions') }}</span>
+            <strong>
+              {{
+                t('assetTechnical.nearestFibonacci', {
+                  ratio: (visibleKeyPositions.nearestFibonacci.ratio * 100).toFixed(1),
+                  value: formatValue(visibleKeyPositions.nearestFibonacci.value),
+                })
+              }}
+            </strong>
+            <small v-if="visibleKeyPositions.volumeProfile">
+              {{
+                t('assetTechnical.volumeProfileZone', {
+                  low: formatValue(visibleKeyPositions.volumeProfile.low),
+                  high: formatValue(visibleKeyPositions.volumeProfile.high),
+                  count: visibleKeyPositions.volumeProfile.samples,
+                })
+              }}
+            </small>
+            <small v-else>{{ t('assetTechnical.volumeProfileUnavailable') }}</small>
+            <small>{{ t('assetTechnical.keyPositionCaution') }}</small>
           </article>
           <article v-if="chartEvents.length || corporateChartEvents.length">
             <span>{{ t('assetTechnical.eventMarkers') }}</span>
