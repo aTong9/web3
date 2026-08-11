@@ -1044,7 +1044,10 @@ const messages: Record<Locale, DictionaryNode> = {
         offExchange: '场外净值',
       },
       eventMarkers: '历史预测事件标记',
-      eventMarkerNote: '箭头为当时多空记录，E 为已公布财报；均不是事后信号',
+      upcomingMacroEvents: '未来关键宏观事件',
+      macroEventCaution: '日期来自官方日历且仍可能调整；F/G/P 分别表示 FOMC、GDP 与 PCE。',
+      macroCalendarUpdated: '官方日历最近抓取：{date}',
+      eventMarkerNote: '箭头为当时多空记录，E 为已公布财报，F/G/P 为官方宏观事件；均不是事后信号',
       earningsReported: '已公布财报',
       upcomingEarnings: '下次财报',
       upcomingEarningsRisk: '财报日期可能调整；需额外核对期权隐含波动与预期波幅',
@@ -1182,6 +1185,7 @@ const messages: Record<Locale, DictionaryNode> = {
         horizon: '关注周期',
         minimumConfidence: '最低技术置信度（%）',
         requireResonance: '仅在跨资产驱动通过增量验证时触发',
+        comparisonRequired: '请先在图表上方选择一个对比资产。',
         create: '创建预警',
         saving: '保存中…',
         created: '预警已创建',
@@ -1213,6 +1217,7 @@ const messages: Record<Locale, DictionaryNode> = {
           volatilityAbove: '历史波动率超过阈值',
           gapAbove: '跳空缺口超过阈值',
           earningsWithinDays: '财报窗口临近',
+          correlationStructureChange: '资产相关性结构变化',
         },
         explanation: {
           priceAbove: '{asset}最新价格 {current}，突破预设压力阈值 {threshold}。',
@@ -1227,6 +1232,8 @@ const messages: Record<Locale, DictionaryNode> = {
           volatilityAbove: '{asset}当前 20 期历史波动率为 {current}%，达到阈值 {threshold}%。',
           gapAbove: '{asset}最近缺口绝对幅度为 {current}%，达到阈值 {threshold}%。',
           earningsWithinDays: '{asset}距离下一财报约 {current} 天，进入 {threshold} 天风险窗口。',
+          correlationStructureChange:
+            '{asset} 与 {compare} 的60日相关性从 {previousCorrelation} 变为 {currentCorrelation}，绝对变化 {current}，状态为“{regime}”，达到阈值 {threshold}。',
         },
       },
     },
@@ -2380,8 +2387,12 @@ const messages: Record<Locale, DictionaryNode> = {
         offExchange: 'Off-exchange NAV',
       },
       eventMarkers: 'Historical forecast markers',
+      upcomingMacroEvents: 'Upcoming key macro events',
+      macroEventCaution:
+        'Dates come from official calendars and may change; F/G/P denote FOMC, GDP, and PCE.',
+      macroCalendarUpdated: 'Official calendars last fetched: {date}',
       eventMarkerNote:
-        'Arrows are point-in-time directional records and E marks reported earnings; neither is a hindsight signal',
+        'Arrows are point-in-time records, E marks reported earnings, and F/G/P mark official macro events; none are hindsight signals',
       earningsReported: 'Reported earnings',
       upcomingEarnings: 'Next earnings',
       upcomingEarningsRisk:
@@ -2523,6 +2534,7 @@ const messages: Record<Locale, DictionaryNode> = {
         horizon: 'Focus horizon',
         minimumConfidence: 'Minimum technical confidence (%)',
         requireResonance: 'Trigger only when cross-asset drivers pass incremental validation',
+        comparisonRequired: 'Select a comparison asset above before creating this alert.',
         create: 'Create alert',
         saving: 'Saving…',
         created: 'Alert created',
@@ -2554,6 +2566,7 @@ const messages: Record<Locale, DictionaryNode> = {
           volatilityAbove: 'Historical volatility above threshold',
           gapAbove: 'Price gap above threshold',
           earningsWithinDays: 'Earnings window approaching',
+          correlationStructureChange: 'Asset correlation structure change',
         },
         explanation: {
           priceAbove:
@@ -2573,6 +2586,8 @@ const messages: Record<Locale, DictionaryNode> = {
             '{asset} latest absolute price gap is {current}%, meeting the {threshold}% threshold.',
           earningsWithinDays:
             '{asset} is about {current} days from its next earnings event, inside the {threshold}-day risk window.',
+          correlationStructureChange:
+            '{asset} versus {compare} 60-day correlation moved from {previousCorrelation} to {currentCorrelation}; absolute change {current}, classified as “{regime}”, meeting the {threshold} threshold.',
         },
       },
     },

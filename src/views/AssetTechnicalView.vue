@@ -52,6 +52,15 @@ interface CorporateTechnicalEvent {
   type: 'earningsReported' | 'earningsExpected'
   surprisePct: number | null
 }
+interface MacroTechnicalEvent {
+  date: string
+  type: 'fomcDecision' | 'usGdp' | 'usPce'
+  title: string
+  titleZh: string
+  status: 'released' | 'scheduled'
+  source: string
+  sourceUrl: string
+}
 
 const baseDataset = technicalData as AssetTechnicalDataset
 const usStockDataset = usStockTechnicalData as AssetTechnicalDataset
@@ -71,6 +80,8 @@ const crossAsset = crossAssetData as CrossAssetDataset
 const technicalEvents = technicalEventsData as {
   events: ForecastHistoryRecord[]
   corporateEvents: CorporateTechnicalEvent[]
+  macroEvents: MacroTechnicalEvent[]
+  macroUpdatedAt: string | null
 }
 const { locale, t } = useI18n()
 const { theme } = useTheme()
@@ -262,6 +273,13 @@ const upcomingCorporateEvent = computed(() =>
     .filter((event) => event.type === 'earningsExpected' && event.date >= new Date().toISOString().slice(0, 10))
     .sort((left, right) => left.date.localeCompare(right.date))[0] ?? null,
 )
+const upcomingMacroEvents = computed(() => {
+  const today = new Date().toISOString().slice(0, 10)
+  return technicalEvents.macroEvents
+    .filter((event) => event.status === 'scheduled' && event.date >= today)
+    .sort((left, right) => left.date.localeCompare(right.date))
+    .slice(0, 3)
+})
 const marketDrivers = computed(
   () => selectedMarket.value?.drivers ?? [],
 )
@@ -352,11 +370,39 @@ const aggregatePoints = (points: AssetPricePoint[], interval: ChartInterval) => 
     }
   })
 }
+const correlationStructureSnapshot = (
+  leftAsset: TechnicalChartAsset,
+  rightAsset: TechnicalChartAsset | undefined,
+) => {
+  if (!rightAsset) return null
+  const rightByDate = new Map(rightAsset.points.map((point) => [point.date, point.close]))
+  const aligned = leftAsset.points
+    .filter((point) => rightByDate.has(point.date))
+    .map((point) => ({ left: point.close, right: rightByDate.get(point.date)! }))
+  const leftReturns = aligned.slice(1).map((point, index) => point.left / aligned[index]!.left - 1)
+  const rightReturns = aligned.slice(1).map((point, index) => point.right / aligned[index]!.right - 1)
+  const history = rollingCorrelation(leftReturns, rightReturns, 60).filter(
+    (value): value is number => value !== null,
+  )
+  if (history.length < 21) return null
+  const current = history[history.length - 1]!
+  const previous = history[history.length - 21]!
+  const change = Math.abs(current - previous)
+  const regime =
+    current * previous < 0 && change >= 0.35
+      ? 'signChanged'
+      : Math.abs(previous) - Math.abs(current) >= 0.25
+        ? 'weakened'
+        : Math.abs(current) - Math.abs(previous) >= 0.25
+          ? 'strengthened'
+          : 'stable'
+  return { current, previous, change, regime }
+}
 const intervalPoints = computed(() =>
   aggregatePoints(selectedAsset.value?.points ?? [], chartInterval.value),
 )
 const chartEvents = computed(() => {
-  const pointsByDate = new Map(intervalPoints.value.map((point) => [point.date, point]))
+  const pointsByDate = new Map(displayedPoints.value.map((point) => [point.date, point]))
   return selectedForecastEvents.value
     .map((event) => {
       const date =
@@ -371,9 +417,25 @@ const chartEvents = computed(() => {
     .filter((event): event is NonNullable<typeof event> => Boolean(event))
 })
 const corporateChartEvents = computed(() => {
-  const pointsByDate = new Map(intervalPoints.value.map((point) => [point.date, point]))
+  const pointsByDate = new Map(displayedPoints.value.map((point) => [point.date, point]))
   return selectedCorporateEvents.value
     .filter((event) => event.type === 'earningsReported')
+    .map((event) => {
+      const date =
+        chartInterval.value === 'week'
+          ? startOfWeek(event.date)
+          : chartInterval.value === 'month'
+            ? `${event.date.slice(0, 7)}-01`
+            : event.date
+      const point = pointsByDate.get(date)
+      return point ? { ...event, date, price: point.close } : null
+    })
+    .filter((event): event is NonNullable<typeof event> => Boolean(event))
+})
+const macroChartEvents = computed(() => {
+  const pointsByDate = new Map(displayedPoints.value.map((point) => [point.date, point]))
+  return technicalEvents.macroEvents
+    .filter((event) => event.status === 'released')
     .map((event) => {
       const date =
         chartInterval.value === 'week'
@@ -570,6 +632,12 @@ const chartOption = computed<EChartsCoreOption>(() => {
   const volumeAxisIndex = 1
   const rsiAxisIndex = hasVolume ? 2 : 1
   const comparisonAxisIndex = hasVolume ? 3 : 2
+  const macroMarks = macroChartEvents.value.map((event) => ({
+    name: locale.value === 'zh' ? event.titleZh : event.title,
+    coord: [event.date, event.price],
+    value: event.type === 'fomcDecision' ? 'F' : event.type === 'usGdp' ? 'G' : 'P',
+    itemStyle: { color: event.type === 'fomcDecision' ? warning : accent },
+  }))
 
   if (chartMode.value === 'candle' && selectedAsset.value?.dataShape === 'ohlcv') {
     series.push({
@@ -596,6 +664,7 @@ const chartOption = computed<EChartsCoreOption>(() => {
             value: 'E',
             itemStyle: { color: warning },
           })),
+          macroMarks,
         ),
       },
     })
@@ -643,6 +712,7 @@ const chartOption = computed<EChartsCoreOption>(() => {
             value: 'E',
             itemStyle: { color: warning },
           })),
+          macroMarks,
         ),
       },
     })
@@ -896,6 +966,13 @@ const evaluateAlert = (rule: TechnicalAlertRule): TechnicalAlertEvaluation => {
           86_400_000,
       )
     : null
+  const alertCompareAsset = rule.compareAssetId
+    ? resolvedAssets.value.find((asset) => asset.id === rule.compareAssetId)
+    : undefined
+  const correlationStructure = correlationStructureSnapshot(
+    selectedAsset.value,
+    alertCompareAsset,
+  )
   let triggered = false
   let currentValue: number | null = null
   if (rule.condition === 'priceAbove') {
@@ -929,6 +1006,13 @@ const evaluateAlert = (rule: TechnicalAlertRule): TechnicalAlertEvaluation => {
       daysToEarnings >= 0 &&
       rule.threshold !== null &&
       daysToEarnings <= rule.threshold
+  } else if (rule.condition === 'correlationStructureChange') {
+    currentValue = correlationStructure?.change ?? null
+    triggered =
+      correlationStructure !== null &&
+      correlationStructure.regime !== 'stable' &&
+      rule.threshold !== null &&
+      correlationStructure.change >= rule.threshold
   } else {
     currentValue = macd === null || signal === null ? null : macd - signal
     const crossedUp =
@@ -965,8 +1049,14 @@ const evaluateAlert = (rule: TechnicalAlertRule): TechnicalAlertEvaluation => {
   const preferencePassed = horizonAligned && confidencePassed && resonancePassed
   const explanation = t(`assetTechnical.alert.explanation.${rule.condition}`, {
     asset: assetLabel(selectedAsset.value),
+    compare: rule.compareAssetName ?? '—',
     current: formatValue(currentValue),
     threshold: formatValue(rule.threshold),
+    currentCorrelation: formatValue(correlationStructure?.current ?? null),
+    previousCorrelation: formatValue(correlationStructure?.previous ?? null),
+    regime: correlationStructure
+      ? t(`assetTechnical.correlationRegime.${correlationStructure.regime}`)
+      : t('assetTechnical.correlationRegime.insufficient'),
   })
   return {
     triggered: rule.enabled && triggered && preferencePassed,
@@ -997,6 +1087,7 @@ const defaultAlertThreshold = () => {
   if (alertCondition.value === 'volatilityAbove') return 40
   if (alertCondition.value === 'gapAbove') return 2
   if (alertCondition.value === 'earningsWithinDays') return 7
+  if (alertCondition.value === 'correlationStructureChange') return 0.35
   return null
 }
 const resetAlertThreshold = () => {
@@ -1039,6 +1130,12 @@ const createAlert = async () => {
       assetId: selectedAsset.value.id,
       assetName: selectedAsset.value.name,
       series: selectedAsset.value.series,
+      compareAssetId:
+        alertCondition.value === 'correlationStructureChange' ? compareAsset.value?.id ?? null : null,
+      compareAssetName:
+        alertCondition.value === 'correlationStructureChange'
+          ? compareAsset.value?.name ?? null
+          : null,
       condition: alertCondition.value,
       threshold: alertThreshold.value,
       horizon: alertHorizon.value,
@@ -1454,15 +1551,32 @@ onBeforeUnmount(() => {
             <small v-else>{{ t('assetTechnical.volumeProfileUnavailable') }}</small>
             <small>{{ t('assetTechnical.keyPositionCaution') }}</small>
           </article>
-          <article v-if="chartEvents.length || corporateChartEvents.length">
+          <article v-if="chartEvents.length || corporateChartEvents.length || macroChartEvents.length">
             <span>{{ t('assetTechnical.eventMarkers') }}</span>
-            <strong>{{ chartEvents.length + corporateChartEvents.length }}</strong>
+            <strong>{{ chartEvents.length + corporateChartEvents.length + macroChartEvents.length }}</strong>
             <small>{{ t('assetTechnical.eventMarkerNote') }}</small>
           </article>
           <article v-if="upcomingCorporateEvent">
             <span>{{ t('assetTechnical.upcomingEarnings') }}</span>
             <strong>{{ upcomingCorporateEvent.date }}</strong>
             <small>{{ t('assetTechnical.upcomingEarningsRisk') }}</small>
+          </article>
+          <article v-if="upcomingMacroEvents.length">
+            <span>{{ t('assetTechnical.upcomingMacroEvents') }}</span>
+            <strong>{{ upcomingMacroEvents[0]!.date }}</strong>
+            <small v-for="event in upcomingMacroEvents" :key="`${event.date}-${event.type}`">
+              <a :href="event.sourceUrl" target="_blank" rel="noopener noreferrer">
+                {{ event.date }} · {{ locale === 'zh' ? event.titleZh : event.title }}
+              </a>
+            </small>
+            <small>{{ t('assetTechnical.macroEventCaution') }}</small>
+            <small v-if="technicalEvents.macroUpdatedAt">
+              {{
+                t('assetTechnical.macroCalendarUpdated', {
+                  date: technicalEvents.macroUpdatedAt.slice(0, 10),
+                })
+              }}
+            </small>
           </article>
         </section>
         <p v-if="chainValidationActive && activeChain" class="chain-validation-note">
@@ -1842,6 +1956,7 @@ onBeforeUnmount(() => {
                     'volatilityAbove',
                     'gapAbove',
                     'earningsWithinDays',
+                    'correlationStructureChange',
                   ] as TechnicalAlertCondition[]"
                   :key="condition"
                   :value="condition"
@@ -1852,7 +1967,14 @@ onBeforeUnmount(() => {
             </label>
             <label v-if="!alertCondition.startsWith('macd')">
               <span>{{ t('assetTechnical.alert.threshold') }}</span>
-              <input v-model.number="alertThreshold" type="number" step="any" required />
+              <input
+                v-model.number="alertThreshold"
+                type="number"
+                :min="alertCondition === 'correlationStructureChange' ? 0.01 : undefined"
+                :max="alertCondition === 'correlationStructureChange' ? 2 : undefined"
+                step="any"
+                required
+              />
             </label>
             <label>
               <span>{{ t('assetTechnical.alert.horizon') }}</span>
@@ -1881,7 +2003,19 @@ onBeforeUnmount(() => {
               <input v-model="alertRequireResonance" type="checkbox" />
               <span>{{ t('assetTechnical.alert.requireResonance') }}</span>
             </label>
-            <button :disabled="alertsLoading" type="submit">
+            <small
+              v-if="alertCondition === 'correlationStructureChange' && !compareAsset"
+              class="alert-comparison-required"
+            >
+              {{ t('assetTechnical.alert.comparisonRequired') }}
+            </small>
+            <button
+              :disabled="
+                alertsLoading ||
+                (alertCondition === 'correlationStructureChange' && !compareAsset)
+              "
+              type="submit"
+            >
               {{ alertsLoading ? t('assetTechnical.alert.saving') : t('assetTechnical.alert.create') }}
             </button>
           </form>
@@ -1903,6 +2037,7 @@ onBeforeUnmount(() => {
               <span>
                 {{ t(`assetTechnical.alert.conditionName.${rule.condition}`) }}
                 <b v-if="rule.threshold !== null">{{ formatValue(rule.threshold) }}</b>
+                <small v-if="rule.compareAssetName">↔ {{ rule.compareAssetName }}</small>
               </span>
               <strong>
                 {{

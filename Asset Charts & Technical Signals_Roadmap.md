@@ -5,7 +5,7 @@
 | Phase                                   | Status      | Current evidence                                                                                                                                                                                                                                   |
 | --------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Phase 0 · Data and interfaces           | Complete    | Versioned asset history, per-asset source/calendar metadata, optional OHLCV, indicator/result/alert types, role permissions, authenticated Worker APIs, D1 migrations, daily workflows, global configuration, templates, and append-only ledgers are implemented. Daily generation now reads the live source priority, selects/falls back between equivalent providers, and runtime freshness uses unified timezone/session/publication rules. |
-| Phase 1 · Core MVP                      | In progress | The core workflow is usable across 33 series plus 12 fund series with chart modes, period aggregation, volume, explicit adjustment basis, calibrated core indicators, a separate configurable diagnostic layer, recent views, saved selections, range measurement, key positions, asset ratios, rolling correlations, earnings and transmission markers, chain validation, export, an accessible mobile asset drawer, and alerts. Full-roadmap acceptance still requires macro event markers and persistent structural-correlation alerts. |
+| Phase 1 · Core MVP                      | Complete    | The core workflow is usable across 33 series plus 12 fund series with chart modes, period aggregation, volume, explicit adjustment basis, calibrated core indicators, a separate configurable diagnostic layer, recent views, saved selections, range measurement, key positions, asset ratios, rolling correlations, official macro/earnings/transmission markers, chain validation, export, an accessible mobile asset drawer, and persistent alerts including saved comparison pairs. |
 | Phase 2 · Funds and advanced comparison | Complete    | A shared fund research workbench is live on both US-fund and A-share pages with normalized price/NAV comparison, 20/60/120-day rolling correlations, peer-proxy tracking error, current premium/discount and annual fees, local favorites/saved views, daily off-exchange investment-limit history, and price-versus-transmission divergence detection. |
 | Phase 3 · Options and event analysis    | In progress | The top-10 option research cards now combine Forward PE, stock technical score, Nasdaq transmission context, EPS revisions, earnings windows, and historical pre/post-earnings returns. A Massive-powered pipeline for 365–730 DTE IV, LEAPS IV Rank, Put/Call ratios, term structure, and earnings IV-implied move is implemented with explicit unavailable/partial states; production option-plan access and the minimum 20-day IV history are not yet verified. |
 | Phase 4 · Backtesting and calibration   | Complete    | The asset chart runs a chronological 70/30 holdout test and reports 5/21/63-day hit rate, returns, adverse excursion, and invalidation time. Cross-asset and per-asset technical weights are selected on the training segment only, unsafe candidates fall back to configured weights, driver ablation and confidence gates feed the quant module, and personal alerts include horizon, confidence, and validated-resonance preferences. |
@@ -444,6 +444,8 @@ The status table is an implementation ledger, not a change to the scope below. A
 - Admin 可独立启停高级均线、ADX、Stochastic/KDJ、ROC、CCI、历史波动率、OBV、VWAP 和市场结构，并配置 13 个对应周期/回看窗口；Worker 对布尔值、参数范围和均线顺序做服务端校验，旧版本配置在客户端与 Admin 自动补齐新默认值
 - 轻量事件索引同步美股巨头的已公布财报日和下次财报日；历史财报以 `E` 标注到价格时间轴，未来财报在图表摘要中单独提醒日期可能调整，并要求另行核对期权隐含波动与预期波幅
 - 当前可见区间计算最近的 23.6%/38.2%/50%/61.8%/78.6% 斐波那契回撤位；有至少10个有效成交量观测时，将典型价格划为20档并展示成交量最高的价格区间，且明确结果随可见区间变化
+- 每日技术事件任务从美联储 FOMC 日历和美国经济分析局发布日程生成官方宏观事件索引；历史 FOMC/GDP/PCE 以 F/G/P 标到当前可见价格区间，未来三项日程保留原始来源链接、抓取时间和“日期可能调整”说明，抓取失败时保留上一成功版本
+- 390px 运行时验收确认宏观日历卡片可见且页面无横向溢出；事件标记只统计和渲染当前可见区间，避免全历史标记挤压图表
 
 完成标准：核心资产能够稳定展示最新走势、指标解释、多周期结论和关联传导链。
 
@@ -513,6 +515,7 @@ The status table is an implementation ledger, not a change to the scope below. A
 - 量化信号读取每个资产的留出样本、方向命中率、95%区间、最佳基准和驱动消融结论；样本、区间或基准提升未通过门槛时，自动将强买入/强卖出降级为积累/减仓观察，并降低证据分
 - 跨资产预测规则在前70%训练段内比较多组短期/月度/驱动权重与信号阈值，以置信区间保守优势选型；最后30%留出段不参与权重选择
 - 个人预警在价格、RSI、MACD基础条件之外支持成交量相对前20期异常、20期历史波动率、跳空缺口绝对幅度和财报倒计时；规则保存关注周期、最低技术置信度和“必须通过跨资产驱动增量验证”偏好，风险条件不强行套用多空方向门槛，但仍需通过其余个性化门槛
+- 资产相关性结构预警保存当前资产与对比资产配对，固定使用共同交易日的日收益计算60日相关性，并与约20个观测前比较；方向切换、明显增强或弱化达到用户阈值后才触发，D1唯一约束允许同一资产保存多个不同对比关系
 - 每个资产在前70%训练段比较当前配置、均衡、趋势、动量、波动和成交确认六组技术权重；以21日命中率95%区间下界优先，并要求最少样本及正向训练期平均方向收益，未通过时保留原配置
 - 原始趋势、动量、波动和成交分项按历史时点只计算一次，再重组候选权重；切换资产实测约5.8秒完成校准并保持页面无横向溢出
 

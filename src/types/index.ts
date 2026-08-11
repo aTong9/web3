@@ -1173,6 +1173,7 @@ export type TechnicalAlertCondition =
   | 'volatilityAbove'
   | 'gapAbove'
   | 'earningsWithinDays'
+  | 'correlationStructureChange'
 
 export type TechnicalAlertHorizon = TechnicalHorizonReading['id']
 
@@ -1181,6 +1182,8 @@ export interface TechnicalAlertRule {
   assetId: string
   assetName: string
   series: string
+  compareAssetId: string | null
+  compareAssetName: string | null
   condition: TechnicalAlertCondition
   threshold: number | null
   horizon: TechnicalAlertHorizon

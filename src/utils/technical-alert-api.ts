@@ -31,6 +31,8 @@ export const technicalAlertApi = {
     assetId: string
     assetName: string
     series: string
+    compareAssetId: string | null
+    compareAssetName: string | null
     condition: TechnicalAlertCondition
     threshold: number | null
     horizon: TechnicalAlertHorizon

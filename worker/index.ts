@@ -50,6 +50,8 @@ interface TechnicalAlertRow {
   asset_id: string
   asset_name: string
   series: string
+  compare_asset_id: string | null
+  compare_asset_name: string | null
   condition: TechnicalAlertCondition
   threshold: number | null
   horizon: TechnicalAlertHorizon
@@ -71,6 +73,7 @@ const technicalAlertConditions = new Set<TechnicalAlertCondition>([
   'volatilityAbove',
   'gapAbove',
   'earningsWithinDays',
+  'correlationStructureChange',
 ])
 const technicalAlertHorizons = new Set<TechnicalAlertHorizon>([
   'day',
@@ -354,6 +357,8 @@ const toTechnicalAlert = (row: TechnicalAlertRow): TechnicalAlertRule => ({
   assetId: row.asset_id,
   assetName: row.asset_name,
   series: row.series,
+  compareAssetId: row.compare_asset_id,
+  compareAssetName: row.compare_asset_name,
   condition: row.condition,
   threshold: row.threshold,
   horizon: row.horizon,
@@ -366,7 +371,8 @@ const toTechnicalAlert = (row: TechnicalAlertRow): TechnicalAlertRule => ({
 
 const listTechnicalAlerts = async (env: Env, userId: string) => {
   const rows = await env.DB.prepare(
-    `SELECT id, user_id, asset_id, asset_name, series, condition, threshold,
+    `SELECT id, user_id, asset_id, asset_name, series, compare_asset_id, compare_asset_name,
+            condition, threshold,
             horizon, minimum_confidence, require_resonance, enabled, created_at, updated_at
      FROM technical_alert_rules
      WHERE user_id = ?
@@ -389,6 +395,8 @@ const createTechnicalAlert = async (request: Request, env: Env, userId: string) 
     assetId?: unknown
     assetName?: unknown
     series?: unknown
+    compareAssetId?: unknown
+    compareAssetName?: unknown
     condition?: unknown
     threshold?: unknown
     horizon?: unknown
@@ -402,6 +410,14 @@ const createTechnicalAlert = async (request: Request, env: Env, userId: string) 
     throw new HttpError(400, '预警条件无效')
   }
   const condition = input.condition as TechnicalAlertCondition
+  const requiresComparison = condition === 'correlationStructureChange'
+  const compareAssetId = requiresComparison
+    ? validateAlertText(input.compareAssetId, '对比资产ID', 80)
+    : null
+  const compareAssetName = requiresComparison
+    ? validateAlertText(input.compareAssetName, '对比资产名称', 120)
+    : null
+  if (compareAssetId === assetId) throw new HttpError(400, '对比资产不能与当前资产相同')
   if (!technicalAlertHorizons.has(input.horizon as TechnicalAlertHorizon)) {
     throw new HttpError(400, '关注周期无效')
   }
@@ -416,15 +432,22 @@ const createTechnicalAlert = async (request: Request, env: Env, userId: string) 
   if (requiresThreshold && (!Number.isFinite(threshold) || threshold === null)) {
     throw new HttpError(400, '预警阈值无效')
   }
+  if (
+    condition === 'correlationStructureChange' &&
+    (threshold === null || threshold <= 0 || threshold > 2)
+  ) {
+    throw new HttpError(400, '相关性变化阈值必须大于0且不超过2')
+  }
   if (!requiresThreshold && threshold !== null) throw new HttpError(400, 'MACD预警不需要阈值')
   const now = new Date().toISOString()
   const id = crypto.randomUUID()
   try {
     await env.DB.prepare(
       `INSERT INTO technical_alert_rules
-       (id, user_id, asset_id, asset_name, series, condition, threshold, horizon,
+       (id, user_id, asset_id, asset_name, series, compare_asset_id, compare_asset_name,
+        condition, threshold, horizon,
         minimum_confidence, require_resonance, enabled, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
     )
       .bind(
         id,
@@ -432,6 +455,8 @@ const createTechnicalAlert = async (request: Request, env: Env, userId: string) 
         assetId,
         assetName,
         series,
+        compareAssetId,
+        compareAssetName,
         condition,
         threshold,
         horizon,
