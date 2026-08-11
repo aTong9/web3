@@ -77,6 +77,7 @@ const alertRequireResonance = ref(false)
 const alertsLoading = ref(false)
 const alertBusyId = ref('')
 const alertMessage = ref('')
+const backtestCache = new Map<string, ReturnType<typeof backtestTechnicalSignals>>()
 let carouselTimer: number | null = null
 
 const favoriteStorageKey = 'market-desk-technical-favorites-v1'
@@ -151,16 +152,43 @@ const crossAssetScore = computed(() => {
     ),
   )
 })
+const backtest = computed(() => {
+  const cacheKey = `${selectedAsset.value.id}:${JSON.stringify(technicalConfig.value)}`
+  const cached = backtestCache.get(cacheKey)
+  if (cached) return cached
+  const result = backtestTechnicalSignals(
+    selectedAsset.value?.points ?? [],
+    technicalConfig.value,
+  )
+  backtestCache.set(cacheKey, result)
+  return result
+})
+const calibratedTechnicalConfig = computed<TechnicalIndicatorConfig>(() => {
+  const selected = backtest.value.calibration.selectedTemplate.weights
+  const crossAssetWeight = technicalConfig.value.enabled.crossAsset
+    ? technicalConfig.value.weights.crossAsset
+    : 0
+  const selectedPriceTotal = selected.trend + selected.momentum + selected.volatility + selected.volume
+  const priceScale = selectedPriceTotal ? (1 - crossAssetWeight) / selectedPriceTotal : 0
+  return {
+    ...technicalConfig.value,
+    formulaVersion: backtest.value.formulaVersion,
+    weights: {
+      trend: selected.trend * priceScale,
+      momentum: selected.momentum * priceScale,
+      volatility: selected.volatility * priceScale,
+      volume: selected.volume * priceScale,
+      crossAsset: crossAssetWeight,
+    },
+  }
+})
 const analysis = computed(() =>
   analyzeTechnicalSignals(
     selectedAsset.value?.points ?? [],
     crossAssetScore.value,
     selectedAsset.value?.stale ?? true,
-    technicalConfig.value,
+    calibratedTechnicalConfig.value,
   ),
-)
-const backtest = computed(() =>
-  backtestTechnicalSignals(selectedAsset.value?.points ?? [], technicalConfig.value),
 )
 const currentAssetAlerts = computed(() =>
   alertRules.value.filter((rule) => rule.assetId === selectedAsset.value.id),
@@ -902,6 +930,64 @@ onBeforeUnmount(() => {
               }}</small>
             </article>
           </div>
+          <section class="calibration-evidence">
+            <header>
+              <div>
+                <span>{{ t('assetTechnical.backtest.calibrationEyebrow') }}</span>
+                <b>{{ t('assetTechnical.backtest.calibrationTitle') }}</b>
+              </div>
+              <em :class="backtest.calibration.status">
+                {{ t(`assetTechnical.backtest.calibrationStatus.${backtest.calibration.status}`) }}
+                · {{ backtest.calibration.selectedTemplate.name }}
+              </em>
+            </header>
+            <p>{{
+              t('assetTechnical.backtest.calibrationIntro', {
+                count: backtest.calibration.candidateCount,
+              })
+            }}</p>
+            <p v-if="backtest.calibration.status === 'fallback'" class="calibration-warning">
+              {{ t('assetTechnical.backtest.calibrationFallback') }}
+            </p>
+            <div class="calibration-metrics">
+              <div>
+                <span>{{ t('assetTechnical.backtest.trainingSamples') }}</span>
+                <strong>{{ backtest.calibration.training.sampleSize }}</strong>
+              </div>
+              <div>
+                <span>{{ t('assetTechnical.backtest.trainingWinRate') }}</span>
+                <strong>{{
+                  backtest.calibration.training.winRatePct === null
+                    ? '—'
+                    : `${backtest.calibration.training.winRatePct.toFixed(1)}%`
+                }}</strong>
+              </div>
+              <div>
+                <span>{{ t('assetTechnical.backtest.trainingInterval') }}</span>
+                <strong>{{
+                  backtest.calibration.training.winRateIntervalPct
+                    ? `${backtest.calibration.training.winRateIntervalPct.low.toFixed(1)}–${backtest.calibration.training.winRateIntervalPct.high.toFixed(1)}%`
+                    : '—'
+                }}</strong>
+              </div>
+              <div>
+                <span>{{ t('assetTechnical.backtest.trainingReturn') }}</span>
+                <strong>{{
+                  formatSigned(backtest.calibration.training.averageDirectionalReturnPct)
+                }}</strong>
+              </div>
+            </div>
+            <p class="calibration-weights">
+              {{ t('assetTechnical.backtest.weightTrend') }}
+              {{ backtest.calibration.selectedTemplate.weights.trend.toFixed(2) }} ·
+              {{ t('assetTechnical.backtest.weightMomentum') }}
+              {{ backtest.calibration.selectedTemplate.weights.momentum.toFixed(2) }} ·
+              {{ t('assetTechnical.backtest.weightVolatility') }}
+              {{ backtest.calibration.selectedTemplate.weights.volatility.toFixed(2) }} ·
+              {{ t('assetTechnical.backtest.weightVolume') }}
+              {{ backtest.calibration.selectedTemplate.weights.volume.toFixed(2) }}
+            </p>
+          </section>
           <div class="backtest-table" role="table" :aria-label="t('assetTechnical.backtest.title')">
             <div class="backtest-row backtest-head" role="row">
               <span>{{ t('assetTechnical.backtest.horizon') }}</span>
@@ -1699,6 +1785,75 @@ onBeforeUnmount(() => {
 .backtest-panel details {
   margin-top: 8px;
 }
+.calibration-evidence {
+  margin: 0 0 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+.calibration-evidence > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.calibration-evidence > header > div {
+  display: grid;
+  gap: 3px;
+}
+.calibration-evidence > header span {
+  color: var(--accent);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.calibration-evidence > header b {
+  font-size: 10px;
+}
+.calibration-evidence > header em {
+  padding: 4px 7px;
+  border-radius: 99px;
+  background: var(--paper);
+  color: var(--positive);
+  font-size: 8px;
+  font-style: normal;
+}
+.calibration-evidence > header em.fallback {
+  color: var(--warning);
+}
+.calibration-evidence > p {
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.55;
+}
+.calibration-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.calibration-metrics > div {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--paper);
+  display: grid;
+  gap: 3px;
+}
+.calibration-metrics span {
+  color: var(--muted);
+  font-size: 7px;
+}
+.calibration-metrics strong {
+  font-size: 10px;
+}
+.calibration-evidence .calibration-weights {
+  margin-bottom: 0;
+  color: var(--ink);
+}
+.calibration-evidence .calibration-warning {
+  color: var(--warning);
+}
 .resonance-evidence {
   margin-top: 14px;
   padding: 12px;
@@ -2083,6 +2238,9 @@ onBeforeUnmount(() => {
     min-width: 540px;
   }
   .backtest-summary {
+    min-width: 540px;
+  }
+  .calibration-evidence {
     min-width: 540px;
   }
   .resonance-evidence {

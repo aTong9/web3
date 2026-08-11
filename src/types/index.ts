@@ -1113,6 +1113,22 @@ export interface TechnicalBacktestResult {
   totalSignals: number
   bullishSignals: number
   bearishSignals: number
+  calibration: {
+    candidateCount: number
+    status: 'calibrated' | 'fallback'
+    selectedTemplate: {
+      id: string
+      name: string
+      weights: TechnicalIndicatorConfig['weights']
+    }
+    training: {
+      sampleSize: number
+      winRatePct: number | null
+      winRateIntervalPct: { low: number; high: number } | null
+      averageDirectionalReturnPct: number | null
+    }
+    appliedToHoldout: true
+  }
   horizons: TechnicalBacktestHorizon[]
   limitations: string[]
 }
