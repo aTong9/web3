@@ -408,6 +408,20 @@ onMounted(async () => {
       <div>
         <h2>{{ t('quant.optionsTitle') }}</h2>
         <p>{{ t('quant.optionsHint') }}</p>
+        <p class="option-data-state" :class="optionMarket.status">
+          {{
+            t('quant.optionMarket.datasetState', {
+              status: t(`quant.optionMarket.status.${optionMarket.status}`),
+              attempted: formatDate(optionMarket.attemptedAt),
+              successful: optionMarket.dataUpdatedAt
+                ? formatDate(optionMarket.dataUpdatedAt)
+                : t('quant.optionMarket.neverSuccessful'),
+              configuration: t(
+                `quant.optionMarket.configuration.${optionMarket.configurationStatus}`,
+              ),
+            })
+          }}
+        </p>
       </div>
     </section>
     <section class="option-grid">
@@ -1072,6 +1086,17 @@ onMounted(async () => {
 }
 .options-heading {
   margin-top: 48px;
+}
+.section-heading .option-data-state {
+  max-width: none;
+  padding-left: 9px;
+  border-left: 3px solid var(--warning);
+}
+.section-heading .option-data-state.ok {
+  border-left-color: var(--positive);
+}
+.section-heading .option-data-state.unavailable {
+  border-left-color: var(--negative);
 }
 .option-grid {
   display: grid;

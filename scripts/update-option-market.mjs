@@ -236,8 +236,13 @@ if (!apiKey) {
 
 const okCount = symbols.filter((item) => item.status === 'ok').length
 const partialCount = symbols.filter((item) => item.status === 'partial').length
+const attemptedAt = new Date().toISOString()
+const hasUsableData = okCount + partialCount > 0
 const output = {
-  updatedAt: new Date().toISOString(),
+  updatedAt: attemptedAt,
+  attemptedAt,
+  dataUpdatedAt: hasUsableData ? attemptedAt : (previous.dataUpdatedAt ?? null),
+  configurationStatus: apiKey ? 'configured' : 'missing',
   status:
     okCount === symbols.length ? 'ok' : okCount + partialCount > 0 ? 'partial' : 'unavailable',
   source: 'Massive Options Chain Snapshot',
@@ -249,3 +254,6 @@ const output = {
 await mkdir(dirname(outputPath), { recursive: true })
 await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`)
 process.stdout.write(`wrote option market: ${okCount} ok, ${partialCount} partial\n`)
+if (!apiKey) process.stdout.write('::warning::MASSIVE_API_KEY is missing; option data remains unavailable\n')
+else if (!hasUsableData)
+  process.stdout.write('::warning::Massive returned no usable option-chain data; verify plan access\n')

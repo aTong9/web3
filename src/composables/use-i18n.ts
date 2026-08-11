@@ -269,6 +269,10 @@ const messages: Record<Locale, DictionaryNode> = {
         expiry: '到期日',
         expectedMove: 'IV预期波动',
         unavailable: '期权市场数据暂不可用',
+        datasetState:
+          '数据状态：{status} · 最近尝试 {attempted} · 最近成功 {successful} · {configuration}',
+        neverSuccessful: '尚无成功数据',
+        configuration: { configured: '密钥已配置', missing: 'MASSIVE_API_KEY 未配置' },
         method: '仅统计365–730 DTE选定LEAPS到期日；IV Rank至少需要20个每日观测。',
         status: { ok: '数据完整', partial: '部分数据', unavailable: '不可用' },
       },
@@ -1571,6 +1575,10 @@ const messages: Record<Locale, DictionaryNode> = {
         expiry: 'Expiration',
         expectedMove: 'IV-implied move',
         unavailable: 'Option market data is currently unavailable',
+        datasetState:
+          'Data status: {status} · last attempt {attempted} · last success {successful} · {configuration}',
+        neverSuccessful: 'no successful data yet',
+        configuration: { configured: 'key configured', missing: 'MASSIVE_API_KEY missing' },
         method:
           'Covers selected 365–730 DTE LEAPS expirations only; IV Rank requires at least 20 daily observations.',
         status: { ok: 'Complete', partial: 'Partial', unavailable: 'Unavailable' },

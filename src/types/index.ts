@@ -338,6 +338,9 @@ export interface OptionMarketSymbol {
 
 export interface OptionMarketDataset {
   updatedAt: string
+  attemptedAt: string
+  dataUpdatedAt: string | null
+  configurationStatus: 'configured' | 'missing'
   status: 'ok' | 'partial' | 'unavailable'
   source: string
   sourceUrl: string

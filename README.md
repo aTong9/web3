@@ -140,6 +140,19 @@ RSS/Atom 支持内容列表同步，普通网页支持公开元数据解析。�
 高估值叠加市场及 EPS 修正偏弱时只给出看跌价差研究模板。进入财报前14天时自动降级为事件风险等待，
 35倍以上不代表允许卖出裸 Call。所有候选在实时期权链、隐含波动率和流动性接入前都标记为不可执行。
 
+长期期权市场数据使用 Massive 的
+[Option Chain Snapshot](https://massive.com/docs/rest/options/snapshots/option-chain-snapshot)。启用步骤：
+
+1. 在 Massive 创建 API Key，并确认当前 Options 套餐能返回期权链快照、隐含波动率与持仓量字段。
+2. 在 GitHub 仓库 `Settings → Secrets and variables → Actions` 新建 Repository secret，名称必须为
+   `MASSIVE_API_KEY`。不要把密钥写入源码、README 或提交到 `.env`。
+3. 手动运行 `Update hot stocks` 工作流。量化页会分别显示最近尝试时间、最近成功取数时间和密钥配置状态。
+4. 先确认至少一个标的显示“数据完整”或“部分数据”；LEAPS IV Rank 需要累计至少20个每日成功观测，
+   因此初次接入不会立即生成 IV Rank。
+
+官方当前列出 Options Basic 免费方案，但接口字段和套餐权限可能调整，应以 Massive 实际账户响应为准。
+未配置密钥、返回401/403或无可用IV时，工作流只发出 warning 并保留旧成功数据，不会使用估算值填充。
+
 量化页面优先连接 `web3-quant-api` Cloudflare Worker：服务端从仓库读取最新版跨资产与美股巨头数据，
 生成统一快照并存入 D1；工作日北京时间18:45和次日07:45自动刷新。模拟信号账本按浏览器生成的匿名
 客户端 ID 保存在 D1，仅记录信号时点的标的价格和后续价格变化。云端不可达时，页面会明确显示降级状态，
