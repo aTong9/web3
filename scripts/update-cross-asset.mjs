@@ -4071,6 +4071,12 @@ const technicalSignalsOutput = {
     '黄金使用公开策略指数代理，铜为月度序列，短周期技术指标可能不可用。',
     '统一交易日历使用各市场时区、工作日、收盘时间和发布延迟，并以两至五个会话容忍交易所假期与临时休市；不替代交易所官方日历。',
   ],
+  limitationsEn: [
+    'Most public macro and cross-asset series provide closing values only, so candlesticks are enabled only when the source supplies genuine OHLC data.',
+    'Technical indicators describe price conditions and are not trading advice. Data frequency and trading calendars differ across assets.',
+    'Gold uses a public strategy-index proxy and copper is monthly, so short-horizon indicators may be unavailable.',
+    'The unified calendar applies market time zones, business days, closing times, and publication delays, with a two-to-five-session tolerance for holidays and temporary closures. It does not replace official exchange calendars.',
+  ],
   assets: assets
     .filter((asset) => technicalAssetIds.has(asset.id))
     .map((asset) => {

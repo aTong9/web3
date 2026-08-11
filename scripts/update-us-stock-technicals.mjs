@@ -124,6 +124,10 @@ const main = async () => {
       '美股数据为复权日线 OHLCV；免费数据计划提供最近2年历史，公司范围跟随每日市值前10排名，历史成分不做回溯修正。',
       ...(failures.length ? [`本次部分标的更新失败：${failures.join('；')}`] : []),
     ],
+    limitationsEn: [
+      'U.S. equity data uses adjusted daily OHLCV. The free plan provides roughly two years of history; constituents follow the current daily top-10 market-cap ranking and are not backfilled historically.',
+      ...(failures.length ? [`Some symbols failed in this run: ${failures.join('; ')}`] : []),
+    ],
     assets,
   }
   await writeFile(outputPath, `${JSON.stringify(dataset, null, 2)}\n`)

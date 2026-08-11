@@ -78,6 +78,10 @@ const dataset: AssetTechnicalDataset = {
     '；',
   ),
   limitations: [...baseDataset.limitations, ...usStockDataset.limitations],
+  limitationsEn: [
+    ...(baseDataset.limitationsEn ?? []),
+    ...(usStockDataset.limitationsEn ?? []),
+  ],
   assets: [...baseDataset.assets, ...usStockDataset.assets],
 }
 const crossAsset = crossAssetData as CrossAssetDataset
@@ -88,6 +92,11 @@ const technicalEvents = technicalEventsData as {
   macroUpdatedAt: string | null
 }
 const { locale, t } = useI18n()
+const localizedLimitations = computed(() =>
+  locale.value === 'en' && dataset.limitationsEn?.length
+    ? dataset.limitationsEn
+    : dataset.limitations,
+)
 const { theme } = useTheme()
 const { can, restore } = useAuth()
 const technicalConfig = ref<TechnicalIndicatorConfig>(
@@ -1763,7 +1772,7 @@ onBeforeUnmount(() => {
               })
             }}
           </p>
-          <p v-for="limitation in dataset.limitations" :key="limitation">{{ limitation }}</p>
+          <p v-for="limitation in localizedLimitations" :key="limitation">{{ limitation }}</p>
           <a :href="dataset.sourceUrl" target="_blank" rel="noopener noreferrer"
             >{{ dataset.source }} ↗</a
           >

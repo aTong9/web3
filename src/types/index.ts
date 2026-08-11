@@ -1081,6 +1081,7 @@ export interface AssetTechnicalDataset {
   sourceUrl: string
   sourcePriority: string[]
   limitations: string[]
+  limitationsEn?: string[]
   assets: TechnicalChartAsset[]
 }
 
