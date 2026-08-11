@@ -1,4 +1,4 @@
-import type { AssetPricePoint } from '@/types'
+import type { AssetPricePoint, TechnicalIndicatorConfig } from '@/types'
 import { exponentialMovingAverage, simpleMovingAverage } from '@/utils/technical-analysis'
 
 const last = <T>(values: T[]) => values[values.length - 1]
@@ -75,7 +75,7 @@ const commodityChannelIndex = (points: AssetPricePoint[], period = 20) => {
   return deviation ? round((last(window)! - average) / (0.015 * deviation)) : null
 }
 
-const volumeMetrics = (points: AssetPricePoint[]) => {
+const volumeMetrics = (points: AssetPricePoint[], vwapPeriod: number) => {
   const valid = points.filter((point) => point.volume !== undefined)
   if (valid.length < 2) return { obv: null, vwap20: null }
   let obv = 0
@@ -83,7 +83,7 @@ const volumeMetrics = (points: AssetPricePoint[]) => {
     if (valid[index]!.close > valid[index - 1]!.close) obv += valid[index]!.volume!
     else if (valid[index]!.close < valid[index - 1]!.close) obv -= valid[index]!.volume!
   }
-  const window = valid.slice(-20)
+  const window = valid.slice(-vwapPeriod)
   const totalVolume = window.reduce((sum, point) => sum + point.volume!, 0)
   const vwap20 = totalVolume
     ? window.reduce(
@@ -110,22 +110,38 @@ export interface AdvancedTechnicalSnapshot {
   structure: 'uptrend' | 'downtrend' | 'range' | 'insufficient'
 }
 
-export const analyzeAdvancedTechnicals = (points: AssetPricePoint[]): AdvancedTechnicalSnapshot => {
+export const analyzeAdvancedTechnicals = (
+  points: AssetPricePoint[],
+  config: TechnicalIndicatorConfig,
+): AdvancedTechnicalSnapshot => {
+  const { parameters } = config
   const closes = points.map((point) => point.close)
   const latest = last(closes)
   const ma = (period: number) => latestFinite(simpleMovingAverage(closes, period))
-  const ma20 = ma(20)
-  const deviations = closes.length >= 20 ? closes.slice(-20) : []
-  const bandwidth = ma20 && deviations.length === 20 ? (standardDeviation(deviations) * 4 / ma20) * 100 : null
-  const returns = closes.slice(1).map((value, index) => Math.log(value / closes[index]!)).slice(-20)
-  const historicalVolatility = returns.length >= 20 ? standardDeviation(returns) * Math.sqrt(252) * 100 : null
-  const yearWindow = points.slice(-252)
+  const ma20 = ma(parameters.bollingerPeriod)
+  const deviations =
+    closes.length >= parameters.bollingerPeriod
+      ? closes.slice(-parameters.bollingerPeriod)
+      : []
+  const bandwidth =
+    ma20 && deviations.length === parameters.bollingerPeriod
+      ? (standardDeviation(deviations) * parameters.bollingerMultiplier * 2 * 100) / ma20
+      : null
+  const returns = closes
+    .slice(1)
+    .map((value, index) => Math.log(value / closes[index]!))
+    .slice(-parameters.historicalVolatilityPeriod)
+  const historicalVolatility =
+    returns.length >= parameters.historicalVolatilityPeriod
+      ? standardDeviation(returns) * Math.sqrt(252) * 100
+      : null
+  const yearWindow = points.slice(-parameters.highLowWindow)
   const yearHigh = yearWindow.length ? Math.max(...yearWindow.map((point) => point.high ?? point.close)) : null
   const yearLow = yearWindow.length ? Math.min(...yearWindow.map((point) => point.low ?? point.close)) : null
   const position52Week = latest !== undefined && yearHigh !== null && yearLow !== null && yearHigh > yearLow
     ? ((latest - yearLow) / (yearHigh - yearLow)) * 100
     : null
-  const recent = points.slice(-60)
+  const recent = points.slice(-parameters.gapLookback)
   let latestGapPct: number | null = null
   for (let index = 1; index < recent.length; index += 1) {
     const current = recent[index]!
@@ -135,7 +151,7 @@ export const analyzeAdvancedTechnicals = (points: AssetPricePoint[]): AdvancedTe
     if (current.high !== undefined && previous.low !== undefined && current.high < previous.low)
       latestGapPct = ((current.high / previous.low) - 1) * 100
   }
-  const ma60 = ma(60)
+  const ma60 = ma(parameters.maLongPeriod)
   const structure =
     latest === undefined || ma20 === null || ma60 === null
       ? 'insufficient'
@@ -144,20 +160,23 @@ export const analyzeAdvancedTechnicals = (points: AssetPricePoint[]): AdvancedTe
         : latest < ma20 && ma20 < ma60
           ? 'downtrend'
           : 'range'
-  const stochasticReading = stochastic(points)
-  const volume = volumeMetrics(points)
+  const stochasticReading = stochastic(points, parameters.stochasticPeriod)
+  const volume = volumeMetrics(points, parameters.vwapPeriod)
   return {
     movingAverages: {
-      ma5: ma(5),
-      ma10: ma(10),
-      ma120: ma(120),
-      ma250: ma(250),
-      ema20: latestFinite(exponentialMovingAverage(closes, 20)),
+      ma5: ma(parameters.maFastPeriod),
+      ma10: ma(parameters.maMediumPeriod),
+      ma120: ma(parameters.maTrendPeriod),
+      ma250: ma(parameters.maAnnualPeriod),
+      ema20: latestFinite(exponentialMovingAverage(closes, parameters.emaPeriod)),
     },
-    adx14: directionalIndex(points),
+    adx14: directionalIndex(points, parameters.adxPeriod),
     stochastic: stochasticReading,
-    roc12Pct: closes.length > 12 ? round((latest! / closes[closes.length - 13]! - 1) * 100) : null,
-    cci20: commodityChannelIndex(points),
+    roc12Pct:
+      closes.length > parameters.rocPeriod
+        ? round((latest! / closes[closes.length - parameters.rocPeriod - 1]! - 1) * 100)
+        : null,
+    cci20: commodityChannelIndex(points, parameters.cciPeriod),
     historicalVolatility20Pct: historicalVolatility === null ? null : round(historicalVolatility),
     bollingerBandwidthPct: bandwidth === null ? null : round(bandwidth),
     obv: volume.obv,

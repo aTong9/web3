@@ -74,6 +74,15 @@ const applyTechnicalTemplate = (template: 'trend' | 'swing' | 'options') => {
     atr: true,
     volume: true,
     crossAsset: true,
+    advancedMovingAverages: true,
+    adx: template !== 'swing',
+    stochastic: template === 'swing',
+    roc: true,
+    cci: template === 'swing',
+    historicalVolatility: true,
+    obv: template !== 'options',
+    vwap: template !== 'options',
+    marketStructure: true,
   }
 }
 const saveTechnicalConfig = async () => {

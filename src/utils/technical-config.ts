@@ -17,6 +17,15 @@ export const defaultTechnicalIndicatorConfig: TechnicalIndicatorConfig = {
     atr: true,
     volume: true,
     crossAsset: true,
+    advancedMovingAverages: true,
+    adx: true,
+    stochastic: true,
+    roc: true,
+    cci: true,
+    historicalVolatility: true,
+    obv: true,
+    vwap: true,
+    marketStructure: true,
   },
   parameters: {
     maShortPeriod: 20,
@@ -31,6 +40,19 @@ export const defaultTechnicalIndicatorConfig: TechnicalIndicatorConfig = {
     bollingerMultiplier: 2,
     atrPeriod: 14,
     supportResistanceWindow: 60,
+    maFastPeriod: 5,
+    maMediumPeriod: 10,
+    maTrendPeriod: 120,
+    maAnnualPeriod: 250,
+    emaPeriod: 20,
+    adxPeriod: 14,
+    stochasticPeriod: 14,
+    rocPeriod: 12,
+    cciPeriod: 20,
+    historicalVolatilityPeriod: 20,
+    vwapPeriod: 20,
+    highLowWindow: 252,
+    gapLookback: 60,
   },
   weights: {
     trend: 0.4,
@@ -46,6 +68,20 @@ export const defaultTechnicalIndicatorConfig: TechnicalIndicatorConfig = {
   },
   sourcePriority: ['Massive', 'FRED', '新浪财经', '腾讯财经', 'DefiLlama'],
 }
+
+export const normalizeTechnicalIndicatorConfig = (
+  config: TechnicalIndicatorConfig,
+): TechnicalIndicatorConfig => ({
+  ...defaultTechnicalIndicatorConfig,
+  ...config,
+  enabled: { ...defaultTechnicalIndicatorConfig.enabled, ...config.enabled },
+  parameters: { ...defaultTechnicalIndicatorConfig.parameters, ...config.parameters },
+  weights: { ...defaultTechnicalIndicatorConfig.weights, ...config.weights },
+  display: { ...defaultTechnicalIndicatorConfig.display, ...config.display },
+  sourcePriority: config.sourcePriority?.length
+    ? config.sourcePriority
+    : defaultTechnicalIndicatorConfig.sourcePriority,
+})
 
 const apiBase =
   (import.meta.env.VITE_QUANT_API_BASE as string | undefined)?.replace(/\/$/, '') ||
@@ -69,14 +105,27 @@ const request = async <T>(path: string, options: RequestInit = {}) => {
 }
 
 export const technicalConfigApi = {
-  publicConfig: () => request<TechnicalIndicatorConfig>('/api/technical-config'),
-  adminConfig: () =>
-    request<{ config: TechnicalIndicatorConfig; versions: TechnicalIndicatorConfigVersion[] }>(
-      '/api/admin/technical-config',
+  publicConfig: async () =>
+    normalizeTechnicalIndicatorConfig(
+      await request<TechnicalIndicatorConfig>('/api/technical-config'),
     ),
-  save: (config: TechnicalIndicatorConfig) =>
-    request<{ config: TechnicalIndicatorConfig; versions: TechnicalIndicatorConfigVersion[] }>(
+  adminConfig: async () => {
+    const result = await request<{
+      config: TechnicalIndicatorConfig
+      versions: TechnicalIndicatorConfigVersion[]
+    }>(
+      '/api/admin/technical-config',
+    )
+    return { ...result, config: normalizeTechnicalIndicatorConfig(result.config) }
+  },
+  save: async (config: TechnicalIndicatorConfig) => {
+    const result = await request<{
+      config: TechnicalIndicatorConfig
+      versions: TechnicalIndicatorConfigVersion[]
+    }>(
       '/api/admin/technical-config',
       { method: 'PATCH', body: JSON.stringify(config) },
-    ),
+    )
+    return { ...result, config: normalizeTechnicalIndicatorConfig(result.config) }
+  },
 }

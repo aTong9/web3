@@ -1217,6 +1217,15 @@ export interface TechnicalIndicatorConfig {
     atr: boolean
     volume: boolean
     crossAsset: boolean
+    advancedMovingAverages: boolean
+    adx: boolean
+    stochastic: boolean
+    roc: boolean
+    cci: boolean
+    historicalVolatility: boolean
+    obv: boolean
+    vwap: boolean
+    marketStructure: boolean
   }
   parameters: {
     maShortPeriod: number
@@ -1231,6 +1240,19 @@ export interface TechnicalIndicatorConfig {
     bollingerMultiplier: number
     atrPeriod: number
     supportResistanceWindow: number
+    maFastPeriod: number
+    maMediumPeriod: number
+    maTrendPeriod: number
+    maAnnualPeriod: number
+    emaPeriod: number
+    adxPeriod: number
+    stochasticPeriod: number
+    rocPeriod: number
+    cciPeriod: number
+    historicalVolatilityPeriod: number
+    vwapPeriod: number
+    highLowWindow: number
+    gapLookback: number
   }
   weights: {
     trend: number

@@ -538,6 +538,15 @@ const validateTechnicalConfig = (input: TechnicalIndicatorConfig) => {
     'atr',
     'volume',
     'crossAsset',
+    'advancedMovingAverages',
+    'adx',
+    'stochastic',
+    'roc',
+    'cci',
+    'historicalVolatility',
+    'obv',
+    'vwap',
+    'marketStructure',
   ]
   if (enabledKeys.some((key) => typeof input.enabled?.[key] !== 'boolean')) {
     throw new HttpError(400, '指标启用状态无效')
@@ -555,8 +564,30 @@ const validateTechnicalConfig = (input: TechnicalIndicatorConfig) => {
   validateConfigNumber(parameters?.bollingerMultiplier, '布林带倍数', 0.5, 5, false)
   validateConfigNumber(parameters?.atrPeriod, 'ATR周期', 2, 100)
   validateConfigNumber(parameters?.supportResistanceWindow, '支撑压力窗口', 10, 500)
+  validateConfigNumber(parameters?.maFastPeriod, '快速均线周期', 2, 60)
+  validateConfigNumber(parameters?.maMediumPeriod, '中速均线周期', 3, 120)
+  validateConfigNumber(parameters?.maTrendPeriod, '趋势均线周期', 20, 300)
+  validateConfigNumber(parameters?.maAnnualPeriod, '长期均线周期', 60, 500)
+  validateConfigNumber(parameters?.emaPeriod, 'EMA周期', 2, 200)
+  validateConfigNumber(parameters?.adxPeriod, 'ADX周期', 2, 100)
+  validateConfigNumber(parameters?.stochasticPeriod, 'Stochastic周期', 2, 100)
+  validateConfigNumber(parameters?.rocPeriod, 'ROC周期', 2, 200)
+  validateConfigNumber(parameters?.cciPeriod, 'CCI周期', 2, 200)
+  validateConfigNumber(parameters?.historicalVolatilityPeriod, '历史波动率周期', 5, 252)
+  validateConfigNumber(parameters?.vwapPeriod, 'VWAP周期', 2, 252)
+  validateConfigNumber(parameters?.highLowWindow, '高低点窗口', 20, 1260)
+  validateConfigNumber(parameters?.gapLookback, '缺口回看窗口', 5, 500)
   if (parameters.maShortPeriod >= parameters.maLongPeriod) {
     throw new HttpError(400, '短期均线周期必须小于长期均线周期')
+  }
+  if (
+    !(
+      parameters.maFastPeriod < parameters.maMediumPeriod &&
+      parameters.maMediumPeriod < parameters.maTrendPeriod &&
+      parameters.maTrendPeriod < parameters.maAnnualPeriod
+    )
+  ) {
+    throw new HttpError(400, '高级均线周期必须按快速、中速、趋势、长期依次增大')
   }
   if (parameters.macdFastPeriod >= parameters.macdSlowPeriod) {
     throw new HttpError(400, 'MACD快线周期必须小于慢线周期')

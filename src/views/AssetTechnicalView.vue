@@ -351,7 +351,26 @@ const chartEvents = computed(() => {
     })
     .filter((event): event is NonNullable<typeof event> => Boolean(event))
 })
-const advancedSnapshot = computed(() => analyzeAdvancedTechnicals(intervalPoints.value))
+const advancedSnapshot = computed(() =>
+  analyzeAdvancedTechnicals(intervalPoints.value, technicalConfig.value),
+)
+const advancedDiagnosticsEnabled = computed(() =>
+  Object.entries(technicalConfig.value.enabled).some(
+    ([key, enabled]) =>
+      enabled &&
+      [
+        'advancedMovingAverages',
+        'adx',
+        'stochastic',
+        'roc',
+        'cci',
+        'historicalVolatility',
+        'obv',
+        'vwap',
+        'marketStructure',
+      ].includes(key),
+  ),
+)
 const displayedPoints = computed(() => {
   const points = intervalPoints.value
   const latestDate = points[points.length - 1]?.date
@@ -1540,41 +1559,41 @@ onBeforeUnmount(() => {
             </p>
           </article>
         </section>
-        <details class="advanced-diagnostics" open>
+        <details v-if="advancedDiagnosticsEnabled" class="advanced-diagnostics" open>
           <summary>{{ t('assetTechnical.advanced.title') }}</summary>
           <p>{{ t('assetTechnical.advanced.explainer') }}</p>
           <div class="advanced-grid">
-            <article>
+            <article v-if="technicalConfig.enabled.marketStructure || technicalConfig.enabled.adx">
               <span>{{ t('assetTechnical.advanced.structure') }}</span>
-              <strong>{{ t(`assetTechnical.advanced.structureState.${advancedSnapshot.structure}`) }}</strong>
-              <small>ADX14 {{ advancedSnapshot.adx14?.toFixed(1) ?? '—' }}</small>
+              <strong v-if="technicalConfig.enabled.marketStructure">{{ t(`assetTechnical.advanced.structureState.${advancedSnapshot.structure}`) }}</strong>
+              <small v-if="technicalConfig.enabled.adx">ADX{{ technicalConfig.parameters.adxPeriod }} {{ advancedSnapshot.adx14?.toFixed(1) ?? '—' }}</small>
             </article>
-            <article>
+            <article v-if="technicalConfig.enabled.advancedMovingAverages">
               <span>MA / EMA</span>
-              <strong>MA5 {{ formatValue(advancedSnapshot.movingAverages.ma5) }}</strong>
-              <small>MA10 {{ formatValue(advancedSnapshot.movingAverages.ma10) }} · EMA20 {{ formatValue(advancedSnapshot.movingAverages.ema20) }}</small>
-              <small>MA120 {{ formatValue(advancedSnapshot.movingAverages.ma120) }} · MA250 {{ formatValue(advancedSnapshot.movingAverages.ma250) }}</small>
+              <strong>MA{{ technicalConfig.parameters.maFastPeriod }} {{ formatValue(advancedSnapshot.movingAverages.ma5) }}</strong>
+              <small>MA{{ technicalConfig.parameters.maMediumPeriod }} {{ formatValue(advancedSnapshot.movingAverages.ma10) }} · EMA{{ technicalConfig.parameters.emaPeriod }} {{ formatValue(advancedSnapshot.movingAverages.ema20) }}</small>
+              <small>MA{{ technicalConfig.parameters.maTrendPeriod }} {{ formatValue(advancedSnapshot.movingAverages.ma120) }} · MA{{ technicalConfig.parameters.maAnnualPeriod }} {{ formatValue(advancedSnapshot.movingAverages.ma250) }}</small>
             </article>
-            <article>
+            <article v-if="technicalConfig.enabled.stochastic || technicalConfig.enabled.roc || technicalConfig.enabled.cci">
               <span>{{ t('assetTechnical.advanced.momentum') }}</span>
-              <strong>ROC12 {{ formatSigned(advancedSnapshot.roc12Pct) }}</strong>
-              <small>Stoch K/D {{ advancedSnapshot.stochastic.k?.toFixed(1) ?? '—' }} / {{ advancedSnapshot.stochastic.d?.toFixed(1) ?? '—' }}</small>
-              <small>KDJ J {{ advancedSnapshot.stochastic.j?.toFixed(1) ?? '—' }} · CCI20 {{ advancedSnapshot.cci20?.toFixed(1) ?? '—' }}</small>
+              <strong v-if="technicalConfig.enabled.roc">ROC{{ technicalConfig.parameters.rocPeriod }} {{ formatSigned(advancedSnapshot.roc12Pct) }}</strong>
+              <small v-if="technicalConfig.enabled.stochastic">Stoch{{ technicalConfig.parameters.stochasticPeriod }} K/D {{ advancedSnapshot.stochastic.k?.toFixed(1) ?? '—' }} / {{ advancedSnapshot.stochastic.d?.toFixed(1) ?? '—' }} · KDJ J {{ advancedSnapshot.stochastic.j?.toFixed(1) ?? '—' }}</small>
+              <small v-if="technicalConfig.enabled.cci">CCI{{ technicalConfig.parameters.cciPeriod }} {{ advancedSnapshot.cci20?.toFixed(1) ?? '—' }}</small>
             </article>
-            <article>
+            <article v-if="technicalConfig.enabled.historicalVolatility || technicalConfig.enabled.bollinger">
               <span>{{ t('assetTechnical.advanced.volatility') }}</span>
-              <strong>HV20 {{ advancedSnapshot.historicalVolatility20Pct?.toFixed(1) ?? '—' }}%</strong>
-              <small>{{ t('assetTechnical.advanced.bandwidth') }} {{ advancedSnapshot.bollingerBandwidthPct?.toFixed(1) ?? '—' }}%</small>
+              <strong v-if="technicalConfig.enabled.historicalVolatility">HV{{ technicalConfig.parameters.historicalVolatilityPeriod }} {{ advancedSnapshot.historicalVolatility20Pct?.toFixed(1) ?? '—' }}%</strong>
+              <small v-if="technicalConfig.enabled.bollinger">{{ t('assetTechnical.advanced.bandwidth') }} {{ advancedSnapshot.bollingerBandwidthPct?.toFixed(1) ?? '—' }}%</small>
             </article>
-            <article>
+            <article v-if="technicalConfig.enabled.obv || technicalConfig.enabled.vwap">
               <span>{{ t('assetTechnical.advanced.volume') }}</span>
-              <strong>VWAP20 {{ formatValue(advancedSnapshot.vwap20) }}</strong>
-              <small>OBV {{ advancedSnapshot.obv?.toLocaleString() ?? '—' }}</small>
+              <strong v-if="technicalConfig.enabled.vwap">VWAP{{ technicalConfig.parameters.vwapPeriod }} {{ formatValue(advancedSnapshot.vwap20) }}</strong>
+              <small v-if="technicalConfig.enabled.obv">OBV {{ advancedSnapshot.obv?.toLocaleString() ?? '—' }}</small>
             </article>
-            <article>
+            <article v-if="technicalConfig.enabled.marketStructure">
               <span>{{ t('assetTechnical.advanced.position') }}</span>
-              <strong>52W {{ advancedSnapshot.position52WeekPct?.toFixed(1) ?? '—' }}%</strong>
-              <small>{{ t('assetTechnical.advanced.gap') }} {{ formatSigned(advancedSnapshot.latestGapPct) }}</small>
+              <strong>{{ technicalConfig.parameters.highLowWindow }}D {{ advancedSnapshot.position52WeekPct?.toFixed(1) ?? '—' }}%</strong>
+              <small>{{ t('assetTechnical.advanced.gap') }} ({{ technicalConfig.parameters.gapLookback }}) {{ formatSigned(advancedSnapshot.latestGapPct) }}</small>
             </article>
           </div>
         </details>
