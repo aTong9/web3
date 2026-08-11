@@ -814,6 +814,19 @@ const evaluateAlert = (rule: TechnicalAlertRule): TechnicalAlertEvaluation => {
   const signal = latestFinite(analysis.value.macdSignal)
   const previousMacd = previousFinite(analysis.value.macd)
   const previousSignal = previousFinite(analysis.value.macdSignal)
+  const volumes = selectedAsset.value.points
+    .map((point) => point.volume)
+    .filter((value): value is number => value !== undefined)
+  const volumeBaseline = volumes.length >= 21
+    ? volumes.slice(-21, -1).reduce((sum, value) => sum + value, 0) / 20
+    : null
+  const volumeRatio = volumeBaseline ? (volumes[volumes.length - 1] ?? 0) / volumeBaseline : null
+  const daysToEarnings = upcomingCorporateEvent.value
+    ? Math.ceil(
+        (new Date(`${upcomingCorporateEvent.value.date}T12:00:00Z`).getTime() - Date.now()) /
+          86_400_000,
+      )
+    : null
   let triggered = false
   let currentValue: number | null = null
   if (rule.condition === 'priceAbove') {
@@ -828,6 +841,25 @@ const evaluateAlert = (rule: TechnicalAlertRule): TechnicalAlertEvaluation => {
   } else if (rule.condition === 'rsiBelow') {
     currentValue = latestRsi
     triggered = latestRsi !== null && rule.threshold !== null && latestRsi < rule.threshold
+  } else if (rule.condition === 'volumeSpike') {
+    currentValue = volumeRatio
+    triggered = volumeRatio !== null && rule.threshold !== null && volumeRatio >= rule.threshold
+  } else if (rule.condition === 'volatilityAbove') {
+    currentValue = advancedSnapshot.value.historicalVolatility20Pct
+    triggered = currentValue !== null && rule.threshold !== null && currentValue >= rule.threshold
+  } else if (rule.condition === 'gapAbove') {
+    currentValue =
+      advancedSnapshot.value.latestGapPct === null
+        ? null
+        : Math.abs(advancedSnapshot.value.latestGapPct)
+    triggered = currentValue !== null && rule.threshold !== null && currentValue >= rule.threshold
+  } else if (rule.condition === 'earningsWithinDays') {
+    currentValue = daysToEarnings
+    triggered =
+      daysToEarnings !== null &&
+      daysToEarnings >= 0 &&
+      rule.threshold !== null &&
+      daysToEarnings <= rule.threshold
   } else {
     currentValue = macd === null || signal === null ? null : macd - signal
     const crossedUp =
@@ -847,9 +879,18 @@ const evaluateAlert = (rule: TechnicalAlertRule): TechnicalAlertEvaluation => {
     triggered = rule.condition === 'macdBullishCross' ? crossedUp : crossedDown
   }
   const horizon = analysis.value.horizons.find((item) => item.id === rule.horizon)
+  const directionalConditions: TechnicalAlertCondition[] = [
+    'priceAbove',
+    'priceBelow',
+    'rsiAbove',
+    'rsiBelow',
+    'macdBullishCross',
+    'macdBearishCross',
+  ]
   const bullishCondition = ['priceAbove', 'rsiBelow', 'macdBullishCross'].includes(rule.condition)
   const horizonAligned =
-    horizon?.score !== undefined && (bullishCondition ? horizon.score >= 10 : horizon.score <= -10)
+    !directionalConditions.includes(rule.condition) ||
+    (horizon?.score !== undefined && (bullishCondition ? horizon.score >= 10 : horizon.score <= -10))
   const confidencePassed = analysis.value.confidence >= rule.minimumConfidence
   const resonancePassed = !rule.requireResonance || resonanceEvaluation.value?.allowed === true
   const preferencePassed = horizonAligned && confidencePassed && resonancePassed
@@ -863,7 +904,9 @@ const evaluateAlert = (rule: TechnicalAlertRule): TechnicalAlertEvaluation => {
     currentValue,
     explanation: `${explanation} ${t('assetTechnical.alert.preferenceGate', {
       horizon: t(`assetTechnical.horizon.${rule.horizon}`),
-      alignment: horizonAligned
+      alignment: !directionalConditions.includes(rule.condition)
+        ? t('assetTechnical.alert.directionNotApplicable')
+        : horizonAligned
         ? t('assetTechnical.alert.directionAligned')
         : t('assetTechnical.alert.directionWaiting'),
       confidence: analysis.value.confidence,
@@ -881,6 +924,10 @@ const defaultAlertThreshold = () => {
   if (alertCondition.value === 'priceBelow') return analysis.value.support
   if (alertCondition.value === 'rsiAbove') return technicalConfig.value.parameters.rsiOverbought
   if (alertCondition.value === 'rsiBelow') return technicalConfig.value.parameters.rsiOversold
+  if (alertCondition.value === 'volumeSpike') return 1.5
+  if (alertCondition.value === 'volatilityAbove') return 40
+  if (alertCondition.value === 'gapAbove') return 2
+  if (alertCondition.value === 'earningsWithinDays') return 7
   return null
 }
 const resetAlertThreshold = () => {
@@ -1684,6 +1731,10 @@ onBeforeUnmount(() => {
                     'rsiBelow',
                     'macdBullishCross',
                     'macdBearishCross',
+                    'volumeSpike',
+                    'volatilityAbove',
+                    'gapAbove',
+                    'earningsWithinDays',
                   ] as TechnicalAlertCondition[]"
                   :key="condition"
                   :value="condition"

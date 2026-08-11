@@ -1169,6 +1169,10 @@ export type TechnicalAlertCondition =
   | 'rsiBelow'
   | 'macdBullishCross'
   | 'macdBearishCross'
+  | 'volumeSpike'
+  | 'volatilityAbove'
+  | 'gapAbove'
+  | 'earningsWithinDays'
 
 export type TechnicalAlertHorizon = TechnicalHorizonReading['id']
 

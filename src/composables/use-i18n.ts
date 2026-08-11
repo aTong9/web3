@@ -1184,6 +1184,7 @@ const messages: Record<Locale, DictionaryNode> = {
           '个性化门槛：{horizon}方向{alignment}，当前置信度 {confidence}% / 最低 {minimum}%，跨资产共振{resonance}。',
         directionAligned: '一致',
         directionWaiting: '尚未一致',
+        directionNotApplicable: '不适用（风险条件）',
         resonancePassed: '已验证',
         resonanceWaiting: '待验证',
         resonanceOptional: '非必需',
@@ -1194,6 +1195,10 @@ const messages: Record<Locale, DictionaryNode> = {
           rsiBelow: 'RSI 进入超卖区',
           macdBullishCross: 'MACD 金叉',
           macdBearishCross: 'MACD 死叉',
+          volumeSpike: '成交量异常放大',
+          volatilityAbove: '历史波动率超过阈值',
+          gapAbove: '跳空缺口超过阈值',
+          earningsWithinDays: '财报窗口临近',
         },
         explanation: {
           priceAbove: '{asset}最新价格 {current}，突破预设压力阈值 {threshold}。',
@@ -1204,6 +1209,10 @@ const messages: Record<Locale, DictionaryNode> = {
             '{asset}最新 MACD 与信号线差值为 {current}；仅在本期由下向上穿越时触发。',
           macdBearishCross:
             '{asset}最新 MACD 与信号线差值为 {current}；仅在本期由上向下穿越时触发。',
+          volumeSpike: '{asset}最新成交量为前 20 期基准的 {current} 倍，达到阈值 {threshold} 倍。',
+          volatilityAbove: '{asset}当前 20 期历史波动率为 {current}%，达到阈值 {threshold}%。',
+          gapAbove: '{asset}最近缺口绝对幅度为 {current}%，达到阈值 {threshold}%。',
+          earningsWithinDays: '{asset}距离下一财报约 {current} 天，进入 {threshold} 天风险窗口。',
         },
       },
     },
@@ -2500,6 +2509,7 @@ const messages: Record<Locale, DictionaryNode> = {
           'Personal gate: {horizon} direction {alignment}, confidence {confidence}% / minimum {minimum}%, cross-asset resonance {resonance}.',
         directionAligned: 'aligned',
         directionWaiting: 'not aligned',
+        directionNotApplicable: 'not applicable (risk condition)',
         resonancePassed: 'validated',
         resonanceWaiting: 'pending',
         resonanceOptional: 'optional',
@@ -2510,6 +2520,10 @@ const messages: Record<Locale, DictionaryNode> = {
           rsiBelow: 'RSI enters oversold',
           macdBullishCross: 'MACD bullish cross',
           macdBearishCross: 'MACD bearish cross',
+          volumeSpike: 'Abnormal volume expansion',
+          volatilityAbove: 'Historical volatility above threshold',
+          gapAbove: 'Price gap above threshold',
+          earningsWithinDays: 'Earnings window approaching',
         },
         explanation: {
           priceAbove:
@@ -2521,6 +2535,14 @@ const messages: Record<Locale, DictionaryNode> = {
             '{asset} latest MACD-minus-signal is {current}; it triggers only on a fresh upward cross.',
           macdBearishCross:
             '{asset} latest MACD-minus-signal is {current}; it triggers only on a fresh downward cross.',
+          volumeSpike:
+            '{asset} latest volume is {current}x its prior 20-period baseline, meeting the {threshold}x threshold.',
+          volatilityAbove:
+            '{asset} 20-period historical volatility is {current}%, meeting the {threshold}% threshold.',
+          gapAbove:
+            '{asset} latest absolute price gap is {current}%, meeting the {threshold}% threshold.',
+          earningsWithinDays:
+            '{asset} is about {current} days from its next earnings event, inside the {threshold}-day risk window.',
         },
       },
     },

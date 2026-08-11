@@ -67,6 +67,10 @@ const technicalAlertConditions = new Set<TechnicalAlertCondition>([
   'rsiBelow',
   'macdBullishCross',
   'macdBearishCross',
+  'volumeSpike',
+  'volatilityAbove',
+  'gapAbove',
+  'earningsWithinDays',
 ])
 const technicalAlertHorizons = new Set<TechnicalAlertHorizon>([
   'day',
