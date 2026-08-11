@@ -3,8 +3,10 @@ import type {
   TechnicalAnalysisResult,
   TechnicalHorizonReading,
   TechnicalIndicatorReading,
+  TechnicalIndicatorConfig,
   TechnicalSignalStatus,
 } from '@/types'
+import { defaultTechnicalIndicatorConfig } from '@/utils/technical-config'
 
 const round = (value: number, digits = 2) => Number(value.toFixed(digits))
 const clamp = (value: number, minimum: number, maximum: number) =>
@@ -148,9 +150,18 @@ export const analyzeTechnicalSignals = (
   points: AssetPricePoint[],
   crossAssetScore = 0,
   stale = false,
+  config: TechnicalIndicatorConfig = defaultTechnicalIndicatorConfig,
 ): TechnicalAnalysisResult => {
   const values = points.map((point) => point.close).filter(Number.isFinite)
-  if (values.length < 20) {
+  const { parameters, enabled, weights } = config
+  const minimumObservations = Math.max(
+    parameters.maShortPeriod,
+    parameters.rsiPeriod,
+    parameters.bollingerPeriod,
+    parameters.atrPeriod,
+    parameters.macdSlowPeriod + parameters.macdSignalPeriod,
+  )
+  if (values.length < minimumObservations) {
     const empty = Array.from({ length: values.length }, () => null)
     return {
       status: 'insufficient',
@@ -172,19 +183,23 @@ export const analyzeTechnicalSignals = (
     }
   }
 
-  const ma20 = simpleMovingAverage(values, 20)
-  const ma60 = simpleMovingAverage(values, 60)
-  const ema12 = exponentialMovingAverage(values, 12)
-  const ema26 = exponentialMovingAverage(values, 26)
+  const ma20 = simpleMovingAverage(values, parameters.maShortPeriod)
+  const ma60 = simpleMovingAverage(values, parameters.maLongPeriod)
+  const ema12 = exponentialMovingAverage(values, parameters.macdFastPeriod)
+  const ema26 = exponentialMovingAverage(values, parameters.macdSlowPeriod)
   const macd = values.map((_, index) =>
     ema12[index] === null || ema26[index] === null ? null : round(ema12[index]! - ema26[index]!, 6),
   )
   const macdValues = macd.map((value) => value ?? 0)
-  const rawMacdSignal = exponentialMovingAverage(macdValues, 9)
+  const rawMacdSignal = exponentialMovingAverage(macdValues, parameters.macdSignalPeriod)
   const macdSignal = rawMacdSignal.map((value, index) => (macd[index] === null ? null : value))
-  const rsi14 = relativeStrengthIndex(values)
-  const { upper: bollingerUpper, lower: bollingerLower } = bollingerBands(values)
-  const atr14 = averageTrueRange(points)
+  const rsi14 = relativeStrengthIndex(values, parameters.rsiPeriod)
+  const { upper: bollingerUpper, lower: bollingerLower } = bollingerBands(
+    values,
+    parameters.bollingerPeriod,
+    parameters.bollingerMultiplier,
+  )
+  const atr14 = averageTrueRange(points, parameters.atrPeriod)
 
   const latest = last(values)!
   const latestMa20 = last(ma20) ?? null
@@ -197,21 +212,21 @@ export const analyzeTechnicalSignals = (
   const ma20Slope = latestMa20 && previousMa20 ? (latestMa20 / previousMa20 - 1) * 100 : 0
 
   let trendScore = 0
-  if (latestMa20 !== null) trendScore += latest >= latestMa20 ? 30 : -30
-  if (latestMa60 !== null) trendScore += latest >= latestMa60 ? 25 : -25
-  trendScore += clamp(ma20Slope * 12, -25, 25)
-  if (latestMacd !== null && latestMacdSignal !== null)
+  if (enabled.maShort && latestMa20 !== null) trendScore += latest >= latestMa20 ? 30 : -30
+  if (enabled.maLong && latestMa60 !== null) trendScore += latest >= latestMa60 ? 25 : -25
+  if (enabled.maShort) trendScore += clamp(ma20Slope * 12, -25, 25)
+  if (enabled.macd && latestMacd !== null && latestMacdSignal !== null)
     trendScore += latestMacd >= latestMacdSignal ? 20 : -20
   trendScore = clamp(trendScore, -100, 100)
 
   const momentumScore =
     latestRsi === null
       ? 0
-      : latestRsi >= 75
+      : latestRsi >= parameters.rsiOverbought
         ? 45
         : latestRsi >= 55
           ? clamp((latestRsi - 50) * 4, 0, 70)
-          : latestRsi <= 25
+          : latestRsi <= parameters.rsiOversold
             ? -45
             : latestRsi <= 45
               ? clamp((latestRsi - 50) * 4, -70, 0)
@@ -240,23 +255,35 @@ export const analyzeTechnicalSignals = (
         )
       : 0
   const boundedCrossAssetScore = clamp(crossAssetScore, -100, 100)
+  const weightedScores = [
+    { enabled: enabled.maShort || enabled.maLong || enabled.macd, weight: weights.trend, score: trendScore },
+    { enabled: enabled.rsi, weight: weights.momentum, score: momentumScore },
+    { enabled: enabled.atr || enabled.bollinger, weight: weights.volatility, score: volatilityScore },
+    { enabled: enabled.volume, weight: weights.volume, score: volumeScore },
+    { enabled: enabled.crossAsset, weight: weights.crossAsset, score: boundedCrossAssetScore },
+  ]
+  const activeWeight = weightedScores.reduce(
+    (sum, item) => sum + (item.enabled ? item.weight : 0),
+    0,
+  )
   const score = round(
-    trendScore * 0.4 +
-      momentumScore * 0.22 +
-      volatilityScore * 0.13 +
-      volumeScore * 0.1 +
-      boundedCrossAssetScore * 0.15,
+    activeWeight
+      ? weightedScores.reduce(
+          (sum, item) => sum + (item.enabled ? item.score * item.weight : 0),
+          0,
+        ) / activeWeight
+      : 0,
   )
   const conflicting =
     Math.sign(trendScore) !== Math.sign(momentumScore) &&
     Math.abs(trendScore) >= 45 &&
     Math.abs(momentumScore) >= 35
   const status = statusFromScore(score, conflicting)
-  const window = values.slice(-60)
+  const window = values.slice(-parameters.supportResistanceWindow)
   const support = Math.min(...window)
   const resistance = Math.max(...window)
 
-  const indicators: TechnicalIndicatorReading[] = [
+  const allIndicators: TechnicalIndicatorReading[] = [
     {
       id: 'trend',
       value: latestMa20,
@@ -298,13 +325,22 @@ export const analyzeTechnicalSignals = (
       evidence: ['transmissionChains'],
     },
   ]
+  const indicators = allIndicators.filter((indicator) => {
+    if (indicator.id === 'trend') return enabled.maShort || enabled.maLong || enabled.macd
+    if (indicator.id === 'momentum') return enabled.rsi
+    if (indicator.id === 'volatility') return enabled.atr || enabled.bollinger
+    if (indicator.id === 'volume') return enabled.volume
+    return enabled.crossAsset
+  })
 
   const availableIndicators = indicators.filter(
     (indicator) => indicator.status !== 'insufficient',
   ).length
   const confidence = clamp(
     Math.round(
-      Math.min(values.length / 252, 1) * 55 + (availableIndicators / 5) * 35 + (stale ? 0 : 10),
+      Math.min(values.length / 252, 1) * 55 +
+        (availableIndicators / Math.max(indicators.length, 1)) * 35 +
+        (stale ? 0 : 10),
     ),
     0,
     100,

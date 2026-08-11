@@ -4,6 +4,8 @@ import type {
   QuantDashboard,
   TechnicalAlertCondition,
   TechnicalAlertRule,
+  TechnicalIndicatorConfig,
+  TechnicalIndicatorConfigVersion,
   UsMegaCapDataset,
 } from '../src/types/index'
 import { buildQuantDashboard } from '../src/utils/quant-signals'
@@ -60,6 +62,22 @@ const technicalAlertConditions = new Set<TechnicalAlertCondition>([
   'macdBullishCross',
   'macdBearishCross',
 ])
+const technicalRanges = new Set<TechnicalIndicatorConfig['display']['defaultRange']>([
+  'month',
+  'quarter',
+  'halfYear',
+  'year',
+  'threeYear',
+  'fiveYear',
+])
+
+interface TechnicalConfigRow {
+  version: number
+  formula_version: string
+  config_json: string
+  created_by: string | null
+  created_at: string
+}
 
 class HttpError extends Error {
   constructor(
@@ -401,6 +419,171 @@ const deleteTechnicalAlert = async (env: Env, userId: string, id: string) => {
   if (!result.meta.changes) throw new HttpError(404, '未找到预警规则')
 }
 
+const toTechnicalConfig = (row: TechnicalConfigRow): TechnicalIndicatorConfig => {
+  const payload = JSON.parse(row.config_json) as Omit<
+    TechnicalIndicatorConfig,
+    'version' | 'formulaVersion' | 'updatedAt' | 'updatedBy'
+  >
+  return {
+    version: row.version,
+    formulaVersion: row.formula_version,
+    updatedAt: row.created_at,
+    updatedBy: row.created_by,
+    ...payload,
+  }
+}
+
+const latestTechnicalConfig = async (env: Env) => {
+  const row = await env.DB.prepare(
+    `SELECT version, formula_version, config_json, created_by, created_at
+     FROM technical_indicator_config_versions ORDER BY version DESC LIMIT 1`,
+  ).first<TechnicalConfigRow>()
+  if (!row) throw new HttpError(503, '技术指标配置尚未初始化')
+  return toTechnicalConfig(row)
+}
+
+const listTechnicalConfigVersions = async (env: Env) => {
+  const rows = await env.DB.prepare(
+    `SELECT version, formula_version, created_by, created_at
+     FROM technical_indicator_config_versions ORDER BY version DESC LIMIT 50`,
+  ).all<Omit<TechnicalConfigRow, 'config_json'>>()
+  return rows.results.map(
+    (row): TechnicalIndicatorConfigVersion => ({
+      version: row.version,
+      formulaVersion: row.formula_version,
+      updatedAt: row.created_at,
+      updatedBy: row.created_by,
+    }),
+  )
+}
+
+const validateConfigNumber = (
+  value: unknown,
+  label: string,
+  minimum: number,
+  maximum: number,
+  integer = true,
+) => {
+  if (
+    typeof value !== 'number' ||
+    !Number.isFinite(value) ||
+    value < minimum ||
+    value > maximum ||
+    (integer && !Number.isInteger(value))
+  ) {
+    throw new HttpError(400, `${label}必须在${minimum}至${maximum}之间`)
+  }
+  return value
+}
+
+const validateTechnicalConfig = (input: TechnicalIndicatorConfig) => {
+  if (!input || typeof input !== 'object') throw new HttpError(400, '技术指标配置无效')
+  if (!/^[a-z0-9][a-z0-9._-]{2,39}$/i.test(input.formulaVersion ?? '')) {
+    throw new HttpError(400, '公式版本格式无效')
+  }
+  const enabledKeys: Array<keyof TechnicalIndicatorConfig['enabled']> = [
+    'maShort',
+    'maLong',
+    'macd',
+    'rsi',
+    'bollinger',
+    'atr',
+    'volume',
+    'crossAsset',
+  ]
+  if (enabledKeys.some((key) => typeof input.enabled?.[key] !== 'boolean')) {
+    throw new HttpError(400, '指标启用状态无效')
+  }
+  const parameters = input.parameters
+  validateConfigNumber(parameters?.maShortPeriod, '短期均线周期', 2, 200)
+  validateConfigNumber(parameters?.maLongPeriod, '长期均线周期', 5, 400)
+  validateConfigNumber(parameters?.macdFastPeriod, 'MACD快线周期', 2, 100)
+  validateConfigNumber(parameters?.macdSlowPeriod, 'MACD慢线周期', 3, 200)
+  validateConfigNumber(parameters?.macdSignalPeriod, 'MACD信号周期', 2, 100)
+  validateConfigNumber(parameters?.rsiPeriod, 'RSI周期', 2, 100)
+  validateConfigNumber(parameters?.rsiOverbought, 'RSI超买阈值', 51, 99, false)
+  validateConfigNumber(parameters?.rsiOversold, 'RSI超卖阈值', 1, 49, false)
+  validateConfigNumber(parameters?.bollingerPeriod, '布林带周期', 2, 200)
+  validateConfigNumber(parameters?.bollingerMultiplier, '布林带倍数', 0.5, 5, false)
+  validateConfigNumber(parameters?.atrPeriod, 'ATR周期', 2, 100)
+  validateConfigNumber(parameters?.supportResistanceWindow, '支撑压力窗口', 10, 500)
+  if (parameters.maShortPeriod >= parameters.maLongPeriod) {
+    throw new HttpError(400, '短期均线周期必须小于长期均线周期')
+  }
+  if (parameters.macdFastPeriod >= parameters.macdSlowPeriod) {
+    throw new HttpError(400, 'MACD快线周期必须小于慢线周期')
+  }
+  if (parameters.rsiOversold >= parameters.rsiOverbought) {
+    throw new HttpError(400, 'RSI超卖阈值必须小于超买阈值')
+  }
+  const weightKeys: Array<keyof TechnicalIndicatorConfig['weights']> = [
+    'trend',
+    'momentum',
+    'volatility',
+    'volume',
+    'crossAsset',
+  ]
+  const weightTotal = weightKeys.reduce(
+    (sum, key) => sum + validateConfigNumber(input.weights?.[key], `${key}权重`, 0, 1, false),
+    0,
+  )
+  if (Math.abs(weightTotal - 1) > 0.001) throw new HttpError(400, '综合评分权重之和必须为1')
+  validateConfigNumber(input.display?.carouselIntervalMs, '轮播间隔', 3_000, 30_000)
+  if (typeof input.display?.carouselAutoPlay !== 'boolean') throw new HttpError(400, '轮播设置无效')
+  if (!technicalRanges.has(input.display?.defaultRange)) throw new HttpError(400, '默认周期无效')
+  if (
+    !Array.isArray(input.sourcePriority) ||
+    !input.sourcePriority.length ||
+    input.sourcePriority.length > 10 ||
+    input.sourcePriority.some(
+      (source) => typeof source !== 'string' || !source.trim() || source.length > 80,
+    )
+  ) {
+    throw new HttpError(400, '数据源优先级无效')
+  }
+  return {
+    enabled: input.enabled,
+    parameters,
+    weights: input.weights,
+    display: input.display,
+    sourcePriority: input.sourcePriority.map((source) => source.trim()),
+  }
+}
+
+const saveTechnicalConfig = async (
+  request: Request,
+  env: Env,
+  actorId: string,
+) => {
+  const input = await requestJson<TechnicalIndicatorConfig>(request)
+  const payload = validateTechnicalConfig(input)
+  const now = new Date().toISOString()
+  const result = await env.DB.prepare(
+    `INSERT INTO technical_indicator_config_versions
+     (formula_version, config_json, created_by, created_at) VALUES (?, ?, ?, ?)`,
+  )
+    .bind(input.formulaVersion, JSON.stringify(payload), actorId, now)
+    .run()
+  const version = Number(result.meta.last_row_id)
+  await env.DB.prepare(
+    `INSERT INTO admin_audit_log
+     (id, actor_user_id, action, target_type, target_id, metadata, created_at)
+     VALUES (?, ?, 'technical-config.update', 'technical-config', ?, ?, ?)`,
+  )
+    .bind(
+      crypto.randomUUID(),
+      actorId,
+      String(version),
+      JSON.stringify({ formulaVersion: input.formulaVersion }),
+      now,
+    )
+    .run()
+  return {
+    config: await latestTechnicalConfig(env),
+    versions: await listTechnicalConfigVersions(env),
+  }
+}
+
 const handleApi = async (request: Request, env: Env) => {
   const url = new URL(request.url)
   if (request.method === 'OPTIONS')
@@ -431,6 +614,9 @@ const handleApi = async (request: Request, env: Env) => {
   if (url.pathname === '/api/analytics/config' && request.method === 'GET') {
     return json(request, env, await analyticsConfig(env))
   }
+  if (url.pathname === '/api/technical-config' && request.method === 'GET') {
+    return json(request, env, await latestTechnicalConfig(env))
+  }
   if (url.pathname === '/api/admin/users' && request.method === 'GET') {
     await authenticate(request, env, 'users.manage')
     return json(request, env, { users: await listUsers(env) })
@@ -452,6 +638,17 @@ const handleApi = async (request: Request, env: Env) => {
   if (url.pathname === '/api/admin/analytics' && request.method === 'PATCH') {
     const actor = await authenticate(request, env, 'analytics.manage')
     return json(request, env, await saveAnalytics(env, actor.id, await requestJson(request)))
+  }
+  if (url.pathname === '/api/admin/technical-config' && request.method === 'GET') {
+    await authenticate(request, env, 'technicalConfig.manage')
+    return json(request, env, {
+      config: await latestTechnicalConfig(env),
+      versions: await listTechnicalConfigVersions(env),
+    })
+  }
+  if (url.pathname === '/api/admin/technical-config' && request.method === 'PATCH') {
+    const actor = await authenticate(request, env, 'technicalConfig.manage')
+    return json(request, env, await saveTechnicalConfig(request, env, actor.id))
   }
   if (url.pathname === '/api/quant/dashboard' && request.method === 'GET') {
     return json(request, env, await latestDashboard(env))

@@ -39,6 +39,7 @@ export type AppPermission =
   | 'analytics.manage'
   | 'paper.manage'
   | 'technicalAlerts.manage'
+  | 'technicalConfig.manage'
 
 export interface AppUser {
   id: string
@@ -990,6 +991,65 @@ export interface TechnicalAlertEvaluation {
   triggered: boolean
   currentValue: number | null
   explanation: string
+}
+
+export type TechnicalChartRange =
+  | 'month'
+  | 'quarter'
+  | 'halfYear'
+  | 'year'
+  | 'threeYear'
+  | 'fiveYear'
+
+export interface TechnicalIndicatorConfig {
+  version: number
+  formulaVersion: string
+  updatedAt: string | null
+  updatedBy: string | null
+  enabled: {
+    maShort: boolean
+    maLong: boolean
+    macd: boolean
+    rsi: boolean
+    bollinger: boolean
+    atr: boolean
+    volume: boolean
+    crossAsset: boolean
+  }
+  parameters: {
+    maShortPeriod: number
+    maLongPeriod: number
+    macdFastPeriod: number
+    macdSlowPeriod: number
+    macdSignalPeriod: number
+    rsiPeriod: number
+    rsiOverbought: number
+    rsiOversold: number
+    bollingerPeriod: number
+    bollingerMultiplier: number
+    atrPeriod: number
+    supportResistanceWindow: number
+  }
+  weights: {
+    trend: number
+    momentum: number
+    volatility: number
+    volume: number
+    crossAsset: number
+  }
+  display: {
+    carouselIntervalMs: number
+    carouselAutoPlay: boolean
+    defaultRange: TechnicalChartRange
+  }
+  sourcePriority: string[]
+}
+
+export interface TechnicalIndicatorConfigVersion {
+  version: number
+  formulaVersion: string
+  updatedAt: string
+  updatedBy: string | null
 }
 
 export interface MarketHomeDataset {

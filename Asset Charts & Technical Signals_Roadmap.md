@@ -4,7 +4,7 @@
 
 | Phase                                   | Status      | Current evidence                                                                                                                                                                                                                                   |
 | --------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Phase 0 · Data and interfaces           | In progress | Versioned asset history dataset, source metadata, optional OHLCV model, indicator/result/alert types, role permissions, authenticated Cloudflare Worker API, D1 migration, and daily refresh workflows are implemented. Global indicator configuration and formula version ledger remain. |
+| Phase 0 · Data and interfaces           | In progress | Versioned asset history dataset, source metadata, optional OHLCV model, indicator/result/alert types, role permissions, authenticated Cloudflare Worker API, D1 migrations, daily refresh workflows, global indicator configuration, parameter templates, and an append-only formula/configuration ledger are implemented. Unified trading calendars and runtime enforcement of source priority remain. |
 | Phase 1 · Core MVP                      | In progress | 24 cross-asset series, line/real-candle modes, MA20/60, MACD, RSI, Bollinger, ATR, support/resistance, six horizons, comparison, transmission carousel, favorites, fullscreen, PNG export, and authenticated personal alerts are implemented. Massive OHLCV is live for the US mega-cap set; the free plan supplies two years of history and the workflow now respects its five-calls-per-minute limit while retaining stale fallback data on transient failures. |
 | Phase 2 · Funds and advanced comparison | Planned     | Not started.                                                                                                                                                                                                                                       |
 | Phase 3 · Options and event analysis    | Planned     | Not started.                                                                                                                                                                                                                                       |
@@ -391,6 +391,13 @@ The status table is an implementation ledger, not a change to the scope below. A
 - 定义缓存、降级和数据过期策略
 - 定义 Viewer、Editor 和 Admin 权限
 - 建立指标与传导链结果的可追溯版本
+
+当前实现证据：
+
+- 公共技术配置接口为走势图提供启用指标、周期参数、阈值、评分权重、传导链轮播和默认区间
+- Admin 可应用趋势、波段和期权三类参数模板，并将每次修改保存为新的只追加版本
+- Cloudflare D1 保存配置版本、公式版本、修改人和修改时间；Worker 同时校验周期关系、阈值关系和评分权重
+- Viewer/Editor 只能读取公共生效配置，只有 Admin 拥有 `technicalConfig.manage` 修改权限
 
 完成标准：数据模型、API 契约、权限矩阵和来源清单通过评审。
 

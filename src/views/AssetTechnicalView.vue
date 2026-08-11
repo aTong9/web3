@@ -14,14 +14,20 @@ import type {
   TechnicalAlertCondition,
   TechnicalAlertEvaluation,
   TechnicalAlertRule,
+  TechnicalChartRange,
   TechnicalChartAsset,
+  TechnicalIndicatorConfig,
   TechnicalSignalStatus,
 } from '@/types'
 import { technicalAlertApi } from '@/utils/technical-alert-api'
 import { analyzeTechnicalSignals } from '@/utils/technical-analysis'
+import {
+  defaultTechnicalIndicatorConfig,
+  technicalConfigApi,
+} from '@/utils/technical-config'
 import { useTheme } from '@/utils/use-theme'
 
-type RangeId = 'month' | 'quarter' | 'halfYear' | 'year' | 'threeYear' | 'fiveYear'
+type RangeId = TechnicalChartRange
 type ChartMode = 'line' | 'candle'
 type ChainFilter = 'related' | 'strong'
 
@@ -43,16 +49,19 @@ const crossAsset = crossAssetData as CrossAssetDataset
 const { locale, t } = useI18n()
 const { theme } = useTheme()
 const { can, restore } = useAuth()
+const technicalConfig = ref<TechnicalIndicatorConfig>(
+  structuredClone(defaultTechnicalIndicatorConfig),
+)
 
 const fallbackAsset = dataset.assets[0] as TechnicalChartAsset
 const selectedId = ref(dataset.assets.find((asset) => asset.id === 'sp500')?.id ?? fallbackAsset.id)
 const compareId = ref('')
 const search = ref('')
-const range = ref<RangeId>('year')
+const range = ref<RangeId>(technicalConfig.value.display.defaultRange)
 const chartMode = ref<ChartMode>('line')
 const chainFilter = ref<ChainFilter>('related')
 const activeChainIndex = ref(0)
-const carouselPlaying = ref(true)
+const carouselPlaying = ref(technicalConfig.value.display.carouselAutoPlay)
 const selectedIndicators = ref(['ma20', 'ma60', 'bollinger'])
 const chartRef = ref<InstanceType<typeof EChart> | null>(null)
 const chartShell = ref<HTMLElement | null>(null)
@@ -74,6 +83,11 @@ const rangeObservations: Record<RangeId, number> = {
   threeYear: 756,
   fiveYear: 1260,
 }
+const overlayOptions = computed(() => [
+  ...(technicalConfig.value.enabled.maShort ? ['ma20'] : []),
+  ...(technicalConfig.value.enabled.maLong ? ['ma60'] : []),
+  ...(technicalConfig.value.enabled.bollinger ? ['bollinger'] : []),
+])
 
 const selectedAsset = computed(
   () => dataset.assets.find((asset) => asset.id === selectedId.value) ?? fallbackAsset,
@@ -132,6 +146,7 @@ const analysis = computed(() =>
     selectedAsset.value?.points ?? [],
     crossAssetScore.value,
     selectedAsset.value?.stale ?? true,
+    technicalConfig.value,
   ),
 )
 const currentAssetAlerts = computed(() =>
@@ -198,12 +213,16 @@ const chartOption = computed<EChartsCoreOption>(() => {
         label: { color: muted, fontSize: 9 },
         data: [
           {
-            name: t('assetTechnical.support'),
+            name: t('assetTechnical.support', {
+              period: technicalConfig.value.parameters.supportResistanceWindow,
+            }),
             yAxis: analysis.value.support,
             lineStyle: { color: negative, type: 'dashed' },
           },
           {
-            name: t('assetTechnical.resistance'),
+            name: t('assetTechnical.resistance', {
+              period: technicalConfig.value.parameters.supportResistanceWindow,
+            }),
             yAxis: analysis.value.resistance,
             lineStyle: { color: positive, type: 'dashed' },
           },
@@ -213,7 +232,7 @@ const chartOption = computed<EChartsCoreOption>(() => {
   }
   if (selectedIndicators.value.includes('ma20'))
     series.push({
-      name: 'MA20',
+      name: `MA${technicalConfig.value.parameters.maShortPeriod}`,
       type: 'line',
       data: indicatorSlice(analysis.value.ma20),
       showSymbol: false,
@@ -221,7 +240,7 @@ const chartOption = computed<EChartsCoreOption>(() => {
     })
   if (selectedIndicators.value.includes('ma60'))
     series.push({
-      name: 'MA60',
+      name: `MA${technicalConfig.value.parameters.maLongPeriod}`,
       type: 'line',
       data: indicatorSlice(analysis.value.ma60),
       showSymbol: false,
@@ -243,8 +262,8 @@ const chartOption = computed<EChartsCoreOption>(() => {
       lineStyle: { color: muted, width: 1, type: 'dotted' },
     })
   }
-  series.push({
-    name: 'RSI 14',
+  if (technicalConfig.value.enabled.rsi) series.push({
+    name: `RSI ${technicalConfig.value.parameters.rsiPeriod}`,
     type: 'line',
     xAxisIndex: 1,
     yAxisIndex: 1,
@@ -255,7 +274,10 @@ const chartOption = computed<EChartsCoreOption>(() => {
       silent: true,
       symbol: ['none', 'none'],
       label: { show: false },
-      data: [{ yAxis: 70 }, { yAxis: 30 }],
+      data: [
+        { yAxis: technicalConfig.value.parameters.rsiOverbought },
+        { yAxis: technicalConfig.value.parameters.rsiOversold },
+      ],
       lineStyle: { color: border, type: 'dashed' },
     },
   })
@@ -447,8 +469,8 @@ const evaluateAlert = (rule: TechnicalAlertRule): TechnicalAlertEvaluation => {
 const defaultAlertThreshold = () => {
   if (alertCondition.value === 'priceAbove') return analysis.value.resistance
   if (alertCondition.value === 'priceBelow') return analysis.value.support
-  if (alertCondition.value === 'rsiAbove') return 70
-  if (alertCondition.value === 'rsiBelow') return 30
+  if (alertCondition.value === 'rsiAbove') return technicalConfig.value.parameters.rsiOverbought
+  if (alertCondition.value === 'rsiBelow') return technicalConfig.value.parameters.rsiOversold
   return null
 }
 const resetAlertThreshold = () => {
@@ -464,6 +486,22 @@ const loadAlerts = async () => {
     alertMessage.value = t('assetTechnical.alert.loadFailed')
   } finally {
     alertsLoading.value = false
+  }
+}
+const loadTechnicalConfig = async () => {
+  try {
+    technicalConfig.value = await technicalConfigApi.publicConfig()
+    range.value = technicalConfig.value.display.defaultRange
+    carouselPlaying.value = technicalConfig.value.display.carouselAutoPlay
+    selectedIndicators.value = [
+      ...(technicalConfig.value.enabled.maShort ? ['ma20'] : []),
+      ...(technicalConfig.value.enabled.maLong ? ['ma60'] : []),
+      ...(technicalConfig.value.enabled.bollinger ? ['bollinger'] : []),
+    ]
+    resetAlertThreshold()
+    resetCarousel()
+  } catch (error) {
+    console.warn('Technical configuration could not be loaded; defaults are active:', error)
   }
 }
 const createAlert = async () => {
@@ -528,7 +566,10 @@ const resetCarousel = () => {
   carouselTimer = null
   if (!carouselPlaying.value || window.matchMedia('(prefers-reduced-motion: reduce)').matches)
     return
-  carouselTimer = window.setInterval(() => moveChain(1), 7000)
+  carouselTimer = window.setInterval(
+    () => moveChain(1),
+    technicalConfig.value.display.carouselIntervalMs,
+  )
 }
 const downloadChart = async () => {
   await nextTick()
@@ -559,6 +600,7 @@ onMounted(() => {
     favorites.value = []
   }
   void restore().then(loadAlerts)
+  void loadTechnicalConfig()
   resetAlertThreshold()
   resetCarousel()
 })
@@ -716,9 +758,13 @@ onBeforeUnmount(() => {
           </div>
         </div>
         <div class="indicator-toggles" role="group" :aria-label="t('assetTechnical.overlays')">
-          <label v-for="indicator in ['ma20', 'ma60', 'bollinger']" :key="indicator"
+          <label v-for="indicator in overlayOptions" :key="indicator"
             ><input v-model="selectedIndicators" type="checkbox" :value="indicator" />{{
-              indicator === 'bollinger' ? 'Bollinger' : indicator.toUpperCase()
+              indicator === 'bollinger'
+                ? 'Bollinger'
+                : indicator === 'ma20'
+                  ? `MA${technicalConfig.parameters.maShortPeriod}`
+                  : `MA${technicalConfig.parameters.maLongPeriod}`
             }}</label
           >
         </div>
@@ -729,11 +775,19 @@ onBeforeUnmount(() => {
               ><strong>{{ formatValue(analysis.latest) }} {{ selectedAsset.unit }}</strong>
             </div>
             <div>
-              <small>{{ t('assetTechnical.support') }}</small
+              <small>{{
+                t('assetTechnical.support', {
+                  period: technicalConfig.parameters.supportResistanceWindow,
+                })
+              }}</small
               ><b>{{ formatValue(analysis.support) }}</b>
             </div>
             <div>
-              <small>{{ t('assetTechnical.resistance') }}</small
+              <small>{{
+                t('assetTechnical.resistance', {
+                  period: technicalConfig.parameters.supportResistanceWindow,
+                })
+              }}</small
               ><b>{{ formatValue(analysis.resistance) }}</b>
             </div>
           </header>
@@ -745,6 +799,14 @@ onBeforeUnmount(() => {
         </div>
         <details class="methodology">
           <summary>{{ t('assetTechnical.methodology') }}</summary>
+          <p>
+            {{
+              t('assetTechnical.formulaVersion', {
+                formula: technicalConfig.formulaVersion,
+                version: technicalConfig.version,
+              })
+            }}
+          </p>
           <p v-for="limitation in dataset.limitations" :key="limitation">{{ limitation }}</p>
           <a :href="dataset.sourceUrl" target="_blank" rel="noopener noreferrer"
             >{{ dataset.source }} ↗</a

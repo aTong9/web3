@@ -1,9 +1,19 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import type { AnalyticsConfig, AppUser, UserRole } from '@/types'
+import type {
+  AnalyticsConfig,
+  AppUser,
+  TechnicalIndicatorConfig,
+  TechnicalIndicatorConfigVersion,
+  UserRole,
+} from '@/types'
 import PermissionGate from '@/components/PermissionGate.vue'
 import { adminApi } from '@/utils/admin-api'
 import { useI18n } from '@/composables/use-i18n'
+import {
+  defaultTechnicalIndicatorConfig,
+  technicalConfigApi,
+} from '@/utils/technical-config'
 
 const { t } = useI18n()
 
@@ -25,13 +35,63 @@ const analytics = ref<AnalyticsConfig>({
   consentRequired: true,
   updatedAt: null,
 })
+const technicalConfig = ref<TechnicalIndicatorConfig>(
+  structuredClone(defaultTechnicalIndicatorConfig),
+)
+const technicalVersions = ref<TechnicalIndicatorConfigVersion[]>([])
+const sourcePriorityText = ref(defaultTechnicalIndicatorConfig.sourcePriority.join('\n'))
+const technicalSaving = ref(false)
 const load = async () => {
   try {
-    const [u, a] = await Promise.all([adminApi.users(), adminApi.analytics()])
+    const [u, a, technical] = await Promise.all([
+      adminApi.users(),
+      adminApi.analytics(),
+      technicalConfigApi.adminConfig(),
+    ])
     users.value = u.users
     analytics.value = a
+    technicalConfig.value = technical.config
+    technicalVersions.value = technical.versions
+    sourcePriorityText.value = technical.config.sourcePriority.join('\n')
   } catch (e) {
     message.value = e instanceof Error ? e.message : t('admin.loadFailed')
+  }
+}
+const applyTechnicalTemplate = (template: 'trend' | 'swing' | 'options') => {
+  const templates = {
+    trend: { trend: 0.5, momentum: 0.15, volatility: 0.1, volume: 0.1, crossAsset: 0.15 },
+    swing: { trend: 0.3, momentum: 0.3, volatility: 0.2, volume: 0.05, crossAsset: 0.15 },
+    options: { trend: 0.25, momentum: 0.15, volatility: 0.3, volume: 0.05, crossAsset: 0.25 },
+  } as const
+  technicalConfig.value.weights = { ...templates[template] }
+  technicalConfig.value.enabled = {
+    ...technicalConfig.value.enabled,
+    maShort: true,
+    maLong: template !== 'swing',
+    macd: true,
+    rsi: true,
+    bollinger: true,
+    atr: true,
+    volume: true,
+    crossAsset: true,
+  }
+}
+const saveTechnicalConfig = async () => {
+  technicalSaving.value = true
+  message.value = ''
+  try {
+    technicalConfig.value.sourcePriority = sourcePriorityText.value
+      .split('\n')
+      .map((source) => source.trim())
+      .filter(Boolean)
+    const result = await technicalConfigApi.save(technicalConfig.value)
+    technicalConfig.value = result.config
+    technicalVersions.value = result.versions
+    message.value = t('admin.technicalSaved')
+  } catch (e) {
+    message.value = e instanceof Error ? e.message : t('admin.saveFailed')
+  } finally {
+    technicalSaving.value = false
   }
 }
 const add = async () => {
@@ -129,6 +189,113 @@ onMounted(load)
         </form>
       </section>
     </PermissionGate>
+    <PermissionGate permission="technicalConfig.manage">
+      <section class="card technical-config-card">
+        <header class="card-heading">
+          <div>
+            <h2>{{ t('admin.technicalConfig') }}</h2>
+            <p>{{ t('admin.technicalConfigIntro') }}</p>
+          </div>
+          <span>v{{ technicalConfig.version }} · {{ technicalConfig.formulaVersion }}</span>
+        </header>
+        <div class="template-actions">
+          <button type="button" @click="applyTechnicalTemplate('trend')">
+            {{ t('admin.templateTrend') }}
+          </button>
+          <button type="button" @click="applyTechnicalTemplate('swing')">
+            {{ t('admin.templateSwing') }}
+          </button>
+          <button type="button" @click="applyTechnicalTemplate('options')">
+            {{ t('admin.templateOptions') }}
+          </button>
+        </div>
+        <form class="technical-form" @submit.prevent="saveTechnicalConfig">
+          <fieldset>
+            <legend>{{ t('admin.enabledIndicators') }}</legend>
+            <label v-for="key in Object.keys(technicalConfig.enabled)" :key="key">
+              <input
+                v-model="technicalConfig.enabled[key as keyof typeof technicalConfig.enabled]"
+                type="checkbox"
+              />
+              {{ t(`admin.technicalIndicator.${key}`) }}
+            </label>
+          </fieldset>
+          <fieldset class="parameter-grid">
+            <legend>{{ t('admin.indicatorParameters') }}</legend>
+            <label v-for="key in Object.keys(technicalConfig.parameters)" :key="key">
+              <span>{{ t(`admin.technicalParameter.${key}`) }}</span>
+              <input
+                v-model.number="technicalConfig.parameters[key as keyof typeof technicalConfig.parameters]"
+                required
+                type="number"
+                :step="key === 'bollingerMultiplier' ? 0.1 : 1"
+              />
+            </label>
+          </fieldset>
+          <fieldset class="parameter-grid">
+            <legend>{{ t('admin.scoreWeights') }}</legend>
+            <label v-for="key in Object.keys(technicalConfig.weights)" :key="key">
+              <span>{{ t(`admin.technicalWeight.${key}`) }}</span>
+              <input
+                v-model.number="technicalConfig.weights[key as keyof typeof technicalConfig.weights]"
+                required
+                max="1"
+                min="0"
+                step="0.01"
+                type="number"
+              />
+            </label>
+            <small>{{ t('admin.weightHint') }}</small>
+          </fieldset>
+          <fieldset class="parameter-grid">
+            <legend>{{ t('admin.displayDefaults') }}</legend>
+            <label>
+              <span>{{ t('admin.carouselInterval') }}</span>
+              <input
+                v-model.number="technicalConfig.display.carouselIntervalMs"
+                max="30000"
+                min="3000"
+                required
+                step="500"
+                type="number"
+              />
+            </label>
+            <label>
+              <span>{{ t('admin.defaultRange') }}</span>
+              <select v-model="technicalConfig.display.defaultRange">
+                <option v-for="item in ['month', 'quarter', 'halfYear', 'year', 'threeYear', 'fiveYear']" :key="item" :value="item">
+                  {{ t(`assetTechnical.rangeOption.${item}`) }}
+                </option>
+              </select>
+            </label>
+            <label class="checkbox-row">
+              <input v-model="technicalConfig.display.carouselAutoPlay" type="checkbox" />
+              {{ t('admin.carouselAutoPlay') }}
+            </label>
+            <label>
+              <span>{{ t('admin.formulaVersion') }}</span>
+              <input v-model.trim="technicalConfig.formulaVersion" required />
+            </label>
+          </fieldset>
+          <label class="source-priority">
+            <span>{{ t('admin.sourcePriority') }}</span>
+            <textarea v-model="sourcePriorityText" rows="6"></textarea>
+            <small>{{ t('admin.sourcePriorityHint') }}</small>
+          </label>
+          <button :disabled="technicalSaving" type="submit">
+            {{ technicalSaving ? t('admin.saving') : t('admin.saveTechnical') }}
+          </button>
+        </form>
+        <details class="version-ledger">
+          <summary>{{ t('admin.versionLedger', { count: technicalVersions.length }) }}</summary>
+          <div v-for="version in technicalVersions" :key="version.version">
+            <b>v{{ version.version }}</b>
+            <span>{{ version.formulaVersion }}</span>
+            <time>{{ version.updatedAt }}</time>
+          </div>
+        </details>
+      </section>
+    </PermissionGate>
   </main>
 </template>
 <style scoped>
@@ -211,6 +378,133 @@ header p,
 .analytics label:has(input[type='checkbox']) {
   display: flex;
 }
+.card-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+}
+.card-heading h2,
+.card-heading p {
+  margin: 0;
+}
+.card-heading p {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.card-heading > span {
+  padding: 6px 9px;
+  border-radius: 16px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.template-actions {
+  margin: 18px 0;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.template-actions button {
+  min-height: 36px;
+  background: var(--surface-soft);
+  color: var(--ink);
+}
+.technical-form {
+  display: grid;
+  gap: 16px;
+}
+.technical-form fieldset {
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.technical-form legend {
+  padding: 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.technical-form fieldset > label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+}
+.technical-form .parameter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.parameter-grid label {
+  min-width: 0;
+  display: grid !important;
+  gap: 5px !important;
+  align-items: initial !important;
+}
+.parameter-grid label span,
+.source-priority > span {
+  color: var(--muted);
+  font-size: 10px;
+}
+.parameter-grid small {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 9px;
+}
+.parameter-grid .checkbox-row {
+  display: flex !important;
+  align-items: center !important;
+}
+.source-priority {
+  display: grid;
+  gap: 6px;
+}
+.source-priority textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 10px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  resize: vertical;
+}
+.source-priority small {
+  color: var(--muted);
+  font-size: 9px;
+}
+.technical-form > button {
+  justify-self: start;
+  min-width: 160px;
+}
+.technical-form > button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+.version-ledger {
+  margin-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.version-ledger summary {
+  padding: 14px 0;
+  font-size: 11px;
+  font-weight: 700;
+}
+.version-ledger > div {
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 50px 1fr auto;
+  gap: 10px;
+  font-size: 10px;
+}
+.version-ledger time {
+  color: var(--muted);
+}
 .notice {
   padding: 10px;
   border-left: 3px solid var(--accent);
@@ -223,6 +517,23 @@ header p,
   }
   .admin-page {
     padding: 20px;
+  }
+  .technical-form .parameter-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .card-heading {
+    display: grid;
+  }
+  .version-ledger > div {
+    grid-template-columns: 42px 1fr;
+  }
+  .version-ledger time {
+    grid-column: 2;
+  }
+}
+@media (max-width: 480px) {
+  .technical-form .parameter-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
