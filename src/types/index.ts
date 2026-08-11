@@ -38,6 +38,7 @@ export type AppPermission =
   | 'analytics.view'
   | 'analytics.manage'
   | 'paper.manage'
+  | 'technicalAlerts.manage'
 
 export interface AppUser {
   id: string
@@ -963,6 +964,32 @@ export interface TechnicalAnalysisResult {
   resistance: number | null
   indicators: TechnicalIndicatorReading[]
   horizons: TechnicalHorizonReading[]
+}
+
+export type TechnicalAlertCondition =
+  | 'priceAbove'
+  | 'priceBelow'
+  | 'rsiAbove'
+  | 'rsiBelow'
+  | 'macdBullishCross'
+  | 'macdBearishCross'
+
+export interface TechnicalAlertRule {
+  id: string
+  assetId: string
+  assetName: string
+  series: string
+  condition: TechnicalAlertCondition
+  threshold: number | null
+  enabled: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface TechnicalAlertEvaluation {
+  triggered: boolean
+  currentValue: number | null
+  explanation: string
 }
 
 export interface MarketHomeDataset {

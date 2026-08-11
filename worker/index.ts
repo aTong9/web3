@@ -2,6 +2,8 @@ import type {
   CrossAssetDataset,
   PaperSignalPosition,
   QuantDashboard,
+  TechnicalAlertCondition,
+  TechnicalAlertRule,
   UsMegaCapDataset,
 } from '../src/types/index'
 import { buildQuantDashboard } from '../src/utils/quant-signals'
@@ -36,6 +38,28 @@ interface PaperPositionRow {
   signal_score: number
   status: PaperSignalPosition['status']
 }
+
+interface TechnicalAlertRow {
+  id: string
+  user_id: string
+  asset_id: string
+  asset_name: string
+  series: string
+  condition: TechnicalAlertCondition
+  threshold: number | null
+  enabled: number
+  created_at: string
+  updated_at: string
+}
+
+const technicalAlertConditions = new Set<TechnicalAlertCondition>([
+  'priceAbove',
+  'priceBelow',
+  'rsiAbove',
+  'rsiBelow',
+  'macdBullishCross',
+  'macdBearishCross',
+])
 
 class HttpError extends Error {
   constructor(
@@ -279,6 +303,104 @@ const deletePaperPosition = async (env: Env, clientId: string, id: string) => {
   if (!result.meta.changes) throw new HttpError(404, '仅可删除已关闭的模拟记录')
 }
 
+const toTechnicalAlert = (row: TechnicalAlertRow): TechnicalAlertRule => ({
+  id: row.id,
+  assetId: row.asset_id,
+  assetName: row.asset_name,
+  series: row.series,
+  condition: row.condition,
+  threshold: row.threshold,
+  enabled: Boolean(row.enabled),
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+})
+
+const listTechnicalAlerts = async (env: Env, userId: string) => {
+  const rows = await env.DB.prepare(
+    `SELECT id, user_id, asset_id, asset_name, series, condition, threshold,
+            enabled, created_at, updated_at
+     FROM technical_alert_rules
+     WHERE user_id = ?
+     ORDER BY created_at DESC
+     LIMIT 200`,
+  )
+    .bind(userId)
+    .all<TechnicalAlertRow>()
+  return rows.results.map(toTechnicalAlert)
+}
+
+const validateAlertText = (value: unknown, field: string, maximum: number) => {
+  const normalized = typeof value === 'string' ? value.trim() : ''
+  if (!normalized || normalized.length > maximum) throw new HttpError(400, `${field}格式无效`)
+  return normalized
+}
+
+const createTechnicalAlert = async (request: Request, env: Env, userId: string) => {
+  const input = await requestJson<{
+    assetId?: unknown
+    assetName?: unknown
+    series?: unknown
+    condition?: unknown
+    threshold?: unknown
+  }>(request)
+  const assetId = validateAlertText(input.assetId, '资产ID', 80)
+  const assetName = validateAlertText(input.assetName, '资产名称', 120)
+  const series = validateAlertText(input.series, '资产代码', 40)
+  if (!technicalAlertConditions.has(input.condition as TechnicalAlertCondition)) {
+    throw new HttpError(400, '预警条件无效')
+  }
+  const condition = input.condition as TechnicalAlertCondition
+  const requiresThreshold = !condition.startsWith('macd')
+  const threshold = input.threshold === null ? null : Number(input.threshold)
+  if (requiresThreshold && (!Number.isFinite(threshold) || threshold === null)) {
+    throw new HttpError(400, '预警阈值无效')
+  }
+  if (!requiresThreshold && threshold !== null) throw new HttpError(400, 'MACD预警不需要阈值')
+  const now = new Date().toISOString()
+  const id = crypto.randomUUID()
+  try {
+    await env.DB.prepare(
+      `INSERT INTO technical_alert_rules
+       (id, user_id, asset_id, asset_name, series, condition, threshold, enabled, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+    )
+      .bind(id, userId, assetId, assetName, series, condition, threshold, now, now)
+      .run()
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('UNIQUE')) {
+      throw new HttpError(409, '该资产已有相同类型的预警')
+    }
+    throw error
+  }
+  const rules = await listTechnicalAlerts(env, userId)
+  return rules.find((rule) => rule.id === id)
+}
+
+const updateTechnicalAlert = async (
+  request: Request,
+  env: Env,
+  userId: string,
+  id: string,
+) => {
+  const input = await requestJson<{ enabled?: unknown }>(request)
+  if (typeof input.enabled !== 'boolean') throw new HttpError(400, '启用状态无效')
+  const result = await env.DB.prepare(
+    `UPDATE technical_alert_rules SET enabled = ?, updated_at = ? WHERE id = ? AND user_id = ?`,
+  )
+    .bind(input.enabled ? 1 : 0, new Date().toISOString(), id, userId)
+    .run()
+  if (!result.meta.changes) throw new HttpError(404, '未找到预警规则')
+}
+
+const deleteTechnicalAlert = async (env: Env, userId: string, id: string) => {
+  const result = await env.DB.prepare(
+    'DELETE FROM technical_alert_rules WHERE id = ? AND user_id = ?',
+  )
+    .bind(id, userId)
+    .run()
+  if (!result.meta.changes) throw new HttpError(404, '未找到预警规则')
+}
+
 const handleApi = async (request: Request, env: Env) => {
   const url = new URL(request.url)
   if (request.method === 'OPTIONS')
@@ -358,6 +480,30 @@ const handleApi = async (request: Request, env: Env) => {
   if (deleteMatch && request.method === 'DELETE') {
     const actor = await authenticate(request, env, 'paper.manage')
     await deletePaperPosition(env, actor.id, deleteMatch[1])
+    return json(request, env, { ok: true })
+  }
+  if (url.pathname === '/api/technical-alerts' && request.method === 'GET') {
+    const actor = await authenticate(request, env, 'technicalAlerts.manage')
+    return json(request, env, { alerts: await listTechnicalAlerts(env, actor.id) })
+  }
+  if (url.pathname === '/api/technical-alerts' && request.method === 'POST') {
+    const actor = await authenticate(request, env, 'technicalAlerts.manage')
+    return json(
+      request,
+      env,
+      { alert: await createTechnicalAlert(request, env, actor.id) },
+      201,
+    )
+  }
+  const technicalAlertMatch = url.pathname.match(/^\/api\/technical-alerts\/([0-9a-f-]+)$/i)
+  if (technicalAlertMatch && request.method === 'PATCH') {
+    const actor = await authenticate(request, env, 'technicalAlerts.manage')
+    await updateTechnicalAlert(request, env, actor.id, technicalAlertMatch[1])
+    return json(request, env, { ok: true })
+  }
+  if (technicalAlertMatch && request.method === 'DELETE') {
+    const actor = await authenticate(request, env, 'technicalAlerts.manage')
+    await deleteTechnicalAlert(env, actor.id, technicalAlertMatch[1])
     return json(request, env, { ok: true })
   }
   throw new HttpError(404, 'API路径不存在')

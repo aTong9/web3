@@ -3,6 +3,7 @@ import type { EChartsCoreOption } from 'echarts/core'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import EChart from '@/components/EChart.vue'
+import { useAuth } from '@/composables/use-auth'
 import { useI18n } from '@/composables/use-i18n'
 import technicalData from '@/data/asset-technical-signals.json'
 import crossAssetData from '@/data/cross-asset.json'
@@ -10,9 +11,13 @@ import usStockTechnicalData from '@/data/us-stock-technical-signals.json'
 import type {
   AssetTechnicalDataset,
   CrossAssetDataset,
+  TechnicalAlertCondition,
+  TechnicalAlertEvaluation,
+  TechnicalAlertRule,
   TechnicalChartAsset,
   TechnicalSignalStatus,
 } from '@/types'
+import { technicalAlertApi } from '@/utils/technical-alert-api'
 import { analyzeTechnicalSignals } from '@/utils/technical-analysis'
 import { useTheme } from '@/utils/use-theme'
 
@@ -37,6 +42,7 @@ const dataset: AssetTechnicalDataset = {
 const crossAsset = crossAssetData as CrossAssetDataset
 const { locale, t } = useI18n()
 const { theme } = useTheme()
+const { can, restore } = useAuth()
 
 const fallbackAsset = dataset.assets[0] as TechnicalChartAsset
 const selectedId = ref(dataset.assets.find((asset) => asset.id === 'sp500')?.id ?? fallbackAsset.id)
@@ -51,6 +57,12 @@ const selectedIndicators = ref(['ma20', 'ma60', 'bollinger'])
 const chartRef = ref<InstanceType<typeof EChart> | null>(null)
 const chartShell = ref<HTMLElement | null>(null)
 const favorites = ref<string[]>([])
+const alertRules = ref<TechnicalAlertRule[]>([])
+const alertCondition = ref<TechnicalAlertCondition>('priceAbove')
+const alertThreshold = ref<number | null>(null)
+const alertsLoading = ref(false)
+const alertBusyId = ref('')
+const alertMessage = ref('')
 let carouselTimer: number | null = null
 
 const favoriteStorageKey = 'market-desk-technical-favorites-v1'
@@ -121,6 +133,9 @@ const analysis = computed(() =>
     crossAssetScore.value,
     selectedAsset.value?.stale ?? true,
   ),
+)
+const currentAssetAlerts = computed(() =>
+  alertRules.value.filter((rule) => rule.assetId === selectedAsset.value.id),
 )
 const displayedPoints = computed(() =>
   (selectedAsset.value?.points ?? []).slice(-rangeObservations[range.value]),
@@ -364,6 +379,140 @@ const selectAsset = (id: string) => {
   activeChainIndex.value = 0
   if (compareId.value === id) compareId.value = ''
 }
+
+const latestFinite = (values: Array<number | null>) => {
+  for (let index = values.length - 1; index >= 0; index -= 1) {
+    const value = values[index]
+    if (typeof value === 'number') return value
+  }
+  return null
+}
+const previousFinite = (values: Array<number | null>) => {
+  let seen = 0
+  for (let index = values.length - 1; index >= 0; index -= 1) {
+    const value = values[index]
+    if (typeof value === 'number' && seen++ === 1) return value
+  }
+  return null
+}
+const evaluateAlert = (rule: TechnicalAlertRule): TechnicalAlertEvaluation => {
+  const latestPrice = analysis.value.latest
+  const latestRsi = latestFinite(analysis.value.rsi14)
+  const macd = latestFinite(analysis.value.macd)
+  const signal = latestFinite(analysis.value.macdSignal)
+  const previousMacd = previousFinite(analysis.value.macd)
+  const previousSignal = previousFinite(analysis.value.macdSignal)
+  let triggered = false
+  let currentValue: number | null = null
+  if (rule.condition === 'priceAbove') {
+    currentValue = latestPrice
+    triggered = latestPrice !== null && rule.threshold !== null && latestPrice > rule.threshold
+  } else if (rule.condition === 'priceBelow') {
+    currentValue = latestPrice
+    triggered = latestPrice !== null && rule.threshold !== null && latestPrice < rule.threshold
+  } else if (rule.condition === 'rsiAbove') {
+    currentValue = latestRsi
+    triggered = latestRsi !== null && rule.threshold !== null && latestRsi > rule.threshold
+  } else if (rule.condition === 'rsiBelow') {
+    currentValue = latestRsi
+    triggered = latestRsi !== null && rule.threshold !== null && latestRsi < rule.threshold
+  } else {
+    currentValue = macd === null || signal === null ? null : macd - signal
+    const crossedUp =
+      macd !== null &&
+      signal !== null &&
+      previousMacd !== null &&
+      previousSignal !== null &&
+      macd > signal &&
+      previousMacd <= previousSignal
+    const crossedDown =
+      macd !== null &&
+      signal !== null &&
+      previousMacd !== null &&
+      previousSignal !== null &&
+      macd < signal &&
+      previousMacd >= previousSignal
+    triggered = rule.condition === 'macdBullishCross' ? crossedUp : crossedDown
+  }
+  return {
+    triggered: rule.enabled && triggered,
+    currentValue,
+    explanation: t(`assetTechnical.alert.explanation.${rule.condition}`, {
+      asset: assetLabel(selectedAsset.value),
+      current: formatValue(currentValue),
+      threshold: formatValue(rule.threshold),
+    }),
+  }
+}
+const defaultAlertThreshold = () => {
+  if (alertCondition.value === 'priceAbove') return analysis.value.resistance
+  if (alertCondition.value === 'priceBelow') return analysis.value.support
+  if (alertCondition.value === 'rsiAbove') return 70
+  if (alertCondition.value === 'rsiBelow') return 30
+  return null
+}
+const resetAlertThreshold = () => {
+  alertThreshold.value = defaultAlertThreshold()
+}
+const loadAlerts = async () => {
+  if (!can('technicalAlerts.manage')) return
+  alertsLoading.value = true
+  try {
+    alertRules.value = await technicalAlertApi.list()
+  } catch (error) {
+    console.error('Technical alerts could not be loaded:', error)
+    alertMessage.value = t('assetTechnical.alert.loadFailed')
+  } finally {
+    alertsLoading.value = false
+  }
+}
+const createAlert = async () => {
+  if (!can('technicalAlerts.manage') || alertsLoading.value) return
+  alertsLoading.value = true
+  alertMessage.value = ''
+  try {
+    const created = await technicalAlertApi.create({
+      assetId: selectedAsset.value.id,
+      assetName: selectedAsset.value.name,
+      series: selectedAsset.value.series,
+      condition: alertCondition.value,
+      threshold: alertThreshold.value,
+    })
+    alertRules.value.unshift(created)
+    alertMessage.value = t('assetTechnical.alert.created')
+  } catch (error) {
+    console.error('Technical alert could not be created:', error)
+    alertMessage.value = error instanceof Error ? error.message : t('assetTechnical.alert.saveFailed')
+  } finally {
+    alertsLoading.value = false
+  }
+}
+const toggleAlert = async (rule: TechnicalAlertRule) => {
+  if (!can('technicalAlerts.manage')) return
+  alertBusyId.value = rule.id
+  try {
+    await technicalAlertApi.setEnabled(rule, !rule.enabled)
+    rule.enabled = !rule.enabled
+  } catch (error) {
+    console.error('Technical alert could not be updated:', error)
+    alertMessage.value = t('assetTechnical.alert.saveFailed')
+  } finally {
+    alertBusyId.value = ''
+  }
+}
+const removeAlert = async (rule: TechnicalAlertRule) => {
+  if (!can('technicalAlerts.manage')) return
+  alertBusyId.value = rule.id
+  try {
+    await technicalAlertApi.remove(rule)
+    alertRules.value = alertRules.value.filter((item) => item.id !== rule.id)
+  } catch (error) {
+    console.error('Technical alert could not be removed:', error)
+    alertMessage.value = t('assetTechnical.alert.saveFailed')
+  } finally {
+    alertBusyId.value = ''
+  }
+}
 const toggleFavorite = (id: string) => {
   favorites.value = favorites.value.includes(id)
     ? favorites.value.filter((item) => item !== id)
@@ -399,7 +548,9 @@ const toggleFullscreen = async () => {
 watch([carouselPlaying, relevantChains], resetCarousel)
 watch(selectedAsset, (asset) => {
   if (chartMode.value === 'candle' && asset.dataShape !== 'ohlcv') chartMode.value = 'line'
+  resetAlertThreshold()
 })
+watch(alertCondition, resetAlertThreshold)
 onMounted(() => {
   try {
     const stored = JSON.parse(localStorage.getItem(favoriteStorageKey) ?? '[]')
@@ -407,6 +558,8 @@ onMounted(() => {
   } catch {
     favorites.value = []
   }
+  void restore().then(loadAlerts)
+  resetAlertThreshold()
   resetCarousel()
 })
 onBeforeUnmount(() => {
@@ -638,6 +791,90 @@ onBeforeUnmount(() => {
             <em :class="horizon.status">{{ statusLabel(horizon.status) }}</em>
           </div>
         </section>
+        <section class="alert-center">
+          <header>
+            <div>
+              <b>{{ t('assetTechnical.alert.title') }}</b>
+              <small>{{ t('assetTechnical.alert.hint') }}</small>
+            </div>
+            <span>{{ currentAssetAlerts.length }}</span>
+          </header>
+          <form v-if="can('technicalAlerts.manage')" @submit.prevent="createAlert">
+            <label>
+              <span>{{ t('assetTechnical.alert.condition') }}</span>
+              <select v-model="alertCondition">
+                <option
+                  v-for="condition in [
+                    'priceAbove',
+                    'priceBelow',
+                    'rsiAbove',
+                    'rsiBelow',
+                    'macdBullishCross',
+                    'macdBearishCross',
+                  ] as TechnicalAlertCondition[]"
+                  :key="condition"
+                  :value="condition"
+                >
+                  {{ t(`assetTechnical.alert.conditionName.${condition}`) }}
+                </option>
+              </select>
+            </label>
+            <label v-if="!alertCondition.startsWith('macd')">
+              <span>{{ t('assetTechnical.alert.threshold') }}</span>
+              <input v-model.number="alertThreshold" type="number" step="any" required />
+            </label>
+            <button :disabled="alertsLoading" type="submit">
+              {{ alertsLoading ? t('assetTechnical.alert.saving') : t('assetTechnical.alert.create') }}
+            </button>
+          </form>
+          <p v-else class="alert-permission">{{ t('assetTechnical.alert.permission') }}</p>
+          <p v-if="alertMessage" class="alert-message" role="status">{{ alertMessage }}</p>
+          <p v-if="!currentAssetAlerts.length" class="alert-empty">
+            {{ t('assetTechnical.alert.empty') }}
+          </p>
+          <article
+            v-for="rule in currentAssetAlerts"
+            :key="rule.id"
+            class="alert-rule"
+            :class="{
+              triggered: evaluateAlert(rule).triggered,
+              disabled: !rule.enabled,
+            }"
+          >
+            <div>
+              <span>
+                {{ t(`assetTechnical.alert.conditionName.${rule.condition}`) }}
+                <b v-if="rule.threshold !== null">{{ formatValue(rule.threshold) }}</b>
+              </span>
+              <strong>
+                {{
+                  evaluateAlert(rule).triggered
+                    ? t('assetTechnical.alert.triggered')
+                    : t('assetTechnical.alert.watching')
+                }}
+              </strong>
+            </div>
+            <p>{{ evaluateAlert(rule).explanation }}</p>
+            <footer>
+              <small>{{ rule.series }} · {{ rule.updatedAt.slice(0, 10) }}</small>
+              <button
+                :disabled="alertBusyId === rule.id"
+                type="button"
+                @click="toggleAlert(rule)"
+              >
+                {{ rule.enabled ? t('assetTechnical.alert.pause') : t('assetTechnical.alert.enable') }}
+              </button>
+              <button
+                :disabled="alertBusyId === rule.id"
+                class="remove-alert"
+                type="button"
+                @click="removeAlert(rule)"
+              >
+                {{ t('assetTechnical.alert.remove') }}
+              </button>
+            </footer>
+          </article>
+        </section>
         <details class="drivers">
           <summary>
             {{ t('assetTechnical.crossAssetEvidence', { count: marketDrivers.length }) }}
@@ -867,19 +1104,22 @@ onBeforeUnmount(() => {
 }
 .asset-picker > header,
 .score-breakdown > header,
-.horizon-matrix > header {
+.horizon-matrix > header,
+.alert-center > header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 .asset-picker > header b,
 .score-breakdown > header b,
-.horizon-matrix > header b {
+.horizon-matrix > header b,
+.alert-center > header b {
   font-size: 12px;
 }
 .asset-picker > header small,
 .score-breakdown > header small,
-.horizon-matrix > header small {
+.horizon-matrix > header small,
+.alert-center > header small {
   color: var(--muted);
   font-size: 8px;
 }
@@ -1089,6 +1329,7 @@ onBeforeUnmount(() => {
 }
 .score-breakdown,
 .horizon-matrix,
+.alert-center,
 .drivers {
   padding: 14px;
 }
@@ -1157,6 +1398,121 @@ onBeforeUnmount(() => {
   background: var(--surface-soft);
   font-size: 7px;
   font-style: normal;
+}
+.alert-center > header > div {
+  display: grid;
+  gap: 3px;
+}
+.alert-center > header > span {
+  min-width: 24px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  text-align: center;
+  color: var(--muted);
+  font-size: 8px;
+}
+.alert-center form {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 8px;
+}
+.alert-center form label {
+  display: grid;
+  gap: 4px;
+}
+.alert-center form label span {
+  color: var(--muted);
+  font-size: 8px;
+}
+.alert-center select,
+.alert-center input,
+.alert-center form button {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-soft);
+  padding: 7px 9px;
+  color: var(--ink);
+  font-size: 9px;
+}
+.alert-center form button {
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+}
+.alert-center button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.alert-permission,
+.alert-message,
+.alert-empty {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.5;
+}
+.alert-message {
+  color: var(--accent);
+}
+.alert-rule {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--muted);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+.alert-rule.triggered {
+  border-left-color: var(--warning);
+}
+.alert-rule.disabled {
+  opacity: 0.58;
+}
+.alert-rule > div,
+.alert-rule footer {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.alert-rule > div {
+  justify-content: space-between;
+}
+.alert-rule > div span,
+.alert-rule > div strong,
+.alert-rule footer {
+  font-size: 8px;
+}
+.alert-rule > div strong {
+  color: var(--muted);
+}
+.alert-rule.triggered > div strong {
+  color: var(--warning);
+}
+.alert-rule p {
+  margin: 7px 0;
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.55;
+}
+.alert-rule footer small {
+  margin-right: auto;
+  color: var(--muted);
+}
+.alert-rule footer button {
+  min-height: 28px;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 8px;
+  cursor: pointer;
+}
+.alert-rule footer .remove-alert {
+  color: var(--negative);
 }
 .drivers summary {
   font-size: 10px;

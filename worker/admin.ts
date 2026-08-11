@@ -5,6 +5,7 @@ export type Permission =
   | 'analytics.view'
   | 'analytics.manage'
   | 'paper.manage'
+  | 'technicalAlerts.manage'
 
 export class AuthError extends Error {
   constructor(
@@ -16,8 +17,15 @@ export class AuthError extends Error {
 }
 
 const rolePermissions: Record<Role, Permission[]> = {
-  admin: ['admin.view', 'users.manage', 'analytics.view', 'analytics.manage', 'paper.manage'],
-  editor: ['analytics.view', 'paper.manage'],
+  admin: [
+    'admin.view',
+    'users.manage',
+    'analytics.view',
+    'analytics.manage',
+    'paper.manage',
+    'technicalAlerts.manage',
+  ],
+  editor: ['analytics.view', 'paper.manage', 'technicalAlerts.manage'],
   viewer: ['analytics.view'],
 }
 
