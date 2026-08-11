@@ -178,6 +178,11 @@ const nextExpectedLabel = computed(() =>
   }).format(new Date(selectedFreshness.value.nextExpectedAt)),
 )
 const adjustmentBasis = computed(() => {
+  const explicit = selectedAsset.value.adjustmentBasis
+  if (explicit === 'not-applicable') return 'notApplicable'
+  if (explicit === 'provider-adjusted') return 'providerAdjusted'
+  if (explicit === 'forward-adjusted') return 'forwardAdjusted'
+  if (explicit === 'as-published') return 'sourcePublished'
   if (selectedAsset.value.dataShape !== 'ohlcv') return 'notApplicable'
   if (selectedAsset.value.source === 'Massive') return 'providerAdjusted'
   if (selectedAsset.value.source === '腾讯财经') return 'forwardAdjusted'

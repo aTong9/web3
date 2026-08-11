@@ -101,6 +101,7 @@ const main = async () => {
         sourceUrl: 'https://massive.com/docs/rest/stocks/aggregates/custom-bars',
         calendar: 'nyse',
         dataShape: 'ohlcv',
+        adjustmentBasis: 'provider-adjusted',
         points,
       })
       console.log(`Fetched ${stock.symbol}: ${points.length} daily bars`)

@@ -4090,6 +4090,12 @@ const technicalSignalsOutput = {
         sourceUrl: asset.sourceUrl,
         calendar: asset.calendar,
         dataShape: bars?.length ? 'ohlcv' : 'close',
+        adjustmentBasis:
+          asset.source === '腾讯财经'
+            ? 'forward-adjusted'
+            : bars?.length
+              ? 'as-published'
+              : 'not-applicable',
         points: bars?.length
           ? bars.slice(-1260)
           : closeHistory.map((item) => ({ date: item.date, close: item.value })),

@@ -1046,6 +1046,7 @@ export interface TechnicalChartAsset {
   sourceUrl: string
   calendar: MarketCalendarId
   dataShape: 'close' | 'ohlcv'
+  adjustmentBasis?: 'not-applicable' | 'forward-adjusted' | 'provider-adjusted' | 'as-published'
   points: AssetPricePoint[]
 }
 
