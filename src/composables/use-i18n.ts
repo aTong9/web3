@@ -65,12 +65,6 @@ const messages: Record<Locale, DictionaryNode> = {
         darkLabel: '深色',
         lightLabel: '浅色',
       },
-      transmissionAlert: {
-        close: '关闭提醒',
-        title: '每次打开都会提醒',
-        updated: '更新于',
-        viewHome: '前往市场首页',
-      },
       routes: {
         home: { title: '市场首页', description: '今日因子与多周期方向' },
         crossAsset: { title: '跨资产驾驶舱', description: '传导链、相关性与市场状态' },
@@ -1646,12 +1640,6 @@ const messages: Record<Locale, DictionaryNode> = {
         lightMode: 'Switch to light mode',
         darkLabel: 'Dark',
         lightLabel: 'Light',
-      },
-      transmissionAlert: {
-        close: 'Close alert',
-        title: 'Reminder on every entry',
-        updated: 'Updated',
-        viewHome: 'View home conclusion',
       },
       navigation: {
         resourceView: 'Resource View',
