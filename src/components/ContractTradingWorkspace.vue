@@ -26,9 +26,11 @@ const formatNumber = (value: number | null, maximumFractionDigits = 2) =>
         maximumFractionDigits,
       })
 const formatPrice = (value: number | null) =>
-  value === null
-    ? '—'
-    : formatNumber(value, value < 1 ? 6 : value < 100 ? 4 : 2)
+  value === null ? '—' : formatNumber(value, value < 1 ? 6 : value < 100 ? 4 : 2)
+const formatSigned = (value: number | null, digits = 1, suffix = '%') =>
+  value === null ? '—' : `${value > 0 ? '+' : ''}${formatNumber(value, digits)}${suffix}`
+const formatMetric = (value: number | null, digits: number, suffix: string) =>
+  value === null ? '—' : `${formatNumber(value, digits)}${suffix}`
 const formatTime = (value: string | null) =>
   value
     ? new Intl.DateTimeFormat(locale.value === 'zh' ? 'zh-CN' : 'en-US', {
@@ -94,7 +96,12 @@ const chartOption = computed<EChartsCoreOption>(() => {
       textStyle: { color: muted, fontSize: 9 },
       data: [selectedSymbol.value, 'MA20', 'MA60'],
     },
-    tooltip: { trigger: 'axis', backgroundColor: surface, borderColor: border, textStyle: { color: ink } },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: surface,
+      borderColor: border,
+      textStyle: { color: ink },
+    },
     axisPointer: { link: [{ xAxisIndex: 'all' }] },
     grid: [
       { left: 56, right: 18, top: 42, height: '61%' },
@@ -106,7 +113,11 @@ const chartOption = computed<EChartsCoreOption>(() => {
         data: points.map((point) => point.date),
         boundaryGap: true,
         axisLine: { lineStyle: { color: border } },
-        axisLabel: { color: muted, hideOverlap: true, formatter: (value: string) => value.slice(11, 16) },
+        axisLabel: {
+          color: muted,
+          hideOverlap: true,
+          formatter: (value: string) => value.slice(11, 16),
+        },
       },
       {
         type: 'category',
@@ -118,18 +129,37 @@ const chartOption = computed<EChartsCoreOption>(() => {
     ],
     yAxis: [
       { scale: true, splitLine: { lineStyle: { color: border } }, axisLabel: { color: muted } },
-      { gridIndex: 1, scale: true, splitNumber: 2, splitLine: { show: false }, axisLabel: { color: muted } },
+      {
+        gridIndex: 1,
+        scale: true,
+        splitNumber: 2,
+        splitLine: { show: false },
+        axisLabel: { color: muted },
+      },
     ],
     dataZoom: [
       { type: 'inside', xAxisIndex: [0, 1], start: 45, end: 100 },
-      { type: 'slider', xAxisIndex: [0, 1], start: 45, end: 100, bottom: 2, height: 16, borderColor: border },
+      {
+        type: 'slider',
+        xAxisIndex: [0, 1],
+        start: 45,
+        end: 100,
+        bottom: 2,
+        height: 16,
+        borderColor: border,
+      },
     ],
     series: [
       {
         name: selectedSymbol.value,
         type: 'candlestick',
         data: points.map((point) => [point.open, point.close, point.low, point.high]),
-        itemStyle: { color: positive, color0: negative, borderColor: positive, borderColor0: negative },
+        itemStyle: {
+          color: positive,
+          color0: negative,
+          borderColor: positive,
+          borderColor0: negative,
+        },
         markLine: {
           silent: true,
           symbol: ['none', 'none'],
@@ -137,8 +167,22 @@ const chartOption = computed<EChartsCoreOption>(() => {
           data: markLines,
         },
       },
-      { name: 'MA20', type: 'line', data: ma20, showSymbol: false, smooth: false, lineStyle: { color: accent, width: 1.2 } },
-      { name: 'MA60', type: 'line', data: ma60, showSymbol: false, smooth: false, lineStyle: { color: warning, width: 1.2 } },
+      {
+        name: 'MA20',
+        type: 'line',
+        data: ma20,
+        showSymbol: false,
+        smooth: false,
+        lineStyle: { color: accent, width: 1.2 },
+      },
+      {
+        name: 'MA60',
+        type: 'line',
+        data: ma60,
+        showSymbol: false,
+        smooth: false,
+        lineStyle: { color: warning, width: 1.2 },
+      },
       {
         name: t('assetTechnical.contract.volume'),
         type: 'bar',
@@ -146,7 +190,9 @@ const chartOption = computed<EChartsCoreOption>(() => {
         yAxisIndex: 1,
         data: points.map((point, index) => ({
           value: point.volume,
-          itemStyle: { color: index && point.close < points[index - 1]!.close ? negative : positive },
+          itemStyle: {
+            color: index && point.close < points[index - 1]!.close ? negative : positive,
+          },
         })),
       },
     ],
@@ -175,7 +221,11 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
             <option v-for="symbol in symbols" :key="symbol" :value="symbol">{{ symbol }}</option>
           </select>
         </label>
-        <div class="interval-switch" role="group" :aria-label="t('assetTechnical.contract.interval')">
+        <div
+          class="interval-switch"
+          role="group"
+          :aria-label="t('assetTechnical.contract.interval')"
+        >
           <button
             v-for="interval in intervals"
             :key="interval"
@@ -185,7 +235,11 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
             {{ interval }}
           </button>
         </div>
-        <button class="reconnect-button" :disabled="snapshot.status === 'connecting'" @click="reconnect">
+        <button
+          class="reconnect-button"
+          :disabled="snapshot.status === 'connecting'"
+          @click="reconnect"
+        >
           {{ t('assetTechnical.contract.reconnect') }}
         </button>
       </div>
@@ -194,12 +248,20 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
     <div class="connection-strip" :class="snapshot.status">
       <span><i></i>{{ t(`assetTechnical.contract.status.${snapshot.status}`) }}</span>
       <small>{{ t('assetTechnical.contract.source') }}</small>
-      <small>{{ t('assetTechnical.contract.updatedAt', { time: formatTime(snapshot.updatedAt) }) }}</small>
-      <small>{{ t('assetTechnical.contract.latency', { value: snapshot.latencyMs ?? '—' }) }}</small>
+      <small>{{
+        t('assetTechnical.contract.updatedAt', { time: formatTime(snapshot.updatedAt) })
+      }}</small>
+      <small>{{
+        t('assetTechnical.contract.latency', { value: snapshot.latencyMs ?? '—' })
+      }}</small>
       <b>{{ t('assetTechnical.contract.paperOnly') }}</b>
     </div>
 
-    <section v-if="snapshot.status === 'restricted' || snapshot.status === 'error'" class="feed-error" role="alert">
+    <section
+      v-if="snapshot.status === 'restricted' || snapshot.status === 'error'"
+      class="feed-error"
+      role="alert"
+    >
       <span>{{ t('assetTechnical.contract.unavailableEyebrow') }}</span>
       <h2>{{ t(`assetTechnical.contract.error.${snapshot.errorCode ?? 'network'}.title`) }}</h2>
       <p>{{ t(`assetTechnical.contract.error.${snapshot.errorCode ?? 'network'}.body`) }}</p>
@@ -209,7 +271,8 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
           href="https://developers.binance.com/en/docs/products/derivatives-trading-usds-futures/Introduction"
           target="_blank"
           rel="noopener noreferrer"
-        >{{ t('assetTechnical.contract.officialDocs') }} ↗</a>
+          >{{ t('assetTechnical.contract.officialDocs') }} ↗</a
+        >
       </div>
     </section>
 
@@ -230,16 +293,82 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
               <strong>{{ formatPrice(snapshot.markPrice) }} USDT</strong>
             </div>
             <div class="market-metrics">
-              <span>{{ t('assetTechnical.contract.funding') }} <b>{{ formatNumber(snapshot.fundingRatePct, 4) }}%</b></span>
-              <span>{{ t('assetTechnical.contract.openInterest') }} <b>{{ formatNumber(snapshot.openInterest, 0) }}</b></span>
-              <span>{{ t('assetTechnical.contract.nextFunding') }} <b>{{ formatTime(snapshot.nextFundingTime) }}</b></span>
+              <span
+                >{{ t('assetTechnical.contract.funding') }}
+                <b>{{ formatNumber(snapshot.fundingRatePct, 4) }}%</b></span
+              >
+              <span
+                >{{ t('assetTechnical.contract.openInterest') }}
+                <b>{{ formatNumber(snapshot.openInterest, 0) }}</b></span
+              >
+              <span
+                >{{ t('assetTechnical.contract.nextFunding') }}
+                <b>{{ formatTime(snapshot.nextFundingTime) }}</b></span
+              >
             </div>
           </header>
           <EChart
             class="contract-chart"
             :option="chartOption"
-            :label="t('assetTechnical.contract.chartLabel', { symbol: selectedSymbol, interval: selectedInterval })"
+            :label="
+              t('assetTechnical.contract.chartLabel', {
+                symbol: selectedSymbol,
+                interval: selectedInterval,
+              })
+            "
           />
+        </section>
+
+        <section class="execution-context">
+          <article class="timeframe-context">
+            <header>
+              <div>
+                <span>{{ t('assetTechnical.contract.contextEyebrow') }}</span>
+                <strong>{{ t('assetTechnical.contract.multiTimeframeTitle') }}</strong>
+              </div>
+              <small>{{ t('assetTechnical.contract.multiTimeframeDescription') }}</small>
+            </header>
+            <div v-if="decision.timeframes.length" class="timeframe-grid">
+              <div
+                v-for="reading in decision.timeframes"
+                :key="reading.interval"
+                :class="reading.signal"
+              >
+                <span>{{ reading.interval }}</span>
+                <strong>{{ t(`assetTechnical.contract.timeframeState.${reading.signal}`) }}</strong>
+                <b>{{ reading.score > 0 ? '+' : '' }}{{ reading.score }}</b>
+              </div>
+            </div>
+            <p v-else>{{ t('assetTechnical.contract.contextUnavailable') }}</p>
+          </article>
+
+          <article class="microstructure-context">
+            <header>
+              <div>
+                <span>{{ t('assetTechnical.contract.contextEyebrow') }}</span>
+                <strong>{{ t('assetTechnical.contract.microstructureTitle') }}</strong>
+              </div>
+              <small>{{ t('assetTechnical.contract.microstructureDescription') }}</small>
+            </header>
+            <dl>
+              <div>
+                <dt>{{ t('assetTechnical.contract.depthImbalance') }}</dt>
+                <dd>{{ formatSigned(snapshot.microstructure.orderBookImbalancePct) }}</dd>
+              </div>
+              <div>
+                <dt>{{ t('assetTechnical.contract.spread') }}</dt>
+                <dd>{{ formatMetric(snapshot.microstructure.spreadBps, 2, ' bp') }}</dd>
+              </div>
+              <div>
+                <dt>{{ t('assetTechnical.contract.takerBuyRatio') }}</dt>
+                <dd>{{ formatMetric(snapshot.microstructure.takerBuyRatioPct, 1, '%') }}</dd>
+              </div>
+              <div>
+                <dt>{{ t('assetTechnical.contract.openInterestChange') }}</dt>
+                <dd>{{ formatSigned(snapshot.microstructure.openInterestChangePct, 2) }}</dd>
+              </div>
+            </dl>
+          </article>
         </section>
 
         <DisclosureCard
@@ -250,10 +379,20 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
           :description="t('assetTechnical.contract.indicatorDescription')"
         >
           <template #metric>
-            <strong>{{ decision.indicators.filter((item) => item.signal === 'long' || item.signal === 'short').length }}/{{ decision.indicators.length }}</strong>
+            <strong
+              >{{
+                decision.indicators.filter(
+                  (item) => item.signal === 'long' || item.signal === 'short',
+                ).length
+              }}/{{ decision.indicators.length }}</strong
+            >
           </template>
           <div class="indicator-grid">
-            <article v-for="indicator in decision.indicators" :key="indicator.id" :class="indicator.signal">
+            <article
+              v-for="indicator in decision.indicators"
+              :key="indicator.id"
+              :class="indicator.signal"
+            >
               <header>
                 <span>{{ t(`assetTechnical.contract.indicator.${indicator.id}`) }}</span>
                 <em>{{ t(`assetTechnical.contract.indicatorSignal.${indicator.signal}`) }}</em>
@@ -280,25 +419,47 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
           <i><em :style="{ width: `${decision.confidence}%` }"></em></i>
         </div>
         <dl class="trade-levels">
-          <div><dt>{{ t('assetTechnical.contract.expectedMove') }}</dt><dd>{{ decision.expectedMovePct === null ? '—' : `±${decision.expectedMovePct}%` }}</dd></div>
-          <div><dt>{{ t('assetTechnical.contract.entry') }}</dt><dd>{{ formatPrice(decision.entryLow) }} – {{ formatPrice(decision.entryHigh) }}</dd></div>
-          <div><dt>{{ t('assetTechnical.contract.stopLoss') }}</dt><dd>{{ formatPrice(decision.stopLoss) }}</dd></div>
-          <div><dt>{{ t('assetTechnical.contract.takeProfit') }}</dt><dd>{{ formatPrice(decision.takeProfit) }}</dd></div>
-          <div><dt>{{ t('assetTechnical.contract.riskReward') }}</dt><dd>{{ decision.riskReward === null ? '—' : `1:${decision.riskReward}` }}</dd></div>
-          <div><dt>{{ t('assetTechnical.contract.invalidation') }}</dt><dd>{{ formatPrice(decision.invalidation) }}</dd></div>
+          <div>
+            <dt>{{ t('assetTechnical.contract.expectedMove') }}</dt>
+            <dd>{{ decision.expectedMovePct === null ? '—' : `±${decision.expectedMovePct}%` }}</dd>
+          </div>
+          <div>
+            <dt>{{ t('assetTechnical.contract.entry') }}</dt>
+            <dd>{{ formatPrice(decision.entryLow) }} – {{ formatPrice(decision.entryHigh) }}</dd>
+          </div>
+          <div>
+            <dt>{{ t('assetTechnical.contract.stopLoss') }}</dt>
+            <dd>{{ formatPrice(decision.stopLoss) }}</dd>
+          </div>
+          <div>
+            <dt>{{ t('assetTechnical.contract.takeProfit') }}</dt>
+            <dd>{{ formatPrice(decision.takeProfit) }}</dd>
+          </div>
+          <div>
+            <dt>{{ t('assetTechnical.contract.riskReward') }}</dt>
+            <dd>{{ decision.riskReward === null ? '—' : `1:${decision.riskReward}` }}</dd>
+          </div>
+          <div>
+            <dt>{{ t('assetTechnical.contract.invalidation') }}</dt>
+            <dd>{{ formatPrice(decision.invalidation) }}</dd>
+          </div>
         </dl>
         <section class="decision-evidence">
           <h3>{{ t('assetTechnical.contract.supportingEvidence') }}</h3>
           <p v-if="!decision.reasons.length">{{ t('assetTechnical.contract.noEvidence') }}</p>
           <ul v-else>
-            <li v-for="reason in decision.reasons.slice(0, 5)" :key="reason">{{ t(`assetTechnical.contract.reason.${reason}`) }}</li>
+            <li v-for="reason in decision.reasons.slice(0, 5)" :key="reason">
+              {{ t(`assetTechnical.contract.reason.${reason}`) }}
+            </li>
           </ul>
         </section>
         <section class="decision-evidence risks">
           <h3>{{ t('assetTechnical.contract.risks') }}</h3>
           <p v-if="!decision.risks.length">{{ t('assetTechnical.contract.noMajorRisk') }}</p>
           <ul v-else>
-            <li v-for="risk in decision.risks" :key="risk">{{ t(`assetTechnical.contract.reason.${risk}`) }}</li>
+            <li v-for="risk in decision.risks" :key="risk">
+              {{ t(`assetTechnical.contract.reason.${risk}`) }}
+            </li>
           </ul>
         </section>
         <footer>{{ t('assetTechnical.contract.disclaimer') }}</footer>
@@ -315,6 +476,7 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
 .contract-toolbar,
 .connection-strip,
 .contract-chart-card,
+.execution-context article,
 .decision-panel,
 .feed-error,
 .feed-loading {
@@ -446,7 +608,9 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
 }
 .feed-error h2 {
   margin: 10px 0;
-  font: 500 28px Georgia, serif;
+  font:
+    500 28px Georgia,
+    serif;
 }
 .feed-error p {
   max-width: 680px;
@@ -523,7 +687,9 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
 }
 .contract-chart-card > header > div:first-child strong {
   margin-top: 4px;
-  font: 500 20px Georgia, serif;
+  font:
+    500 20px Georgia,
+    serif;
 }
 .market-metrics {
   display: flex;
@@ -547,6 +713,104 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
 }
 .contract-chart {
   height: 570px;
+}
+.execution-context {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 12px;
+}
+.execution-context article {
+  padding: 14px;
+}
+.execution-context article > header {
+  min-height: 42px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+}
+.execution-context article > header div {
+  display: grid;
+  gap: 4px;
+}
+.execution-context article > header span {
+  color: var(--accent);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.execution-context article > header strong {
+  font-size: 11px;
+}
+.execution-context article > header small,
+.execution-context article > p {
+  max-width: 260px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.55;
+}
+.timeframe-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+.timeframe-grid div {
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--muted);
+  border-radius: 6px;
+  background: var(--surface-soft);
+  display: grid;
+  gap: 5px;
+}
+.timeframe-grid div.long {
+  border-top-color: var(--positive);
+}
+.timeframe-grid div.short {
+  border-top-color: var(--negative);
+}
+.timeframe-grid span,
+.timeframe-grid b {
+  color: var(--muted);
+  font-size: 7px;
+}
+.timeframe-grid strong {
+  overflow: hidden;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.timeframe-grid b {
+  font-weight: 600;
+}
+.microstructure-context dl {
+  margin: 12px 0 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.microstructure-context dl div {
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+.microstructure-context dt,
+.microstructure-context dd {
+  margin: 0;
+}
+.microstructure-context dt {
+  color: var(--muted);
+  font-size: 7px;
+}
+.microstructure-context dd {
+  margin-top: 6px;
+  font-size: 9px;
+  font-weight: 700;
 }
 .indicator-grid {
   padding-top: 16px;
@@ -629,10 +893,15 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
   align-items: end;
 }
 .decision-headline strong {
-  font: 500 25px Georgia, 'Songti SC', serif;
+  font:
+    500 25px Georgia,
+    'Songti SC',
+    serif;
 }
 .decision-headline b {
-  font: 500 25px Georgia, serif;
+  font:
+    500 25px Georgia,
+    serif;
 }
 .decision-panel.long .decision-headline b {
   color: var(--positive);
@@ -718,10 +987,15 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
   border-top: 1px solid var(--border);
 }
 @keyframes feed-pulse {
-  to { opacity: 0.35; transform: scale(0.72); }
+  to {
+    opacity: 0.35;
+    transform: scale(0.72);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .feed-loading i { animation: none; }
+  .feed-loading i {
+    animation: none;
+  }
 }
 @media (max-width: 1080px) {
   .contract-layout {
@@ -729,6 +1003,11 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
   }
   .decision-panel {
     position: static;
+  }
+}
+@media (max-width: 880px) {
+  .execution-context {
+    grid-template-columns: 1fr;
   }
 }
 @media (max-width: 760px) {
@@ -766,6 +1045,14 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
   }
   .indicator-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .execution-context article > header {
+    flex-direction: column;
+    gap: 7px;
+  }
+  .timeframe-grid {
+    grid-template-columns: repeat(5, minmax(66px, 1fr));
+    overflow-x: auto;
   }
   .feed-error,
   .feed-loading {

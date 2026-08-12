@@ -1075,10 +1075,24 @@ export type ContractConnectionStatus =
   | 'restricted'
   | 'error'
 
+export interface ContractTimeframeSeries {
+  interval: ContractChartInterval
+  points: AssetPricePoint[]
+}
+
+export interface ContractMicrostructureSnapshot {
+  orderBookImbalancePct: number | null
+  spreadBps: number | null
+  takerBuyRatioPct: number | null
+  openInterestChangePct: number | null
+}
+
 export interface ContractMarketSnapshot {
   symbol: string
   interval: ContractChartInterval
   points: AssetPricePoint[]
+  timeframes: ContractTimeframeSeries[]
+  microstructure: ContractMicrostructureSnapshot
   markPrice: number | null
   fundingRatePct: number | null
   nextFundingTime: string | null
@@ -1093,12 +1107,16 @@ export type ContractTradeAction = 'long' | 'short' | 'wait' | 'noTrade' | 'insuf
 export type ContractIndicatorSignal = 'long' | 'short' | 'neutral' | 'risk'
 export type ContractIndicatorId =
   | 'trend'
+  | 'timeframes'
   | 'macd'
   | 'kdj'
   | 'rsi'
   | 'atr'
   | 'volume'
   | 'funding'
+  | 'orderBook'
+  | 'takerFlow'
+  | 'openInterest'
 
 export interface ContractIndicatorReading {
   id: ContractIndicatorId
@@ -1123,6 +1141,25 @@ export type ContractDecisionReason =
   | 'lowVolatility'
   | 'signalsConflict'
   | 'unconfirmedVolume'
+  | 'timeframesBullish'
+  | 'timeframesBearish'
+  | 'timeframesConflict'
+  | 'orderBookBidDominant'
+  | 'orderBookAskDominant'
+  | 'takerBuyDominant'
+  | 'takerSellDominant'
+  | 'openInterestBullish'
+  | 'openInterestBearish'
+  | 'openInterestFalling'
+  | 'spreadWide'
+  | 'microstructureConflict'
+
+export interface ContractTimeframeReading {
+  interval: ContractChartInterval
+  signal: 'long' | 'short' | 'neutral'
+  score: number
+  latestPrice: number | null
+}
 
 export interface ContractTradeDecision {
   action: ContractTradeAction
@@ -1139,6 +1176,7 @@ export interface ContractTradeDecision {
   reasons: ContractDecisionReason[]
   risks: ContractDecisionReason[]
   indicators: ContractIndicatorReading[]
+  timeframes: ContractTimeframeReading[]
 }
 
 export interface TechnicalChartAsset {
