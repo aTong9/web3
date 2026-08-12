@@ -6,7 +6,7 @@ import type {
   TechnicalIndicatorConfig,
   TechnicalSignalStatus,
 } from '@/types'
-import { defaultTechnicalIndicatorConfig } from '@/utils/technical-config'
+import { defaultTechnicalIndicatorConfig } from '@/utils/technical-config-default'
 
 const round = (value: number, digits = 2) => Number(value.toFixed(digits))
 const clamp = (value: number, minimum: number, maximum: number) =>
@@ -256,9 +256,17 @@ export const analyzeTechnicalSignals = (
       : 0
   const boundedCrossAssetScore = clamp(crossAssetScore, -100, 100)
   const weightedScores = [
-    { enabled: enabled.maShort || enabled.maLong || enabled.macd, weight: weights.trend, score: trendScore },
+    {
+      enabled: enabled.maShort || enabled.maLong || enabled.macd,
+      weight: weights.trend,
+      score: trendScore,
+    },
     { enabled: enabled.rsi, weight: weights.momentum, score: momentumScore },
-    { enabled: enabled.atr || enabled.bollinger, weight: weights.volatility, score: volatilityScore },
+    {
+      enabled: enabled.atr || enabled.bollinger,
+      weight: weights.volatility,
+      score: volatilityScore,
+    },
     { enabled: enabled.volume, weight: weights.volume, score: volumeScore },
     { enabled: enabled.crossAsset, weight: weights.crossAsset, score: boundedCrossAssetScore },
   ]

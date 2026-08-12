@@ -5,6 +5,7 @@ export type Permission =
   | 'analytics.view'
   | 'analytics.manage'
   | 'paper.manage'
+  | 'autoTrade.manage'
   | 'technicalAlerts.manage'
   | 'technicalConfig.manage'
 
@@ -24,6 +25,7 @@ const rolePermissions: Record<Role, Permission[]> = {
     'analytics.view',
     'analytics.manage',
     'paper.manage',
+    'autoTrade.manage',
     'technicalAlerts.manage',
     'technicalConfig.manage',
   ],

@@ -5,6 +5,9 @@ import type {
   MarketQuote,
   MarketQuoteResponse,
   OptionMarketDataset,
+  ContractChartInterval,
+  ContractPaperTrade,
+  ContractPositionDirection,
   PaperSignalPosition,
   QuantDashboard,
   TechnicalAlertCondition,
@@ -15,6 +18,10 @@ import type {
   UsMegaCapDataset,
 } from '../src/types/index'
 import { buildQuantDashboard } from '../src/utils/quant-signals'
+import {
+  closeContractPaperTrade,
+  createContractPaperTrade,
+} from '../src/utils/contract-paper-journal'
 import {
   AuthError,
   analyticsConfig,
@@ -27,6 +34,12 @@ import {
   saveAnalytics,
   updateUser,
 } from './admin'
+import {
+  btcAutoTradingDashboard,
+  closeBtcAutoTradingPosition,
+  runBtcAutoTradingCycle,
+  saveBtcAutoTradingConfig,
+} from './btc-auto-trading'
 
 const maximumJsonBytes = 4_000_000
 const maximumRequestBytes = 8_192
@@ -47,6 +60,32 @@ interface PaperPositionRow {
   forward_pe: number | null
   signal_score: number
   status: PaperSignalPosition['status']
+}
+
+interface ContractPaperTradeRow {
+  id: string
+  user_id: string
+  symbol: string
+  display_name: string
+  quote_asset: string
+  direction: ContractPositionDirection
+  interval: ContractChartInterval
+  opened_at: string
+  closed_at: string | null
+  entry_price: number
+  exit_price: number | null
+  stop_loss: number
+  take_profit: number
+  notional: number
+  leverage: number
+  fee_rate_pct: number
+  funding_rate_pct: number
+  funding_settlements: number
+  risk_budget: number
+  entered_risk_amount: number
+  signal_score: number
+  signal_confidence: number
+  status: ContractPaperTrade['status']
 }
 
 interface TechnicalAlertRow {
@@ -127,7 +166,9 @@ const allowedOrigin = (request: Request, env: Env) => {
   const requestOrigin = new URL(request.url).origin
   const allowed = env.ALLOWED_ORIGINS.split(',').map((item) => item.trim())
   const localDevelopmentOrigin = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
-  return origin === requestOrigin || allowed.includes(origin) || localDevelopmentOrigin ? origin : null
+  return origin === requestOrigin || allowed.includes(origin) || localDevelopmentOrigin
+    ? origin
+    : null
 }
 
 const responseHeaders = (request: Request, env: Env) => {
@@ -239,7 +280,9 @@ const permittedQuoteSymbols = async (env: Env) => {
   for (const stock of megaCaps.stocks) allowed.add(stock.symbol)
   for (const market of Object.values(hotStocks.markets)) {
     for (const stock of [...market.daily, ...market.weekly]) {
-      allowed.add(market === hotStocks.markets.aShare ? toAShareQuoteSymbol(stock.code) : stock.code)
+      allowed.add(
+        market === hotStocks.markets.aShare ? toAShareQuoteSymbol(stock.code) : stock.code,
+      )
     }
   }
   return allowed
@@ -251,7 +294,12 @@ const quoteSession = (
 ): MarketQuote['session'] => {
   if (meta?.instrumentType === 'CRYPTOCURRENCY') return 'continuous'
   const periods = meta?.currentTradingPeriod
-  if (periods?.pre?.start && periods.pre.end && nowSeconds >= periods.pre.start && nowSeconds < periods.pre.end)
+  if (
+    periods?.pre?.start &&
+    periods.pre.end &&
+    nowSeconds >= periods.pre.start &&
+    nowSeconds < periods.pre.end
+  )
     return 'pre'
   if (
     periods?.regular?.start &&
@@ -296,7 +344,9 @@ const fetchYahooQuote = async (symbol: string): Promise<MarketQuote> => {
   const fetchedAt = new Date().toISOString()
   const nowSeconds = Math.floor(Date.now() / 1000)
   const session = quoteSession(meta, nowSeconds)
-  const ageSeconds = marketTimestamp ? Math.max(0, nowSeconds - marketTimestamp) : Number.POSITIVE_INFINITY
+  const ageSeconds = marketTimestamp
+    ? Math.max(0, nowSeconds - marketTimestamp)
+    : Number.POSITIVE_INFINITY
   const status: MarketQuote['status'] =
     session === 'closed'
       ? 'closed'
@@ -333,9 +383,17 @@ const fetchYahooQuote = async (symbol: string): Promise<MarketQuote> => {
 
 const marketQuotes = async (request: Request, env: Env): Promise<MarketQuoteResponse> => {
   const rawSymbols = new URL(request.url).searchParams.get('symbols') ?? ''
-  const symbols = [...new Set(rawSymbols.split(',').map((value) => value.trim().toUpperCase()).filter(Boolean))]
+  const symbols = [
+    ...new Set(
+      rawSymbols
+        .split(',')
+        .map((value) => value.trim().toUpperCase())
+        .filter(Boolean),
+    ),
+  ]
   if (!symbols.length) throw new HttpError(400, '至少提供一个行情代码')
-  if (symbols.length > maximumQuoteSymbols) throw new HttpError(400, `单次最多查询${maximumQuoteSymbols}个标的`)
+  if (symbols.length > maximumQuoteSymbols)
+    throw new HttpError(400, `单次最多查询${maximumQuoteSymbols}个标的`)
   const allowed = await permittedQuoteSymbols(env)
   const denied = symbols.filter((symbol) => !allowed.has(symbol))
   const permitted = symbols.filter((symbol) => allowed.has(symbol))
@@ -395,7 +453,8 @@ const latestDashboard = async (env: Env): Promise<QuantDashboard> => {
           candidate.direction &&
           'optionMarket' in candidate &&
           'earningsEvent' in candidate,
-      ) && dashboard.assets.every((asset) => 'validation' in asset)
+      ) &&
+      dashboard.assets.every((asset) => 'validation' in asset)
     if (currentSchema) return dashboard
   }
   return refreshSnapshot(env)
@@ -533,6 +592,245 @@ const deletePaperPosition = async (env: Env, clientId: string, id: string) => {
     .bind(id, clientId)
     .run()
   if (!result.meta.changes) throw new HttpError(404, '仅可删除已关闭的模拟记录')
+}
+
+const contractIntervals: ContractChartInterval[] = ['1m', '3m', '5m', '15m', '30m', '1h', '4h']
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+const isContractInterval = (value: unknown): value is ContractChartInterval =>
+  typeof value === 'string' && contractIntervals.includes(value as ContractChartInterval)
+
+const contractText = (value: unknown, field: string, maximum: number) => {
+  const normalized = typeof value === 'string' ? value.trim() : ''
+  if (!normalized || normalized.length > maximum) throw new HttpError(400, `${field}格式无效`)
+  return normalized
+}
+
+const contractNumber = (
+  value: unknown,
+  field: string,
+  minimum: number,
+  maximum: number,
+  integer = false,
+) => {
+  if (
+    typeof value !== 'number' ||
+    !Number.isFinite(value) ||
+    value < minimum ||
+    value > maximum ||
+    (integer && !Number.isInteger(value))
+  )
+    throw new HttpError(400, `${field}格式无效`)
+  return value
+}
+
+const contractTimestamp = (value: unknown, field: string) => {
+  const normalized = contractText(value, field, 40)
+  const timestamp = new Date(normalized).getTime()
+  if (!Number.isFinite(timestamp) || timestamp > Date.now() + 300_000) {
+    throw new HttpError(400, `${field}格式无效`)
+  }
+  return new Date(timestamp).toISOString()
+}
+
+const toContractPaperTrade = (row: ContractPaperTradeRow): ContractPaperTrade => ({
+  id: row.id,
+  symbol: row.symbol,
+  displayName: row.display_name,
+  quoteAsset: row.quote_asset,
+  direction: row.direction,
+  interval: row.interval,
+  openedAt: row.opened_at,
+  closedAt: row.closed_at,
+  entryPrice: row.entry_price,
+  exitPrice: row.exit_price,
+  stopLoss: row.stop_loss,
+  takeProfit: row.take_profit,
+  notional: row.notional,
+  leverage: row.leverage,
+  feeRatePct: row.fee_rate_pct,
+  fundingRatePct: row.funding_rate_pct,
+  fundingSettlements: row.funding_settlements,
+  riskBudget: row.risk_budget,
+  enteredRiskAmount: row.entered_risk_amount,
+  signalScore: row.signal_score,
+  signalConfidence: row.signal_confidence,
+  status: row.status,
+})
+
+const contractPaperColumns = `id, user_id, symbol, display_name, quote_asset, direction, interval,
+  opened_at, closed_at, entry_price, exit_price, stop_loss, take_profit, notional, leverage,
+  fee_rate_pct, funding_rate_pct, funding_settlements, risk_budget, entered_risk_amount,
+  signal_score, signal_confidence, status`
+
+const listContractPaperTrades = async (env: Env, userId: string) => {
+  const rows = await env.DB.prepare(
+    `SELECT ${contractPaperColumns}
+     FROM contract_paper_trades
+     WHERE user_id = ?1
+     ORDER BY opened_at DESC
+     LIMIT 200`,
+  )
+    .bind(userId)
+    .all<ContractPaperTradeRow>()
+  return rows.results.map(toContractPaperTrade)
+}
+
+const parseContractPaperTrade = async (request: Request) => {
+  const input = await requestJson<Record<string, unknown>>(request)
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    throw new HttpError(400, '合约模拟记录格式无效')
+  }
+  const id = contractText(input.id, '记录ID', 36)
+  if (!uuidPattern.test(id)) throw new HttpError(400, '记录ID格式无效')
+  const symbol = contractText(input.symbol, '合约代码', 30).toUpperCase()
+  if (!/^[A-Z0-9]{2,30}$/.test(symbol)) throw new HttpError(400, '合约代码格式无效')
+  const quoteAsset = contractText(input.quoteAsset, '结算资产', 12).toUpperCase()
+  if (!/^[A-Z0-9]{2,12}$/.test(quoteAsset)) throw new HttpError(400, '结算资产格式无效')
+  if (input.direction !== 'long' && input.direction !== 'short') {
+    throw new HttpError(400, '模拟方向无效')
+  }
+  if (!isContractInterval(input.interval)) throw new HttpError(400, 'K线周期无效')
+  const openedAt = contractTimestamp(input.openedAt, '记录时间')
+  const created = createContractPaperTrade({
+    id,
+    symbol,
+    displayName: contractText(input.displayName, '标的名称', 120),
+    quoteAsset,
+    direction: input.direction,
+    interval: input.interval,
+    openedAt,
+    entryPrice: contractNumber(input.entryPrice, '入场价', 0.00000001, 1_000_000_000),
+    stopLoss: contractNumber(input.stopLoss, '止损价', 0.00000001, 1_000_000_000),
+    takeProfit: contractNumber(input.takeProfit, '止盈价', 0.00000001, 1_000_000_000),
+    notional: contractNumber(input.notional, '名义仓位', 0.01, 1_000_000_000),
+    leverage: contractNumber(input.leverage, '杠杆倍数', 1, 125),
+    feeRatePct: contractNumber(input.feeRatePct, '手续费率', 0, 5),
+    fundingRatePct: contractNumber(input.fundingRatePct, '资金费率', -100, 100),
+    fundingSettlements: contractNumber(input.fundingSettlements, '资金费次数', 0, 10_000, true),
+    riskBudget: contractNumber(input.riskBudget, '风险预算', 0.00000001, 1_000_000_000),
+    enteredRiskAmount: contractNumber(
+      input.enteredRiskAmount,
+      '止损风险',
+      0.00000001,
+      1_000_000_000,
+    ),
+    signalScore: contractNumber(input.signalScore, '信号评分', -100, 100),
+    signalConfidence: contractNumber(input.signalConfidence, '信号一致度', 0, 100),
+  })
+  if (!created) throw new HttpError(400, '交易计划方向或价格层级无效')
+  if (input.status === 'open') return created
+  if (input.status !== 'closed') throw new HttpError(400, '模拟记录状态无效')
+  const closedAt = contractTimestamp(input.closedAt, '关闭时间')
+  if (new Date(closedAt).getTime() < new Date(openedAt).getTime()) {
+    throw new HttpError(400, '关闭时间不能早于记录时间')
+  }
+  const closed = closeContractPaperTrade(
+    created,
+    contractNumber(input.exitPrice, '退出价', 0.00000001, 1_000_000_000),
+    closedAt,
+  )
+  if (!closed) throw new HttpError(400, '关闭记录格式无效')
+  return closed
+}
+
+const createCloudContractPaperTrade = async (request: Request, env: Env, userId: string) => {
+  const trade = await parseContractPaperTrade(request)
+  const updatedAt = new Date().toISOString()
+  await env.DB.prepare(
+    `INSERT OR IGNORE INTO contract_paper_trades
+     (id, user_id, symbol, display_name, quote_asset, direction, interval, opened_at, closed_at,
+      entry_price, exit_price, stop_loss, take_profit, notional, leverage, fee_rate_pct,
+      funding_rate_pct, funding_settlements, risk_budget, entered_risk_amount, signal_score,
+      signal_confidence, status, updated_at)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15,
+             ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24)`,
+  )
+    .bind(
+      trade.id,
+      userId,
+      trade.symbol,
+      trade.displayName,
+      trade.quoteAsset,
+      trade.direction,
+      trade.interval,
+      trade.openedAt,
+      trade.closedAt,
+      trade.entryPrice,
+      trade.exitPrice,
+      trade.stopLoss,
+      trade.takeProfit,
+      trade.notional,
+      trade.leverage,
+      trade.feeRatePct,
+      trade.fundingRatePct,
+      trade.fundingSettlements,
+      trade.riskBudget,
+      trade.enteredRiskAmount,
+      trade.signalScore,
+      trade.signalConfidence,
+      trade.status,
+      updatedAt,
+    )
+    .run()
+  const stored = await env.DB.prepare(
+    `SELECT ${contractPaperColumns} FROM contract_paper_trades WHERE id = ?1 AND user_id = ?2`,
+  )
+    .bind(trade.id, userId)
+    .first<ContractPaperTradeRow>()
+  if (!stored) throw new HttpError(409, '该合约已有未关闭的云端模拟记录')
+  return listContractPaperTrades(env, userId)
+}
+
+const closeCloudContractPaperTrade = async (
+  request: Request,
+  env: Env,
+  userId: string,
+  id: string,
+) => {
+  if (!uuidPattern.test(id)) throw new HttpError(400, '记录ID格式无效')
+  const existing = await env.DB.prepare(
+    `SELECT ${contractPaperColumns}
+     FROM contract_paper_trades WHERE id = ?1 AND user_id = ?2 AND status = 'open'`,
+  )
+    .bind(id, userId)
+    .first<ContractPaperTradeRow>()
+  if (!existing) throw new HttpError(404, '未找到可关闭的合约模拟记录')
+  const input = await requestJson<Record<string, unknown>>(request)
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    throw new HttpError(400, '关闭记录格式无效')
+  }
+  const closedAt = contractTimestamp(input.closedAt, '关闭时间')
+  const trade = toContractPaperTrade(existing)
+  if (new Date(closedAt).getTime() < new Date(trade.openedAt).getTime()) {
+    throw new HttpError(400, '关闭时间不能早于记录时间')
+  }
+  const closed = closeContractPaperTrade(
+    trade,
+    contractNumber(input.exitPrice, '退出价', 0.00000001, 1_000_000_000),
+    closedAt,
+  )
+  if (!closed) throw new HttpError(400, '关闭记录格式无效')
+  const result = await env.DB.prepare(
+    `UPDATE contract_paper_trades
+     SET status = 'closed', closed_at = ?1, exit_price = ?2, updated_at = ?3
+     WHERE id = ?4 AND user_id = ?5 AND status = 'open'`,
+  )
+    .bind(closed.closedAt, closed.exitPrice, new Date().toISOString(), id, userId)
+    .run()
+  if (!result.meta.changes) throw new HttpError(409, '合约模拟记录状态已变化')
+  return listContractPaperTrades(env, userId)
+}
+
+const deleteCloudContractPaperTrade = async (env: Env, userId: string, id: string) => {
+  if (!uuidPattern.test(id)) throw new HttpError(400, '记录ID格式无效')
+  const result = await env.DB.prepare(
+    `DELETE FROM contract_paper_trades WHERE id = ?1 AND user_id = ?2 AND status = 'closed'`,
+  )
+    .bind(id, userId)
+    .run()
+  if (!result.meta.changes) throw new HttpError(404, '仅可删除已关闭的合约模拟记录')
+  return listContractPaperTrades(env, userId)
 }
 
 const toTechnicalAlert = (row: TechnicalAlertRow): TechnicalAlertRule => ({
@@ -961,6 +1259,32 @@ const handleApi = async (request: Request, env: Env) => {
   if (url.pathname === '/api/quant/dashboard' && request.method === 'GET') {
     return json(request, env, await latestDashboard(env))
   }
+  if (url.pathname === '/api/btc-auto-trading' && request.method === 'GET') {
+    await authenticate(request, env, 'autoTrade.manage')
+    return json(request, env, await btcAutoTradingDashboard(env))
+  }
+  if (url.pathname === '/api/btc-auto-trading' && request.method === 'PATCH') {
+    const actor = await authenticate(request, env, 'autoTrade.manage')
+    const input = await requestJson<Record<string, unknown>>(request)
+    if (!input || typeof input !== 'object' || Array.isArray(input)) {
+      throw new HttpError(400, 'BTC自动交易配置格式无效')
+    }
+    try {
+      return json(request, env, await saveBtcAutoTradingConfig(env, actor.id, input))
+    } catch (error) {
+      throw new HttpError(400, error instanceof Error ? error.message : 'BTC自动交易配置无效')
+    }
+  }
+  if (url.pathname === '/api/btc-auto-trading/run' && request.method === 'POST') {
+    await authenticate(request, env, 'autoTrade.manage')
+    await runBtcAutoTradingCycle(env)
+    return json(request, env, await btcAutoTradingDashboard(env))
+  }
+  if (url.pathname === '/api/btc-auto-trading/close' && request.method === 'POST') {
+    await authenticate(request, env, 'autoTrade.manage')
+    await closeBtcAutoTradingPosition(env)
+    return json(request, env, await btcAutoTradingDashboard(env))
+  }
   if (url.pathname === '/api/paper' && request.method === 'GET') {
     const actor = await authenticate(request, env, 'paper.manage')
     return json(request, env, { positions: await listPaperPositions(env, actor.id) })
@@ -986,6 +1310,40 @@ const handleApi = async (request: Request, env: Env) => {
     const actor = await authenticate(request, env, 'paper.manage')
     await deletePaperPosition(env, actor.id, deleteMatch[1])
     return json(request, env, { ok: true })
+  }
+  if (url.pathname === '/api/contract-paper' && request.method === 'GET') {
+    const actor = await authenticate(request, env, 'paper.manage')
+    return json(request, env, { trades: await listContractPaperTrades(env, actor.id) })
+  }
+  if (url.pathname === '/api/contract-paper' && request.method === 'POST') {
+    const actor = await authenticate(request, env, 'paper.manage')
+    return json(
+      request,
+      env,
+      { trades: await createCloudContractPaperTrade(request, env, actor.id) },
+      201,
+    )
+  }
+  const contractPaperCloseMatch = url.pathname.match(
+    /^\/api\/contract-paper\/([0-9a-f-]+)\/close$/i,
+  )
+  if (contractPaperCloseMatch && request.method === 'PATCH') {
+    const actor = await authenticate(request, env, 'paper.manage')
+    return json(request, env, {
+      trades: await closeCloudContractPaperTrade(
+        request,
+        env,
+        actor.id,
+        contractPaperCloseMatch[1],
+      ),
+    })
+  }
+  const contractPaperDeleteMatch = url.pathname.match(/^\/api\/contract-paper\/([0-9a-f-]+)$/i)
+  if (contractPaperDeleteMatch && request.method === 'DELETE') {
+    const actor = await authenticate(request, env, 'paper.manage')
+    return json(request, env, {
+      trades: await deleteCloudContractPaperTrade(env, actor.id, contractPaperDeleteMatch[1]),
+    })
   }
   if (url.pathname === '/api/technical-alerts' && request.method === 'GET') {
     const actor = await authenticate(request, env, 'technicalAlerts.manage')
@@ -1029,9 +1387,10 @@ export default {
       )
     }
   },
-  async scheduled(_controller, env) {
+  async scheduled(controller, env) {
     try {
-      await refreshSnapshot(env)
+      if (controller.cron === '*/5 * * * *') await runBtcAutoTradingCycle(env)
+      else await refreshSnapshot(env)
     } catch (error) {
       console.error(
         JSON.stringify({

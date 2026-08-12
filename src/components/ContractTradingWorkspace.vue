@@ -8,16 +8,24 @@ import type {
   ContractPositionDirection,
   ContractTradeAction,
 } from '@/types'
+import BtcAutoTradingPanel from '@/components/BtcAutoTradingPanel.vue'
 import ContractPaperJournal from '@/components/ContractPaperJournal.vue'
 import DisclosureCard from '@/components/DisclosureCard.vue'
 import EChart from '@/components/EChart.vue'
+import { useAuth } from '@/composables/use-auth'
 import { useBinanceContractMarket } from '@/composables/use-binance-contract-market'
 import { useI18n } from '@/composables/use-i18n'
+import { createContractPaperTrade } from '@/utils/contract-paper-journal'
+import type {
+  ContractPaperJournalCommand,
+  ContractPaperJournalStore,
+  ContractPaperSyncStatus,
+} from '@/utils/contract-paper-store'
 import {
-  addContractPaperTrade,
-  closeContractPaperTrade,
-  restoreContractPaperTrades,
-} from '@/utils/contract-paper-journal'
+  cloudContractPaperJournalStore,
+  createLocalContractPaperJournalStore,
+  synchronizeContractPaperJournal,
+} from '@/utils/contract-paper-store'
 import { simulateContractPosition } from '@/utils/contract-position-simulation'
 import { buildContractTradeDecision } from '@/utils/contract-trade-decision'
 import { simpleMovingAverage } from '@/utils/technical-analysis'
@@ -50,6 +58,11 @@ const positionAccountEquity = ref(10_000)
 const positionMaxRiskPct = ref(1)
 const paperTrades = ref<ContractPaperTrade[]>([])
 const paperStorageKey = 'market-desk-contract-paper-trades-v1'
+const paperSyncStatus = ref<ContractPaperSyncStatus>('loading')
+const paperBusy = ref(false)
+const localPaperJournalStore = createLocalContractPaperJournalStore(paperStorageKey)
+let activePaperJournalStore: ContractPaperJournalStore = localPaperJournalStore
+const { can, restore: restoreAuth } = useAuth()
 const { locale, t } = useI18n()
 const { theme } = useTheme()
 const { snapshot, catalog, loadCatalog, connect, reconnect } = useBinanceContractMarket()
@@ -59,9 +72,7 @@ const decisionDirection = computed<ContractPositionDirection | null>(() =>
     ? decision.value.action
     : null,
 )
-const currentContractPrice = computed(
-  () => snapshot.value.markPrice ?? decision.value.latestPrice,
-)
+const currentContractPrice = computed(() => snapshot.value.markPrice ?? decision.value.latestPrice)
 const positionSimulation = computed(() => {
   const usesDecisionLevels = decisionDirection.value === positionDirection.value
   return simulateContractPosition({
@@ -97,7 +108,8 @@ const canRecordPaperTrade = computed(
     currentContractPrice.value !== null &&
     decision.value.stopLoss !== null &&
     decision.value.takeProfit !== null &&
-    selectedInstrument.value !== null,
+    selectedInstrument.value !== null &&
+    !paperBusy.value,
 )
 const paperRecordState = computed(() => {
   if (currentOpenPaperTrade.value) return 'alreadyOpen'
@@ -189,6 +201,34 @@ const cssColor = (name: string) => {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 }
 
+const executePaperJournalCommand = async (command: ContractPaperJournalCommand) => {
+  if (paperBusy.value) return
+  paperBusy.value = true
+  try {
+    paperTrades.value = await activePaperJournalStore.execute(command)
+    if (activePaperJournalStore === cloudContractPaperJournalStore) {
+      await localPaperJournalStore.replace(paperTrades.value)
+      paperSyncStatus.value = 'cloud'
+    }
+  } catch (error) {
+    if (activePaperJournalStore === cloudContractPaperJournalStore) {
+      console.warn('Cloud contract paper journal unavailable; using local fallback:', error)
+      activePaperJournalStore = localPaperJournalStore
+      paperSyncStatus.value = 'local'
+      try {
+        await localPaperJournalStore.replace(paperTrades.value)
+        paperTrades.value = await localPaperJournalStore.execute(command)
+      } catch (localError) {
+        console.warn('Contract paper journal could not be saved locally:', localError)
+      }
+    } else {
+      console.warn('Contract paper journal command failed:', error)
+    }
+  } finally {
+    paperBusy.value = false
+  }
+}
+
 const recordPaperTrade = () => {
   const instrument = selectedInstrument.value
   const entryPrice = currentContractPrice.value
@@ -206,7 +246,7 @@ const recordPaperTrade = () => {
     enteredRiskAmount === null
   )
     return
-  paperTrades.value = addContractPaperTrade(paperTrades.value, {
+  const trade = createContractPaperTrade({
     id: window.crypto.randomUUID(),
     symbol: selectedSymbol.value,
     displayName: instrument.displayName,
@@ -227,6 +267,7 @@ const recordPaperTrade = () => {
     signalScore: decision.value.score,
     signalConfidence: decision.value.confidence,
   })
+  if (trade) void executePaperJournalCommand({ type: 'add', trade })
 }
 
 const selectPaperTrade = (trade: ContractPaperTrade) => {
@@ -236,14 +277,17 @@ const selectPaperTrade = (trade: ContractPaperTrade) => {
 
 const closePaperTrade = (trade: ContractPaperTrade) => {
   if (trade.symbol !== selectedSymbol.value || currentContractPrice.value === null) return
-  const closed = closeContractPaperTrade(trade, currentContractPrice.value, new Date().toISOString())
-  if (!closed) return
-  paperTrades.value = paperTrades.value.map((item) => (item.id === trade.id ? closed : item))
+  void executePaperJournalCommand({
+    type: 'close',
+    id: trade.id,
+    exitPrice: currentContractPrice.value,
+    closedAt: new Date().toISOString(),
+  })
 }
 
 const removePaperTrade = (trade: ContractPaperTrade) => {
   if (trade.status !== 'closed') return
-  paperTrades.value = paperTrades.value.filter((item) => item.id !== trade.id)
+  void executePaperJournalCommand({ type: 'remove', id: trade.id })
 }
 
 const chartOption = computed<EChartsCoreOption>(() => {
@@ -402,28 +446,34 @@ watch([selectedSymbol, selectedInterval], ([symbol, interval]) => {
 })
 watch(selectedSymbol, (symbol) => window.localStorage.setItem(symbolStorageKey, symbol))
 watch(
-  paperTrades,
-  (trades) => {
-    try {
-      window.localStorage.setItem(paperStorageKey, JSON.stringify(trades))
-    } catch (error) {
-      console.warn('Contract paper trades could not be saved:', error)
-    }
-  },
-  { deep: true },
-)
-watch(
   () => decision.value.action,
   (action) => {
     if (action === 'long' || action === 'short') positionDirection.value = action
   },
 )
 
-onMounted(() => {
+onMounted(async () => {
   try {
-    paperTrades.value = restoreContractPaperTrades(window.localStorage.getItem(paperStorageKey))
+    paperTrades.value = await localPaperJournalStore.load()
+    paperSyncStatus.value = 'local'
   } catch (error) {
     console.warn('Contract paper trades could not be loaded:', error)
+  }
+  try {
+    await restoreAuth()
+    if (can('paper.manage')) {
+      paperTrades.value = await synchronizeContractPaperJournal(
+        paperTrades.value,
+        cloudContractPaperJournalStore,
+      )
+      activePaperJournalStore = cloudContractPaperJournalStore
+      paperSyncStatus.value = 'cloud'
+      await localPaperJournalStore.replace(paperTrades.value)
+    }
+  } catch (error) {
+    activePaperJournalStore = localPaperJournalStore
+    paperSyncStatus.value = 'local'
+    console.warn('Cloud contract paper journal could not be synchronized:', error)
   }
   void connect(selectedSymbol.value, selectedInterval.value)
   void loadCatalog().then(() => {
@@ -767,12 +817,7 @@ onMounted(() => {
                 </label>
                 <label>
                   <span>{{ t('assetTechnical.contract.simulator.accountEquity') }}</span>
-                  <input
-                    v-model.number="positionAccountEquity"
-                    type="number"
-                    min="1"
-                    step="1000"
-                  />
+                  <input v-model.number="positionAccountEquity" type="number" min="1" step="1000" />
                 </label>
                 <label>
                   <span>{{ t('assetTechnical.contract.simulator.maxRiskPct') }}</span>
@@ -825,10 +870,7 @@ onMounted(() => {
                   <small>{{ t('assetTechnical.contract.simulator.afterCosts') }}</small>
                 </article>
               </div>
-              <section
-                class="position-risk-gate"
-                :class="positionSimulation.riskStatus"
-              >
+              <section class="position-risk-gate" :class="positionSimulation.riskStatus">
                 <header>
                   <span>{{ t('assetTechnical.contract.simulator.riskGate') }}</span>
                   <strong>
@@ -865,7 +907,7 @@ onMounted(() => {
                 <div class="risk-gate-record">
                   <button
                     type="button"
-                    :disabled="!canRecordPaperTrade"
+                    :disabled="!canRecordPaperTrade || paperBusy"
                     @click="recordPaperTrade"
                   >
                     {{
@@ -954,10 +996,14 @@ onMounted(() => {
       </aside>
     </div>
 
+    <BtcAutoTradingPanel v-if="can('autoTrade.manage')" />
+
     <ContractPaperJournal
       :trades="paperTrades"
       :current-symbol="selectedSymbol"
       :current-price="currentContractPrice"
+      :sync-status="paperSyncStatus"
+      :busy="paperBusy"
       @select="selectPaperTrade"
       @close="closePaperTrade"
       @remove="removePaperTrade"

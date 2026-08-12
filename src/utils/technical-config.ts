@@ -1,73 +1,7 @@
-import type {
-  TechnicalIndicatorConfig,
-  TechnicalIndicatorConfigVersion,
-} from '@/types'
+import type { TechnicalIndicatorConfig, TechnicalIndicatorConfigVersion } from '@/types'
+import { defaultTechnicalIndicatorConfig } from '@/utils/technical-config-default'
 
-export const defaultTechnicalIndicatorConfig: TechnicalIndicatorConfig = {
-  version: 1,
-  formulaVersion: 'technical-core-v1',
-  updatedAt: null,
-  updatedBy: null,
-  enabled: {
-    maShort: true,
-    maLong: true,
-    macd: true,
-    rsi: true,
-    bollinger: true,
-    atr: true,
-    volume: true,
-    crossAsset: true,
-    advancedMovingAverages: true,
-    adx: true,
-    stochastic: true,
-    roc: true,
-    cci: true,
-    historicalVolatility: true,
-    obv: true,
-    vwap: true,
-    marketStructure: true,
-  },
-  parameters: {
-    maShortPeriod: 20,
-    maLongPeriod: 60,
-    macdFastPeriod: 12,
-    macdSlowPeriod: 26,
-    macdSignalPeriod: 9,
-    rsiPeriod: 14,
-    rsiOverbought: 70,
-    rsiOversold: 30,
-    bollingerPeriod: 20,
-    bollingerMultiplier: 2,
-    atrPeriod: 14,
-    supportResistanceWindow: 60,
-    maFastPeriod: 5,
-    maMediumPeriod: 10,
-    maTrendPeriod: 120,
-    maAnnualPeriod: 250,
-    emaPeriod: 20,
-    adxPeriod: 14,
-    stochasticPeriod: 14,
-    rocPeriod: 12,
-    cciPeriod: 20,
-    historicalVolatilityPeriod: 20,
-    vwapPeriod: 20,
-    highLowWindow: 252,
-    gapLookback: 60,
-  },
-  weights: {
-    trend: 0.4,
-    momentum: 0.22,
-    volatility: 0.13,
-    volume: 0.1,
-    crossAsset: 0.15,
-  },
-  display: {
-    carouselIntervalMs: 7_000,
-    carouselAutoPlay: true,
-    defaultRange: 'year',
-  },
-  sourcePriority: ['Massive', 'FRED', '新浪财经', '腾讯财经', 'DefiLlama'],
-}
+export { defaultTechnicalIndicatorConfig } from '@/utils/technical-config-default'
 
 export const normalizeTechnicalIndicatorConfig = (
   config: TechnicalIndicatorConfig,
@@ -113,19 +47,14 @@ export const technicalConfigApi = {
     const result = await request<{
       config: TechnicalIndicatorConfig
       versions: TechnicalIndicatorConfigVersion[]
-    }>(
-      '/api/admin/technical-config',
-    )
+    }>('/api/admin/technical-config')
     return { ...result, config: normalizeTechnicalIndicatorConfig(result.config) }
   },
   save: async (config: TechnicalIndicatorConfig) => {
     const result = await request<{
       config: TechnicalIndicatorConfig
       versions: TechnicalIndicatorConfigVersion[]
-    }>(
-      '/api/admin/technical-config',
-      { method: 'PATCH', body: JSON.stringify(config) },
-    )
+    }>('/api/admin/technical-config', { method: 'PATCH', body: JSON.stringify(config) })
     return { ...result, config: normalizeTechnicalIndicatorConfig(result.config) }
   },
 }

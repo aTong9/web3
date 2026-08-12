@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { ContractPaperTrade } from '@/types'
 import DisclosureCard from '@/components/DisclosureCard.vue'
 import { useI18n } from '@/composables/use-i18n'
+import type { ContractPaperSyncStatus } from '@/utils/contract-paper-store'
 import {
   evaluateContractPaperTrade,
   summarizeContractPaperTrades,
@@ -12,6 +13,8 @@ const props = defineProps<{
   trades: ContractPaperTrade[]
   currentSymbol: string
   currentPrice: number | null
+  syncStatus: ContractPaperSyncStatus
+  busy: boolean
 }>()
 const emit = defineEmits<{
   select: [trade: ContractPaperTrade]
@@ -43,9 +46,7 @@ const formatSigned = (value: number | null, digits = 1) =>
 const formatMetric = (value: number | null, digits: number, suffix: string) =>
   value === null ? '—' : `${formatNumber(value, digits)}${suffix}`
 const formatMoney = (value: number | null, quoteAsset: string, signed = false) =>
-  value === null
-    ? '—'
-    : `${signed && value > 0 ? '+' : ''}${formatNumber(value, 2)} ${quoteAsset}`
+  value === null ? '—' : `${signed && value > 0 ? '+' : ''}${formatNumber(value, 2)} ${quoteAsset}`
 const formatTime = (value: string | null) =>
   value
     ? new Intl.DateTimeFormat(locale.value === 'zh' ? 'zh-CN' : 'en-US', {
@@ -69,9 +70,14 @@ const resultClass = (value: number | null | undefined) =>
     :description="t('assetTechnical.contract.journal.description')"
   >
     <template #metric>
-      <strong>
-        {{ t('assetTechnical.contract.journal.openCount', { count: summary.open }) }}
-      </strong>
+      <div class="journal-metric">
+        <span class="journal-sync" :class="syncStatus">
+          <i></i>{{ t(`assetTechnical.contract.journal.sync.${syncStatus}`) }}
+        </span>
+        <strong>
+          {{ t('assetTechnical.contract.journal.openCount', { count: summary.open }) }}
+        </strong>
+      </div>
     </template>
     <div class="journal-summary">
       <article>
@@ -179,6 +185,7 @@ const resultClass = (value: number | null | undefined) =>
           <button
             v-if="row.trade.status === 'open' && row.trade.symbol !== currentSymbol"
             type="button"
+            :disabled="busy"
             @click="emit('select', row.trade)"
           >
             {{ t('assetTechnical.contract.journal.select') }}
@@ -186,7 +193,7 @@ const resultClass = (value: number | null | undefined) =>
           <button
             v-else-if="row.trade.status === 'open'"
             type="button"
-            :disabled="currentPrice === null"
+            :disabled="currentPrice === null || busy"
             @click="emit('close', row.trade)"
           >
             {{ t('assetTechnical.contract.journal.close') }}
@@ -195,6 +202,7 @@ const resultClass = (value: number | null | undefined) =>
             v-else
             type="button"
             class="remove"
+            :disabled="busy"
             @click="emit('remove', row.trade)"
           >
             {{ t('assetTechnical.contract.journal.remove') }}
@@ -207,6 +215,31 @@ const resultClass = (value: number | null | undefined) =>
 </template>
 
 <style scoped>
+.journal-metric {
+  display: grid;
+  justify-items: end;
+  gap: 5px;
+}
+.journal-sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 7px;
+  white-space: nowrap;
+}
+.journal-sync i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.journal-sync.cloud {
+  color: var(--positive);
+}
+.journal-sync.loading {
+  color: var(--warning);
+}
 .journal-summary {
   padding-top: 14px;
   display: grid;

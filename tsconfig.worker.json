@@ -1,6 +1,15 @@
 {
   "extends": "./tsconfig.node.json",
-  "include": ["worker/**/*.ts", "src/utils/quant-signals.ts", "src/types/index.ts"],
+  "include": [
+    "worker/**/*.ts",
+    "src/utils/btc-auto-trading.ts",
+    "src/utils/contract-paper-journal.ts",
+    "src/utils/contract-trade-decision.ts",
+    "src/utils/quant-signals.ts",
+    "src/utils/technical-analysis.ts",
+    "src/utils/technical-config-default.ts",
+    "src/types/index.ts"
+  ],
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.worker.tsbuildinfo",
     "types": ["@cloudflare/workers-types"],

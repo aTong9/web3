@@ -38,6 +38,7 @@ export type AppPermission =
   | 'analytics.view'
   | 'analytics.manage'
   | 'paper.manage'
+  | 'autoTrade.manage'
   | 'technicalAlerts.manage'
   | 'technicalConfig.manage'
 
@@ -268,12 +269,7 @@ export interface HotStockDataset {
   }
 }
 
-export type MarketQuoteStatus =
-  | 'nearRealTime'
-  | 'delayed'
-  | 'closed'
-  | 'stale'
-  | 'unavailable'
+export type MarketQuoteStatus = 'nearRealTime' | 'delayed' | 'closed' | 'stale' | 'unavailable'
 
 export interface MarketQuote {
   symbol: string
@@ -1216,6 +1212,96 @@ export interface ContractTradeDecision {
   risks: ContractDecisionReason[]
   indicators: ContractIndicatorReading[]
   timeframes: ContractTimeframeReading[]
+}
+
+export type BtcAutoExecutionMode = 'paper' | 'testnet'
+export type BtcAutoMarketSource = 'binance' | 'coinbase'
+export type BtcAutoTradeStatus = 'opening' | 'open' | 'closing' | 'closed' | 'error'
+export type BtcAutoSignalEvolution = 'new' | 'strengthened' | 'weakened' | 'falsified' | 'unchanged'
+export type BtcAutoCloseReason = 'stopLoss' | 'takeProfit' | 'signalFalsified' | 'manual'
+
+export interface BtcAutoTradingConfig {
+  enabled: boolean
+  executionMode: BtcAutoExecutionMode
+  symbol: 'BTCUSDT'
+  interval: '5m'
+  notionalUsdt: number
+  leverage: number
+  minimumConfidence: number
+  requiredConfirmations: number
+  cooldownMinutes: number
+  dailyLossLimitUsdt: number
+  feeRatePct: number
+  eligibilityConfirmed: boolean
+  updatedAt: string
+}
+
+export interface BtcAutoSignalSnapshot {
+  action: ContractTradeAction
+  score: number
+  confidence: number
+  price: number | null
+  evolution: BtcAutoSignalEvolution
+  confirmations: number
+  reasons: ContractDecisionReason[]
+  risks: ContractDecisionReason[]
+  observedAt: string
+  marketSource: BtcAutoMarketSource
+}
+
+export interface BtcAutoTrade {
+  id: string
+  executionMode: BtcAutoExecutionMode
+  symbol: 'BTCUSDT'
+  direction: ContractPositionDirection
+  status: BtcAutoTradeStatus
+  quantity: number
+  notionalUsdt: number
+  leverage: number
+  entryPrice: number | null
+  exitPrice: number | null
+  stopLoss: number
+  takeProfit: number
+  openedAt: string
+  closedAt: string | null
+  grossPnl: number | null
+  feeRatePct: number
+  fees: number | null
+  netPnl: number | null
+  returnPct: number | null
+  signalScore: number
+  signalConfidence: number
+  signalReasons: ContractDecisionReason[]
+  closeReason: BtcAutoCloseReason | null
+  openOrderId: string | null
+  closeOrderId: string | null
+  error: string | null
+}
+
+export interface BtcAutoPerformanceSummary {
+  period: 'day' | 'week' | 'month'
+  startAt: string
+  endAt: string
+  trades: number
+  wins: number
+  losses: number
+  winRatePct: number | null
+  grossProfit: number
+  grossLoss: number
+  netPnl: number
+  averageWinLossRatio: number | null
+  profitFactor: number | null
+}
+
+export interface BtcAutoTradingDashboard {
+  config: BtcAutoTradingConfig
+  credentialsReady: boolean
+  lastRunAt: string | null
+  lastError: string | null
+  signal: BtcAutoSignalSnapshot | null
+  openTrade: BtcAutoTrade | null
+  trades: BtcAutoTrade[]
+  performance: BtcAutoPerformanceSummary[]
 }
 
 export type ContractPositionDirection = 'long' | 'short'

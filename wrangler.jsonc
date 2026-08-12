@@ -2,24 +2,30 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "web3-quant-api",
   "main": "./worker/index.ts",
+  "alias": {
+    "@/types": "./src/types/index.ts",
+    "@/utils/technical-analysis": "./src/utils/technical-analysis.ts",
+    "@/utils/technical-config-default": "./src/utils/technical-config-default.ts",
+  },
   "compatibility_date": "2026-08-04",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
   "preview_urls": true,
   "vars": {
     "GITHUB_DATA_BASE": "https://raw.githubusercontent.com/aTong9/web3/main/src/data",
-    "ALLOWED_ORIGINS": "https://atong9.github.io,http://localhost:3000,http://127.0.0.1:3000,http://localhost:2333,http://127.0.0.1:2334,http://127.0.0.1:2335"
+    "BINANCE_FUTURES_PUBLIC_BASE": "https://fapi.binance.com",
+    "ALLOWED_ORIGINS": "https://atong9.github.io,http://localhost:3000,http://127.0.0.1:3000,http://localhost:2333,http://127.0.0.1:2334,http://127.0.0.1:2335",
   },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "web3-quant",
       "database_id": "b4eb5a03-96c1-41e0-848b-5d2b2bcb3fd5",
-      "migrations_dir": "./worker/migrations"
-    }
+      "migrations_dir": "./worker/migrations",
+    },
   ],
   "triggers": {
-    "crons": ["45 10 * * mon-fri", "45 23 * * mon-fri"]
+    "crons": ["*/5 * * * *", "45 10 * * mon-fri", "45 23 * * mon-fri"],
   },
   "observability": {
     "enabled": true,
@@ -28,7 +34,7 @@
       "enabled": true,
       "invocation_logs": true,
       "head_sampling_rate": 1,
-      "persist": true
-    }
-  }
+      "persist": true,
+    },
+  },
 }

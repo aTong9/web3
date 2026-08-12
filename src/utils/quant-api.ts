@@ -1,4 +1,11 @@
-import type { PaperSignalPosition, QuantDashboard, QuantOptionCandidate } from '@/types'
+import type {
+  BtcAutoTradingConfig,
+  BtcAutoTradingDashboard,
+  ContractPaperTrade,
+  PaperSignalPosition,
+  QuantDashboard,
+  QuantOptionCandidate,
+} from '@/types'
 
 const defaultApiBase = 'https://web3-quant-api.binson0426.workers.dev'
 const clientStorageKey = 'market-desk-quant-client-id-v1'
@@ -59,4 +66,42 @@ export const quantApi = {
       `/api/paper/${encodeURIComponent(position.id)}?clientId=${encodeURIComponent(clientId)}`,
       { method: 'DELETE' },
     ),
+  contractTrades: async () => {
+    const payload = await request<{ trades: ContractPaperTrade[] }>('/api/contract-paper')
+    return payload.trades
+  },
+  createContractTrade: async (trade: ContractPaperTrade) => {
+    const payload = await request<{ trades: ContractPaperTrade[] }>('/api/contract-paper', {
+      method: 'POST',
+      body: JSON.stringify(trade),
+    })
+    return payload.trades
+  },
+  closeContractTrade: async (id: string, exitPrice: number, closedAt: string) => {
+    const payload = await request<{ trades: ContractPaperTrade[] }>(
+      `/api/contract-paper/${encodeURIComponent(id)}/close`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ exitPrice, closedAt }),
+      },
+    )
+    return payload.trades
+  },
+  deleteContractTrade: async (id: string) => {
+    const payload = await request<{ trades: ContractPaperTrade[] }>(
+      `/api/contract-paper/${encodeURIComponent(id)}`,
+      { method: 'DELETE' },
+    )
+    return payload.trades
+  },
+  btcAutoTrading: () => request<BtcAutoTradingDashboard>('/api/btc-auto-trading'),
+  saveBtcAutoTrading: (config: BtcAutoTradingConfig) =>
+    request<BtcAutoTradingDashboard>('/api/btc-auto-trading', {
+      method: 'PATCH',
+      body: JSON.stringify(config),
+    }),
+  runBtcAutoTrading: () =>
+    request<BtcAutoTradingDashboard>('/api/btc-auto-trading/run', { method: 'POST' }),
+  closeBtcAutoTrading: () =>
+    request<BtcAutoTradingDashboard>('/api/btc-auto-trading/close', { method: 'POST' }),
 }

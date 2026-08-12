@@ -16,25 +16,25 @@ const validCreateInput = (input: ContractPaperTradeCreateInput) => {
       : input.stopLoss > input.entryPrice && input.takeProfit < input.entryPrice
   return Boolean(
     input.id &&
-      input.symbol &&
-      input.displayName &&
-      input.quoteAsset &&
-      (input.direction === 'long' || input.direction === 'short') &&
-      intervals.has(input.interval) &&
-      finitePositive(input.entryPrice) &&
-      finitePositive(input.stopLoss) &&
-      finitePositive(input.takeProfit) &&
-      levelsAligned &&
-      finitePositive(input.notional) &&
-      finitePositive(input.leverage) &&
-      finiteNonNegative(input.feeRatePct) &&
-      Number.isFinite(input.fundingRatePct) &&
-      finiteNonNegative(input.fundingSettlements) &&
-      finitePositive(input.riskBudget) &&
-      finitePositive(input.enteredRiskAmount) &&
-      Number.isFinite(input.signalScore) &&
-      Number.isFinite(input.signalConfidence) &&
-      Number.isFinite(new Date(input.openedAt).getTime()),
+    input.symbol &&
+    input.displayName &&
+    input.quoteAsset &&
+    (input.direction === 'long' || input.direction === 'short') &&
+    intervals.has(input.interval) &&
+    finitePositive(input.entryPrice) &&
+    finitePositive(input.stopLoss) &&
+    finitePositive(input.takeProfit) &&
+    levelsAligned &&
+    finitePositive(input.notional) &&
+    finitePositive(input.leverage) &&
+    finiteNonNegative(input.feeRatePct) &&
+    Number.isFinite(input.fundingRatePct) &&
+    finiteNonNegative(input.fundingSettlements) &&
+    finitePositive(input.riskBudget) &&
+    finitePositive(input.enteredRiskAmount) &&
+    Number.isFinite(input.signalScore) &&
+    Number.isFinite(input.signalConfidence) &&
+    Number.isFinite(new Date(input.openedAt).getTime()),
   )
 }
 
@@ -56,10 +56,9 @@ export const addContractPaperTrade = (
   trades: readonly ContractPaperTrade[],
   input: ContractPaperTradeCreateInput,
 ): ContractPaperTrade[] => {
+  if (trades.some((trade) => trade.id === input.id)) return [...trades]
   if (
-    trades.some(
-      (trade) => trade.symbol === input.symbol.toUpperCase() && trade.status === 'open',
-    )
+    trades.some((trade) => trade.symbol === input.symbol.toUpperCase() && trade.status === 'open')
   )
     return [...trades]
   const created = createContractPaperTrade(input)
@@ -92,10 +91,7 @@ export const evaluateContractPaperTrade = (
   const grossPnl = trade.notional * underlyingMove * directionMultiplier
   const roundTripFee = trade.notional * (trade.feeRatePct / 100) * 2
   const projectedFunding =
-    trade.notional *
-    (trade.fundingRatePct / 100) *
-    trade.fundingSettlements *
-    directionMultiplier
+    trade.notional * (trade.fundingRatePct / 100) * trade.fundingSettlements * directionMultiplier
   const estimatedCosts = roundTripFee + projectedFunding
   const netPnl = grossPnl - estimatedCosts
   const margin = trade.notional / trade.leverage
@@ -130,7 +126,8 @@ export const summarizeContractPaperTrades = (
 const isPaperTrade = (value: unknown): value is ContractPaperTrade => {
   if (!value || typeof value !== 'object') return false
   const trade = value as ContractPaperTrade
-  if (!validCreateInput(trade) || (trade.status !== 'open' && trade.status !== 'closed')) return false
+  if (!validCreateInput(trade) || (trade.status !== 'open' && trade.status !== 'closed'))
+    return false
   if (trade.status === 'open') return trade.closedAt === null && trade.exitPrice === null
   return (
     typeof trade.closedAt === 'string' &&
@@ -140,21 +137,37 @@ const isPaperTrade = (value: unknown): value is ContractPaperTrade => {
   )
 }
 
+export const mergeContractPaperTrades = (
+  primary: readonly ContractPaperTrade[],
+  incoming: readonly ContractPaperTrade[],
+): ContractPaperTrade[] => {
+  const merged = primary.filter(isPaperTrade).slice(0, 200)
+  incoming.filter(isPaperTrade).forEach((trade) => {
+    const existingIndex = merged.findIndex((item) => item.id === trade.id)
+    if (existingIndex >= 0) {
+      if (merged[existingIndex]?.status === 'open' && trade.status === 'closed') {
+        merged[existingIndex] = trade
+      }
+      return
+    }
+    if (
+      trade.status === 'open' &&
+      merged.some((item) => item.symbol === trade.symbol && item.status === 'open')
+    )
+      return
+    merged.push(trade)
+  })
+  return merged
+    .sort((left, right) => Date.parse(right.openedAt) - Date.parse(left.openedAt))
+    .slice(0, 200)
+}
+
 export const restoreContractPaperTrades = (serialized: string | null): ContractPaperTrade[] => {
   if (!serialized) return []
   try {
     const parsed: unknown = JSON.parse(serialized)
     if (!Array.isArray(parsed)) return []
-    const openSymbols = new Set<string>()
-    return parsed
-      .filter(isPaperTrade)
-      .filter((trade) => {
-        if (trade.status === 'closed') return true
-        if (openSymbols.has(trade.symbol)) return false
-        openSymbols.add(trade.symbol)
-        return true
-      })
-      .slice(0, 200)
+    return mergeContractPaperTrades([], parsed.filter(isPaperTrade))
   } catch {
     return []
   }
