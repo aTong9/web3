@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-12T21:51:44.814Z",
+  "updatedAt": "2026-08-12T22:46:04.965Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -37,6 +37,40 @@
   ],
   "articles": [
     {
+      "id": "10a006cf8ecfdcd5",
+      "title": "Cerebras stock plunges 14% after second earnings report following IPO",
+      "url": "https://www.cnbc.com/2026/08/12/cerebras-cbrs-q2-earnings-report-2026.html",
+      "publishedAt": "2026-08-12T22:18:58.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "Cerebras股票在IPO后的第二份盈利报告后暴跌14%",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "23a4442c7a84a41f",
+      "title": "Trump says Karoline Leavitt resigning as White House press secretary",
+      "url": "https://www.cnbc.com/2026/08/12/trump-white-house-karoline-leavitt-resigning-.html",
+      "publishedAt": "2026-08-12T22:08:51.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "特朗普称卡罗琳·莱维特辞去白宫新闻秘书职务",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "c00a93761521fd35",
       "title": "Small investors became a major stock market force. Now, they risk getting pushed back into the dark",
       "url": "https://www.cnbc.com/2026/08/12/retail-investors-truthapi-earnings-trump.html",
@@ -51,40 +85,6 @@
         "美股"
       ],
       "translatedTitle": "小投资者成为股票市场的主要力量。现在，他们冒着被推回黑暗中的风险",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "23a4442c7a84a41f",
-      "title": "Trump says Karoline Leavitt resigning as White House press secretary",
-      "url": "https://www.cnbc.com/2026/08/12/trump-white-house-karoline-leavitt-resigning-.html",
-      "publishedAt": "2026-08-12T21:30:21.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "特朗普称卡罗琳·莱维特辞去白宫新闻秘书职务",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "10a006cf8ecfdcd5",
-      "title": "Cerebras stock plunges 14% after second earnings report following IPO",
-      "url": "https://www.cnbc.com/2026/08/12/cerebras-cbrs-q2-earnings-report-2026.html",
-      "publishedAt": "2026-08-12T21:18:40.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 3,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "Cerebras股票在IPO后的第二份盈利报告后暴跌14%",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -144,24 +144,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "adcd8284b6c38631",
-      "title": "Cisco's stock drops despite earnings, revenue beat",
-      "url": "https://www.cnbc.com/2026/08/12/ciscos-stock-drops-despite-earnings-revenue-beat.html",
-      "publishedAt": "2026-08-12T20:51:07.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 3,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "思科的股票下跌，尽管盈利，收入击败",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "36265092711883b4",
       "title": "CoreWeave counters a key bear case on the AI trade. What it means for our data center stocks",
       "url": "https://www.cnbc.com/2026/08/12/coreweave-counters-a-key-bear-case-on-the-ai-trade-what-it-means-for-our-data-center-stocks.html",
@@ -171,7 +153,7 @@
       "category": "technology",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "美股"
       ],
@@ -189,7 +171,7 @@
       "category": "equities",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [
         "美股"
       ],
@@ -276,6 +258,22 @@
       "impactScore": 3,
       "affectedAssets": [],
       "translatedTitle": "这是2026年7月的通货膨胀明细—在一张图表中",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "bfb5892903f0dc9d",
+      "title": "Here are five key takeaways from the July CPI inflation report",
+      "url": "https://www.cnbc.com/2026/08/12/here-are-five-key-takeaways-from-the-july-cpi-inflation-report.html",
+      "publishedAt": "2026-08-12T17:14:09.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [],
+      "translatedTitle": "以下是7月CPI通胀报告的五大要点",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -412,6 +410,22 @@
       "translationProvider": "MyMemory"
     },
     {
+      "id": "83d88e72a53be9a0",
+      "title": "Consumer prices rose 0.1% in July, as expected, putting the annual rate at 3.4%",
+      "url": "https://www.cnbc.com/2026/08/12/cpi-inflation-report-july-2026.html",
+      "publishedAt": "2026-08-12T14:27:35.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "正如预期的那样， 7月份消费者价格上涨0.1% ，年率为3.4%",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "df81e9593cc570d6",
       "title": "Meta and Nvidia plant 'very firm flag' in open-weight AI race led by Chinese Labs",
       "url": "https://www.cnbc.com/2026/08/12/meta-nvidia-open-weight-ai-race-china.html",
@@ -476,22 +490,6 @@
         "A股"
       ],
       "translatedTitle": "中国对波音和空客的回应是首次国际飞行--中国商飞能否挑战航空双寡头垄断？",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "65366b93c52b5667",
-      "title": "'Tougher times ahead': Don't expect blowout returns to continue, CEO of $2.3 trillion fund warns after record first half",
-      "url": "https://www.cnbc.com/2026/08/12/norway-sovereign-wealth-tangen-nbim.html",
-      "publishedAt": "2026-08-12T12:23:06.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "“前路艰难” ： 2.3万亿美元基金的首席执行官在上半年创纪录后警告称，不要指望井喷回报会继续",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
