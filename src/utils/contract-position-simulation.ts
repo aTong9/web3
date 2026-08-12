@@ -1,6 +1,14 @@
 import type { ContractPositionSimulation, ContractPositionSimulationInput } from '@/types'
 
 const finitePositive = (value: number) => Number.isFinite(value) && value > 0
+const unavailableRisk = {
+  riskBudget: null,
+  enteredRiskAmount: null,
+  recommendedNotional: null,
+  recommendedMargin: null,
+  riskUtilizationPct: null,
+  riskStatus: 'unavailable' as const,
+}
 const pnlAtPrice = (
   entryPrice: number,
   exitPrice: number | null,
@@ -32,6 +40,7 @@ export const simulateContractPosition = (
       targetGrossPnl: null,
       targetNetPnl: null,
       stopLossMarginPct: null,
+      ...unavailableRisk,
     }
   }
 
@@ -54,6 +63,35 @@ export const simulateContractPosition = (
     stopNetPnl === null || marginRequired <= 0
       ? null
       : (Math.abs(Math.min(stopNetPnl, 0)) / marginRequired) * 100
+  const hasRiskInputs = finitePositive(input.accountEquity) && finitePositive(input.maxRiskPct)
+  const hasAdverseStop = stopGrossPnl !== null && stopGrossPnl < 0
+  const riskBudget = hasRiskInputs ? input.accountEquity * (input.maxRiskPct / 100) : null
+  // 预计资金费为收益时不抵扣风险预算，以免放大建议仓位。
+  const adverseFriction = roundTripFee + Math.max(projectedFunding, 0)
+  const enteredRiskAmount = hasAdverseStop
+    ? Math.abs(stopGrossPnl) + adverseFriction
+    : null
+  const riskPerNotional =
+    enteredRiskAmount === null || enteredRiskAmount <= 0
+      ? null
+      : enteredRiskAmount / input.notional
+  const capitalCapacity = hasRiskInputs ? input.accountEquity * input.leverage : null
+  const recommendedNotional =
+    riskBudget === null || riskPerNotional === null || capitalCapacity === null
+      ? null
+      : Math.min(riskBudget / riskPerNotional, capitalCapacity)
+  const recommendedMargin =
+    recommendedNotional === null ? null : recommendedNotional / input.leverage
+  const riskUtilizationPct =
+    riskBudget === null || enteredRiskAmount === null || riskBudget <= 0
+      ? null
+      : (enteredRiskAmount / riskBudget) * 100
+  const riskStatus =
+    riskUtilizationPct === null
+      ? ('unavailable' as const)
+      : riskUtilizationPct > 100
+        ? ('over' as const)
+        : ('within' as const)
 
   return {
     marginRequired,
@@ -65,5 +103,11 @@ export const simulateContractPosition = (
     targetGrossPnl,
     targetNetPnl,
     stopLossMarginPct,
+    riskBudget,
+    enteredRiskAmount,
+    recommendedNotional,
+    recommendedMargin,
+    riskUtilizationPct,
+    riskStatus,
   }
 }

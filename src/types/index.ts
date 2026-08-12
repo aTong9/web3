@@ -1219,6 +1219,7 @@ export interface ContractTradeDecision {
 }
 
 export type ContractPositionDirection = 'long' | 'short'
+export type ContractPositionRiskStatus = 'within' | 'over' | 'unavailable'
 
 export interface ContractPositionSimulationInput {
   direction: ContractPositionDirection
@@ -1230,6 +1231,8 @@ export interface ContractPositionSimulationInput {
   feeRatePct: number
   fundingRatePct: number | null
   fundingSettlements: number
+  accountEquity: number
+  maxRiskPct: number
 }
 
 export interface ContractPositionSimulation {
@@ -1242,6 +1245,12 @@ export interface ContractPositionSimulation {
   targetGrossPnl: number | null
   targetNetPnl: number | null
   stopLossMarginPct: number | null
+  riskBudget: number | null
+  enteredRiskAmount: number | null
+  recommendedNotional: number | null
+  recommendedMargin: number | null
+  riskUtilizationPct: number | null
+  riskStatus: ContractPositionRiskStatus
 }
 
 export interface TechnicalChartAsset {

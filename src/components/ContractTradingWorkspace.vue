@@ -39,6 +39,8 @@ const positionNotional = ref(1_000)
 const positionLeverage = ref(3)
 const positionFeeRatePct = ref(0.05)
 const positionFundingSettlements = ref(3)
+const positionAccountEquity = ref(10_000)
+const positionMaxRiskPct = ref(1)
 const { locale, t } = useI18n()
 const { theme } = useTheme()
 const { snapshot, catalog, loadCatalog, connect, reconnect } = useBinanceContractMarket()
@@ -60,6 +62,8 @@ const positionSimulation = computed(() => {
     feeRatePct: positionFeeRatePct.value,
     fundingRatePct: snapshot.value.fundingRatePct,
     fundingSettlements: positionFundingSettlements.value,
+    accountEquity: positionAccountEquity.value,
+    maxRiskPct: positionMaxRiskPct.value,
   })
 })
 const selectedInstrument = computed(
@@ -652,8 +656,28 @@ onMounted(() => {
                     step="1"
                   />
                 </label>
+                <label>
+                  <span>{{ t('assetTechnical.contract.simulator.accountEquity') }}</span>
+                  <input
+                    v-model.number="positionAccountEquity"
+                    type="number"
+                    min="1"
+                    step="1000"
+                  />
+                </label>
+                <label>
+                  <span>{{ t('assetTechnical.contract.simulator.maxRiskPct') }}</span>
+                  <input
+                    v-model.number="positionMaxRiskPct"
+                    type="number"
+                    min="0.01"
+                    max="100"
+                    step="0.1"
+                  />
+                </label>
               </div>
               <p>{{ t('assetTechnical.contract.simulator.feeHint') }}</p>
+              <p>{{ t('assetTechnical.contract.simulator.riskAssumption') }}</p>
             </section>
 
             <section class="simulator-results">
@@ -692,6 +716,44 @@ onMounted(() => {
                   <small>{{ t('assetTechnical.contract.simulator.afterCosts') }}</small>
                 </article>
               </div>
+              <section
+                class="position-risk-gate"
+                :class="positionSimulation.riskStatus"
+              >
+                <header>
+                  <span>{{ t('assetTechnical.contract.simulator.riskGate') }}</span>
+                  <strong>
+                    {{
+                      t(
+                        `assetTechnical.contract.simulator.riskStatus.${positionSimulation.riskStatus}`,
+                      )
+                    }}
+                  </strong>
+                </header>
+                <dl>
+                  <div>
+                    <dt>{{ t('assetTechnical.contract.simulator.riskBudget') }}</dt>
+                    <dd>{{ formatMoney(positionSimulation.riskBudget) }}</dd>
+                  </div>
+                  <div>
+                    <dt>{{ t('assetTechnical.contract.simulator.enteredRisk') }}</dt>
+                    <dd>{{ formatMoney(positionSimulation.enteredRiskAmount) }}</dd>
+                  </div>
+                  <div>
+                    <dt>{{ t('assetTechnical.contract.simulator.riskUtilization') }}</dt>
+                    <dd>{{ formatMetric(positionSimulation.riskUtilizationPct, 1, '%') }}</dd>
+                  </div>
+                  <div>
+                    <dt>{{ t('assetTechnical.contract.simulator.recommendedNotional') }}</dt>
+                    <dd>{{ formatMoney(positionSimulation.recommendedNotional) }}</dd>
+                  </div>
+                  <div>
+                    <dt>{{ t('assetTechnical.contract.simulator.recommendedMargin') }}</dt>
+                    <dd>{{ formatMoney(positionSimulation.recommendedMargin) }}</dd>
+                  </div>
+                </dl>
+                <p>{{ t('assetTechnical.contract.simulator.riskGateHint') }}</p>
+              </section>
               <p v-if="decisionDirection !== positionDirection" class="simulator-level-note">
                 {{ t('assetTechnical.contract.simulator.levelsUnavailable') }}
               </p>
@@ -1368,6 +1430,54 @@ onMounted(() => {
 .simulator-outcomes strong {
   font-size: 11px;
 }
+.position-risk-gate {
+  margin-top: 7px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--muted);
+  border-radius: 6px;
+  background: var(--surface);
+}
+.position-risk-gate.within {
+  border-left-color: var(--positive);
+}
+.position-risk-gate.over {
+  border-left-color: var(--negative);
+}
+.position-risk-gate.unavailable {
+  border-left-color: var(--warning);
+}
+.position-risk-gate > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.position-risk-gate > header span,
+.position-risk-gate > p {
+  color: var(--muted);
+  font-size: 7px;
+}
+.position-risk-gate > header strong {
+  font-size: 8px;
+}
+.position-risk-gate.within > header strong {
+  color: var(--positive);
+}
+.position-risk-gate.over > header strong {
+  color: var(--negative);
+}
+.position-risk-gate.unavailable > header strong {
+  color: var(--warning);
+}
+.position-risk-gate dl {
+  margin-top: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.position-risk-gate > p {
+  margin: 8px 0 0;
+  line-height: 1.5;
+}
 .simulator-level-note {
   margin: 9px 0 0;
   color: var(--warning);
@@ -1588,7 +1698,8 @@ onMounted(() => {
   }
   .simulator-fields,
   .simulator-results dl,
-  .simulator-outcomes {
+  .simulator-outcomes,
+  .position-risk-gate dl {
     grid-template-columns: 1fr;
   }
   .execution-context article > header {
