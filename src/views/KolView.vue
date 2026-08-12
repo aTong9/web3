@@ -5,6 +5,8 @@ import kolData from '@/data/kol-monitor.json'
 import type { KolMonitorDataset, KolPlatform, KolStockMention } from '@/types'
 import { useI18n } from '@/composables/use-i18n'
 
+const { embedded = false } = defineProps<{ embedded?: boolean }>()
+
 const dataset = kolData as KolMonitorDataset
 const query = ref('')
 const activePlatform = ref<'all' | KolPlatform>('all')
@@ -128,8 +130,8 @@ const addSubscription = async () => {
 </script>
 
 <template>
-  <div class="kol-page">
-    <header class="page-heading">
+  <div class="kol-page" :class="{ embedded }">
+    <header v-if="!embedded" class="page-heading">
       <div>
         <p>{{ t('kol.badge') }}</p>
         <h1>{{ t('kol.title') }}</h1>
@@ -293,6 +295,10 @@ const addSubscription = async () => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px clamp(20px, 3.5vw, 52px) 80px;
+}
+.kol-page.embedded {
+  max-width: none;
+  padding: 0;
 }
 .page-heading {
   display: flex;
@@ -640,8 +646,12 @@ h1 {
 .content-copy small {
   display: block;
 }
+.content-copy {
+  min-width: 0;
+}
 .content-copy strong {
   font-size: 13px;
+  overflow-wrap: anywhere;
 }
 .content-copy small {
   margin-top: 6px;
@@ -763,7 +773,7 @@ footer {
     margin-left: 18px;
   }
   .content-row {
-    grid-template-columns: 1fr 16px;
+    grid-template-columns: minmax(0, 1fr) 16px;
   }
   .content-row .date {
     display: none;

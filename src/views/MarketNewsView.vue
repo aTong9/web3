@@ -5,6 +5,8 @@ import embeddedData from '@/data/market-news.json'
 import type { MarketNewsCategory, MarketNewsDataset, MarketNewsImpact } from '@/types'
 import { useI18n } from '@/composables/use-i18n'
 
+const { embedded = false } = defineProps<{ embedded?: boolean }>()
+
 const dataset = ref(embeddedData as MarketNewsDataset)
 const impact = ref<'all' | MarketNewsImpact>('all')
 const category = ref<'all' | MarketNewsCategory>('all')
@@ -87,8 +89,8 @@ onUnmounted(() => window.clearInterval(refreshTimer))
 </script>
 
 <template>
-  <main class="news-page">
-    <header class="page-heading">
+  <main class="news-page" :class="{ embedded }">
+    <header v-if="!embedded" class="page-heading">
       <div>
         <p>{{ t('marketNews.badge') }}</p>
         <h1>{{ t('marketNews.heading') }}</h1>
@@ -186,6 +188,10 @@ onUnmounted(() => window.clearInterval(refreshTimer))
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px clamp(20px, 3.5vw, 52px) 80px;
+}
+.news-page.embedded {
+  max-width: none;
+  padding: 0;
 }
 .page-heading {
   display: flex;

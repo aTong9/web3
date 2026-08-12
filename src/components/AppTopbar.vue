@@ -21,17 +21,21 @@ const description = computed(() => t(String(route.meta.descriptionKey ?? 'market
       <strong>{{ title }}</strong>
       <small>{{ description }}</small>
     </div>
-    <span class="system-state"><i></i>{{ t('ui.app.systemRunning') }}</span>
-    <div class="locale-switch" role="group" :aria-label="t('ui.app.language')">
-      <button :class="{ active: locale === 'zh' }" @click="setLocale('zh')">
-        {{ t('ui.app.chinese') }}
-      </button>
-      <button :class="{ active: locale === 'en' }" @click="setLocale('en')">
-        {{ t('ui.app.english') }}
-      </button>
+    <div class="topbar-actions">
+      <span class="system-state"><i></i>{{ t('ui.app.systemRunning') }}</span>
+      <div class="locale-switch" role="group" :aria-label="t('ui.app.language')">
+        <button :class="{ active: locale === 'zh' }" @click="setLocale('zh')">
+          <span class="full-label">{{ t('ui.app.chinese') }}</span>
+          <span class="short-label">{{ t('ui.app.chineseShort') }}</span>
+        </button>
+        <button :class="{ active: locale === 'en' }" @click="setLocale('en')">
+          <span class="full-label">{{ t('ui.app.english') }}</span>
+          <span class="short-label">{{ t('ui.app.englishShort') }}</span>
+        </button>
+      </div>
+      <ThemeToggle />
+      <UserMenu />
     </div>
-    <ThemeToggle />
-    <UserMenu />
   </header>
 </template>
 
@@ -46,7 +50,7 @@ const description = computed(() => t(String(route.meta.descriptionKey ?? 'market
   top: 0;
   z-index: 28;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 18px;
 }
@@ -69,6 +73,14 @@ const description = computed(() => t(String(route.meta.descriptionKey ?? 'market
   color: var(--ink);
   cursor: pointer;
   font-size: 18px;
+}
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.short-label {
+  display: none;
 }
 .system-state {
   color: var(--muted);
@@ -106,7 +118,7 @@ const description = computed(() => t(String(route.meta.descriptionKey ?? 'market
 @media (max-width: 900px) {
   .app-topbar {
     height: 56px;
-    grid-template-columns: 28px minmax(0, 1fr) auto auto;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
     gap: 10px;
   }
   .menu-button {
@@ -114,6 +126,27 @@ const description = computed(() => t(String(route.meta.descriptionKey ?? 'market
   }
   .system-state {
     display: none;
+  }
+  .topbar-actions {
+    gap: 6px;
+  }
+}
+@media (max-width: 560px) {
+  .app-topbar {
+    padding: 0 10px;
+  }
+  .app-topbar small {
+    display: none;
+  }
+  .locale-switch .full-label {
+    display: none;
+  }
+  .locale-switch .short-label {
+    display: inline;
+  }
+  .locale-switch button {
+    min-width: 32px;
+    padding-inline: 6px;
   }
 }
 </style>

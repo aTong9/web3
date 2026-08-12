@@ -62,23 +62,37 @@ const router = createRouter({
       },
     },
     {
-      path: '/market-news',
-      name: 'market-news',
-      component: () => import('../views/MarketNewsView.vue'),
+      path: '/intelligence',
+      component: () => import('../views/IntelligenceView.vue'),
       meta: {
-        titleKey: 'ui.routes.marketNews.title',
-        descriptionKey: 'ui.routes.marketNews.description',
+        titleKey: 'ui.routes.intelligence.title',
+        descriptionKey: 'ui.routes.intelligence.description',
       },
+      children: [
+        { path: '', redirect: '/intelligence/news' },
+        {
+          path: 'news',
+          name: 'market-news',
+          component: () => import('../views/MarketNewsView.vue'),
+          props: { embedded: true },
+        },
+        {
+          path: 'kols',
+          name: 'kols',
+          component: () => import('../views/KolView.vue'),
+          props: { embedded: true },
+        },
+        {
+          path: 'sources',
+          name: 'sources',
+          component: () => import('../views/BloggerView.vue'),
+          props: { embedded: true },
+        },
+      ],
     },
-    {
-      path: '/blogger',
-      name: 'news',
-      component: () => import('../views/BloggerView.vue'),
-      meta: {
-        titleKey: 'ui.routes.blogger.title',
-        descriptionKey: 'ui.routes.blogger.description',
-      },
-    },
+    { path: '/market-news', redirect: '/intelligence/news' },
+    { path: '/kols', redirect: '/intelligence/kols' },
+    { path: '/blogger', redirect: '/intelligence/sources' },
     {
       path: '/funds',
       name: 'funds',
@@ -95,15 +109,6 @@ const router = createRouter({
       meta: {
         titleKey: 'ui.routes.aShare.title',
         descriptionKey: 'ui.routes.aShare.description',
-      },
-    },
-    {
-      path: '/kols',
-      name: 'kols',
-      component: () => import('../views/KolView.vue'),
-      meta: {
-        titleKey: 'ui.routes.kol.title',
-        descriptionKey: 'ui.routes.kol.description',
       },
     },
     {

@@ -2,6 +2,8 @@
 import { computed, ref } from 'vue'
 import { useI18n } from '@/composables/use-i18n'
 
+const { embedded = false } = defineProps<{ embedded?: boolean }>()
+
 interface NewsSite {
   id: string
   name: string
@@ -65,8 +67,8 @@ const getHost = (url: string) => new URL(url).hostname.replace(/^www\./, '')
 </script>
 
 <template>
-  <div class="desk-page">
-    <header class="page-heading">
+  <div class="desk-page" :class="{ embedded }">
+    <header v-if="!embedded" class="page-heading">
       <p>{{ t('blogger.badge') }}</p>
       <h1>{{ t('blogger.heading') }}</h1>
       <div class="heading-row">
@@ -79,6 +81,19 @@ const getHost = (url: string) => new URL(url).hostname.replace(/^www\./, '')
         />
       </div>
     </header>
+
+    <section v-else class="embedded-heading">
+      <div>
+        <h2>{{ t('blogger.heading') }}</h2>
+        <p>{{ t('blogger.desc') }}</p>
+      </div>
+      <input
+        v-model="query"
+        type="search"
+        :placeholder="t('blogger.searchPlaceholder')"
+        :aria-label="t('blogger.filterAria')"
+      />
+    </section>
 
     <main class="source-list">
       <a
@@ -107,6 +122,39 @@ const getHost = (url: string) => new URL(url).hostname.replace(/^www\./, '')
   max-width: 1180px;
   margin: 0 auto;
   padding: 64px clamp(20px, 5vw, 72px) 80px;
+}
+.desk-page.embedded {
+  max-width: none;
+  padding: 0;
+}
+.embedded-heading {
+  margin-bottom: 24px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.embedded-heading h2 {
+  margin: 0 0 6px;
+  font: 500 24px Georgia, 'Songti SC', serif;
+}
+.embedded-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.embedded-heading input {
+  width: min(280px, 100%);
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+  color: var(--ink);
 }
 
 .page-heading {
@@ -200,6 +248,13 @@ h1 {
 }
 
 @media (max-width: 700px) {
+  .embedded-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .embedded-heading input {
+    width: 100%;
+  }
   .heading-row {
     align-items: stretch;
     flex-direction: column;

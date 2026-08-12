@@ -24,8 +24,15 @@ const signOut = async () => {
 </script>
 <template>
   <div class="user-menu">
-    <button class="user-button" aria-haspopup="dialog" @click="open = !open">
-      {{ user ? user.name.slice(0, 1).toUpperCase() : t('userMenu.login') }}
+    <button
+      class="user-button"
+      aria-haspopup="dialog"
+      :aria-expanded="open"
+      :aria-label="user ? user.name : t('userMenu.login')"
+      @click="open = !open"
+    >
+      <span>{{ user ? user.name.slice(0, 1).toUpperCase() : '◎' }}</span>
+      <small v-if="!user">{{ t('userMenu.login') }}</small>
     </button>
     <div v-if="open" class="popover">
       <template v-if="user">
@@ -70,14 +77,23 @@ const signOut = async () => {
   position: relative;
 }
 .user-button {
-  width: 32px;
-  height: 32px;
+  min-width: 32px;
+  min-height: 34px;
+  padding: 0 10px;
   border: 1px solid var(--border);
-  border-radius: 50%;
+  border-radius: 8px;
   background: var(--surface-soft);
   color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   cursor: pointer;
   font-size: 10px;
+}
+.user-button small {
+  font-size: 9px;
+  white-space: nowrap;
 }
 .popover {
   position: absolute;
@@ -129,5 +145,16 @@ const signOut = async () => {
   margin: 0;
   color: var(--danger, #c44);
   font-size: 10px;
+}
+@media (max-width: 560px) {
+  .user-button {
+    width: 32px;
+    min-height: 32px;
+    padding: 0;
+    border-radius: 50%;
+  }
+  .user-button small {
+    display: none;
+  }
 }
 </style>

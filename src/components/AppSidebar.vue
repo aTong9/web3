@@ -32,11 +32,7 @@ const groups = computed(() => [
   {
     title: 'ui.nav.intelligence',
     icon: '◎',
-    items: [
-      { title: 'ui.nav.news', to: '/market-news' },
-      { title: 'ui.nav.kol', to: '/kols' },
-      { title: 'ui.nav.briefing', to: '/blogger' },
-    ],
+    items: [{ title: 'ui.nav.intelligenceCenter', to: '/intelligence' }],
   },
   {
     title: 'ui.nav.tools',
@@ -77,7 +73,11 @@ const toggleGroup = (title: string) => {
     </div>
     <nav :aria-label="t('ui.app.navigation') ?? '系统主菜单'">
       <section v-for="group in groups" :key="group.title">
-        <button class="group-title" @click="toggleGroup(group.title)">
+        <button
+          class="group-title"
+          :aria-expanded="!collapsed.includes(group.title)"
+          @click="toggleGroup(group.title)"
+        >
           <span
             ><i>{{ group.icon }}</i
             >{{ t(group.title) }}</span
