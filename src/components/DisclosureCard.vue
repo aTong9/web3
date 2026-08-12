@@ -39,12 +39,21 @@ summary {
   grid-template-columns: minmax(0, 1fr) auto 20px;
   align-items: center;
   gap: 14px;
+  cursor: pointer;
+  list-style: none;
+}
+summary::-webkit-details-marker {
+  display: none;
 }
 summary:hover {
   background: var(--surface-elevated);
 }
 summary:active {
   background: var(--surface-soft);
+}
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 .copy small,
 .copy strong,

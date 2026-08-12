@@ -2,16 +2,14 @@
 import type { EChartsCoreOption } from 'echarts/core'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
+import DisclosureCard from '@/components/DisclosureCard.vue'
 import EChart from '@/components/EChart.vue'
 import { useAuth } from '@/composables/use-auth'
 import { useI18n } from '@/composables/use-i18n'
-import technicalData from '@/data/asset-technical-signals.json'
 import crossAssetData from '@/data/cross-asset.json'
 import technicalEventsData from '@/data/technical-events.json'
-import usStockTechnicalData from '@/data/us-stock-technical-signals.json'
 import type {
   AssetPricePoint,
-  AssetTechnicalDataset,
   CrossAssetDataset,
   TechnicalAlertCondition,
   TechnicalAlertEvaluation,
@@ -22,6 +20,7 @@ import type {
   TechnicalIndicatorConfig,
   TechnicalSignalStatus,
 } from '@/types'
+import { loadAssetTechnicalDataset } from '@/utils/asset-technical-data'
 import { technicalAlertApi } from '@/utils/technical-alert-api'
 import { analyzeAdvancedTechnicals } from '@/utils/advanced-technical-analysis'
 import { analyzeTechnicalSignals, rollingCorrelation } from '@/utils/technical-analysis'
@@ -66,24 +65,7 @@ interface MacroTechnicalEvent {
   sourceUrl: string
 }
 
-const baseDataset = technicalData as AssetTechnicalDataset
-const usStockDataset = usStockTechnicalData as AssetTechnicalDataset
-const latestDatasetUpdate = [baseDataset.updatedAt, usStockDataset.updatedAt]
-  .filter(Boolean)
-  .reduce((latest, value) => (value > latest ? value : latest), baseDataset.updatedAt)
-const dataset: AssetTechnicalDataset = {
-  ...baseDataset,
-  updatedAt: latestDatasetUpdate,
-  source: [baseDataset.source, ...(usStockDataset.assets.length ? [usStockDataset.source] : [])].join(
-    '；',
-  ),
-  limitations: [...baseDataset.limitations, ...usStockDataset.limitations],
-  limitationsEn: [
-    ...(baseDataset.limitationsEn ?? []),
-    ...(usStockDataset.limitationsEn ?? []),
-  ],
-  assets: [...baseDataset.assets, ...usStockDataset.assets],
-}
+const dataset = await loadAssetTechnicalDataset()
 const crossAsset = crossAssetData as CrossAssetDataset
 const technicalEvents = technicalEventsData as {
   events: ForecastHistoryRecord[]
@@ -1777,19 +1759,23 @@ onBeforeUnmount(() => {
             >{{ dataset.source }} ↗</a
           >
         </details>
-        <section class="backtest-panel">
-          <header>
-            <div>
-              <span>{{ t('assetTechnical.backtest.eyebrow') }}</span>
-              <b>{{ t('assetTechnical.backtest.title') }}</b>
-            </div>
-            <small>{{
-              t('assetTechnical.backtest.holdout', {
-                start: backtest.holdoutStartDate ?? '—',
-                end: backtest.holdoutEndDate ?? '—',
-              })
-            }}</small>
-          </header>
+        <DisclosureCard
+          class="backtest-panel"
+          :eyebrow="t('assetTechnical.backtest.eyebrow')"
+          :title="t('assetTechnical.backtest.title')"
+          :description="
+            t('assetTechnical.backtest.holdout', {
+              start: backtest.holdoutStartDate ?? '—',
+              end: backtest.holdoutEndDate ?? '—',
+            })
+          "
+        >
+          <template #metric>
+            <span class="disclosure-metric">
+              <strong>{{ backtest.totalSignals }}</strong>
+              <small>{{ t('assetTechnical.backtest.samples') }}</small>
+            </span>
+          </template>
           <div class="backtest-summary">
             <article>
               <span>{{ t('assetTechnical.backtest.samples') }}</span>
@@ -1893,30 +1879,41 @@ onBeforeUnmount(() => {
               {{ backtest.calibration.selectedTemplate.weights.volume.toFixed(2) }}
             </p>
           </section>
-          <div class="backtest-table" role="table" :aria-label="t('assetTechnical.backtest.title')">
-            <div class="backtest-row backtest-head" role="row">
-              <span>{{ t('assetTechnical.backtest.horizon') }}</span>
-              <span>{{ t('assetTechnical.backtest.winRate') }}</span>
-              <span>{{ t('assetTechnical.backtest.confidenceRange') }}</span>
-              <span>{{ t('assetTechnical.backtest.medianReturn') }}</span>
-              <span>{{ t('assetTechnical.backtest.maxAdverse') }}</span>
-              <span>{{ t('assetTechnical.backtest.invalidation') }}</span>
-            </div>
-            <div v-for="item in backtest.horizons" :key="`detail-${item.observations}`" class="backtest-row" role="row">
-              <b>{{ t('assetTechnical.backtest.forward', { days: item.observations }) }}</b>
-              <span>{{ item.winRatePct === null ? '—' : `${item.winRatePct.toFixed(1)}%` }}</span>
-              <span>{{
-                item.winRateIntervalPct
-                  ? `${item.winRateIntervalPct.low.toFixed(1)}–${item.winRateIntervalPct.high.toFixed(1)}%`
-                  : '—'
-              }}</span>
-              <span>{{ formatSigned(item.medianDirectionalReturnPct) }}</span>
-              <span>{{ formatSigned(item.maximumAdverseExcursionPct) }}</span>
-              <span>{{
-                item.medianInvalidationBars === null
-                  ? '—'
-                  : t('assetTechnical.backtest.bars', { value: item.medianInvalidationBars })
-              }}</span>
+          <div class="backtest-table-scroll">
+            <div
+              class="backtest-table"
+              role="table"
+              :aria-label="t('assetTechnical.backtest.title')"
+            >
+              <div class="backtest-row backtest-head" role="row">
+                <span>{{ t('assetTechnical.backtest.horizon') }}</span>
+                <span>{{ t('assetTechnical.backtest.winRate') }}</span>
+                <span>{{ t('assetTechnical.backtest.confidenceRange') }}</span>
+                <span>{{ t('assetTechnical.backtest.medianReturn') }}</span>
+                <span>{{ t('assetTechnical.backtest.maxAdverse') }}</span>
+                <span>{{ t('assetTechnical.backtest.invalidation') }}</span>
+              </div>
+              <div
+                v-for="item in backtest.horizons"
+                :key="`detail-${item.observations}`"
+                class="backtest-row"
+                role="row"
+              >
+                <b>{{ t('assetTechnical.backtest.forward', { days: item.observations }) }}</b>
+                <span>{{ item.winRatePct === null ? '—' : `${item.winRatePct.toFixed(1)}%` }}</span>
+                <span>{{
+                  item.winRateIntervalPct
+                    ? `${item.winRateIntervalPct.low.toFixed(1)}–${item.winRateIntervalPct.high.toFixed(1)}%`
+                    : '—'
+                }}</span>
+                <span>{{ formatSigned(item.medianDirectionalReturnPct) }}</span>
+                <span>{{ formatSigned(item.maximumAdverseExcursionPct) }}</span>
+                <span>{{
+                  item.medianInvalidationBars === null
+                    ? '—'
+                    : t('assetTechnical.backtest.bars', { value: item.medianInvalidationBars })
+                }}</span>
+              </div>
             </div>
           </div>
           <section class="resonance-evidence">
@@ -1988,7 +1985,7 @@ onBeforeUnmount(() => {
             }}</p>
             <p>{{ t('assetTechnical.backtest.exclusions') }}</p>
           </details>
-        </section>
+        </DisclosureCard>
       </section>
 
       <aside class="signal-panel">
@@ -2027,9 +2024,12 @@ onBeforeUnmount(() => {
             </p>
           </article>
         </section>
-        <details v-if="advancedDiagnosticsEnabled" class="advanced-diagnostics" open>
-          <summary>{{ t('assetTechnical.advanced.title') }}</summary>
-          <p>{{ t('assetTechnical.advanced.explainer') }}</p>
+        <DisclosureCard
+          v-if="advancedDiagnosticsEnabled"
+          class="advanced-diagnostics"
+          :title="t('assetTechnical.advanced.title')"
+          :description="t('assetTechnical.advanced.explainer')"
+        >
           <div class="advanced-grid">
             <article v-if="technicalConfig.enabled.marketStructure || technicalConfig.enabled.adx">
               <span>{{ t('assetTechnical.advanced.structure') }}</span>
@@ -2064,7 +2064,7 @@ onBeforeUnmount(() => {
               <small>{{ t('assetTechnical.advanced.gap') }} ({{ technicalConfig.parameters.gapLookback }}) {{ formatSigned(advancedSnapshot.latestGapPct) }}</small>
             </article>
           </div>
-        </details>
+        </DisclosureCard>
         <section class="horizon-matrix">
           <header>
             <b>{{ t('assetTechnical.multiHorizon') }}</b
@@ -2081,14 +2081,14 @@ onBeforeUnmount(() => {
             <em :class="horizon.status">{{ statusLabel(horizon.status) }}</em>
           </div>
         </section>
-        <section class="alert-center">
-          <header>
-            <div>
-              <b>{{ t('assetTechnical.alert.title') }}</b>
-              <small>{{ t('assetTechnical.alert.hint') }}</small>
-            </div>
-            <span>{{ currentAssetAlerts.length }}</span>
-          </header>
+        <DisclosureCard
+          class="alert-center"
+          :title="t('assetTechnical.alert.title')"
+          :description="t('assetTechnical.alert.hint')"
+        >
+          <template #metric>
+            <span class="alert-count">{{ currentAssetAlerts.length }}</span>
+          </template>
           <form v-if="can('technicalAlerts.manage')" @submit.prevent="createAlert">
             <label>
               <span>{{ t('assetTechnical.alert.condition') }}</span>
@@ -2236,7 +2236,7 @@ onBeforeUnmount(() => {
               </button>
             </footer>
           </article>
-        </section>
+        </DisclosureCard>
         <details class="drivers">
           <summary>
             {{ t('assetTechnical.crossAssetEvidence', { count: marketDrivers.length }) }}
@@ -2473,21 +2473,8 @@ onBeforeUnmount(() => {
   border-radius: 10px;
   background: var(--surface);
 }
-.advanced-diagnostics {
-  padding: 12px;
-}
-.advanced-diagnostics summary {
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.advanced-diagnostics > p {
-  margin: 8px 0;
-  color: var(--muted);
-  font-size: 8px;
-  line-height: 1.55;
-}
 .advanced-grid {
+  margin-top: 12px;
   display: grid;
   gap: 6px;
 }
@@ -2520,22 +2507,19 @@ onBeforeUnmount(() => {
 }
 .asset-picker > header,
 .score-breakdown > header,
-.horizon-matrix > header,
-.alert-center > header {
+.horizon-matrix > header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 .asset-picker > header b,
 .score-breakdown > header b,
-.horizon-matrix > header b,
-.alert-center > header b {
+.horizon-matrix > header b {
   font-size: 12px;
 }
 .asset-picker > header small,
 .score-breakdown > header small,
-.horizon-matrix > header small,
-.alert-center > header small {
+.horizon-matrix > header small {
   color: var(--muted);
   font-size: 8px;
 }
@@ -2829,31 +2813,16 @@ onBeforeUnmount(() => {
 }
 .backtest-panel {
   margin-top: 10px;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
 }
-.backtest-panel > header {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: end;
-}
-.backtest-panel > header div {
+.disclosure-metric {
   display: grid;
-  gap: 4px;
+  justify-items: end;
+  gap: 2px;
 }
-.backtest-panel > header span {
-  color: var(--accent);
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.11em;
+.disclosure-metric strong {
+  font: 500 20px Georgia, serif;
 }
-.backtest-panel > header b {
-  font-size: 12px;
-}
-.backtest-panel > header small,
+.disclosure-metric small,
 .backtest-summary small,
 .backtest-panel details p {
   color: var(--muted);
@@ -2908,6 +2877,10 @@ onBeforeUnmount(() => {
   min-width: 540px;
   border-top: 1px solid var(--border);
   overflow: hidden;
+}
+.backtest-table-scroll {
+  width: 100%;
+  overflow-x: auto;
 }
 .backtest-row {
   min-height: 34px;
@@ -3077,7 +3050,6 @@ onBeforeUnmount(() => {
 }
 .score-breakdown,
 .horizon-matrix,
-.alert-center,
 .drivers {
   padding: 14px;
 }
@@ -3147,12 +3119,11 @@ onBeforeUnmount(() => {
   font-size: 7px;
   font-style: normal;
 }
-.alert-center > header > div {
-  display: grid;
-  gap: 3px;
-}
-.alert-center > header > span {
+.alert-count {
+  display: inline-grid;
+  place-items: center;
   min-width: 24px;
+  min-height: 24px;
   padding: 4px;
   border-radius: 12px;
   background: var(--surface-soft);
@@ -3420,19 +3391,18 @@ onBeforeUnmount(() => {
     width: 100%;
     min-width: 0;
     max-width: calc(100vw - 28px);
-    overflow-x: auto;
-  }
-  .backtest-panel > header {
-    min-width: 540px;
   }
   .backtest-summary {
-    min-width: 540px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .calibration-evidence {
-    min-width: 540px;
+  .calibration-metrics,
+  .resonance-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .resonance-evidence {
-    min-width: 540px;
+  .calibration-evidence > header,
+  .resonance-evidence > header {
+    align-items: start;
+    flex-direction: column;
   }
   .range-tabs button {
     flex: 0 0 auto;

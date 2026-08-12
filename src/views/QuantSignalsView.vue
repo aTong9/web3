@@ -6,11 +6,9 @@ import { useAuth } from '@/composables/use-auth'
 import crossAssetData from '@/data/cross-asset.json'
 import megaCapData from '@/data/us-megacaps.json'
 import optionMarketData from '@/data/option-market.json'
-import stockTechnicalData from '@/data/us-stock-technical-signals.json'
 import type {
   CrossAssetCategory,
   CrossAssetDataset,
-  AssetTechnicalDataset,
   OptionCandidateAction,
   OptionMarketDataset,
   PaperSignalPosition,
@@ -20,6 +18,7 @@ import type {
   QuantSignalLevel,
   UsMegaCapDataset,
 } from '@/types'
+import { loadUsStockTechnicalDataset } from '@/utils/asset-technical-data'
 import { buildQuantDashboard } from '@/utils/quant-signals'
 import { getQuantClientId, quantApi } from '@/utils/quant-api'
 
@@ -31,7 +30,7 @@ const { can } = useAuth()
 const dataset = crossAssetData as CrossAssetDataset
 const megaCaps = megaCapData as UsMegaCapDataset
 const optionMarket = optionMarketData as OptionMarketDataset
-const stockTechnicals = stockTechnicalData as AssetTechnicalDataset
+const stockTechnicals = await loadUsStockTechnicalDataset()
 const dashboard = ref<QuantDashboard>(
   buildQuantDashboard(dataset, megaCaps, optionMarket, stockTechnicals),
 )
