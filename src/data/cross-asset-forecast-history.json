@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-11T04:47:36.459Z",
+  "updatedAt": "2026-08-12T00:04:48.432Z",
   "records": [
     {
       "marketId": "sp500",
@@ -4842,7 +4842,12 @@
       "threshold": 0.2,
       "macroRegime": "金发姑娘",
       "probabilitySource": "all-regimes",
-      "predictiveDrivers": []
+      "predictiveDrivers": [],
+      "resolvedAt": "2026-08-12T00:02:44.555Z",
+      "outcomeDate": "2026-08-11",
+      "realizedMove": 2.93,
+      "directionCorrect": null,
+      "brierLoss": 0.1512
     },
     {
       "marketId": "nikkei",
@@ -5198,7 +5203,12 @@
           "driverZ": -0.49,
           "contribution": -0.49
         }
-      ]
+      ],
+      "resolvedAt": "2026-08-12T00:02:44.555Z",
+      "outcomeDate": "2026-08-11",
+      "realizedMove": 2.93,
+      "directionCorrect": false,
+      "brierLoss": 0.1512
     },
     {
       "marketId": "shanghai",
@@ -12102,7 +12112,12 @@
           "driverZ": 0.68,
           "contribution": 0.68
         }
-      ]
+      ],
+      "resolvedAt": "2026-08-12T00:02:44.561Z",
+      "outcomeDate": "2026-08-11",
+      "realizedMove": -0.82,
+      "directionCorrect": false,
+      "brierLoss": 0.3646
     },
     {
       "marketId": "shanghai",
@@ -15088,6 +15103,229 @@
           "driver": "504观测趋势",
           "driverZ": 0.81,
           "contribution": 0.81
+        }
+      ]
+    },
+    {
+      "marketId": "shanghai",
+      "marketName": "上证综指",
+      "marketDate": "2026-08-11",
+      "recordedAt": "2026-08-12T00:04:48.392Z",
+      "modelVersion": "cross-asset-v1.5-rate-decomposition",
+      "horizonObservations": 5,
+      "bias": "neutral",
+      "score": 0.02,
+      "upProbabilityPct": 76.19,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "momentumFastDirection",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "macro-regime",
+      "predictiveDrivers": []
+    },
+    {
+      "marketId": "shanghai",
+      "marketName": "上证综指",
+      "marketDate": "2026-08-11",
+      "recordedAt": "2026-08-12T00:04:48.392Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "day",
+      "horizonObservations": 1,
+      "bias": "bearish",
+      "score": -0.5,
+      "upProbabilityPct": 53.61,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "1观测动量",
+          "driver": "1观测动量",
+          "driverZ": -0.35,
+          "contribution": -0.35
+        },
+        {
+          "chain": "5观测趋势",
+          "driver": "5观测趋势",
+          "driverZ": 0.53,
+          "contribution": 0.53
+        }
+      ]
+    },
+    {
+      "marketId": "shanghai",
+      "marketName": "上证综指",
+      "marketDate": "2026-08-11",
+      "recordedAt": "2026-08-12T00:04:48.392Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "week",
+      "horizonObservations": 5,
+      "bias": "bullish",
+      "score": 1,
+      "upProbabilityPct": 64.86,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "5观测动量",
+          "driver": "5观测动量",
+          "driverZ": 0.53,
+          "contribution": 0.53
+        },
+        {
+          "chain": "21观测趋势",
+          "driver": "21观测趋势",
+          "driverZ": 0.05,
+          "contribution": 0.05
+        }
+      ]
+    },
+    {
+      "marketId": "shanghai",
+      "marketName": "上证综指",
+      "marketDate": "2026-08-11",
+      "recordedAt": "2026-08-12T00:04:48.392Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "month",
+      "horizonObservations": 21,
+      "bias": "bearish",
+      "score": -0.14,
+      "upProbabilityPct": 50,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "21观测动量",
+          "driver": "21观测动量",
+          "driverZ": 0.05,
+          "contribution": 0.05
+        },
+        {
+          "chain": "63观测趋势",
+          "driver": "63观测趋势",
+          "driverZ": -0.39,
+          "contribution": -0.39
+        }
+      ]
+    },
+    {
+      "marketId": "shanghai",
+      "marketName": "上证综指",
+      "marketDate": "2026-08-11",
+      "recordedAt": "2026-08-12T00:04:48.392Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "quarter",
+      "horizonObservations": 63,
+      "bias": "bearish",
+      "score": -0.3,
+      "upProbabilityPct": 50,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "63观测动量",
+          "driver": "63观测动量",
+          "driverZ": -0.39,
+          "contribution": -0.39
+        },
+        {
+          "chain": "126观测趋势",
+          "driver": "126观测趋势",
+          "driverZ": -0.18,
+          "contribution": -0.18
+        }
+      ]
+    },
+    {
+      "marketId": "shanghai",
+      "marketName": "上证综指",
+      "marketDate": "2026-08-11",
+      "recordedAt": "2026-08-12T00:04:48.392Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "halfYear",
+      "horizonObservations": 126,
+      "bias": "bullish",
+      "score": 0.01,
+      "upProbabilityPct": 50,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "126观测动量",
+          "driver": "126观测动量",
+          "driverZ": -0.18,
+          "contribution": -0.18
+        },
+        {
+          "chain": "252观测趋势",
+          "driver": "252观测趋势",
+          "driverZ": 0.26,
+          "contribution": 0.26
+        }
+      ]
+    },
+    {
+      "marketId": "shanghai",
+      "marketName": "上证综指",
+      "marketDate": "2026-08-11",
+      "recordedAt": "2026-08-12T00:04:48.392Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "year",
+      "horizonObservations": 252,
+      "bias": "bullish",
+      "score": 0.14,
+      "upProbabilityPct": 50,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "252观测动量",
+          "driver": "252观测动量",
+          "driverZ": 0.26,
+          "contribution": 0.26
+        },
+        {
+          "chain": "504观测趋势",
+          "driver": "504观测趋势",
+          "driverZ": 0,
+          "contribution": 0
         }
       ]
     }

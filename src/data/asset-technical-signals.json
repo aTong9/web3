@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-11T04:47:36.433Z",
+  "updatedAt": "2026-08-12T00:04:48.393Z",
   "source": "FRED、新浪、腾讯、DefiLlama、Coin Metrics公开数据及透明派生指标",
   "sourceUrl": "https://fred.stlouisfed.org/",
   "sourcePriority": [
@@ -35,6 +35,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "nyse",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2021-08-03",
@@ -5091,6 +5092,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "nyse",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2021-08-03",
@@ -10147,6 +10149,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "jpx",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2021-06-16",
@@ -15197,21 +15200,14 @@
       "series": "sh000001",
       "unit": "点",
       "mode": "return",
-      "date": "2026-08-10",
+      "date": "2026-08-11",
       "stale": false,
       "source": "新浪财经",
       "sourceUrl": "https://finance.sina.com.cn/",
       "calendar": "sse",
       "dataShape": "ohlcv",
+      "adjustmentBasis": "as-published",
       "points": [
-        {
-          "date": "2024-12-16",
-          "open": 3390.083,
-          "high": 3401.926,
-          "low": 3376.536,
-          "close": 3386.331,
-          "volume": 62557899600
-        },
         {
           "date": "2024-12-17",
           "open": 3381.814,
@@ -18403,6 +18399,14 @@
           "low": 3938.625,
           "close": 3966.594,
           "volume": 54211811000
+        },
+        {
+          "date": "2026-08-11",
+          "open": 3950.708,
+          "high": 3966.391,
+          "low": 3930.639,
+          "close": 3934.093,
+          "volume": 52949094400
         }
       ]
     },
@@ -18419,15 +18423,8 @@
       "sourceUrl": "https://stockapp.finance.qq.com/",
       "calendar": "hkex",
       "dataShape": "ohlcv",
+      "adjustmentBasis": "forward-adjusted",
       "points": [
-        {
-          "date": "2024-12-19",
-          "open": 19610.1,
-          "close": 19752.51,
-          "high": 19849.03,
-          "low": 19591.49,
-          "volume": 142869566923
-        },
         {
           "date": "2024-12-20",
           "open": 19697.06,
@@ -21623,10 +21620,10 @@
         {
           "date": "2026-08-11",
           "open": 25998.59,
-          "close": 25773.56,
+          "close": 25652.82,
           "high": 26060.32,
-          "low": 25760,
-          "volume": 115838045675
+          "low": 25647.66,
+          "volume": 210942449349
         }
       ]
     },
@@ -21643,6 +21640,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "europe",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2021-10-12",
@@ -26693,17 +26691,14 @@
       "series": "DGS2",
       "unit": "%",
       "mode": "difference",
-      "date": "2026-08-07",
+      "date": "2026-08-10",
       "stale": false,
       "source": "FRED",
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "fred-business",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
-        {
-          "date": "2021-07-23",
-          "close": 0.22
-        },
         {
           "date": "2021-07-26",
           "close": 0.22
@@ -31739,6 +31734,10 @@
         {
           "date": "2026-08-07",
           "close": 4.19
+        },
+        {
+          "date": "2026-08-10",
+          "close": 4.25
         }
       ]
     },
@@ -31749,17 +31748,14 @@
       "series": "DGS10",
       "unit": "%",
       "mode": "difference",
-      "date": "2026-08-07",
+      "date": "2026-08-10",
       "stale": false,
       "source": "FRED",
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "fred-business",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
-        {
-          "date": "2021-07-23",
-          "close": 1.3
-        },
         {
           "date": "2021-07-26",
           "close": 1.29
@@ -36795,6 +36791,10 @@
         {
           "date": "2026-08-07",
           "close": 4.65
+        },
+        {
+          "date": "2026-08-10",
+          "close": 4.72
         }
       ]
     },
@@ -36805,17 +36805,14 @@
       "series": "DGS30",
       "unit": "%",
       "mode": "difference",
-      "date": "2026-08-07",
+      "date": "2026-08-10",
       "stale": false,
       "source": "FRED",
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "fred-business",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
-        {
-          "date": "2021-07-23",
-          "close": 1.92
-        },
         {
           "date": "2021-07-26",
           "close": 1.93
@@ -41851,6 +41848,10 @@
         {
           "date": "2026-08-07",
           "close": 5.19
+        },
+        {
+          "date": "2026-08-10",
+          "close": 5.25
         }
       ]
     },
@@ -41861,17 +41862,14 @@
       "series": "DFII10",
       "unit": "%",
       "mode": "difference",
-      "date": "2026-08-07",
+      "date": "2026-08-10",
       "stale": false,
       "source": "FRED",
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "fred-business",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
-        {
-          "date": "2021-07-23",
-          "close": -1.05
-        },
         {
           "date": "2021-07-26",
           "close": -1.11
@@ -46907,6 +46905,10 @@
         {
           "date": "2026-08-07",
           "close": 2.4
+        },
+        {
+          "date": "2026-08-10",
+          "close": 2.43
         }
       ]
     },
@@ -46917,17 +46919,14 @@
       "series": "BAMLC0A0CM",
       "unit": "%",
       "mode": "difference",
-      "date": "2026-08-07",
+      "date": "2026-08-10",
       "stale": false,
       "source": "FRED",
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "fred-business",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
-        {
-          "date": "2023-08-11",
-          "close": 1.22
-        },
         {
           "date": "2023-08-14",
           "close": 1.22
@@ -50059,6 +50058,10 @@
         {
           "date": "2026-08-07",
           "close": 0.78
+        },
+        {
+          "date": "2026-08-10",
+          "close": 0.78
         }
       ]
     },
@@ -50069,17 +50072,14 @@
       "series": "BAMLH0A0HYM2",
       "unit": "%",
       "mode": "difference",
-      "date": "2026-08-07",
+      "date": "2026-08-10",
       "stale": false,
       "source": "FRED",
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "fred-business",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
-        {
-          "date": "2023-08-11",
-          "close": 3.83
-        },
         {
           "date": "2023-08-14",
           "close": 3.79
@@ -53215,6 +53215,10 @@
         {
           "date": "2026-08-07",
           "close": 2.7
+        },
+        {
+          "date": "2026-08-10",
+          "close": 2.7
         }
       ]
     },
@@ -53231,6 +53235,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "fred-business",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2021-07-26",
@@ -58281,17 +58286,14 @@
       "series": "VIXCLS",
       "unit": "点",
       "mode": "return",
-      "date": "2026-08-07",
+      "date": "2026-08-10",
       "stale": false,
       "source": "FRED",
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "nyse",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
-        {
-          "date": "2021-09-16",
-          "close": 18.69
-        },
         {
           "date": "2021-09-17",
           "close": 20.81
@@ -63327,6 +63329,10 @@
         {
           "date": "2026-08-07",
           "close": 14.9
+        },
+        {
+          "date": "2026-08-10",
+          "close": 15.46
         }
       ]
     },
@@ -63343,6 +63349,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "fred-business",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2021-07-26",
@@ -68399,6 +68406,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "fred-business",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2021-07-26",
@@ -73455,6 +73463,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "fred-business",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2021-07-26",
@@ -78511,6 +78520,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "fred-business",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2021-07-16",
@@ -83567,6 +83577,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "fred-business",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2021-08-09",
@@ -88623,6 +88634,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "fred-business",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2021-10-12",
@@ -93679,6 +93691,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "monthly",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2015-01-01",
@@ -94247,6 +94260,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "fred-business",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2021-07-16",
@@ -99303,6 +99317,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "crypto-24x7",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2023-02-28",
@@ -104359,6 +104374,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/",
       "calendar": "crypto-24x7",
       "dataShape": "close",
+      "adjustmentBasis": "not-applicable",
       "points": [
         {
           "date": "2023-02-28",
