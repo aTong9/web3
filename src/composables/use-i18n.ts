@@ -949,9 +949,20 @@ const messages: Record<Locale, DictionaryNode> = {
         publicData:
           '使用 Binance USDⓈ-M 公开行情；覆盖官方当前可交易的永续合约，只分析、不读取账户、不下单。',
         symbolSearch: '搜索标的',
-        symbolSearchPlaceholder: '代码 / 基础资产 / 结算币',
+        symbolSearchPlaceholder: '代码 / 公司名 / 市场',
         symbolCategory: '资产类别',
         symbol: '合约标的',
+        underlying: '底层标的',
+        underlyingVenue: '底层市场',
+        settlementAsset: '结算资产',
+        riskTag: {
+          underlyingSession: '底层市场非全天交易',
+          leveragedUnderlying: '底层自带杠杆',
+          inverseUnderlying: '反向产品',
+          futuresUnderlying: '底层持有期货',
+          regionalMarket: '跨时区市场',
+          commodityBasis: '商品基差风险',
+        },
         category: {
           all: '全部',
           crypto: '加密资产',
@@ -2509,9 +2520,20 @@ const messages: Record<Locale, DictionaryNode> = {
         publicData:
           'Uses public Binance USDⓈ-M data and covers all currently trading perpetuals; analysis only, with no account access or orders.',
         symbolSearch: 'Search instruments',
-        symbolSearchPlaceholder: 'Symbol / base / quote asset',
+        symbolSearchPlaceholder: 'Symbol / company / venue',
         symbolCategory: 'Asset category',
         symbol: 'Contract',
+        underlying: 'Underlying',
+        underlyingVenue: 'Underlying venue',
+        settlementAsset: 'Settlement asset',
+        riskTag: {
+          underlyingSession: 'Underlying market has trading hours',
+          leveragedUnderlying: 'Leveraged underlying',
+          inverseUnderlying: 'Inverse product',
+          futuresUnderlying: 'Futures-based underlying',
+          regionalMarket: 'Cross-time-zone market',
+          commodityBasis: 'Commodity basis risk',
+        },
         category: {
           all: 'All',
           crypto: 'Crypto',

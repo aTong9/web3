@@ -1076,6 +1076,13 @@ export type ContractInstrumentCategory =
   | 'index'
   | 'other'
 export type ContractCatalogStatus = 'idle' | 'loading' | 'ready' | 'fallback'
+export type ContractInstrumentRiskTag =
+  | 'underlyingSession'
+  | 'leveragedUnderlying'
+  | 'inverseUnderlying'
+  | 'futuresUnderlying'
+  | 'regionalMarket'
+  | 'commodityBasis'
 export type ContractConnectionStatus =
   | 'idle'
   | 'connecting'
@@ -1091,6 +1098,9 @@ export interface ContractInstrument {
   quoteAsset: string
   marginAsset: string
   category: ContractInstrumentCategory
+  displayName: string
+  underlyingVenue: string | null
+  riskTags: ContractInstrumentRiskTag[]
   underlyingType: string | null
   underlyingSubTypes: string[]
   onboardDate: string | null

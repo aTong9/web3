@@ -72,7 +72,9 @@ const matchingInstruments = computed(() => {
       (!keyword ||
         instrument.symbol.includes(keyword) ||
         instrument.baseAsset.includes(keyword) ||
-        instrument.quoteAsset.includes(keyword)),
+        instrument.quoteAsset.includes(keyword) ||
+        instrument.displayName.toUpperCase().includes(keyword) ||
+        instrument.underlyingVenue?.toUpperCase().includes(keyword)),
   )
 })
 const visibleInstruments = computed(() => {
@@ -326,7 +328,8 @@ onMounted(() => {
                 :key="instrument.symbol"
                 :value="instrument.symbol"
               >
-                {{ instrument.symbol }} · {{ categoryLabel(instrument.category) }}
+                {{ instrument.symbol }} · {{ instrument.displayName }} ·
+                {{ categoryLabel(instrument.category) }}
               </option>
             </select>
           </label>
@@ -366,6 +369,29 @@ onMounted(() => {
       }}</small>
       <b>{{ t('assetTechnical.contract.paperOnly') }}</b>
     </div>
+
+    <section v-if="selectedInstrument" class="instrument-identity">
+      <div>
+        <span>{{ t('assetTechnical.contract.underlying') }}</span>
+        <strong>{{ selectedInstrument.displayName }}</strong>
+        <small>{{ selectedInstrument.baseAsset }}</small>
+      </div>
+      <dl>
+        <div>
+          <dt>{{ t('assetTechnical.contract.underlyingVenue') }}</dt>
+          <dd>{{ selectedInstrument.underlyingVenue ?? '—' }}</dd>
+        </div>
+        <div>
+          <dt>{{ t('assetTechnical.contract.settlementAsset') }}</dt>
+          <dd>{{ selectedInstrument.quoteAsset }}</dd>
+        </div>
+      </dl>
+      <ul v-if="selectedInstrument.riskTags.length" class="instrument-risk-tags">
+        <li v-for="riskTag in selectedInstrument.riskTags" :key="riskTag">
+          {{ t(`assetTechnical.contract.riskTag.${riskTag}`) }}
+        </li>
+      </ul>
+    </section>
 
     <p
       v-if="selectedInstrument?.category === 'equity' || selectedInstrument?.category === 'etf'"
@@ -737,6 +763,67 @@ onMounted(() => {
   border-radius: 99px;
   background: var(--surface-soft);
   color: var(--muted);
+  font-size: 7px;
+}
+.instrument-identity {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto minmax(180px, auto);
+  gap: 16px;
+  align-items: center;
+}
+.instrument-identity > div:first-child {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+}
+.instrument-identity span,
+.instrument-identity small,
+.instrument-identity dt {
+  color: var(--muted);
+  font-size: 7px;
+}
+.instrument-identity strong {
+  overflow: hidden;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.instrument-identity dl {
+  margin: 0;
+  display: flex;
+  gap: 14px;
+}
+.instrument-identity dl div {
+  display: grid;
+  gap: 3px;
+}
+.instrument-identity dd {
+  margin: 0;
+  font-size: 8px;
+  font-weight: 700;
+}
+.instrument-risk-tags {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: end;
+  list-style: none;
+}
+.instrument-risk-tags li {
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  background: var(--surface-soft);
+  color: var(--warning);
   font-size: 7px;
 }
 .underlying-risk {
@@ -1193,6 +1280,19 @@ onMounted(() => {
   }
   .connection-strip b {
     margin-left: 0;
+  }
+  .instrument-identity {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .instrument-identity > div:first-child {
+    grid-template-columns: auto 1fr;
+  }
+  .instrument-identity > div:first-child small {
+    grid-column: 2;
+  }
+  .instrument-risk-tags {
+    justify-content: start;
   }
   .contract-chart-card > header {
     flex-direction: column;

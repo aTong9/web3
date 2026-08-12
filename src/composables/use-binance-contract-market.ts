@@ -9,6 +9,10 @@ import type {
   ContractMicrostructureSnapshot,
   ContractTimeframeSeries,
 } from '@/types'
+import {
+  resolveContractInstrumentMetadata,
+  verifiedFallbackBases,
+} from '@/utils/contract-instrument-catalog'
 
 const restBase =
   (import.meta.env.VITE_BINANCE_FUTURES_REST_BASE as string | undefined)?.replace(/\/$/, '') ||
@@ -21,35 +25,6 @@ const contextPoints = 120
 const contextRefreshMs = 60_000
 const contextIntervals: ContractChartInterval[] = ['1m', '5m', '15m', '1h', '4h']
 const featuredSymbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT']
-// 官方目录不可达时使用的保守清单；动态目录可用时仍以 exchangeInfo 为准。
-const verifiedEquityBases = [
-  'AAPL',
-  'AMZN',
-  'AVGO',
-  'BABA',
-  'COIN',
-  'CRCL',
-  'GOOGL',
-  'HOOD',
-  'INTC',
-  'META',
-  'MSFT',
-  'MSTR',
-  'MU',
-  'NVDA',
-  'PAYP',
-  'PLTR',
-  'POPMART',
-  'SKHYNIX',
-  'SNDK',
-  'TSLA',
-  'TSM',
-] as const
-const verifiedEtfBases = ['BITO', 'EWJ', 'EWY', 'QQQ', 'SPY', 'TBT', 'TMF'] as const
-const verifiedCommodityBases = ['CL', 'COPPER', 'XAG', 'XAU', 'XPD', 'XPT'] as const
-const knownEquityBases = new Set<string>(verifiedEquityBases)
-const knownEtfBases = new Set<string>(verifiedEtfBases)
-const knownCommodityBases = new Set<string>(verifiedCommodityBases)
 const knownFxBases = new Set(['AUD', 'EUR', 'GBP', 'JPY'])
 const knownIndexBases = new Set(['DJI', 'KOSPI', 'NDX', 'NIKKEI', 'SPX'])
 
@@ -159,9 +134,8 @@ const instrumentCategory = (
   if (metadata.includes('COMMODITY') || metadata.includes('METAL')) return 'commodity'
   if (metadata.includes('FOREX') || metadata.includes('FX')) return 'fx'
   if (metadata.includes('INDEX')) return 'index'
-  if (knownEquityBases.has(baseAsset)) return 'equity'
-  if (knownEtfBases.has(baseAsset)) return 'etf'
-  if (knownCommodityBases.has(baseAsset)) return 'commodity'
+  const knownCategory = resolveContractInstrumentMetadata(baseAsset, 'other').category
+  if (knownCategory !== 'other') return knownCategory
   if (knownFxBases.has(baseAsset)) return 'fx'
   if (knownIndexBases.has(baseAsset)) return 'index'
   if (!metadata || metadata.includes('COIN') || metadata.includes('CRYPTO')) return 'crypto'
@@ -171,23 +145,29 @@ const instrumentCategory = (
 const fallbackInstrument = (
   baseAsset: string,
   category: ContractInstrumentCategory,
-): ContractInstrument => ({
-  symbol: `${baseAsset}USDT`,
-  pair: `${baseAsset}USDT`,
-  baseAsset,
-  quoteAsset: 'USDT',
-  marginAsset: 'USDT',
-  category,
-  underlyingType: category === 'crypto' ? 'COIN' : 'TRADFI',
-  underlyingSubTypes: [],
-  onboardDate: null,
-})
+): ContractInstrument => {
+  const metadata = resolveContractInstrumentMetadata(baseAsset, category)
+  return {
+    symbol: `${baseAsset}USDT`,
+    pair: `${baseAsset}USDT`,
+    baseAsset,
+    quoteAsset: 'USDT',
+    marginAsset: 'USDT',
+    category: metadata.category,
+    displayName: metadata.displayName,
+    underlyingVenue: metadata.underlyingVenue,
+    riskTags: metadata.riskTags,
+    underlyingType: category === 'crypto' ? 'COIN' : 'TRADFI',
+    underlyingSubTypes: [],
+    onboardDate: null,
+  }
+}
 
 const fallbackInstruments = [
   ...['BTC', 'ETH', 'BNB', 'SOL', 'XRP'].map((base) => fallbackInstrument(base, 'crypto')),
-  ...verifiedEquityBases.map((base) => fallbackInstrument(base, 'equity')),
-  ...verifiedEtfBases.map((base) => fallbackInstrument(base, 'etf')),
-  ...verifiedCommodityBases.map((base) => fallbackInstrument(base, 'commodity')),
+  ...verifiedFallbackBases.equity.map((base) => fallbackInstrument(base, 'equity')),
+  ...verifiedFallbackBases.etf.map((base) => fallbackInstrument(base, 'etf')),
+  ...verifiedFallbackBases.commodity.map((base) => fallbackInstrument(base, 'commodity')),
 ]
 
 const emptyCatalog = (): ContractInstrumentCatalog => ({
@@ -240,6 +220,8 @@ const parseInstruments = (body: unknown) => {
     const underlyingSubTypes = Array.isArray(source.underlyingSubType)
       ? source.underlyingSubType.map(String)
       : []
+    const category = instrumentCategory(source.baseAsset, source.underlyingType, underlyingSubTypes)
+    const metadata = resolveContractInstrumentMetadata(source.baseAsset, category)
     return [
       {
         symbol: source.symbol,
@@ -247,7 +229,10 @@ const parseInstruments = (body: unknown) => {
         baseAsset: source.baseAsset,
         quoteAsset: source.quoteAsset,
         marginAsset: source.marginAsset ?? source.quoteAsset,
-        category: instrumentCategory(source.baseAsset, source.underlyingType, underlyingSubTypes),
+        category: metadata.category,
+        displayName: metadata.displayName,
+        underlyingVenue: metadata.underlyingVenue,
+        riskTags: metadata.riskTags,
         underlyingType: source.underlyingType ?? null,
         underlyingSubTypes,
         onboardDate: source.onboardDate ? new Date(source.onboardDate).toISOString() : null,
