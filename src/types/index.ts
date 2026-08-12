@@ -1218,6 +1218,32 @@ export interface ContractTradeDecision {
   timeframes: ContractTimeframeReading[]
 }
 
+export type ContractPositionDirection = 'long' | 'short'
+
+export interface ContractPositionSimulationInput {
+  direction: ContractPositionDirection
+  entryPrice: number | null
+  stopLoss: number | null
+  takeProfit: number | null
+  notional: number
+  leverage: number
+  feeRatePct: number
+  fundingRatePct: number | null
+  fundingSettlements: number
+}
+
+export interface ContractPositionSimulation {
+  marginRequired: number | null
+  roundTripFee: number | null
+  projectedFunding: number | null
+  breakEvenMovePct: number | null
+  stopGrossPnl: number | null
+  stopNetPnl: number | null
+  targetGrossPnl: number | null
+  targetNetPnl: number | null
+  stopLossMarginPct: number | null
+}
+
 export interface TechnicalChartAsset {
   id: string
   name: string

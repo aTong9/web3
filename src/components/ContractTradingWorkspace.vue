@@ -8,8 +8,10 @@ import { useI18n } from '@/composables/use-i18n'
 import type {
   ContractChartInterval,
   ContractInstrumentCategory,
+  ContractPositionDirection,
   ContractTradeAction,
 } from '@/types'
+import { simulateContractPosition } from '@/utils/contract-position-simulation'
 import { buildContractTradeDecision } from '@/utils/contract-trade-decision'
 import { simpleMovingAverage } from '@/utils/technical-analysis'
 import { useTheme } from '@/utils/use-theme'
@@ -32,10 +34,34 @@ const selectedSymbol = ref(savedSymbol || 'BTCUSDT')
 const selectedInterval = ref<ContractChartInterval>('5m')
 const instrumentSearch = ref('')
 const instrumentFilter = ref<InstrumentFilter>('all')
+const positionDirection = ref<ContractPositionDirection>('long')
+const positionNotional = ref(1_000)
+const positionLeverage = ref(3)
+const positionFeeRatePct = ref(0.05)
+const positionFundingSettlements = ref(3)
 const { locale, t } = useI18n()
 const { theme } = useTheme()
 const { snapshot, catalog, loadCatalog, connect, reconnect } = useBinanceContractMarket()
 const decision = computed(() => buildContractTradeDecision(snapshot.value))
+const decisionDirection = computed<ContractPositionDirection | null>(() =>
+  decision.value.action === 'long' || decision.value.action === 'short'
+    ? decision.value.action
+    : null,
+)
+const positionSimulation = computed(() => {
+  const usesDecisionLevels = decisionDirection.value === positionDirection.value
+  return simulateContractPosition({
+    direction: positionDirection.value,
+    entryPrice: snapshot.value.markPrice ?? decision.value.latestPrice,
+    stopLoss: usesDecisionLevels ? decision.value.stopLoss : null,
+    takeProfit: usesDecisionLevels ? decision.value.takeProfit : null,
+    notional: positionNotional.value,
+    leverage: positionLeverage.value,
+    feeRatePct: positionFeeRatePct.value,
+    fundingRatePct: snapshot.value.fundingRatePct,
+    fundingSettlements: positionFundingSettlements.value,
+  })
+})
 const selectedInstrument = computed(
   () =>
     catalog.value.instruments.find((instrument) => instrument.symbol === selectedSymbol.value) ??
@@ -102,6 +128,10 @@ const formatSigned = (value: number | null, digits = 1, suffix = '%') =>
   value === null ? '—' : `${value > 0 ? '+' : ''}${formatNumber(value, digits)}${suffix}`
 const formatMetric = (value: number | null, digits: number, suffix: string) =>
   value === null ? '—' : `${formatNumber(value, digits)}${suffix}`
+const formatMoney = (value: number | null, signed = false) =>
+  value === null
+    ? '—'
+    : `${signed && value > 0 ? '+' : ''}${formatNumber(value, 2)} ${snapshot.value.quoteAsset}`
 const formatTime = (value: string | null) =>
   value
     ? new Intl.DateTimeFormat(locale.value === 'zh' ? 'zh-CN' : 'en-US', {
@@ -274,6 +304,12 @@ watch([selectedSymbol, selectedInterval], ([symbol, interval]) => {
   void connect(symbol, interval)
 })
 watch(selectedSymbol, (symbol) => window.localStorage.setItem(symbolStorageKey, symbol))
+watch(
+  () => decision.value.action,
+  (action) => {
+    if (action === 'long' || action === 'short') positionDirection.value = action
+  },
+)
 
 onMounted(() => {
   void connect(selectedSymbol.value, selectedInterval.value)
@@ -547,6 +583,123 @@ onMounted(() => {
               <small>{{ indicator.score > 0 ? '+' : '' }}{{ indicator.score }}</small>
             </article>
           </div>
+        </DisclosureCard>
+
+        <DisclosureCard
+          class="position-simulator"
+          :default-open="true"
+          :eyebrow="t('assetTechnical.contract.simulator.eyebrow')"
+          :title="t('assetTechnical.contract.simulator.title')"
+          :description="t('assetTechnical.contract.simulator.description')"
+        >
+          <template #metric>
+            <strong>{{ formatMoney(positionSimulation.marginRequired) }}</strong>
+          </template>
+          <div class="simulator-layout">
+            <section class="simulator-inputs">
+              <div
+                class="direction-switch"
+                role="group"
+                :aria-label="t('assetTechnical.contract.simulator.direction')"
+              >
+                <button
+                  type="button"
+                  :class="{ active: positionDirection === 'long' }"
+                  @click="positionDirection = 'long'"
+                >
+                  {{ t('assetTechnical.contract.simulator.long') }}
+                </button>
+                <button
+                  type="button"
+                  :class="{ active: positionDirection === 'short' }"
+                  @click="positionDirection = 'short'"
+                >
+                  {{ t('assetTechnical.contract.simulator.short') }}
+                </button>
+              </div>
+              <div class="simulator-fields">
+                <label>
+                  <span>{{ t('assetTechnical.contract.simulator.notional') }}</span>
+                  <input v-model.number="positionNotional" type="number" min="1" step="100" />
+                </label>
+                <label>
+                  <span>{{ t('assetTechnical.contract.simulator.leverage') }}</span>
+                  <input
+                    v-model.number="positionLeverage"
+                    type="number"
+                    min="1"
+                    max="125"
+                    step="1"
+                  />
+                </label>
+                <label>
+                  <span>{{ t('assetTechnical.contract.simulator.feeRate') }}</span>
+                  <input
+                    v-model.number="positionFeeRatePct"
+                    type="number"
+                    min="0"
+                    max="5"
+                    step="0.001"
+                  />
+                </label>
+                <label>
+                  <span>{{ t('assetTechnical.contract.simulator.fundingSettlements') }}</span>
+                  <input
+                    v-model.number="positionFundingSettlements"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="1"
+                  />
+                </label>
+              </div>
+              <p>{{ t('assetTechnical.contract.simulator.feeHint') }}</p>
+            </section>
+
+            <section class="simulator-results">
+              <dl>
+                <div>
+                  <dt>{{ t('assetTechnical.contract.simulator.marginRequired') }}</dt>
+                  <dd>{{ formatMoney(positionSimulation.marginRequired) }}</dd>
+                </div>
+                <div>
+                  <dt>{{ t('assetTechnical.contract.simulator.roundTripFee') }}</dt>
+                  <dd>{{ formatMoney(positionSimulation.roundTripFee) }}</dd>
+                </div>
+                <div>
+                  <dt>{{ t('assetTechnical.contract.simulator.projectedFunding') }}</dt>
+                  <dd :class="{ cost: (positionSimulation.projectedFunding ?? 0) > 0 }">
+                    {{ formatMoney(positionSimulation.projectedFunding, true) }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{{ t('assetTechnical.contract.simulator.breakEvenMove') }}</dt>
+                  <dd>{{ formatSigned(positionSimulation.breakEvenMovePct, 3) }}</dd>
+                </div>
+              </dl>
+              <div class="simulator-outcomes">
+                <article class="stop">
+                  <span>{{ t('assetTechnical.contract.simulator.stopNetPnl') }}</span>
+                  <strong>{{ formatMoney(positionSimulation.stopNetPnl, true) }}</strong>
+                  <small>
+                    {{ t('assetTechnical.contract.simulator.marginLoss') }}
+                    {{ formatMetric(positionSimulation.stopLossMarginPct, 1, '%') }}
+                  </small>
+                </article>
+                <article class="target">
+                  <span>{{ t('assetTechnical.contract.simulator.targetNetPnl') }}</span>
+                  <strong>{{ formatMoney(positionSimulation.targetNetPnl, true) }}</strong>
+                  <small>{{ t('assetTechnical.contract.simulator.afterCosts') }}</small>
+                </article>
+              </div>
+              <p v-if="decisionDirection !== positionDirection" class="simulator-level-note">
+                {{ t('assetTechnical.contract.simulator.levelsUnavailable') }}
+              </p>
+            </section>
+          </div>
+          <p class="simulator-disclaimer">
+            {{ t('assetTechnical.contract.simulator.disclaimer') }}
+          </p>
         </DisclosureCard>
       </div>
 
@@ -1100,6 +1253,130 @@ onMounted(() => {
   margin: 7px 0;
   font-size: 9px;
 }
+.simulator-layout {
+  padding-top: 16px;
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.2fr);
+  gap: 12px;
+}
+.simulator-inputs,
+.simulator-results {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+.direction-switch {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+}
+.direction-switch button {
+  min-height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 8px;
+  cursor: pointer;
+}
+.direction-switch button.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+}
+.simulator-fields {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+.simulator-fields label {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.simulator-fields span,
+.simulator-inputs > p,
+.simulator-results dt,
+.simulator-outcomes span,
+.simulator-outcomes small,
+.simulator-level-note,
+.simulator-disclaimer {
+  color: var(--muted);
+  font-size: 7px;
+}
+.simulator-fields input {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 7px 9px;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 9px;
+}
+.simulator-inputs > p {
+  margin: 9px 0 0;
+  line-height: 1.55;
+}
+.simulator-results dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.simulator-results dl div {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+}
+.simulator-results dd {
+  margin: 6px 0 0;
+  font-size: 10px;
+  font-weight: 700;
+}
+.simulator-results dd.cost {
+  color: var(--negative);
+}
+.simulator-outcomes {
+  margin-top: 7px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.simulator-outcomes article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--muted);
+  border-radius: 6px;
+  background: var(--surface);
+  display: grid;
+  gap: 6px;
+}
+.simulator-outcomes article.stop {
+  border-left-color: var(--negative);
+}
+.simulator-outcomes article.target {
+  border-left-color: var(--positive);
+}
+.simulator-outcomes strong {
+  font-size: 11px;
+}
+.simulator-level-note {
+  margin: 9px 0 0;
+  color: var(--warning);
+  line-height: 1.5;
+}
+.simulator-disclaimer {
+  margin: 10px 2px 0;
+  line-height: 1.6;
+}
 .decision-panel {
   padding: 16px;
   border-top: 3px solid var(--muted);
@@ -1251,6 +1528,9 @@ onMounted(() => {
   .execution-context {
     grid-template-columns: 1fr;
   }
+  .simulator-layout {
+    grid-template-columns: 1fr;
+  }
 }
 @media (max-width: 760px) {
   .contract-toolbar {
@@ -1305,6 +1585,11 @@ onMounted(() => {
   }
   .indicator-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .simulator-fields,
+  .simulator-results dl,
+  .simulator-outcomes {
+    grid-template-columns: 1fr;
   }
   .execution-context article > header {
     flex-direction: column;
