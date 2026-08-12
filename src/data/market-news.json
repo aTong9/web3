@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-12T19:49:55.599Z",
+  "updatedAt": "2026-08-12T20:51:17.805Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -37,10 +37,26 @@
   ],
   "articles": [
     {
-      "id": "b28d4d2d5368745a",
-      "title": "CoreWeave gains 20%, Nebius surges 30% in post-earnings neocloud rally",
-      "url": "https://www.cnbc.com/2026/08/12/coreweave-q2-earnings-ai-demand.html",
-      "publishedAt": "2026-08-12T19:49:07.000Z",
+      "id": "23a4442c7a84a41f",
+      "title": "Trump says Karoline Leavitt resigning as White House press secretary",
+      "url": "https://www.cnbc.com/2026/08/12/trump-white-house-karoline-leavitt-resigning-.html",
+      "publishedAt": "2026-08-12T20:48:41.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "特朗普称卡罗琳·莱维特辞去白宫新闻秘书职务",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "10a006cf8ecfdcd5",
+      "title": "Cerebras stock plunges 14% after second earnings report following IPO",
+      "url": "https://www.cnbc.com/2026/08/12/cerebras-cbrs-q2-earnings-report-2026.html",
+      "publishedAt": "2026-08-12T20:28:48.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "equities",
@@ -50,15 +66,88 @@
       "affectedAssets": [
         "美股"
       ],
-      "translatedTitle": "CoreWeave在收益后新云反弹中上涨20% ， Nebius上涨30%",
+      "translatedTitle": "Cerebras股票在IPO后的第二份盈利报告后暴跌14%",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
     {
-      "id": "23a4442c7a84a41f",
-      "title": "Trump says Karoline Leavitt resigning as White House press secretary",
-      "url": "https://www.cnbc.com/2026/08/12/trump-white-house-karoline-leavitt-resigning-.html",
-      "publishedAt": "2026-08-12T19:46:46.000Z",
+      "id": "36265092711883b4",
+      "title": "CoreWeave counters a key bear case on the AI trade. What it means for our data center stocks",
+      "url": "https://www.cnbc.com/2026/08/12/coreweave-counters-a-key-bear-case-on-the-ai-trade-what-it-means-for-our-data-center-stocks.html",
+      "publishedAt": "2026-08-12T20:16:05.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "CoreWeave反驳了人工智能交易的一个关键熊市案例。这对我们的数据中心库存意味着什么",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "b28d4d2d5368745a",
+      "title": "CoreWeave gains 19%, Nebius surges 34% in post-earnings neocloud rally",
+      "url": "https://www.cnbc.com/2026/08/12/coreweave-q2-earnings-ai-demand.html",
+      "publishedAt": "2026-08-12T20:00:52.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "CoreWeave在收益后新云反弹中上涨19% ， Nebius上涨34%",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "1b6886c3fc69a3a1",
+      "title": "How the market is trading gold as Fed rate hike and inflation odds shift",
+      "url": "https://www.cnbc.com/2026/08/12/gold-prices-metals-fed-rate-hike-inflation.html",
+      "publishedAt": "2026-08-12T19:57:25.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "commodities",
+      "language": "English",
+      "impact": "high",
+      "impactScore": 6,
+      "affectedAssets": [
+        "美元",
+        "黄金"
+      ],
+      "translatedTitle": "随着美联储加息和通胀赔率转变，市场如何交易黄金",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "8d174a010bbed5da",
+      "title": "Saudi Arabia ramps up oil exports through Mediterranean pipeline to avoid attacks in Red Sea",
+      "url": "https://www.cnbc.com/2026/08/12/saudi-arabia-iran-oil-red-sea-houthi-suez-canal-strait-hormuz.html",
+      "publishedAt": "2026-08-12T19:51:51.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "原油"
+      ],
+      "translatedTitle": "沙特阿拉伯通过地中海管道增加石油出口，以避免红海遭受袭击",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "544d4d9cecb8ae14",
+      "title": "'Nobody wants it': Lettuce prices see record-setting plunge as cyclospora spooks consumers",
+      "url": "https://www.cnbc.com/2026/08/12/lettuce-prices-cyclospora-cpi.html",
+      "publishedAt": "2026-08-12T19:50:29.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "macro",
@@ -66,7 +155,7 @@
       "impact": "low",
       "impactScore": 1,
       "affectedAssets": [],
-      "translatedTitle": "特朗普称卡罗琳·莱维特辞去白宫新闻秘书职务",
+      "translatedTitle": "“没有人想要它” ：随着环孢子虫使消费者感到恐慌，生菜价格出现创纪录的暴跌",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -85,25 +174,6 @@
         "美股"
       ],
       "translatedTitle": "Wendy的股票因Nelson Peltz's Trian Fund Management的潜在收购要约报告而上涨",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "1b6886c3fc69a3a1",
-      "title": "How to trade gold prices as Fed rate hike and inflation odds shift",
-      "url": "https://www.cnbc.com/2026/08/12/gold-prices-metals-fed-rate-hike-inflation.html",
-      "publishedAt": "2026-08-12T19:44:48.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "commodities",
-      "language": "English",
-      "impact": "high",
-      "impactScore": 6,
-      "affectedAssets": [
-        "美元",
-        "黄金"
-      ],
-      "translatedTitle": "随着美联储加息和通胀赔率转变，如何交易黄金价格",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -158,40 +228,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "5f83f97e186f1756",
-      "title": "CEO of Intel just gave Jim Cramer one more reason to call it his favorite stock",
-      "url": "https://www.cnbc.com/2026/08/12/ceo-of-intel-just-gave-jim-cramer-one-more-reason-to-call-it-his-favorite-stock.html",
-      "publishedAt": "2026-08-12T18:38:29.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "英特尔首席执行官刚刚给了吉姆·克莱默另一个理由称之为他最喜欢的股票",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "544d4d9cecb8ae14",
-      "title": "'Nobody wants it': Lettuce prices see record-setting plunge as cyclospora spooks consumers",
-      "url": "https://www.cnbc.com/2026/08/12/lettuce-prices-cyclospora-cpi.html",
-      "publishedAt": "2026-08-12T17:57:44.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "“没有人想要它” ：随着环孢子虫使消费者感到恐慌，生菜价格出现创纪录的暴跌",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "235f353bd3a481a9",
       "title": "Here's the inflation breakdown for July 2026 — in one chart",
       "url": "https://www.cnbc.com/2026/08/12/inflation-breakdown-for-july-2026-cpi-in-one-chart.html",
@@ -200,8 +236,8 @@
       "sourceType": "media",
       "category": "macro",
       "language": "English",
-      "impact": "high",
-      "impactScore": 4,
+      "impact": "medium",
+      "impactScore": 3,
       "affectedAssets": [],
       "translatedTitle": "这是2026年7月的通货膨胀明细—在一张图表中",
       "translationStatus": "translated",
@@ -454,40 +490,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "纽约市议会宣布调查预测市场平台的营销策略",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "ee4c8b68114baafd",
-      "title": "Hong's defeat in Wisconsin deals blow to rising Democratic socialists",
-      "url": "https://www.cnbc.com/2026/08/11/primary-election-wisconsin-minnesota-south-carolina-democrats-hong-flanagan-craig.html",
-      "publishedAt": "2026-08-12T12:05:21.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "洪在威斯康星州的失败打击了崛起的民主社会主义者",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "bdda9759b97dd870",
-      "title": "Hormuz closure squeezes global economy as oil demand destruction intensifies, IEA says",
-      "url": "https://www.cnbc.com/2026/08/12/iea-oil-demand-hormuz.html",
-      "publishedAt": "2026-08-12T10:47:20.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "commodities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "原油"
-      ],
-      "translatedTitle": "IEA表示，随着石油需求破坏的加剧，霍尔木兹关闭挤压了全球经济",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
