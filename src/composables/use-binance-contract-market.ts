@@ -21,24 +21,35 @@ const contextPoints = 120
 const contextRefreshMs = 60_000
 const contextIntervals: ContractChartInterval[] = ['1m', '5m', '15m', '1h', '4h']
 const featuredSymbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT']
-const knownEquityBases = new Set([
+// 官方目录不可达时使用的保守清单；动态目录可用时仍以 exchangeInfo 为准。
+const verifiedEquityBases = [
   'AAPL',
   'AMZN',
   'AVGO',
+  'BABA',
   'COIN',
   'CRCL',
   'GOOGL',
+  'HOOD',
+  'INTC',
   'META',
   'MSFT',
   'MSTR',
+  'MU',
   'NVDA',
+  'PAYP',
   'PLTR',
   'POPMART',
+  'SKHYNIX',
+  'SNDK',
   'TSLA',
   'TSM',
-])
-const knownEtfBases = new Set(['BITO', 'EWJ', 'EWY', 'QQQ', 'SPY', 'TBT', 'TMF'])
-const knownCommodityBases = new Set(['XAG', 'XAU', 'XPD', 'XPT'])
+] as const
+const verifiedEtfBases = ['BITO', 'EWJ', 'EWY', 'QQQ', 'SPY', 'TBT', 'TMF'] as const
+const verifiedCommodityBases = ['CL', 'COPPER', 'XAG', 'XAU', 'XPD', 'XPT'] as const
+const knownEquityBases = new Set<string>(verifiedEquityBases)
+const knownEtfBases = new Set<string>(verifiedEtfBases)
+const knownCommodityBases = new Set<string>(verifiedCommodityBases)
 const knownFxBases = new Set(['AUD', 'EUR', 'GBP', 'JPY'])
 const knownIndexBases = new Set(['DJI', 'KOSPI', 'NDX', 'NIKKEI', 'SPX'])
 
@@ -174,10 +185,9 @@ const fallbackInstrument = (
 
 const fallbackInstruments = [
   ...['BTC', 'ETH', 'BNB', 'SOL', 'XRP'].map((base) => fallbackInstrument(base, 'crypto')),
-  ...['MSTR', 'AMZN', 'COIN', 'CRCL', 'PLTR', 'TSLA', 'POPMART'].map((base) =>
-    fallbackInstrument(base, 'equity'),
-  ),
-  ...['TMF', 'TBT', 'BITO'].map((base) => fallbackInstrument(base, 'etf')),
+  ...verifiedEquityBases.map((base) => fallbackInstrument(base, 'equity')),
+  ...verifiedEtfBases.map((base) => fallbackInstrument(base, 'etf')),
+  ...verifiedCommodityBases.map((base) => fallbackInstrument(base, 'commodity')),
 ]
 
 const emptyCatalog = (): ContractInstrumentCatalog => ({
