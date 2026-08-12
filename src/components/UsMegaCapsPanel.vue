@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
+import MarketQuoteStatus from '@/components/MarketQuoteStatus.vue'
 import megaCapData from '@/data/us-megacaps.json'
 import type { UsMegaCapDataset, UsMegaCapStock } from '@/types'
 import { useI18n } from '@/composables/use-i18n'
+import { useMarketQuotes } from '@/composables/use-market-quotes'
 
 type SortKey = 'trailingPe' | 'marketCapUsd' | 'historicalPeMedian5y' | 'forwardPe'
 
@@ -11,6 +13,8 @@ const dataset = megaCapData as UsMegaCapDataset
 const forwardPeThreshold = 35
 const sortKey = ref<SortKey>('forwardPe')
 const { t } = useI18n()
+const quoteSymbols = computed(() => dataset.stocks.map((stock) => stock.symbol))
+const { quoteFor, loading: quoteLoading, error: quoteError } = useMarketQuotes(quoteSymbols)
 const rows = computed(() =>
   [...dataset.stocks].sort((left, right) => {
     const leftValue = left[sortKey.value]
@@ -110,8 +114,12 @@ const signalSummary = computed(() => ({
           <small>{{ t('mega.table.rankLabel', { value: stock.marketCapRank }) }}</small>
         </span>
         <span :data-label="t('crossAsset.latestValue')">
-          <strong>${{ stock.price?.toFixed(2) ?? '—' }}</strong>
-          <small>{{ t('marketHome.updated') }}</small>
+          <strong>${{ (quoteFor(stock.symbol)?.price ?? stock.price)?.toFixed(2) ?? '—' }}</strong>
+          <MarketQuoteStatus
+            :quote="quoteFor(stock.symbol)"
+            :loading="quoteLoading"
+            :error="quoteError"
+          />
         </span>
         <span :data-label="t('mega.table.currentPe')" class="pe-value">
           <strong>{{ formatPe(stock.trailingPe) }}</strong>

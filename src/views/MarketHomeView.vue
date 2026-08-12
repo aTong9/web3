@@ -1,27 +1,43 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
+import MarketQuoteStatus from '@/components/MarketQuoteStatus.vue'
 import marketHomeData from '@/data/market-home.json'
 import crossAssetData from '@/data/cross-asset.json'
 import type { CrossAssetDataset, MarketHomeDataset } from '@/types'
 import DailyMarketPoster from '@/components/DailyMarketPoster.vue'
 import DisclosureCard from '@/components/DisclosureCard.vue'
 import { useI18n } from '@/composables/use-i18n'
+import { marketAssetQuoteSymbols, useMarketQuotes } from '@/composables/use-market-quotes'
 
 const dataset = marketHomeData as MarketHomeDataset
 const crossAssetDataset = crossAssetData as CrossAssetDataset
 const markets = computed(() => dataset.marketBrief.markets)
 const leadMarket = computed(() => markets.value[0])
 const { t } = useI18n()
+const quoteSymbols = computed(() =>
+  markets.value
+    .map((market) => marketAssetQuoteSymbols[market.id])
+    .filter((symbol): symbol is string => Boolean(symbol)),
+)
+const { quoteFor, loading: quoteLoading, error: quoteError } = useMarketQuotes(quoteSymbols)
+const marketQuote = (id: string) => {
+  const symbol = marketAssetQuoteSymbols[id]
+  return symbol ? quoteFor(symbol) : null
+}
 
 const formatMove = (value: number | null) =>
   value === null ? '—' : (value > 0 ? '+' : '') + value.toFixed(2) + '%'
 const formatMarketValue = (id: string) => {
   const asset = crossAssetDataset.assets.find((item) => item.id === id)
-  if (!asset || asset.value === null) return '—'
-  const value = asset.value.toLocaleString('zh-CN', { maximumFractionDigits: 4 })
-  return asset.unit === '美元' ? `$${value}` : `${value} ${asset.unit}`
+  const quote = marketQuote(id)
+  const currentValue = quote?.price ?? asset?.value ?? null
+  if (!asset || currentValue === null) return '—'
+  const value = currentValue.toLocaleString('zh-CN', { maximumFractionDigits: 4 })
+  return asset.unit === '美元' || quote?.currency === 'USD' ? `$${value}` : `${value} ${asset.unit}`
 }
+const marketMove = (market: MarketHomeDataset['marketBrief']['markets'][number]) =>
+  marketQuote(market.id)?.changePct ?? market.dailyMove
 const directionName = (direction: 'bullish' | 'bearish') =>
   direction === 'bullish' ? t('direction.bullish') : t('direction.bearish')
 const formatSignedPct = (value: number) => `${value > 0 ? '+' : ''}${value.toFixed(2)}%`
@@ -70,12 +86,18 @@ const validationText = (
         <div class="pulse-heading">
           <span>{{ t('marketHome.pulse.baseline') }}</span>
           <strong>{{ leadMarket.name }}</strong>
-          <b :class="{ up: (leadMarket.dailyMove ?? 0) >= 0, down: (leadMarket.dailyMove ?? 0) < 0 }">
-            {{ formatMove(leadMarket.dailyMove) }}
+          <b :class="{ up: (marketMove(leadMarket) ?? 0) >= 0, down: (marketMove(leadMarket) ?? 0) < 0 }">
+            {{ formatMove(marketMove(leadMarket)) }}
           </b>
           <small class="latest-price">
             {{ t('crossAsset.latestValue') }} {{ formatMarketValue(leadMarket.id) }}
           </small>
+          <MarketQuoteStatus
+            :quote="marketQuote(leadMarket.id)"
+            :loading="quoteLoading"
+            :error="quoteError"
+            show-time
+          />
         </div>
         <div class="pulse-track" aria-hidden="true">
           <i
@@ -134,10 +156,15 @@ const validationText = (
           <span class="market-metric">
             <small>{{ formatMarketValue(market.id) }}</small>
             <strong
-              :class="{ up: (market.dailyMove ?? 0) >= 0, down: (market.dailyMove ?? 0) < 0 }"
+              :class="{ up: (marketMove(market) ?? 0) >= 0, down: (marketMove(market) ?? 0) < 0 }"
             >
-              {{ formatMove(market.dailyMove) }}
+              {{ formatMove(marketMove(market)) }}
             </strong>
+            <MarketQuoteStatus
+              :quote="marketQuote(market.id)"
+              :loading="quoteLoading"
+              :error="quoteError"
+            />
           </span>
         </template>
 

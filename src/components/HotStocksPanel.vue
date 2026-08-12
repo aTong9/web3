@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
+import MarketQuoteStatus from '@/components/MarketQuoteStatus.vue'
 import hotStockData from '@/data/hot-stocks.json'
 import type { HotStockDataset } from '@/types'
 import { useI18n } from '@/composables/use-i18n'
+import { toAShareQuoteSymbol, useMarketQuotes } from '@/composables/use-market-quotes'
 
 const props = defineProps<{ market: 'aShare' | 'us' }>()
 const dataset = hotStockData as HotStockDataset
@@ -18,6 +20,11 @@ const method = computed(() =>
   period.value === 'daily' ? marketData.value.dailyMethod : marketData.value.weeklyMethod,
 )
 const { t } = useI18n()
+const quoteSymbol = (code: string) => (props.market === 'aShare' ? toAShareQuoteSymbol(code) : code)
+const quoteSymbols = computed(() =>
+  [...marketData.value.daily, ...marketData.value.weekly].map((stock) => quoteSymbol(stock.code)),
+)
+const { quoteFor, loading: quoteLoading, error: quoteError } = useMarketQuotes(quoteSymbols)
 const formatChange = (value: number | null) =>
   value === null ? '—' : (value > 0 ? '+' : '') + value.toFixed(2) + '%'
 const formatActivity = (value: number | null) => {
@@ -68,9 +75,15 @@ const formatActivity = (value: number | null) => {
           <strong>{{ stock.name }}</strong>
           <small>
             {{ stock.code }} · {{ t('crossAsset.latestValue') }}
-            {{ stock.price?.toFixed(2) ?? '—' }} · {{ stock.activityLabel }}
+            {{ (quoteFor(quoteSymbol(stock.code))?.price ?? stock.price)?.toFixed(2) ?? '—' }} ·
+            {{ stock.activityLabel }}
             {{ formatActivity(stock.activityValue) }}
           </small>
+          <MarketQuoteStatus
+            :quote="quoteFor(quoteSymbol(stock.code))"
+            :loading="quoteLoading"
+            :error="quoteError"
+          />
         </span>
         <em
           :class="{
@@ -80,7 +93,13 @@ const formatActivity = (value: number | null) => {
               ((period === 'daily' ? stock.dayChangePct : stock.weekChangePct) ?? 0) < 0,
           }"
         >
-          {{ formatChange(period === 'daily' ? stock.dayChangePct : stock.weekChangePct) }}
+          {{
+            formatChange(
+              period === 'daily'
+                ? (quoteFor(quoteSymbol(stock.code))?.changePct ?? stock.dayChangePct)
+                : stock.weekChangePct,
+            )
+          }}
         </em>
       </a>
     </div>

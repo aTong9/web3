@@ -1376,6 +1376,17 @@ const messages: Record<Locale, DictionaryNode> = {
       failed: '登录失败',
     },
     direction: { bullish: '偏涨', bearish: '偏跌' },
+    marketQuote: {
+      nearRealTime: '准实时',
+      delayed: '延迟行情',
+      closed: '休市',
+      stale: '行情过期',
+      unavailable: '准实时行情不可用',
+      loading: '正在刷新行情',
+      fallback: '已回退到日线快照',
+      updated: '行情时间 {time}',
+      disclaimer: '免费准实时行情可能延迟或中断，不用于交易执行。',
+    },
   },
   en: {
     ui: {
@@ -2771,6 +2782,17 @@ const messages: Record<Locale, DictionaryNode> = {
       failed: 'Sign-in failed',
     },
     direction: { bullish: 'bullish', bearish: 'bearish' },
+    marketQuote: {
+      nearRealTime: 'Near real-time',
+      delayed: 'Delayed',
+      closed: 'Market closed',
+      stale: 'Stale quote',
+      unavailable: 'Live quote unavailable',
+      loading: 'Refreshing quotes',
+      fallback: 'Using daily snapshot',
+      updated: 'Quote time {time}',
+      disclaimer: 'Free near-real-time quotes may be delayed or interrupted; not for execution.',
+    },
   },
 }
 

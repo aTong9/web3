@@ -268,6 +268,36 @@ export interface HotStockDataset {
   }
 }
 
+export type MarketQuoteStatus =
+  | 'nearRealTime'
+  | 'delayed'
+  | 'closed'
+  | 'stale'
+  | 'unavailable'
+
+export interface MarketQuote {
+  symbol: string
+  name: string
+  price: number | null
+  previousClose: number | null
+  changePct: number | null
+  currency: string | null
+  marketTime: string | null
+  fetchedAt: string
+  session: 'pre' | 'regular' | 'post' | 'closed' | 'continuous'
+  status: MarketQuoteStatus
+  source: 'Yahoo Finance chart'
+  sourceUrl: string
+}
+
+export interface MarketQuoteResponse {
+  fetchedAt: string
+  refreshAfterSeconds: number
+  quotes: MarketQuote[]
+  unavailableSymbols: string[]
+  disclaimer: string
+}
+
 export interface UsMegaCapStock {
   marketCapRank: number
   symbol: string

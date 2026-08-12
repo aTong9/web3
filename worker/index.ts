@@ -1,6 +1,9 @@
 import type {
   CrossAssetDataset,
   AssetTechnicalDataset,
+  HotStockDataset,
+  MarketQuote,
+  MarketQuoteResponse,
   OptionMarketDataset,
   PaperSignalPosition,
   QuantDashboard,
@@ -27,6 +30,8 @@ import {
 
 const maximumJsonBytes = 4_000_000
 const maximumRequestBytes = 8_192
+const quoteCacheSeconds = 45
+const maximumQuoteSymbols = 25
 const clientIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 interface PaperPositionRow {
@@ -121,7 +126,8 @@ const allowedOrigin = (request: Request, env: Env) => {
   if (!origin) return null
   const requestOrigin = new URL(request.url).origin
   const allowed = env.ALLOWED_ORIGINS.split(',').map((item) => item.trim())
-  return origin === requestOrigin || allowed.includes(origin) ? origin : null
+  const localDevelopmentOrigin = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
+  return origin === requestOrigin || allowed.includes(origin) || localDevelopmentOrigin ? origin : null
 }
 
 const responseHeaders = (request: Request, env: Env) => {
@@ -176,6 +182,178 @@ const fetchSource = async <T>(env: Env, filename: string): Promise<T> => {
     cf: { cacheTtl: 300, cacheEverything: true },
   })
   return readBoundedJson<T>(response)
+}
+
+interface YahooChartResponse {
+  chart?: {
+    result?: Array<{
+      meta?: {
+        symbol?: string
+        longName?: string
+        shortName?: string
+        currency?: string
+        instrumentType?: string
+        regularMarketPrice?: number
+        regularMarketTime?: number
+        previousClose?: number
+        chartPreviousClose?: number
+        currentTradingPeriod?: {
+          pre?: { start?: number; end?: number }
+          regular?: { start?: number; end?: number }
+          post?: { start?: number; end?: number }
+        }
+      }
+      timestamp?: number[]
+      indicators?: { quote?: Array<{ close?: Array<number | null> }> }
+    }>
+    error?: { description?: string } | null
+  }
+}
+
+const fixedQuoteSymbols = new Set([
+  '^GSPC',
+  '^IXIC',
+  '^N225',
+  '000001.SS',
+  '^HSI',
+  '^STOXX50E',
+  'DX-Y.NYB',
+  '^VIX',
+  'CL=F',
+  'GC=F',
+  'BTC-USD',
+  'ETH-USD',
+])
+
+const toAShareQuoteSymbol = (code: string) => {
+  if (/^[48]/.test(code)) return `${code}.BJ`
+  return /^[569]/.test(code) ? `${code}.SS` : `${code}.SZ`
+}
+
+const permittedQuoteSymbols = async (env: Env) => {
+  const [hotStocks, megaCaps] = await Promise.all([
+    fetchSource<HotStockDataset>(env, 'hot-stocks.json'),
+    fetchSource<UsMegaCapDataset>(env, 'us-megacaps.json'),
+  ])
+  const allowed = new Set(fixedQuoteSymbols)
+  for (const stock of megaCaps.stocks) allowed.add(stock.symbol)
+  for (const market of Object.values(hotStocks.markets)) {
+    for (const stock of [...market.daily, ...market.weekly]) {
+      allowed.add(market === hotStocks.markets.aShare ? toAShareQuoteSymbol(stock.code) : stock.code)
+    }
+  }
+  return allowed
+}
+
+const quoteSession = (
+  meta: NonNullable<NonNullable<YahooChartResponse['chart']>['result']>[number]['meta'],
+  nowSeconds: number,
+): MarketQuote['session'] => {
+  if (meta?.instrumentType === 'CRYPTOCURRENCY') return 'continuous'
+  const periods = meta?.currentTradingPeriod
+  if (periods?.pre?.start && periods.pre.end && nowSeconds >= periods.pre.start && nowSeconds < periods.pre.end)
+    return 'pre'
+  if (
+    periods?.regular?.start &&
+    periods.regular.end &&
+    nowSeconds >= periods.regular.start &&
+    nowSeconds < periods.regular.end
+  )
+    return 'regular'
+  if (
+    periods?.post?.start &&
+    periods.post.end &&
+    nowSeconds >= periods.post.start &&
+    nowSeconds < periods.post.end
+  )
+    return 'post'
+  return 'closed'
+}
+
+const fetchYahooQuote = async (symbol: string): Promise<MarketQuote> => {
+  const cache = caches.default
+  const cacheKey = new Request(`https://market-quote-cache.invalid/${encodeURIComponent(symbol)}`)
+  const cached = await cache.match(cacheKey)
+  if (cached) return (await cached.json()) as MarketQuote
+
+  const sourceUrl = `https://finance.yahoo.com/quote/${encodeURIComponent(symbol)}`
+  const endpoint = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1m&range=1d&includePrePost=true`
+  const response = await fetch(endpoint, {
+    headers: { Accept: 'application/json', 'User-Agent': 'web3-market-desk/1.0' },
+  })
+  const payload = await readBoundedJson<YahooChartResponse>(response)
+  const result = payload.chart?.result?.[0]
+  const meta = result?.meta
+  if (!meta || payload.chart?.error) throw new Error(`行情不可用：${symbol}`)
+
+  const timestamps = result.timestamp ?? []
+  const closes = result.indicators?.quote?.[0]?.close ?? []
+  let latestIndex = Math.min(timestamps.length, closes.length) - 1
+  while (latestIndex >= 0 && closes[latestIndex] === null) latestIndex -= 1
+  const price = latestIndex >= 0 ? closes[latestIndex] : (meta.regularMarketPrice ?? null)
+  const marketTimestamp = latestIndex >= 0 ? timestamps[latestIndex] : meta.regularMarketTime
+  const previousClose = meta.previousClose ?? meta.chartPreviousClose ?? null
+  const fetchedAt = new Date().toISOString()
+  const nowSeconds = Math.floor(Date.now() / 1000)
+  const session = quoteSession(meta, nowSeconds)
+  const ageSeconds = marketTimestamp ? Math.max(0, nowSeconds - marketTimestamp) : Number.POSITIVE_INFINITY
+  const status: MarketQuote['status'] =
+    session === 'closed'
+      ? 'closed'
+      : ageSeconds <= 300
+        ? 'nearRealTime'
+        : ageSeconds <= 1_800
+          ? 'delayed'
+          : 'stale'
+  const quote: MarketQuote = {
+    symbol,
+    name: meta.longName ?? meta.shortName ?? symbol,
+    price,
+    previousClose,
+    changePct:
+      price !== null && previousClose !== null && previousClose !== 0
+        ? ((price - previousClose) / previousClose) * 100
+        : null,
+    currency: meta.currency ?? null,
+    marketTime: marketTimestamp ? new Date(marketTimestamp * 1000).toISOString() : null,
+    fetchedAt,
+    session,
+    status,
+    source: 'Yahoo Finance chart',
+    sourceUrl,
+  }
+  await cache.put(
+    cacheKey,
+    new Response(JSON.stringify(quote), {
+      headers: { 'Cache-Control': `public, max-age=${quoteCacheSeconds}` },
+    }),
+  )
+  return quote
+}
+
+const marketQuotes = async (request: Request, env: Env): Promise<MarketQuoteResponse> => {
+  const rawSymbols = new URL(request.url).searchParams.get('symbols') ?? ''
+  const symbols = [...new Set(rawSymbols.split(',').map((value) => value.trim().toUpperCase()).filter(Boolean))]
+  if (!symbols.length) throw new HttpError(400, '至少提供一个行情代码')
+  if (symbols.length > maximumQuoteSymbols) throw new HttpError(400, `单次最多查询${maximumQuoteSymbols}个标的`)
+  const allowed = await permittedQuoteSymbols(env)
+  const denied = symbols.filter((symbol) => !allowed.has(symbol))
+  const permitted = symbols.filter((symbol) => allowed.has(symbol))
+
+  const settled = await Promise.allSettled(permitted.map(fetchYahooQuote))
+  const quotes: MarketQuote[] = []
+  const unavailableSymbols = [...denied]
+  settled.forEach((result, index) => {
+    if (result.status === 'fulfilled') quotes.push(result.value)
+    else unavailableSymbols.push(permitted[index])
+  })
+  return {
+    fetchedAt: new Date().toISOString(),
+    refreshAfterSeconds: 60,
+    quotes,
+    unavailableSymbols,
+    disclaimer: '免费准实时行情可能延迟、休市或中断，仅供研究展示，不用于交易执行。',
+  }
 }
 
 const refreshSnapshot = async (env: Env) => {
@@ -743,6 +921,9 @@ const handleApi = async (request: Request, env: Env) => {
   }
   if (url.pathname === '/api/technical-config' && request.method === 'GET') {
     return json(request, env, await latestTechnicalConfig(env))
+  }
+  if (url.pathname === '/api/market/quotes' && request.method === 'GET') {
+    return json(request, env, await marketQuotes(request, env))
   }
   if (url.pathname === '/api/admin/users' && request.method === 'GET') {
     await authenticate(request, env, 'users.manage')
