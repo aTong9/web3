@@ -5,19 +5,88 @@ import DisclosureCard from '@/components/DisclosureCard.vue'
 import EChart from '@/components/EChart.vue'
 import { useBinanceContractMarket } from '@/composables/use-binance-contract-market'
 import { useI18n } from '@/composables/use-i18n'
-import type { ContractChartInterval, ContractTradeAction } from '@/types'
+import type {
+  ContractChartInterval,
+  ContractInstrumentCategory,
+  ContractTradeAction,
+} from '@/types'
 import { buildContractTradeDecision } from '@/utils/contract-trade-decision'
 import { simpleMovingAverage } from '@/utils/technical-analysis'
 import { useTheme } from '@/utils/use-theme'
 
-const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT']
 const intervals: ContractChartInterval[] = ['1m', '3m', '5m', '15m', '30m', '1h', '4h']
-const selectedSymbol = ref('BTCUSDT')
+const categoryOrder: ContractInstrumentCategory[] = [
+  'equity',
+  'etf',
+  'commodity',
+  'fx',
+  'index',
+  'crypto',
+  'other',
+]
+type InstrumentFilter = 'all' | ContractInstrumentCategory
+const symbolStorageKey = 'market-desk-contract-symbol-v1'
+const savedSymbol =
+  typeof window === 'undefined' ? null : window.localStorage.getItem(symbolStorageKey)
+const selectedSymbol = ref(savedSymbol || 'BTCUSDT')
 const selectedInterval = ref<ContractChartInterval>('5m')
+const instrumentSearch = ref('')
+const instrumentFilter = ref<InstrumentFilter>('all')
 const { locale, t } = useI18n()
 const { theme } = useTheme()
-const { snapshot, connect, reconnect } = useBinanceContractMarket()
+const { snapshot, catalog, loadCatalog, connect, reconnect } = useBinanceContractMarket()
 const decision = computed(() => buildContractTradeDecision(snapshot.value))
+const selectedInstrument = computed(
+  () =>
+    catalog.value.instruments.find((instrument) => instrument.symbol === selectedSymbol.value) ??
+    null,
+)
+const categoryCounts = computed(() =>
+  catalog.value.instruments.reduce(
+    (counts, instrument) => {
+      counts[instrument.category] += 1
+      return counts
+    },
+    {
+      crypto: 0,
+      equity: 0,
+      etf: 0,
+      commodity: 0,
+      fx: 0,
+      index: 0,
+      other: 0,
+    } satisfies Record<ContractInstrumentCategory, number>,
+  ),
+)
+const categoryOptions = computed<Array<{ id: InstrumentFilter; count: number }>>(() => [
+  { id: 'all', count: catalog.value.instruments.length },
+  ...categoryOrder
+    .filter((category) => categoryCounts.value[category] > 0)
+    .map((category) => ({ id: category, count: categoryCounts.value[category] })),
+])
+const matchingInstruments = computed(() => {
+  const keyword = instrumentSearch.value.trim().toUpperCase()
+  return catalog.value.instruments.filter(
+    (instrument) =>
+      (instrumentFilter.value === 'all' || instrument.category === instrumentFilter.value) &&
+      (!keyword ||
+        instrument.symbol.includes(keyword) ||
+        instrument.baseAsset.includes(keyword) ||
+        instrument.quoteAsset.includes(keyword)),
+  )
+})
+const visibleInstruments = computed(() => {
+  if (
+    !selectedInstrument.value ||
+    matchingInstruments.value.some(
+      (instrument) => instrument.symbol === selectedInstrument.value?.symbol,
+    )
+  )
+    return matchingInstruments.value
+  return [selectedInstrument.value, ...matchingInstruments.value]
+})
+const categoryLabel = (category: InstrumentFilter) =>
+  t(`assetTechnical.contract.category.${category}`)
 
 const formatNumber = (value: number | null, maximumFractionDigits = 2) =>
   value === null
@@ -202,8 +271,18 @@ const chartOption = computed<EChartsCoreOption>(() => {
 watch([selectedSymbol, selectedInterval], ([symbol, interval]) => {
   void connect(symbol, interval)
 })
+watch(selectedSymbol, (symbol) => window.localStorage.setItem(symbolStorageKey, symbol))
 
-onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
+onMounted(() => {
+  void connect(selectedSymbol.value, selectedInterval.value)
+  void loadCatalog().then(() => {
+    if (!catalog.value.instruments.some((instrument) => instrument.symbol === selectedSymbol.value))
+      selectedSymbol.value =
+        catalog.value.instruments.find((instrument) => instrument.symbol === 'BTCUSDT')?.symbol ??
+        catalog.value.instruments[0]?.symbol ??
+        'BTCUSDT'
+  })
+})
 </script>
 
 <template>
@@ -213,14 +292,45 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
         <span>{{ t('assetTechnical.contract.eyebrow') }}</span>
         <strong>{{ t('assetTechnical.contract.title') }}</strong>
         <small>{{ t('assetTechnical.contract.publicData') }}</small>
+        <small class="catalog-note" :class="catalog.status">
+          {{
+            t(`assetTechnical.contract.catalog.${catalog.status}`, {
+              count: catalog.instruments.length,
+            })
+          }}
+        </small>
       </div>
       <div class="contract-controls">
-        <label>
-          <span>{{ t('assetTechnical.contract.symbol') }}</span>
-          <select v-model="selectedSymbol">
-            <option v-for="symbol in symbols" :key="symbol" :value="symbol">{{ symbol }}</option>
-          </select>
-        </label>
+        <div class="instrument-picker">
+          <label>
+            <span>{{ t('assetTechnical.contract.symbolSearch') }}</span>
+            <input
+              v-model="instrumentSearch"
+              type="search"
+              :placeholder="t('assetTechnical.contract.symbolSearchPlaceholder')"
+            />
+          </label>
+          <label>
+            <span>{{ t('assetTechnical.contract.symbolCategory') }}</span>
+            <select v-model="instrumentFilter">
+              <option v-for="option in categoryOptions" :key="option.id" :value="option.id">
+                {{ categoryLabel(option.id) }} · {{ option.count }}
+              </option>
+            </select>
+          </label>
+          <label>
+            <span>{{ t('assetTechnical.contract.symbol') }}</span>
+            <select v-model="selectedSymbol">
+              <option
+                v-for="instrument in visibleInstruments"
+                :key="instrument.symbol"
+                :value="instrument.symbol"
+              >
+                {{ instrument.symbol }} · {{ categoryLabel(instrument.category) }}
+              </option>
+            </select>
+          </label>
+        </div>
         <div
           class="interval-switch"
           role="group"
@@ -257,6 +367,13 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
       <b>{{ t('assetTechnical.contract.paperOnly') }}</b>
     </div>
 
+    <p
+      v-if="selectedInstrument?.category === 'equity' || selectedInstrument?.category === 'etf'"
+      class="underlying-risk"
+    >
+      {{ t('assetTechnical.contract.derivativeRisk') }}
+    </p>
+
     <section
       v-if="snapshot.status === 'restricted' || snapshot.status === 'error'"
       class="feed-error"
@@ -289,8 +406,11 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
         <section class="contract-chart-card">
           <header>
             <div>
-              <span>{{ selectedSymbol }} · {{ selectedInterval }}</span>
-              <strong>{{ formatPrice(snapshot.markPrice) }} USDT</strong>
+              <span>
+                {{ selectedSymbol }} · {{ selectedInterval }} ·
+                {{ categoryLabel(selectedInstrument?.category ?? 'other') }}
+              </span>
+              <strong>{{ formatPrice(snapshot.markPrice) }} {{ snapshot.quoteAsset }}</strong>
             </div>
             <div class="market-metrics">
               <span
@@ -487,9 +607,9 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
 .contract-toolbar {
   padding: 16px;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 20px;
-  align-items: end;
+  align-items: stretch;
 }
 .contract-toolbar > div:first-child {
   display: grid;
@@ -509,14 +629,34 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
   color: var(--muted);
   font-size: 8px;
 }
+.catalog-note {
+  display: block;
+}
+.catalog-note.ready {
+  color: var(--positive);
+}
+.catalog-note.loading {
+  color: var(--accent);
+}
+.catalog-note.fallback {
+  color: var(--warning);
+}
 .contract-controls {
   display: flex;
   gap: 8px;
   align-items: end;
   flex-wrap: wrap;
-  justify-content: end;
+  justify-content: start;
+}
+.instrument-picker {
+  min-width: 0;
+  flex: 1 1 520px;
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) 140px minmax(210px, 1.25fr);
+  gap: 8px;
 }
 .contract-controls label {
+  min-width: 0;
   display: grid;
   gap: 4px;
 }
@@ -524,6 +664,7 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
   color: var(--muted);
   font-size: 7px;
 }
+.contract-controls input,
 .contract-controls select,
 .interval-switch button,
 .reconnect-button {
@@ -534,9 +675,14 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
   color: var(--ink);
   font-size: 9px;
 }
+.contract-controls input,
 .contract-controls select {
-  min-width: 124px;
+  width: 100%;
+  min-width: 0;
   padding: 7px 10px;
+}
+.contract-controls input::placeholder {
+  color: var(--muted);
 }
 .interval-switch {
   display: flex;
@@ -592,6 +738,15 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
   background: var(--surface-soft);
   color: var(--muted);
   font-size: 7px;
+}
+.underlying-risk {
+  margin: 0;
+  padding: 9px 12px;
+  border-left: 3px solid var(--warning);
+  background: var(--warning-soft, var(--surface-soft));
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.55;
 }
 .feed-error,
 .feed-loading {
@@ -1017,6 +1172,11 @@ onMounted(() => void connect(selectedSymbol.value, selectedInterval.value))
   }
   .contract-controls {
     justify-content: stretch;
+  }
+  .instrument-picker {
+    width: 100%;
+    flex-basis: auto;
+    grid-template-columns: 1fr;
   }
   .contract-controls label,
   .contract-controls select,

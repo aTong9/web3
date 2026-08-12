@@ -201,9 +201,12 @@ Cloudflare 相关代码位于 `worker/`，配置位于 `wrangler.jsonc`。本地
 
 ## 分钟合约工作台
 
-“资产走势与技术信号”页面包含“跨资产研究 / 分钟合约”双模式。分钟合约模式直接读取 Binance
-USDⓈ-M Futures 公开 REST 与 WebSocket 行情，当前覆盖 BTC、ETH、BNB、SOL、XRP 永续合约以及
-`1m / 3m / 5m / 15m / 30m / 1h / 4h` 周期。公开行情阶段不需要 API Key，也不读取余额、持仓或订单。
+“资产走势与技术信号”页面包含“跨资产研究 / 分钟合约”双模式，并默认进入分钟合约。该模式直接读取
+Binance USDⓈ-M Futures 公开 REST 与 WebSocket 行情，通过 `/fapi/v1/exchangeInfo` 动态收录官方当前
+处于 `TRADING + PERPETUAL` 状态的全部永续合约，不再维护固定币种白名单。标的可按代码搜索，并按加密
+资产、股票合约、ETF、大宗商品、外汇、指数和其他分类筛选；官方目录不可达时，页面会明确切换为有限的常用
+标的目录。支持 `1m / 3m / 5m / 15m / 30m / 1h / 4h` 周期。公开行情阶段不需要 API Key，也不读取余额、
+持仓或订单。
 
 交易判断合成 MA20/MA60、MACD、KDJ、RSI、ATR、相对成交量和资金费率，并使用固定的
 `1m / 5m / 15m / 1h / 4h` 趋势矩阵、前20档盘口失衡、最优价差、最近20根K线主动买方占比及未平仓量
@@ -213,6 +216,10 @@ USDⓈ-M Futures 公开 REST 与 WebSocket 行情，当前覆盖 BTC、ETH、BNB
 页面固定输出做多候选、做空候选、等待确认、暂不交易、数据不足五种状态。候选入场、止损和止盈由当前
 ATR 推导，尚未完成分钟级历史样本回测，不应作为自动下单依据。未连接、重连、地区受限和错误状态会明确
 显示，禁止使用示例数据冒充实时行情。盘口失衡只是前20档的瞬时快照，不代表完整流动性，也不能单独作为方向信号。
+
+当前“全部标的”特指 Binance USDⓈ-M 当前可交易的永续合约，不包含现货、COIN-M 交割合约或 Binance 的
+其他产品线。股票与 ETF 标的是永续衍生品，不代表持有底层证券；需要额外关注基差、流动性、底层市场休市与
+跳空风险，并以用户所在地区实际可用产品为准。
 
 默认官方地址为 `https://fapi.binance.com` 和 `wss://fstream.binance.com/ws`。开发环境可使用
 `VITE_BINANCE_FUTURES_REST_BASE` 与 `VITE_BINANCE_FUTURES_STREAM_BASE` 替换为经过授权的测试适配器；

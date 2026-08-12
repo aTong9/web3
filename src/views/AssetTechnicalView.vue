@@ -128,7 +128,7 @@ const fallbackAsset = baseAssetCandidates[0] as TechnicalChartAsset
 const selectedId = ref(
   baseAssetCandidates.find((asset) => asset.id === 'sp500')?.id ?? fallbackAsset.id,
 )
-const workspaceMode = ref<WorkspaceMode>('research')
+const workspaceMode = ref<WorkspaceMode>('contract')
 const compareId = ref('')
 const comparisonMode = ref<ComparisonMode>('normalized')
 const search = ref('')

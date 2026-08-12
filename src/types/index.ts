@@ -1067,6 +1067,15 @@ export interface AssetPricePoint {
 }
 
 export type ContractChartInterval = '1m' | '3m' | '5m' | '15m' | '30m' | '1h' | '4h'
+export type ContractInstrumentCategory =
+  | 'crypto'
+  | 'equity'
+  | 'etf'
+  | 'commodity'
+  | 'fx'
+  | 'index'
+  | 'other'
+export type ContractCatalogStatus = 'idle' | 'loading' | 'ready' | 'fallback'
 export type ContractConnectionStatus =
   | 'idle'
   | 'connecting'
@@ -1074,6 +1083,25 @@ export type ContractConnectionStatus =
   | 'reconnecting'
   | 'restricted'
   | 'error'
+
+export interface ContractInstrument {
+  symbol: string
+  pair: string
+  baseAsset: string
+  quoteAsset: string
+  marginAsset: string
+  category: ContractInstrumentCategory
+  underlyingType: string | null
+  underlyingSubTypes: string[]
+  onboardDate: string | null
+}
+
+export interface ContractInstrumentCatalog {
+  instruments: ContractInstrument[]
+  status: ContractCatalogStatus
+  updatedAt: string | null
+  errorCode: 'restrictedLocation' | 'network' | 'invalidResponse' | null
+}
 
 export interface ContractTimeframeSeries {
   interval: ContractChartInterval
@@ -1089,6 +1117,7 @@ export interface ContractMicrostructureSnapshot {
 
 export interface ContractMarketSnapshot {
   symbol: string
+  quoteAsset: string
   interval: ContractChartInterval
   points: AssetPricePoint[]
   timeframes: ContractTimeframeSeries[]

@@ -2,6 +2,9 @@ import { onBeforeUnmount, readonly, ref } from 'vue'
 import type {
   AssetPricePoint,
   ContractChartInterval,
+  ContractInstrument,
+  ContractInstrumentCatalog,
+  ContractInstrumentCategory,
   ContractMarketSnapshot,
   ContractMicrostructureSnapshot,
   ContractTimeframeSeries,
@@ -17,6 +20,27 @@ const maximumPoints = 300
 const contextPoints = 120
 const contextRefreshMs = 60_000
 const contextIntervals: ContractChartInterval[] = ['1m', '5m', '15m', '1h', '4h']
+const featuredSymbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT']
+const knownEquityBases = new Set([
+  'AAPL',
+  'AMZN',
+  'AVGO',
+  'COIN',
+  'CRCL',
+  'GOOGL',
+  'META',
+  'MSFT',
+  'MSTR',
+  'NVDA',
+  'PLTR',
+  'POPMART',
+  'TSLA',
+  'TSM',
+])
+const knownEtfBases = new Set(['BITO', 'EWJ', 'EWY', 'QQQ', 'SPY', 'TBT', 'TMF'])
+const knownCommodityBases = new Set(['XAG', 'XAU', 'XPD', 'XPT'])
+const knownFxBases = new Set(['AUD', 'EUR', 'GBP', 'JPY'])
+const knownIndexBases = new Set(['DJI', 'KOSPI', 'NDX', 'NIKKEI', 'SPX'])
 
 type BinanceKline = [
   number,
@@ -76,6 +100,19 @@ interface TakerVolumePoint {
   buy: number
 }
 
+interface BinanceExchangeSymbol {
+  symbol?: string
+  pair?: string
+  contractType?: string
+  status?: string
+  baseAsset?: string
+  quoteAsset?: string
+  marginAsset?: string
+  onboardDate?: number
+  underlyingType?: string
+  underlyingSubType?: string[]
+}
+
 const emptyMicrostructure = (): ContractMicrostructureSnapshot => ({
   orderBookImbalancePct: null,
   spreadBps: null,
@@ -85,6 +122,7 @@ const emptyMicrostructure = (): ContractMicrostructureSnapshot => ({
 
 const emptySnapshot = (): ContractMarketSnapshot => ({
   symbol: 'BTCUSDT',
+  quoteAsset: 'USDT',
   interval: '5m',
   points: [],
   timeframes: [],
@@ -98,6 +136,117 @@ const emptySnapshot = (): ContractMarketSnapshot => ({
   status: 'idle',
   errorCode: null,
 })
+
+const instrumentCategory = (
+  baseAsset: string,
+  underlyingType: string | undefined,
+  underlyingSubTypes: readonly string[],
+): ContractInstrumentCategory => {
+  const metadata = [underlyingType ?? '', ...underlyingSubTypes].join(' ').toUpperCase()
+  if (metadata.includes('STOCK') || metadata.includes('EQUITY')) return 'equity'
+  if (metadata.includes('ETF')) return 'etf'
+  if (metadata.includes('COMMODITY') || metadata.includes('METAL')) return 'commodity'
+  if (metadata.includes('FOREX') || metadata.includes('FX')) return 'fx'
+  if (metadata.includes('INDEX')) return 'index'
+  if (knownEquityBases.has(baseAsset)) return 'equity'
+  if (knownEtfBases.has(baseAsset)) return 'etf'
+  if (knownCommodityBases.has(baseAsset)) return 'commodity'
+  if (knownFxBases.has(baseAsset)) return 'fx'
+  if (knownIndexBases.has(baseAsset)) return 'index'
+  if (!metadata || metadata.includes('COIN') || metadata.includes('CRYPTO')) return 'crypto'
+  return 'other'
+}
+
+const fallbackInstrument = (
+  baseAsset: string,
+  category: ContractInstrumentCategory,
+): ContractInstrument => ({
+  symbol: `${baseAsset}USDT`,
+  pair: `${baseAsset}USDT`,
+  baseAsset,
+  quoteAsset: 'USDT',
+  marginAsset: 'USDT',
+  category,
+  underlyingType: category === 'crypto' ? 'COIN' : 'TRADFI',
+  underlyingSubTypes: [],
+  onboardDate: null,
+})
+
+const fallbackInstruments = [
+  ...['BTC', 'ETH', 'BNB', 'SOL', 'XRP'].map((base) => fallbackInstrument(base, 'crypto')),
+  ...['MSTR', 'AMZN', 'COIN', 'CRCL', 'PLTR', 'TSLA', 'POPMART'].map((base) =>
+    fallbackInstrument(base, 'equity'),
+  ),
+  ...['TMF', 'TBT', 'BITO'].map((base) => fallbackInstrument(base, 'etf')),
+]
+
+const emptyCatalog = (): ContractInstrumentCatalog => ({
+  instruments: fallbackInstruments,
+  status: 'idle',
+  updatedAt: null,
+  errorCode: null,
+})
+
+const sortInstruments = (instruments: ContractInstrument[]) => {
+  const categoryOrder: ContractInstrumentCategory[] = [
+    'equity',
+    'etf',
+    'commodity',
+    'fx',
+    'index',
+    'crypto',
+    'other',
+  ]
+  return [...instruments].sort((left, right) => {
+    const leftFeatured = featuredSymbols.indexOf(left.symbol)
+    const rightFeatured = featuredSymbols.indexOf(right.symbol)
+    if (leftFeatured !== -1 || rightFeatured !== -1) {
+      if (leftFeatured === -1) return 1
+      if (rightFeatured === -1) return -1
+      return leftFeatured - rightFeatured
+    }
+    return (
+      categoryOrder.indexOf(left.category) - categoryOrder.indexOf(right.category) ||
+      left.symbol.localeCompare(right.symbol)
+    )
+  })
+}
+
+const parseInstruments = (body: unknown) => {
+  if (!body || typeof body !== 'object' || !('symbols' in body))
+    throw new Error('Invalid exchange info response')
+  const symbols = (body as { symbols?: unknown }).symbols
+  if (!Array.isArray(symbols)) throw new Error('Invalid exchange info response')
+  const instruments = symbols.flatMap((item) => {
+    const source = item as BinanceExchangeSymbol
+    if (
+      source.status !== 'TRADING' ||
+      source.contractType !== 'PERPETUAL' ||
+      !source.symbol ||
+      !source.baseAsset ||
+      !source.quoteAsset
+    )
+      return []
+    const underlyingSubTypes = Array.isArray(source.underlyingSubType)
+      ? source.underlyingSubType.map(String)
+      : []
+    return [
+      {
+        symbol: source.symbol,
+        pair: source.pair ?? source.symbol,
+        baseAsset: source.baseAsset,
+        quoteAsset: source.quoteAsset,
+        marginAsset: source.marginAsset ?? source.quoteAsset,
+        category: instrumentCategory(source.baseAsset, source.underlyingType, underlyingSubTypes),
+        underlyingType: source.underlyingType ?? null,
+        underlyingSubTypes,
+        onboardDate: source.onboardDate ? new Date(source.onboardDate).toISOString() : null,
+      } satisfies ContractInstrument,
+    ]
+  })
+  if (!instruments.length) throw new Error('Invalid exchange info response')
+  return sortInstruments(instruments)
+}
 
 const toPoint = (item: BinanceKline): AssetPricePoint => ({
   date: new Date(item[0]).toISOString(),
@@ -223,8 +372,16 @@ const isDepthEvent = (value: unknown): value is BinanceDepthEvent =>
     ('bids' in value || 'asks' in value || 'b' in value || 'a' in value),
   )
 
+const marketErrorCode = (message: string) =>
+  message.toLowerCase().includes('restricted location')
+    ? ('restrictedLocation' as const)
+    : message.includes('Invalid')
+      ? ('invalidResponse' as const)
+      : ('network' as const)
+
 export const useBinanceContractMarket = () => {
   const snapshot = ref<ContractMarketSnapshot>(emptySnapshot())
+  const catalog = ref<ContractInstrumentCatalog>(emptyCatalog())
   let socket: WebSocket | null = null
   let reconnectTimer: number | null = null
   let contextTimer: number | null = null
@@ -232,6 +389,35 @@ export const useBinanceContractMarket = () => {
   let reconnectAttempt = 0
   let intentionallyClosed = false
   let takerVolumes: TakerVolumePoint[] = []
+  let catalogRequest: Promise<void> | null = null
+
+  const loadCatalog = (force = false) => {
+    if (!force && catalog.value.status === 'ready') return Promise.resolve()
+    if (!force && catalogRequest) return catalogRequest
+    catalog.value = { ...catalog.value, status: 'loading', errorCode: null }
+    catalogRequest = request('/fapi/v1/exchangeInfo')
+      .then((body) => {
+        catalog.value = {
+          instruments: parseInstruments(body),
+          status: 'ready',
+          updatedAt: new Date().toISOString(),
+          errorCode: null,
+        }
+      })
+      .catch((error) => {
+        const message = error instanceof Error ? error.message : String(error)
+        catalog.value = {
+          instruments: fallbackInstruments,
+          status: 'fallback',
+          updatedAt: null,
+          errorCode: marketErrorCode(message),
+        }
+      })
+      .finally(() => {
+        catalogRequest = null
+      })
+    return catalogRequest
+  }
 
   const closeSocket = () => {
     if (reconnectTimer !== null) window.clearTimeout(reconnectTimer)
@@ -393,6 +579,9 @@ export const useBinanceContractMarket = () => {
     snapshot.value = {
       ...emptySnapshot(),
       symbol: symbol.toUpperCase(),
+      quoteAsset:
+        catalog.value.instruments.find((instrument) => instrument.symbol === symbol.toUpperCase())
+          ?.quoteAsset ?? (symbol.toUpperCase().endsWith('USDC') ? 'USDC' : 'USDT'),
       interval,
       status: 'connecting',
     }
@@ -455,15 +644,11 @@ export const useBinanceContractMarket = () => {
     } catch (error) {
       if (generation !== connectionGeneration) return
       const message = error instanceof Error ? error.message : String(error)
-      const restricted = message.toLowerCase().includes('restricted location')
+      const errorCode = marketErrorCode(message)
       snapshot.value = {
         ...snapshot.value,
-        status: restricted ? 'restricted' : 'error',
-        errorCode: restricted
-          ? 'restrictedLocation'
-          : message.includes('Invalid')
-            ? 'invalidResponse'
-            : 'network',
+        status: errorCode === 'restrictedLocation' ? 'restricted' : 'error',
+        errorCode,
       }
     }
   }
@@ -479,6 +664,8 @@ export const useBinanceContractMarket = () => {
 
   return {
     snapshot: readonly(snapshot),
+    catalog: readonly(catalog),
+    loadCatalog,
     connect,
     reconnect: () => connect(snapshot.value.symbol, snapshot.value.interval),
     disconnect,
