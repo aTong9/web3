@@ -1066,6 +1066,81 @@ export interface AssetPricePoint {
   volume?: number
 }
 
+export type ContractChartInterval = '1m' | '3m' | '5m' | '15m' | '30m' | '1h' | '4h'
+export type ContractConnectionStatus =
+  | 'idle'
+  | 'connecting'
+  | 'live'
+  | 'reconnecting'
+  | 'restricted'
+  | 'error'
+
+export interface ContractMarketSnapshot {
+  symbol: string
+  interval: ContractChartInterval
+  points: AssetPricePoint[]
+  markPrice: number | null
+  fundingRatePct: number | null
+  nextFundingTime: string | null
+  openInterest: number | null
+  updatedAt: string | null
+  latencyMs: number | null
+  status: ContractConnectionStatus
+  errorCode: 'restrictedLocation' | 'network' | 'invalidResponse' | null
+}
+
+export type ContractTradeAction = 'long' | 'short' | 'wait' | 'noTrade' | 'insufficient'
+export type ContractIndicatorSignal = 'long' | 'short' | 'neutral' | 'risk'
+export type ContractIndicatorId =
+  | 'trend'
+  | 'macd'
+  | 'kdj'
+  | 'rsi'
+  | 'atr'
+  | 'volume'
+  | 'funding'
+
+export interface ContractIndicatorReading {
+  id: ContractIndicatorId
+  signal: ContractIndicatorSignal
+  score: number
+  value: string
+}
+
+export type ContractDecisionReason =
+  | 'trendBullish'
+  | 'trendBearish'
+  | 'macdBullish'
+  | 'macdBearish'
+  | 'kdjBullish'
+  | 'kdjBearish'
+  | 'rsiBullish'
+  | 'rsiBearish'
+  | 'volumeBullish'
+  | 'volumeBearish'
+  | 'fundingCrowdedLong'
+  | 'fundingCrowdedShort'
+  | 'lowVolatility'
+  | 'signalsConflict'
+  | 'unconfirmedVolume'
+
+export interface ContractTradeDecision {
+  action: ContractTradeAction
+  score: number
+  confidence: number
+  latestPrice: number | null
+  expectedMovePct: number | null
+  entryLow: number | null
+  entryHigh: number | null
+  stopLoss: number | null
+  takeProfit: number | null
+  riskReward: number | null
+  invalidation: number | null
+  reasons: ContractDecisionReason[]
+  risks: ContractDecisionReason[]
+  indicators: ContractIndicatorReading[]
+}
+
 export interface TechnicalChartAsset {
   id: string
   name: string

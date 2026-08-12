@@ -200,6 +200,24 @@ Cloudflare 相关代码位于 `worker/`，配置位于 `wrangler.jsonc`。本地
 `VITE_QUANT_API_BASE` 覆盖。当前服务不保存券商密钥、不连接券商且不能下单；接入真实券商前必须增加
 认证、密钥托管、幂等订单、组合级仓位风控、独立模拟账户和逐笔人工确认。
 
+## 分钟合约工作台
+
+“资产走势与技术信号”页面包含“跨资产研究 / 分钟合约”双模式。分钟合约模式直接读取 Binance
+USDⓈ-M Futures 公开 REST 与 WebSocket 行情，当前覆盖 BTC、ETH、BNB、SOL、XRP 永续合约以及
+`1m / 3m / 5m / 15m / 30m / 1h / 4h` 周期。公开行情阶段不需要 API Key，也不读取余额、持仓或订单。
+
+交易判断合成 MA20/MA60、MACD、KDJ、RSI、ATR、相对成交量和资金费率，固定输出做多候选、做空候选、
+等待确认、暂不交易、数据不足五种状态。候选入场、止损和止盈由当前 ATR 推导，尚未完成分钟级历史样本
+回测，不应作为自动下单依据。未连接、重连、地区受限和错误状态会明确显示，禁止使用示例数据冒充实时行情。
+
+默认官方地址为 `https://fapi.binance.com` 和 `wss://fstream.binance.com/ws`。开发环境可使用
+`VITE_BINANCE_FUTURES_REST_BASE` 与 `VITE_BINANCE_FUTURES_STREAM_BASE` 替换为经过授权的测试适配器；
+不得用代理或中转规避 Binance 的地区资格限制。
+
+API Key 只在未来读取账户或下单时需要。密钥不得使用 `VITE_*` 变量、不得进入浏览器、源码、GitHub Pages
+或日志。真实交易接入必须由服务端签名，并使用单独的受限密钥、固定 IP 白名单、禁用提现、模拟盘、幂等订单、
+单笔与每日风险上限、熔断及人工确认。当前版本没有任何真实下单能力。
+
 ## 全球市场快讯
 
 运行 `npm run update:news` 可手动刷新 `src/data/market-news.json`。GitHub Actions 每15分钟聚合

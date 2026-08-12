@@ -2,6 +2,7 @@
 import type { EChartsCoreOption } from 'echarts/core'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
+import ContractTradingWorkspace from '@/components/ContractTradingWorkspace.vue'
 import DisclosureCard from '@/components/DisclosureCard.vue'
 import EChart from '@/components/EChart.vue'
 import { useAuth } from '@/composables/use-auth'
@@ -41,6 +42,7 @@ type ChartMode = 'line' | 'area' | 'candle'
 type ChartInterval = 'day' | 'week' | 'month'
 type ChainFilter = 'related' | 'strong'
 type ComparisonMode = 'normalized' | 'ratio'
+type WorkspaceMode = 'research' | 'contract'
 interface ForecastHistoryRecord {
   marketId: string
   marketDate: string
@@ -126,6 +128,7 @@ const fallbackAsset = baseAssetCandidates[0] as TechnicalChartAsset
 const selectedId = ref(
   baseAssetCandidates.find((asset) => asset.id === 'sp500')?.id ?? fallbackAsset.id,
 )
+const workspaceMode = ref<WorkspaceMode>('research')
 const compareId = ref('')
 const comparisonMode = ref<ComparisonMode>('normalized')
 const search = ref('')
@@ -241,8 +244,9 @@ const recentAssets = computed(() =>
 )
 
 const relevantChains = computed(() => {
+  const chainSubjectId = workspaceMode.value === 'contract' ? 'btc' : selectedId.value
   const related = crossAsset.transmissionChains.filter(
-    (chain) => chain.left === selectedId.value || chain.right === selectedId.value,
+    (chain) => chain.left === chainSubjectId || chain.right === chainSubjectId,
   )
   const source =
     chainFilter.value === 'related'
@@ -1399,15 +1403,42 @@ onBeforeUnmount(() => {
         <p>{{ t('assetTechnical.badge') }}</p>
         <h1>{{ t('assetTechnical.title') }}</h1>
         <span>{{ t('assetTechnical.intro') }}</span>
-        <DataUpdateStatus :updated-at="dataset.updatedAt" schedule="crossAsset" />
+        <DataUpdateStatus
+          v-if="workspaceMode === 'research'"
+          :updated-at="dataset.updatedAt"
+          schedule="crossAsset"
+        />
       </div>
-      <section class="headline-signal" :class="analysis.status">
+      <section v-if="workspaceMode === 'research'" class="headline-signal" :class="analysis.status">
         <span>{{ t('assetTechnical.currentState') }}</span>
         <strong>{{ statusLabel(analysis.status) }}</strong>
         <b>{{ analysis.score > 0 ? '+' : '' }}{{ analysis.score }}</b>
         <small>{{ t('assetTechnical.confidence', { value: analysis.confidence }) }}</small>
       </section>
+      <section v-else class="headline-signal contract-intro-signal">
+        <span>{{ t('assetTechnical.contract.workspaceState') }}</span>
+        <strong>{{ t('assetTechnical.contract.publicFeed') }}</strong>
+        <b>{{ t('assetTechnical.contract.free') }}</b>
+        <small>{{ t('assetTechnical.contract.noKeyRequired') }}</small>
+      </section>
     </header>
+
+    <nav class="workspace-mode-switch" :aria-label="t('assetTechnical.workspaceMode')">
+      <button
+        :class="{ active: workspaceMode === 'research' }"
+        @click="workspaceMode = 'research'"
+      >
+        <span>{{ t('assetTechnical.researchMode') }}</span>
+        <small>{{ t('assetTechnical.researchModeHint') }}</small>
+      </button>
+      <button
+        :class="{ active: workspaceMode === 'contract' }"
+        @click="workspaceMode = 'contract'"
+      >
+        <span>{{ t('assetTechnical.contractMode') }}</span>
+        <small>{{ t('assetTechnical.contractModeHint') }}</small>
+      </button>
+    </nav>
 
     <section class="chain-player" aria-live="polite">
       <div class="chain-meta">
@@ -1437,7 +1468,11 @@ onBeforeUnmount(() => {
           <small
             >{{ chainAssetName(activeChain.left) }} → {{ chainAssetName(activeChain.right) }}</small
           >
-          <button class="chain-validate" @click="validateActiveChain">
+          <button
+            v-if="workspaceMode === 'research'"
+            class="chain-validate"
+            @click="validateActiveChain"
+          >
             {{ t('assetTechnical.validateChain') }}
           </button>
         </div>
@@ -1452,7 +1487,7 @@ onBeforeUnmount(() => {
       </div>
     </section>
 
-    <div class="research-layout">
+    <div v-if="workspaceMode === 'research'" class="research-layout">
       <button
         class="asset-drawer-toggle"
         :aria-expanded="assetPickerOpen"
@@ -2250,7 +2285,14 @@ onBeforeUnmount(() => {
         </details>
       </aside>
     </div>
-    <footer class="page-disclaimer">{{ t('assetTechnical.disclaimer') }}</footer>
+    <ContractTradingWorkspace v-else />
+    <footer class="page-disclaimer">
+      {{
+        workspaceMode === 'research'
+          ? t('assetTechnical.disclaimer')
+          : t('assetTechnical.contract.pageDisclaimer')
+      }}
+    </footer>
   </main>
 </template>
 
@@ -2302,6 +2344,45 @@ onBeforeUnmount(() => {
 .headline-signal small {
   color: var(--muted);
   font-size: 9px;
+}
+.contract-intro-signal b {
+  color: var(--positive);
+}
+.workspace-mode-switch {
+  width: fit-content;
+  margin: 18px 0 12px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 4px;
+}
+.workspace-mode-switch button {
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  display: grid;
+  gap: 3px;
+  text-align: left;
+  cursor: pointer;
+}
+.workspace-mode-switch button.active {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--ink);
+}
+.workspace-mode-switch span {
+  font-size: 10px;
+  font-weight: 700;
+}
+.workspace-mode-switch small {
+  color: var(--muted);
+  font-size: 7px;
 }
 .headline-signal strong {
   font:
@@ -3307,6 +3388,13 @@ onBeforeUnmount(() => {
   }
   .headline-signal {
     max-width: none;
+  }
+  .workspace-mode-switch {
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+  }
+  .workspace-mode-switch button {
+    min-width: 0;
   }
   .chain-player {
     grid-template-columns: 1fr;
