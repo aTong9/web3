@@ -1253,6 +1253,53 @@ export interface ContractPositionSimulation {
   riskStatus: ContractPositionRiskStatus
 }
 
+export type ContractPaperTradeStatus = 'open' | 'closed'
+
+export interface ContractPaperTradeCreateInput {
+  id: string
+  symbol: string
+  displayName: string
+  quoteAsset: string
+  direction: ContractPositionDirection
+  interval: ContractChartInterval
+  openedAt: string
+  entryPrice: number
+  stopLoss: number
+  takeProfit: number
+  notional: number
+  leverage: number
+  feeRatePct: number
+  fundingRatePct: number
+  fundingSettlements: number
+  riskBudget: number
+  enteredRiskAmount: number
+  signalScore: number
+  signalConfidence: number
+}
+
+export interface ContractPaperTrade extends ContractPaperTradeCreateInput {
+  status: ContractPaperTradeStatus
+  closedAt: string | null
+  exitPrice: number | null
+}
+
+export interface ContractPaperTradeEvaluation {
+  referencePrice: number
+  positionMovePct: number
+  grossPnl: number
+  estimatedCosts: number
+  netPnl: number
+  marginReturnPct: number
+}
+
+export interface ContractPaperJournalSummary {
+  total: number
+  open: number
+  closed: number
+  wins: number
+  winRatePct: number | null
+}
+
 export interface TechnicalChartAsset {
   id: string
   name: string

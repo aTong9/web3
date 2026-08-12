@@ -1,16 +1,23 @@
 <script setup lang="ts">
 import type { EChartsCoreOption } from 'echarts/core'
 import { computed, onMounted, ref, watch } from 'vue'
+import type {
+  ContractChartInterval,
+  ContractInstrumentCategory,
+  ContractPaperTrade,
+  ContractPositionDirection,
+  ContractTradeAction,
+} from '@/types'
+import ContractPaperJournal from '@/components/ContractPaperJournal.vue'
 import DisclosureCard from '@/components/DisclosureCard.vue'
 import EChart from '@/components/EChart.vue'
 import { useBinanceContractMarket } from '@/composables/use-binance-contract-market'
 import { useI18n } from '@/composables/use-i18n'
-import type {
-  ContractChartInterval,
-  ContractInstrumentCategory,
-  ContractPositionDirection,
-  ContractTradeAction,
-} from '@/types'
+import {
+  addContractPaperTrade,
+  closeContractPaperTrade,
+  restoreContractPaperTrades,
+} from '@/utils/contract-paper-journal'
 import { simulateContractPosition } from '@/utils/contract-position-simulation'
 import { buildContractTradeDecision } from '@/utils/contract-trade-decision'
 import { simpleMovingAverage } from '@/utils/technical-analysis'
@@ -41,6 +48,8 @@ const positionFeeRatePct = ref(0.05)
 const positionFundingSettlements = ref(3)
 const positionAccountEquity = ref(10_000)
 const positionMaxRiskPct = ref(1)
+const paperTrades = ref<ContractPaperTrade[]>([])
+const paperStorageKey = 'market-desk-contract-paper-trades-v1'
 const { locale, t } = useI18n()
 const { theme } = useTheme()
 const { snapshot, catalog, loadCatalog, connect, reconnect } = useBinanceContractMarket()
@@ -50,11 +59,14 @@ const decisionDirection = computed<ContractPositionDirection | null>(() =>
     ? decision.value.action
     : null,
 )
+const currentContractPrice = computed(
+  () => snapshot.value.markPrice ?? decision.value.latestPrice,
+)
 const positionSimulation = computed(() => {
   const usesDecisionLevels = decisionDirection.value === positionDirection.value
   return simulateContractPosition({
     direction: positionDirection.value,
-    entryPrice: snapshot.value.markPrice ?? decision.value.latestPrice,
+    entryPrice: currentContractPrice.value,
     stopLoss: usesDecisionLevels ? decision.value.stopLoss : null,
     takeProfit: usesDecisionLevels ? decision.value.takeProfit : null,
     notional: positionNotional.value,
@@ -71,6 +83,30 @@ const selectedInstrument = computed(
     catalog.value.instruments.find((instrument) => instrument.symbol === selectedSymbol.value) ??
     null,
 )
+const currentOpenPaperTrade = computed(
+  () =>
+    paperTrades.value.find(
+      (trade) => trade.symbol === selectedSymbol.value && trade.status === 'open',
+    ) ?? null,
+)
+const canRecordPaperTrade = computed(
+  () =>
+    !currentOpenPaperTrade.value &&
+    positionSimulation.value.riskStatus === 'within' &&
+    decisionDirection.value === positionDirection.value &&
+    currentContractPrice.value !== null &&
+    decision.value.stopLoss !== null &&
+    decision.value.takeProfit !== null &&
+    selectedInstrument.value !== null,
+)
+const paperRecordState = computed(() => {
+  if (currentOpenPaperTrade.value) return 'alreadyOpen'
+  if (positionSimulation.value.riskStatus === 'over') return 'riskOver'
+  if (decisionDirection.value !== positionDirection.value) return 'noAlignedPlan'
+  if (positionSimulation.value.riskStatus === 'unavailable') return 'riskUnavailable'
+  if (currentContractPrice.value === null) return 'priceUnavailable'
+  return 'ready'
+})
 const categoryCounts = computed(() =>
   catalog.value.instruments.reduce(
     (counts, instrument) => {
@@ -151,6 +187,63 @@ const actionClass = (action: ContractTradeAction) =>
 const cssColor = (name: string) => {
   void theme.value
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}
+
+const recordPaperTrade = () => {
+  const instrument = selectedInstrument.value
+  const entryPrice = currentContractPrice.value
+  const stopLoss = decision.value.stopLoss
+  const takeProfit = decision.value.takeProfit
+  const riskBudget = positionSimulation.value.riskBudget
+  const enteredRiskAmount = positionSimulation.value.enteredRiskAmount
+  if (
+    !canRecordPaperTrade.value ||
+    !instrument ||
+    entryPrice === null ||
+    stopLoss === null ||
+    takeProfit === null ||
+    riskBudget === null ||
+    enteredRiskAmount === null
+  )
+    return
+  paperTrades.value = addContractPaperTrade(paperTrades.value, {
+    id: window.crypto.randomUUID(),
+    symbol: selectedSymbol.value,
+    displayName: instrument.displayName,
+    quoteAsset: snapshot.value.quoteAsset,
+    direction: positionDirection.value,
+    interval: selectedInterval.value,
+    openedAt: new Date().toISOString(),
+    entryPrice,
+    stopLoss,
+    takeProfit,
+    notional: positionNotional.value,
+    leverage: positionLeverage.value,
+    feeRatePct: positionFeeRatePct.value,
+    fundingRatePct: snapshot.value.fundingRatePct ?? 0,
+    fundingSettlements: positionFundingSettlements.value,
+    riskBudget,
+    enteredRiskAmount,
+    signalScore: decision.value.score,
+    signalConfidence: decision.value.confidence,
+  })
+}
+
+const selectPaperTrade = (trade: ContractPaperTrade) => {
+  selectedSymbol.value = trade.symbol
+  selectedInterval.value = trade.interval
+}
+
+const closePaperTrade = (trade: ContractPaperTrade) => {
+  if (trade.symbol !== selectedSymbol.value || currentContractPrice.value === null) return
+  const closed = closeContractPaperTrade(trade, currentContractPrice.value, new Date().toISOString())
+  if (!closed) return
+  paperTrades.value = paperTrades.value.map((item) => (item.id === trade.id ? closed : item))
+}
+
+const removePaperTrade = (trade: ContractPaperTrade) => {
+  if (trade.status !== 'closed') return
+  paperTrades.value = paperTrades.value.filter((item) => item.id !== trade.id)
 }
 
 const chartOption = computed<EChartsCoreOption>(() => {
@@ -309,6 +402,17 @@ watch([selectedSymbol, selectedInterval], ([symbol, interval]) => {
 })
 watch(selectedSymbol, (symbol) => window.localStorage.setItem(symbolStorageKey, symbol))
 watch(
+  paperTrades,
+  (trades) => {
+    try {
+      window.localStorage.setItem(paperStorageKey, JSON.stringify(trades))
+    } catch (error) {
+      console.warn('Contract paper trades could not be saved:', error)
+    }
+  },
+  { deep: true },
+)
+watch(
   () => decision.value.action,
   (action) => {
     if (action === 'long' || action === 'short') positionDirection.value = action
@@ -316,6 +420,11 @@ watch(
 )
 
 onMounted(() => {
+  try {
+    paperTrades.value = restoreContractPaperTrades(window.localStorage.getItem(paperStorageKey))
+  } catch (error) {
+    console.warn('Contract paper trades could not be loaded:', error)
+  }
   void connect(selectedSymbol.value, selectedInterval.value)
   void loadCatalog().then(() => {
     if (!catalog.value.instruments.some((instrument) => instrument.symbol === selectedSymbol.value))
@@ -753,6 +862,24 @@ onMounted(() => {
                   </div>
                 </dl>
                 <p>{{ t('assetTechnical.contract.simulator.riskGateHint') }}</p>
+                <div class="risk-gate-record">
+                  <button
+                    type="button"
+                    :disabled="!canRecordPaperTrade"
+                    @click="recordPaperTrade"
+                  >
+                    {{
+                      t(
+                        currentOpenPaperTrade
+                          ? 'assetTechnical.contract.journal.alreadyRecorded'
+                          : 'assetTechnical.contract.journal.record',
+                      )
+                    }}
+                  </button>
+                  <small>
+                    {{ t(`assetTechnical.contract.journal.recordState.${paperRecordState}`) }}
+                  </small>
+                </div>
               </section>
               <p v-if="decisionDirection !== positionDirection" class="simulator-level-note">
                 {{ t('assetTechnical.contract.simulator.levelsUnavailable') }}
@@ -826,6 +953,15 @@ onMounted(() => {
         <footer>{{ t('assetTechnical.contract.disclaimer') }}</footer>
       </aside>
     </div>
+
+    <ContractPaperJournal
+      :trades="paperTrades"
+      :current-symbol="selectedSymbol"
+      :current-price="currentContractPrice"
+      @select="selectPaperTrade"
+      @close="closePaperTrade"
+      @remove="removePaperTrade"
+    />
   </section>
 </template>
 
@@ -1478,6 +1614,38 @@ onMounted(() => {
   margin: 8px 0 0;
   line-height: 1.5;
 }
+.risk-gate-record {
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: minmax(150px, auto) 1fr;
+  gap: 8px;
+  align-items: center;
+}
+.risk-gate-record button {
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.risk-gate-record button:disabled {
+  border-color: var(--border);
+  background: var(--surface-soft);
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.risk-gate-record small {
+  color: var(--muted);
+  font-size: 7px;
+  line-height: 1.45;
+}
 .simulator-level-note {
   margin: 9px 0 0;
   color: var(--warning);
@@ -1700,6 +1868,9 @@ onMounted(() => {
   .simulator-results dl,
   .simulator-outcomes,
   .position-risk-gate dl {
+    grid-template-columns: 1fr;
+  }
+  .risk-gate-record {
     grid-template-columns: 1fr;
   }
   .execution-context article > header {
