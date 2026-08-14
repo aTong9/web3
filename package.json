@@ -3,7 +3,12 @@
   "productName": "FIRE Finance Workbench",
   "version": "0.1.0",
   "description": "聚合市场数据、量化信号、金融资讯与常用资源的个人金融研究工作台",
-  "author": "aTong9",
+  "desktopName": "fire-finance-workbench.desktop",
+  "author": {
+    "name": "aTong9",
+    "email": "aTong9@users.noreply.github.com",
+    "url": "https://github.com/aTong9"
+  },
   "private": true,
   "type": "module",
   "main": "electron/main.js",
@@ -73,6 +78,8 @@
     },
     "linux": {
       "category": "Office",
+      "maintainer": "aTong9 <aTong9@users.noreply.github.com>",
+      "syncDesktopName": true,
       "target": [
         "AppImage",
         "deb"
