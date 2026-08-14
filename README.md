@@ -46,6 +46,25 @@ npm run dev
 
 开发服务器默认运行于 `http://localhost:2333`。
 
+### Chrome PWA
+
+Web 构建已包含 Web App Manifest 和 Service Worker。部署到 GitHub Pages 后，用 Chrome 打开站点，
+可通过地址栏的安装图标或菜单中的“安装个人金融工作台”将其作为独立应用安装；已缓存的应用与静态数据
+可离线打开，在线接口恢复后会优先读取最新数据。
+
+### Electron 桌面应用
+
+```bash
+npm run dev:electron   # 启动 Vite 与 Electron 开发环境
+npm run electron:dist # 为当前操作系统生成安装包到 release/
+```
+
+先将 `package.json` 版本号更新为发布版本，再推送同版本的 `v` 标签（例如 `v0.1.0`）。随后
+`.github/workflows/release-electron.yml` 会在 Windows、
+macOS 和 Linux 上分别构建安装包，并创建可直接下载的 GitHub Release。手动运行该工作流只会生成
+Actions 构建产物，不会创建 Release。当前产物未做 Apple/Windows 商业代码签名，系统首次打开时可能
+显示安全确认；正式分发可后续配置签名证书与公证密钥。
+
 ## 验证与构建
 
 ```bash

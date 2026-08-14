@@ -6,6 +6,7 @@ import { resolve } from 'node:path'
 import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import { VitePWA } from 'vite-plugin-pwa'
 import { dump, load } from 'js-yaml'
 
 interface KolSubscriptionInput {
@@ -111,14 +112,69 @@ const githubPagesFallbackPlugin = (): Plugin => ({
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue(), vueDevTools(), kolSubscriptionPlugin(), githubPagesFallbackPlugin()],
-  publicDir: false,
+  plugins: [
+    vue(),
+    vueDevTools(),
+    kolSubscriptionPlugin(),
+    githubPagesFallbackPlugin(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['icons/icon-192.png', 'icons/icon-512.png'],
+      manifest: {
+        name: '个人金融工作台',
+        short_name: '金融工作台',
+        description: '聚合市场数据、量化信号、金融资讯与常用资源的个人研究工作台',
+        theme_color: '#111827',
+        background_color: '#f3f4f6',
+        display: 'standalone',
+        start_url: '.',
+        scope: '.',
+        lang: 'zh-CN',
+        icons: [
+          {
+            src: 'icons/icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: 'icons/icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any',
+          },
+          {
+            src: 'icons/icon-512-maskable.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+        ],
+      },
+      workbox: {
+        navigateFallback: 'index.html',
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,yml,woff,woff2}'],
+        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/.+\/api\//,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              networkTimeoutSeconds: 5,
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 },
+            },
+          },
+        ],
+      },
+    }),
+  ],
+  publicDir: 'pwa',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-  base: '/web3/',
+  base: process.env.VITE_APP_TARGET === 'electron' ? './' : '/web3/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

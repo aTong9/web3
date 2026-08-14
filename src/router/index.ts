@@ -1,10 +1,13 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { useAuth } from '@/composables/use-auth'
 import { useAnalytics } from '@/composables/use-analytics'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history:
+    import.meta.env.VITE_APP_TARGET === 'electron'
+      ? createWebHashHistory()
+      : createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/admin',
