@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-14T11:58:48.377Z",
+  "updatedAt": "2026-08-14T13:25:16.013Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -38,19 +38,35 @@
   "articles": [
     {
       "id": "6d811e461991323a",
-      "title": "Treasury yields are little changed as U.S. threatens Iran with more economic sanctions",
+      "title": "10-year Treasury yield is little changed after weak retail sales data",
       "url": "https://www.cnbc.com/2026/08/14/treasury-yields-us-iran-economic-sanctions.html",
-      "publishedAt": "2026-08-14T11:52:36.000Z",
+      "publishedAt": "2026-08-14T12:47:54.000Z",
       "source": "CNBC",
       "sourceType": "media",
-      "category": "geopolitics",
+      "category": "macro",
       "language": "English",
-      "impact": "high",
-      "impactScore": 4,
+      "impact": "low",
+      "impactScore": 1,
       "affectedAssets": [
         "债券"
       ],
-      "translatedTitle": "由于美国以更多经济制裁威胁伊朗，美国国债收益率几乎没有变化",
+      "translatedTitle": "10年期国债收益率在零售销售数据疲软后变化不大",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "998b3b6573278e2c",
+      "title": "‘Absolutely unacceptable’: Japan PM Takaichi condemns Putin’s visit to disputed Kuril Islands",
+      "url": "https://www.cnbc.com/2026/08/14/putin-kuril-islands-japan.html",
+      "publishedAt": "2026-08-14T12:28:54.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "“绝对不可接受” ：日本首相高市谴责普京访问有争议的千岛群岛",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -58,7 +74,7 @@
       "id": "84f7a682cfadb373",
       "title": "NATO aircraft shoot down drone over Latvia, which blames 'Russian electromagnetic warfare'",
       "url": "https://www.cnbc.com/2026/08/14/nato-drone-latvia.html",
-      "publishedAt": "2026-08-14T11:48:37.000Z",
+      "publishedAt": "2026-08-14T12:21:44.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "macro",
@@ -67,6 +83,56 @@
       "impactScore": 1,
       "affectedAssets": [],
       "translatedTitle": "北约飞机在拉脱维亚上空击落无人机，这归咎于“俄罗斯电磁战”",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "6e7649338377b643",
+      "title": "Anthropic's investor talks, Workday's stock surge, Apple's new facility and more in Morning Squawk",
+      "url": "https://www.cnbc.com/2026/08/14/5-things-to-know-before-the-market-opens.html",
+      "publishedAt": "2026-08-14T12:17:42.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "Anthropic的投资者谈话、Workday的股票飙升、Apple的新设施以及Morning Squawk的更多内容",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "6bb9d1c213dc39e3",
+      "title": "Data breach notices have already blown past last year’s total — and AI is playing a growing role",
+      "url": "https://www.cnbc.com/2026/08/14/data-breaches-surge-2026-ai-cyberattacks.html",
+      "publishedAt": "2026-08-14T12:15:01.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "数据泄露通知已经超过了去年的总数—人工智能正在发挥越来越大的作用",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "51ea2cd15ec6ba34",
+      "title": "AI’s infrastructure boom is getting more leveraged — and harder to track",
+      "url": "https://www.cnbc.com/2026/08/14/ai-infrastructure-debt-leverage-risks.html",
+      "publishedAt": "2026-08-14T12:03:32.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "人工智能的基础设施热潮正变得更加杠杆化，也更难跟踪",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -80,25 +146,9 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "如果保险公司能够为风险定价，太空数据中心可能成为保险公司的新领域",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "998b3b6573278e2c",
-      "title": "‘Absolutely unacceptable’: Japan PM Takaichi condemns Putin’s visit to disputed Kuril Islands",
-      "url": "https://www.cnbc.com/2026/08/14/putin-kuril-islands-japan.html",
-      "publishedAt": "2026-08-14T11:13:00.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "“绝对不可接受” ：日本首相高市谴责普京访问有争议的千岛群岛",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -117,22 +167,6 @@
         "美股"
       ],
       "translatedTitle": "《Pokémon Pokopia》销量突破500万后任天堂股票流行7%",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "51ea2cd15ec6ba34",
-      "title": "AI’s infrastructure boom is getting more leveraged — and harder to track",
-      "url": "https://www.cnbc.com/2026/08/14/ai-infrastructure-debt-leverage-risks.html",
-      "publishedAt": "2026-08-14T08:29:50.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "人工智能的基础设施热潮正变得更加杠杆化，也更难跟踪",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -289,24 +323,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "39878960c41d8be1",
-      "title": "Cisco shares slide 8% despite earnings beat and stronger-than-expected guidance",
-      "url": "https://www.cnbc.com/2026/08/13/cisco-shares-slide-9percent-despite-earnings-beat-and-strong-guidance.html",
-      "publishedAt": "2026-08-13T20:57:31.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "思科股价下跌8% ，尽管盈利表现好于预期，指引强于预期",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "e64768cae402306a",
       "title": "SEC Charges Toms River Trio in Connection with Alleged $47 Million Fraud Targeting Orthodox Jewish Communities",
       "url": "https://www.sec.gov/newsroom/press-releases/2026-74-sec-charges-toms-river-trio-connection-alleged-47-million-fraud-targeting-orthodox-jewish",
@@ -459,38 +475,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "47a14c71908ffe70",
-      "title": "Goldman says Japan's $1 trillion of reserves leaves 'plenty of capacity' for further yen interventions",
-      "url": "https://www.cnbc.com/2026/08/13/us-japan-dollar-yen-intervention-goldman.html",
-      "publishedAt": "2026-08-13T13:33:05.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [],
-      "translatedTitle": "高盛表示，日本的1万亿美元储备为进一步的日元干预留下了“充足的能力”",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "715f1ee2e943cf23",
-      "title": "Wholesale prices were flat in July, below expectations for 0.2% increase",
-      "url": "https://www.cnbc.com/2026/08/13/wholesale-prices-were-flat-in-july-below-expectations-for-0point2percent-increase.html",
-      "publishedAt": "2026-08-13T13:18:36.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "7月份批发价格持平，低于0.2%的预期",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "14e4b8a945d0c309",
       "title": "Wisconsin, Michigan primaries expose limits of polls and prediction markets",
       "url": "https://www.cnbc.com/2026/08/13/midterm-democrats-polling-primary-wisconsin-michigan-minnesota.html",
@@ -585,6 +569,22 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "印度境内通讯：为什么全球基金纷纷涌入莫迪故乡的礼品城",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "0566ba698aded0a9",
+      "title": "Trump sued over Truth Social advance access sale",
+      "url": "https://www.cnbc.com/2026/08/12/trump-truth-social-lawsuit.html",
+      "publishedAt": "2026-08-13T00:13:21.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "特朗普对Truth Social提前访问权限销售提起诉讼",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     }
