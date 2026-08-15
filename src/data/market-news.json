@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-15T14:00:32.546Z",
+  "updatedAt": "2026-08-15T14:33:58.530Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -37,10 +37,42 @@
   ],
   "articles": [
     {
+      "id": "32f942a82bc13a2a",
+      "title": "Prediction markets and sports betting: How this UK exchange is trying to do both in the U.S.",
+      "url": "https://www.cnbc.com/2026/08/15/prediction-markets-and-sports-betting-how-this-uk-exchange-is-trying-to-do-both-in-the-us.html",
+      "publishedAt": "2026-08-15T14:24:21.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "预测市场和体育博彩：这家英国交易所如何在美国做到这两点",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "1c08f5943faff109",
+      "title": "Inflation moderated as Intel and Nvidia fueled the AI trade in last week's market",
+      "url": "https://www.cnbc.com/2026/08/15/inflation-moderated-as-intel-and-nvidia-fueled-the-ai-trade-in-last-week-market.html",
+      "publishedAt": "2026-08-15T14:22:54.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "high",
+      "impactScore": 4,
+      "affectedAssets": [],
+      "translatedTitle": "随着英特尔和英伟达推动上周市场的人工智能交易，通货膨胀放缓",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "dd744a2eb793c68d",
       "title": "Depleted strategic oil reserve nears level that raises concerns about damage to caverns, operations",
       "url": "https://www.cnbc.com/2026/08/15/strategic-petroleum-reserve-spr-oil-iran-war-caverns.html",
-      "publishedAt": "2026-08-15T13:46:22.000Z",
+      "publishedAt": "2026-08-15T14:19:35.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "commodities",
@@ -51,6 +83,22 @@
         "原油"
       ],
       "translatedTitle": "枯竭的战略石油储备接近水平，引发对洞穴和运营受损的担忧",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "19fa334a236d462d",
+      "title": "College can cost $100,000 a year. Here's how families are covering the tab",
+      "url": "https://www.cnbc.com/2026/08/15/how-families-pay-for-college-as-tuition-costs-soar.html",
+      "publishedAt": "2026-08-15T13:30:01.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "大学每年可能需要花费$ 100,000。以下是家庭成员如何使用标签卡",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -96,7 +144,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "债券"
       ],
@@ -256,40 +304,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "023a555d042448c8",
-      "title": "Goldman’s latest cash cow is all about funding the AI infrastructure boom",
-      "url": "https://www.cnbc.com/2026/08/14/goldmans-latest-cash-cow-is-all-about-funding-the-ai-infrastructure-boom.html",
-      "publishedAt": "2026-08-14T20:05:57.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [],
-      "translatedTitle": "高盛最新的摇钱树就是为人工智能基础设施的繁荣提供资金",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "4c9dd269f5d9c581",
-      "title": "Drone stocks rally after Trump orders tariffs on foreign-made components",
-      "url": "https://www.cnbc.com/2026/08/14/drone-stocks-trump-tariffs.html",
-      "publishedAt": "2026-08-14T20:04:28.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "geopolitics",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 3,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "在特朗普下令对外国制造的零部件征收关税后，无人机股票反弹",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "c389b2e55cbfb8c5",
       "title": "Luigi Mangione pleads guilty in federal case related to UnitedHealthcare CEO killing",
       "url": "https://www.cnbc.com/2026/08/14/luigi-mangione-pleads-guilty-brian-thompson-killing.html",
@@ -350,24 +364,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "OpenAI人才外流在IPO前引发“巨大危险信号”",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "6d811e461991323a",
-      "title": "10-year Treasury yield inches higher as traders digest soft retail sales, monitor the Middle East",
-      "url": "https://www.cnbc.com/2026/08/14/treasury-yields-us-iran-economic-sanctions.html",
-      "publishedAt": "2026-08-14T18:24:49.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "债券"
-      ],
-      "translatedTitle": "随着交易员消化疲软的零售销售，监测中东， 10年期美国国债收益率上升一英寸",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
