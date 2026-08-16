@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-16T17:01:46.181Z",
+  "updatedAt": "2026-08-16T17:35:18.355Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -36,6 +36,22 @@
     }
   ],
   "articles": [
+    {
+      "id": "9193a7a3c630012b",
+      "title": "Lamborghini unveils Revuelto SV, its most powerful production car ever",
+      "url": "https://www.cnbc.com/2026/08/14/lamborghini-revuelto-sv-hybrid-price.html",
+      "publishedAt": "2026-08-16T17:08:04.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "兰博基尼推出其有史以来最强大的量产车Revuelto SV",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "965e7ec084a7dcec",
       "title": "The internet's grandma has advice for late bloomers: 'It doesn't all have to be perfect'",
@@ -448,22 +464,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "OpenAI人才外流在IPO前引发“巨大危险信号”",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "9193a7a3c630012b",
-      "title": "Lamborghini unveils Revuelto SV, its most powerful production car ever",
-      "url": "https://www.cnbc.com/2026/08/14/lamborghini-revuelto-sv-hybrid-price.html",
-      "publishedAt": "2026-08-14T18:00:01.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "兰博基尼推出其有史以来最强大的量产车Revuelto SV",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     }
