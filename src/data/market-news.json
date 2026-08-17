@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-17T09:10:30.993Z",
+  "updatedAt": "2026-08-17T09:59:03.280Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -36,6 +36,38 @@
     }
   ],
   "articles": [
+    {
+      "id": "f1003e6cd9369812",
+      "title": "Russia targets Danube port after one of Ukraine’s largest aerial attacks of the war",
+      "url": "https://www.cnbc.com/2026/08/17/ukraine-war-russia-putin-moscow.html",
+      "publishedAt": "2026-08-17T09:46:08.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "在乌克兰战争中最大的空袭之一之后，俄罗斯以多瑙河港口为目标",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "01b17465ef3accc9",
+      "title": "Philip R. Lane: The rise in defence spending and the euro area economy",
+      "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp260817~1f9f7149c9.en.pdf",
+      "publishedAt": "2026-08-17T09:30:00.000Z",
+      "source": "欧洲央行",
+      "sourceType": "official",
+      "category": "macro",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [],
+      "translatedTitle": "菲利普· R ·莱恩：国防开支和欧元区经济的增长",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "7a0d577fc8fd7460",
       "title": "China's economy slows further in July as retail sales barely grow, investment slump steepens",
@@ -199,24 +231,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "1bad69ab13fd996c",
-      "title": "Top Wall Street analysts like these 3 dividend stocks for steady income",
-      "url": "https://www.cnbc.com/2026/08/16/top-wall-street-analysts-like-these-dividend-stocks-for-steady-income.html",
-      "publishedAt": "2026-08-16T11:58:15.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "顶级华尔街分析师喜欢这3只股息股票，以获得稳定的收入",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "74dd09ad8d707c0a",
       "title": "Secret outperformer: Dispelling the 'myths' about an unloved stock market",
       "url": "https://www.cnbc.com/2026/08/16/goldman-stock-market-outperformance.html",
@@ -247,6 +261,22 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "大麻改革正在成为过道两边的中期选举问题",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "32f942a82bc13a2a",
+      "title": "Prediction markets and sports betting: How this UK exchange is trying to do both in the U.S.",
+      "url": "https://www.cnbc.com/2026/08/15/prediction-markets-and-sports-betting-how-this-uk-exchange-is-trying-to-do-both-in-the-us.html",
+      "publishedAt": "2026-08-15T14:46:43.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "预测市场和体育博彩：这家英国交易所如何在美国做到这两点",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
