@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-17T19:31:46.333Z",
+  "updatedAt": "2026-08-17T20:01:22.389Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -21,8 +21,8 @@
     },
     {
       "source": "美国证监会",
-      "status": "ok",
-      "message": ""
+      "status": "failed",
+      "message": "Error: 404 https://www.sec.gov/news/pressreleases.rss"
     },
     {
       "source": "CNBC",
@@ -36,6 +36,24 @@
     }
   ],
   "articles": [
+    {
+      "id": "4705c04c00822a84",
+      "title": "30-year Treasury yield tops 5.31%, the highest in 19 years",
+      "url": "https://www.cnbc.com/2026/08/17/treasury-yields-federal-reserve-fomc-minutes.html",
+      "publishedAt": "2026-08-17T19:55:43.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "债券"
+      ],
+      "translatedTitle": "30年期美国国债收益率突破5.31% ，为19年来最高水平",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "0db9b1912a2db69e",
       "title": "Trump won't extend Iran ceasefire, threatens to 'bomb' Oman if it 'gets in the way'",
@@ -65,24 +83,6 @@
       "impactScore": 1,
       "affectedAssets": [],
       "translatedTitle": "我驾驶特斯拉FSD、Rivian Autonomy + “免提”驾驶系统。以下是它们的比较结果",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "4705c04c00822a84",
-      "title": "30-year Treasury yield tops 5.31%, the highest in 19 years",
-      "url": "https://www.cnbc.com/2026/08/17/treasury-yields-federal-reserve-fomc-minutes.html",
-      "publishedAt": "2026-08-17T19:01:55.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [
-        "债券"
-      ],
-      "translatedTitle": "30年期美国国债收益率突破5.31% ，为19年来最高水平",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -182,7 +182,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "预测市场交易者看到派拉蒙收购Warner Bros. Discovery失败的可能性约为1/4",
       "translationStatus": "translated",
