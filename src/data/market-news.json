@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-17T09:59:03.280Z",
+  "updatedAt": "2026-08-17T10:41:20.722Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -36,6 +36,24 @@
     }
   ],
   "articles": [
+    {
+      "id": "3dca892ec4e5ad57",
+      "title": "Santoli: Earnings bonanza that lifted market to record may not be all that it appears to be",
+      "url": "https://www.cnbc.com/2026/08/17/santoli-earnings-bonanza-that-lifted-market-to-record-may-not-be-all-that-it-appears-to-be.html",
+      "publishedAt": "2026-08-17T10:31:33.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "Santoli ：将市场提升到创纪录水平的盈利热潮可能并不是看起来的全部",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "f1003e6cd9369812",
       "title": "Russia targets Danube port after one of Ukraine’s largest aerial attacks of the war",
@@ -78,7 +96,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "A股"
       ],
@@ -96,7 +114,7 @@
       "category": "commodities",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "霍尔木兹海峡航运在美伊停火到期前陷入停顿",
       "translationStatus": "translated",
