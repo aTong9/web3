@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-18T17:45:29.635Z",
+  "updatedAt": "2026-08-18T18:15:02.498Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -36,6 +36,22 @@
     }
   ],
   "articles": [
+    {
+      "id": "d91570a8c9cdafb4",
+      "title": "Trump, Carney reportedly in talks ahead of new 50% tariffs on Canadian goods",
+      "url": "https://www.cnbc.com/2026/08/18/trump-carney-canada-tariffs-dealine-talks.html",
+      "publishedAt": "2026-08-18T18:05:05.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "high",
+      "impactScore": 4,
+      "affectedAssets": [],
+      "translatedTitle": "据报道，特朗普和卡尼正在就对加拿大商品征收50%的新关税进行谈判",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "86d6911884466d5e",
       "title": "U.S. government debt yields are surging at a bad time. Here's what's behind the move",
@@ -214,8 +230,8 @@
       "sourceType": "media",
       "category": "macro",
       "language": "English",
-      "impact": "high",
-      "impactScore": 4,
+      "impact": "medium",
+      "impactScore": 3,
       "affectedAssets": [
         "债券"
       ],
@@ -233,7 +249,7 @@
       "category": "technology",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "英伟达的人工智能护城河正在从芯片转向资本",
       "translationStatus": "translated",
@@ -249,7 +265,7 @@
       "category": "equities",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [
         "美股"
       ],
@@ -267,7 +283,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "美国国税局明确了“不对加班征税”的扣除规则。员工需要了解的信息",
       "translationStatus": "translated",
@@ -486,24 +502,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "李显龙表示，在特朗普削减军事演习之际，韩国必须为“最坏情况”做好准备",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "edf2481b6f8912f9",
-      "title": "'Absolutely crazy': Here's what South Korean stock investors are doing in U.S. markets",
-      "url": "https://www.cnbc.com/2026/08/18/korean-stock-investors-flee-bruising-home-market-pile-into-us.html",
-      "publishedAt": "2026-08-17T23:39:54.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "“绝对疯狂” ：以下是韩国股票投资者在美国市场的所作所为",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
