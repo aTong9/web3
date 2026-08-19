@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-19T22:03:23.963Z",
+  "updatedAt": "2026-08-19T22:43:35.216Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -36,6 +36,22 @@
     }
   ],
   "articles": [
+    {
+      "id": "641ec2763777879b",
+      "title": "U.S. government debt passes $40 trillion, more than doubling in a decade",
+      "url": "https://www.cnbc.com/2026/08/19/us-government-debt-passes-40-trillion-mark-for-the-first-time.html",
+      "publishedAt": "2026-08-19T22:34:33.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "美国政府债务超过40万亿美元，十年内翻了一番多$",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "d5f0855f59cc1983",
       "title": "Trump bemoans Fed interest rate policy, says U.S. should be paying much less",
@@ -92,22 +108,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "641ec2763777879b",
-      "title": "U.S. government debt passes $40 trillion, more than doubling in a decade",
-      "url": "https://www.cnbc.com/2026/08/19/us-government-debt-passes-40-trillion-mark-for-the-first-time.html",
-      "publishedAt": "2026-08-19T21:01:13.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "美国政府债务超过40万亿美元，十年内翻了一番多$",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "84d3deb652c5f22b",
       "title": "Cancer vaccine from Moderna, Merck shows promise in late-stage trial; both stocks soar",
       "url": "https://www.cnbc.com/2026/08/19/moderna-merck-cancer-vaccine-shows-initial-late-stage-melanoma-data.html",
@@ -117,7 +117,7 @@
       "category": "equities",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "美股"
       ],
@@ -134,8 +134,8 @@
       "sourceType": "media",
       "category": "geopolitics",
       "language": "English",
-      "impact": "high",
-      "impactScore": 4,
+      "impact": "medium",
+      "impactScore": 3,
       "affectedAssets": [],
       "translatedTitle": "特朗普吹捧一项避免对加拿大征收新关税的协议。以下是我们迄今为止所了解的信息",
       "translationStatus": "translated",
@@ -151,7 +151,7 @@
       "category": "technology",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "随着金融科技深入到人工智能领域， Stripe收购OpenRouter",
       "translationStatus": "translated",
@@ -167,7 +167,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "首席财务官Friar告诉员工， OpenAI “将在2027年或更早成为上市公司”",
       "translationStatus": "translated",
@@ -183,7 +183,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "债券"
       ],
