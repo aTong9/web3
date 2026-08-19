@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { EChartsCoreOption } from 'echarts/core'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import type {
   BtcAutoPerformanceSummary,
   BtcAutoTrade,
@@ -17,6 +17,10 @@ const dashboard = ref<BtcAutoTradingDashboard | null>(null)
 const loading = ref(true)
 const busy = ref(false)
 const error = ref<string | null>(null)
+const refreshIntervalMs = 60_000
+let refreshTimer: number | undefined
+const refreshing = ref(false)
+const interactionLocked = computed(() => busy.value || refreshing.value)
 const draft = reactive<BtcAutoTradingConfig>({
   enabled: true,
   executionMode: 'paper',
@@ -45,21 +49,27 @@ const hydrate = (next: BtcAutoTradingDashboard) => {
   Object.assign(draft, next.config)
 }
 
-const load = async () => {
-  loading.value = true
-  error.value = null
+const load = async (silent = false) => {
+  if (refreshing.value || (silent && busy.value)) return
+  refreshing.value = true
+  if (!silent) {
+    loading.value = true
+    error.value = null
+  }
   try {
     hydrate(await quantApi.btcAutoTrading())
+    error.value = null
   } catch (loadError) {
     error.value =
       loadError instanceof Error ? loadError.message : t('assetTechnical.contract.auto.error')
   } finally {
-    loading.value = false
+    if (!silent) loading.value = false
+    refreshing.value = false
   }
 }
 
 const save = async () => {
-  if (busy.value) return
+  if (interactionLocked.value) return
   busy.value = true
   error.value = null
   try {
@@ -73,7 +83,7 @@ const save = async () => {
 }
 
 const runNow = async () => {
-  if (busy.value) return
+  if (interactionLocked.value) return
   busy.value = true
   error.value = null
   try {
@@ -87,7 +97,7 @@ const runNow = async () => {
 }
 
 const closePosition = async () => {
-  if (busy.value || !dashboard.value?.openTrade) return
+  if (interactionLocked.value || !dashboard.value?.openTrade) return
   if (!window.confirm(t('assetTechnical.contract.auto.manualCloseConfirm'))) return
   busy.value = true
   error.value = null
@@ -197,7 +207,7 @@ const tradeDirection = (trade: BtcAutoTrade) =>
   t(`assetTechnical.contract.simulator.${trade.direction}`)
 
 const exportTrades = async () => {
-  if (!dashboard.value || busy.value) return
+  if (!dashboard.value || interactionLocked.value) return
   busy.value = true
   error.value = null
   try {
@@ -219,7 +229,20 @@ const exportTrades = async () => {
   }
 }
 
-onMounted(load)
+const refreshWhenVisible = () => {
+  if (document.visibilityState === 'visible') void load(true)
+}
+
+onMounted(() => {
+  void load()
+  refreshTimer = window.setInterval(refreshWhenVisible, refreshIntervalMs)
+  document.addEventListener('visibilitychange', refreshWhenVisible)
+})
+
+onBeforeUnmount(() => {
+  if (refreshTimer !== undefined) window.clearInterval(refreshTimer)
+  document.removeEventListener('visibilitychange', refreshWhenVisible)
+})
 </script>
 
 <template>
@@ -703,15 +726,15 @@ onMounted(load)
             v-if="dashboard.openTrade"
             type="button"
             class="danger"
-            :disabled="busy || dashboard.openTrade.status !== 'open'"
+            :disabled="interactionLocked || dashboard.openTrade.status !== 'open'"
             @click="closePosition"
           >
             {{ t('assetTechnical.contract.auto.manualClose') }}
           </button>
-          <button type="button" :disabled="busy" @click="runNow">
+          <button type="button" :disabled="interactionLocked" @click="runNow">
             {{ t('assetTechnical.contract.auto.runNow') }}
           </button>
-          <button type="submit" class="primary" :disabled="busy">
+          <button type="submit" class="primary" :disabled="interactionLocked">
             {{ t('assetTechnical.contract.auto.save') }}
           </button>
         </footer>
@@ -723,7 +746,12 @@ onMounted(load)
             <span>{{ t('assetTechnical.contract.auto.history') }}</span>
             <small>{{ t('assetTechnical.contract.auto.pnlBoundary') }}</small>
           </div>
-          <button type="button" class="export-button" :disabled="busy" @click="exportTrades">
+          <button
+            type="button"
+            class="export-button"
+            :disabled="interactionLocked"
+            @click="exportTrades"
+          >
             {{ t('assetTechnical.contract.auto.exportCsv') }}
           </button>
         </header>
