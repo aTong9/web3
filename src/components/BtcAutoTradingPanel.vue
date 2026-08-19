@@ -8,7 +8,6 @@ import type {
 } from '@/types'
 import DisclosureCard from '@/components/DisclosureCard.vue'
 import { useI18n } from '@/composables/use-i18n'
-import { buildBtcAutoTradingCsv } from '@/utils/btc-auto-trading-export'
 import { quantApi } from '@/utils/quant-api'
 
 const { locale, t } = useI18n()
@@ -139,10 +138,13 @@ const periodLabel = (summary: BtcAutoPerformanceSummary) =>
 const tradeDirection = (trade: BtcAutoTrade) =>
   t(`assetTechnical.contract.simulator.${trade.direction}`)
 
-const exportTrades = () => {
-  if (!dashboard.value) return
-  const csv = buildBtcAutoTradingCsv(dashboard.value, locale.value)
-  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
+const exportTrades = async () => {
+  if (!dashboard.value || busy.value) return
+  busy.value = true
+  error.value = null
+  try {
+    const blob = await quantApi.exportBtcAutoTrading(locale.value)
+    const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
   const day = new Date().toISOString().slice(0, 10)
   anchor.href = url
@@ -151,6 +153,12 @@ const exportTrades = () => {
   anchor.click()
   anchor.remove()
   window.setTimeout(() => URL.revokeObjectURL(url), 0)
+  } catch (exportError) {
+    error.value =
+      exportError instanceof Error ? exportError.message : t('assetTechnical.contract.auto.error')
+  } finally {
+    busy.value = false
+  }
 }
 
 onMounted(load)
@@ -641,7 +649,7 @@ onMounted(load)
             <span>{{ t('assetTechnical.contract.auto.history') }}</span>
             <small>{{ t('assetTechnical.contract.auto.pnlBoundary') }}</small>
           </div>
-          <button type="button" class="export-button" @click="exportTrades">
+          <button type="button" class="export-button" :disabled="busy" @click="exportTrades">
             {{ t('assetTechnical.contract.auto.exportCsv') }}
           </button>
         </header>

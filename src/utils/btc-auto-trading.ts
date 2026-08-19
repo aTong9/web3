@@ -451,6 +451,9 @@ const periodStarts = (now: Date) => {
   return { day: dayStart, week: weekStart, month: monthStart }
 }
 
+export const btcAutoPerformanceWindowStartAt = (now = new Date()) =>
+  periodStarts(now).month.toISOString()
+
 export const summarizeBtcAutoPerformance = (
   trades: readonly BtcAutoTrade[],
   now = new Date(),

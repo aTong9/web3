@@ -40,6 +40,22 @@ const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
   return payload
 }
 
+const requestFile = async (path: string) => {
+  const sessionToken = window.localStorage.getItem('market-admin-session')
+  const response = await fetch(`${apiBase}${path}`, {
+    headers: {
+      Accept: 'text/csv',
+      ...(sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {}),
+    },
+    signal: AbortSignal.timeout(requestTimeoutMs),
+  })
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as { error?: string } | null
+    throw new Error(payload?.error || `Cloudflare API ${response.status}`)
+  }
+  return response.blob()
+}
+
 export const quantApi = {
   baseUrl: apiBase,
   dashboard: () => request<QuantDashboard>('/api/quant/dashboard'),
@@ -95,6 +111,8 @@ export const quantApi = {
     return payload.trades
   },
   btcAutoTrading: () => request<BtcAutoTradingDashboard>('/api/btc-auto-trading'),
+  exportBtcAutoTrading: (locale: 'zh' | 'en') =>
+    requestFile(`/api/btc-auto-trading/export?locale=${locale}`),
   saveBtcAutoTrading: (config: BtcAutoTradingConfig) =>
     request<BtcAutoTradingDashboard>('/api/btc-auto-trading', {
       method: 'PATCH',

@@ -13,7 +13,9 @@ import type {
   ContractMarketSnapshot,
   ContractTradeDecision,
 } from '../src/types/index'
+import { buildBtcAutoTradingCsv, type BtcAutoTradingExportLocale } from '../src/utils/btc-auto-trading-export'
 import {
+  btcAutoPerformanceWindowStartAt,
   btcAutoStrategyVersion,
   calculateBtcAutoDirectionalMove,
   calculateBtcAutoRollingHealth,
@@ -290,6 +292,32 @@ const listTrades = async (env: Env, limit = 200) => {
     .bind(limit)
     .all<BtcAutoTradeRow>()
   return rows.results.map(toTrade)
+}
+
+const listPerformanceTrades = async (env: Env, now: Date) => {
+  const rows = await env.DB.prepare(
+    `SELECT ${tradeColumns} FROM btc_auto_trades
+     WHERE status = 'closed' AND closed_at >= ?1 ORDER BY opened_at DESC`,
+  )
+    .bind(btcAutoPerformanceWindowStartAt(now))
+    .all<BtcAutoTradeRow>()
+  return rows.results.map(toTrade)
+}
+
+const listAllTrades = async (env: Env) => {
+  const pageSize = 1_000
+  const trades: BtcAutoTrade[] = []
+  let offset = 0
+  while (true) {
+    const rows = await env.DB.prepare(
+      `SELECT ${tradeColumns} FROM btc_auto_trades ORDER BY opened_at DESC LIMIT ?1 OFFSET ?2`,
+    )
+      .bind(pageSize, offset)
+      .all<BtcAutoTradeRow>()
+    trades.push(...rows.results.map(toTrade))
+    if (rows.results.length < pageSize) return trades
+    offset += pageSize
+  }
 }
 
 const listSignalHistory = async (env: Env, limit = 24) => {
@@ -1428,10 +1456,12 @@ export const closeBtcAutoTradingPosition = async (env: Env) => {
 }
 
 export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingDashboard> => {
-  const [configRow, signalRow, trades, signalHistory] = await Promise.all([
+  const now = new Date()
+  const [configRow, signalRow, trades, performanceTrades, signalHistory] = await Promise.all([
     loadConfigRow(env),
     loadSignalRow(env),
     listTrades(env),
+    listPerformanceTrades(env, now),
     listSignalHistory(env),
   ])
   const config = toConfig(configRow)
@@ -1440,7 +1470,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
   const signal = toSignal(signalRow)
   const openTrade =
     trades.find((trade) => ['opening', 'open', 'closing'].includes(trade.status)) ?? null
-  const performance = summarizeBtcAutoPerformance(trades)
+  const performance = summarizeBtcAutoPerformance(performanceTrades, now)
   const dailyNetPnl = performance.find((item) => item.period === 'day')?.netPnl ?? 0
   return {
     config,
@@ -1465,11 +1495,26 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
       dailyNetPnl,
       strategyVersion,
     }),
-    rollingHealth: calculateBtcAutoRollingHealth(config, trades, new Date(), strategyVersion),
+    rollingHealth: calculateBtcAutoRollingHealth(config, trades, now, strategyVersion),
     openTrade,
     trades,
     performance,
   }
+}
+
+export const btcAutoTradingCsv = async (
+  env: Env,
+  locale: BtcAutoTradingExportLocale,
+) => {
+  const [dashboard, trades] = await Promise.all([btcAutoTradingDashboard(env), listAllTrades(env)])
+  return buildBtcAutoTradingCsv(
+    {
+      ...dashboard,
+      trades,
+      performance: summarizeBtcAutoPerformance(trades),
+    },
+    locale,
+  )
 }
 
 const boundedNumber = (

@@ -35,6 +35,7 @@ import {
   updateUser,
 } from './admin'
 import {
+  btcAutoTradingCsv,
   btcAutoTradingDashboard,
   closeBtcAutoTradingPosition,
   runBtcAutoTradingCycle,
@@ -1262,6 +1263,17 @@ const handleApi = async (request: Request, env: Env) => {
   if (url.pathname === '/api/btc-auto-trading' && request.method === 'GET') {
     await authenticate(request, env, 'autoTrade.manage')
     return json(request, env, await btcAutoTradingDashboard(env))
+  }
+  if (url.pathname === '/api/btc-auto-trading/export' && request.method === 'GET') {
+    await authenticate(request, env, 'autoTrade.manage')
+    const locale = url.searchParams.get('locale') === 'en' ? 'en' : 'zh'
+    const headers = responseHeaders(request, env)
+    headers.set('Content-Type', 'text/csv; charset=utf-8')
+    headers.set(
+      'Content-Disposition',
+      `attachment; filename="btc-auto-trading-${new Date().toISOString().slice(0, 10)}.csv"`,
+    )
+    return new Response(await btcAutoTradingCsv(env, locale), { headers })
   }
   if (url.pathname === '/api/btc-auto-trading' && request.method === 'PATCH') {
     const actor = await authenticate(request, env, 'autoTrade.manage')

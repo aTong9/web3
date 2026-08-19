@@ -5,6 +5,7 @@ import { createJiti } from 'jiti'
 const jiti = createJiti(import.meta.url)
 const {
   btcAutoStrategyVersion,
+  btcAutoPerformanceWindowStartAt,
   calculateBtcAutoDirectionalMove,
   calculateBtcAutoRollingHealth,
   calculateBtcAutoReconciledResult,
@@ -523,6 +524,17 @@ test('performance summaries use Asia/Shanghai boundaries and report drawdown', (
   assert.equal(day.expectancyUsdt, 0.5)
   assert.equal(day.maxDrawdownUsdt, 4)
   assert.equal(day.profitFactor, 1.5)
+})
+
+test('performance query starts at the current Shanghai calendar month', () => {
+  assert.equal(
+    btcAutoPerformanceWindowStartAt(new Date('2026-08-31T16:30:00.000Z')),
+    '2026-08-31T16:00:00.000Z',
+  )
+  assert.equal(
+    btcAutoPerformanceWindowStartAt(new Date('2026-08-31T15:59:59.000Z')),
+    '2026-07-31T16:00:00.000Z',
+  )
 })
 
 test('CSV export includes auditable summaries, strategy versions and escaped errors', () => {
