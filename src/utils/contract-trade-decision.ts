@@ -8,6 +8,7 @@ import type {
   ContractDecisionReason,
 } from '@/types'
 import { analyzeTechnicalSignals } from '@/utils/technical-analysis'
+import { buildContractStrategyEnsemble } from '@/utils/contract-strategy-ensemble'
 
 type ContractMarketInput = Readonly<Omit<ContractMarketSnapshot, 'points' | 'timeframes'>> & {
   readonly points: readonly AssetPricePoint[]
@@ -125,6 +126,7 @@ export const buildContractTradeDecision = (market: ContractMarketInput): Contrac
   const volumeRatio = averageVolume ? (latestPoint.volume ?? 0) / averageVolume : null
   const priceDirection = previous ? Math.sign(latestPoint.close - previous.close) : 0
   const atrPct = latestAtr === null ? null : (latestAtr / latest) * 100
+  const strategyEnsemble = buildContractStrategyEnsemble(market)
 
   const reasons: ContractDecisionReason[] = []
   const risks: ContractDecisionReason[] = []
@@ -339,7 +341,14 @@ export const buildContractTradeDecision = (market: ContractMarketInput): Contrac
   if (Math.sign(trendScore) !== Math.sign(rsiScore) && trendScore !== 0 && rsiScore !== 0)
     risks.push('signalsConflict')
 
-  score = round(clamp(score, -100, 100))
+  indicators.push({
+    id: 'strategyEnsemble',
+    signal: signalFromScore(strategyEnsemble.score),
+    score: round(strategyEnsemble.score * 0.35),
+    value: `${strategyEnsemble.version} · ${strategyEnsemble.regime} · ${strategyEnsemble.confidence}%`,
+  })
+
+  score = round(clamp(score * 0.65 + strategyEnsemble.score * 0.35, -100, 100))
   const absoluteScore = Math.abs(score)
   let action: ContractTradeAction =
     score >= 38 ? 'long' : score <= -38 ? 'short' : absoluteScore < 16 ? 'noTrade' : 'wait'

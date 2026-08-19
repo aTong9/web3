@@ -1152,6 +1152,7 @@ export type ContractIndicatorId =
   | 'orderBook'
   | 'takerFlow'
   | 'openInterest'
+  | 'strategyEnsemble'
 
 export interface ContractIndicatorReading {
   id: ContractIndicatorId

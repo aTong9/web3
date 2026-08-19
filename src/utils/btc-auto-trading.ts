@@ -120,7 +120,7 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v5'
+const strategyAlgorithmRevision = 'btc-auto-v6'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 
 const fnv1a = (value: string) => {

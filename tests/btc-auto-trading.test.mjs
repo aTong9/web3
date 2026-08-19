@@ -27,6 +27,7 @@ const {
   validateBtcAutoMarketFreshness,
 } = jiti('../src/utils/btc-auto-trading.ts')
 const { buildBtcAutoTradingCsv } = jiti('../src/utils/btc-auto-trading-export.ts')
+const { buildContractStrategyEnsemble } = jiti('../src/utils/contract-strategy-ensemble.ts')
 
 const config = (overrides = {}) => ({
   enabled: true,
@@ -156,6 +157,17 @@ const market = (overrides = {}) => ({
   status: 'live',
   errorCode: null,
   ...overrides,
+})
+
+const ensembleMarket = (points, microstructure = {}) => ({
+  points,
+  microstructure: {
+    orderBookImbalancePct: null,
+    spreadBps: null,
+    takerBuyRatioPct: null,
+    openInterestChangePct: null,
+    ...microstructure,
+  },
 })
 
 const gate = (overrides = {}) =>
@@ -318,6 +330,47 @@ test('hedge orders use positionSide while one-way closes use reduceOnly', () => 
   assert.equal(oneWayClose.side, 'SELL')
   assert.equal(oneWayClose.reduceOnly, 'true')
   assert.equal('positionSide' in oneWayClose, false)
+})
+
+test('regime ensemble favors momentum and breakout in a persistent trend', () => {
+  const points = Array.from({ length: 120 }, (_, index) => ({
+    date: new Date(Date.UTC(2026, 7, 19, 0, index)).toISOString(),
+    open: 100 + index * 0.2,
+    high: 100.3 + index * 0.2,
+    low: 99.9 + index * 0.2,
+    close: 100.2 + index * 0.2,
+    volume: 10,
+  }))
+  const result = buildContractStrategyEnsemble(ensembleMarket(points))
+  assert.equal(result.version, 'regime-ensemble-v1')
+  assert.equal(result.regime, 'trending')
+  assert.ok(result.score > 20)
+  assert.equal(
+    result.contributions.reduce((sum, item) => sum + item.weight, 0),
+    1,
+  )
+})
+
+test('regime ensemble applies mean reversion in a range without lookahead breakout', () => {
+  const points = Array.from({ length: 120 }, (_, index) => {
+    const close = 100 + Math.sin(index / 3) * 2
+    return {
+      date: new Date(Date.UTC(2026, 7, 19, 0, index)).toISOString(),
+      open: close,
+      high: close + 0.2,
+      low: close - 0.2,
+      close,
+      volume: 10,
+    }
+  })
+  points[points.length - 1].close = 96.5
+  points[points.length - 1].open = 96.5
+  points[points.length - 1].high = 96.7
+  points[points.length - 1].low = 96.3
+  const result = buildContractStrategyEnsemble(ensembleMarket(points))
+  const meanReversion = result.contributions.find((item) => item.id === 'meanReversion')
+  assert.ok((meanReversion?.rawScore ?? 0) > 0)
+  assert.ok(result.contributions.every((item) => Number.isFinite(item.weightedScore)))
 })
 
 test('shadow signal outcomes measure directional price movement without trading costs', () => {

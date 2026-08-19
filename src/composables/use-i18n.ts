@@ -1305,6 +1305,7 @@ const messages: Record<Locale, DictionaryNode> = {
           funding: '资金费率拥挤度',
           orderBook: '盘口深度与价差',
           takerFlow: '主动买卖量',
+          strategyEnsemble: '市场状态策略组合',
           openInterest: '未平仓量变化',
         },
         indicatorSignal: {
@@ -3152,6 +3153,7 @@ const messages: Record<Locale, DictionaryNode> = {
           funding: 'Funding crowding',
           orderBook: 'Book depth and spread',
           takerFlow: 'Aggressive buy/sell flow',
+          strategyEnsemble: 'Regime-adaptive strategy ensemble',
           openInterest: 'Open-interest change',
         },
         indicatorSignal: {
