@@ -12,6 +12,7 @@ const {
   evolveBtcAutoSignal,
   resolveBtcAutoCloseTrigger,
   summarizeBtcAutoPerformance,
+  validateBtcAutoMarketFreshness,
 } = jiti('../src/utils/btc-auto-trading.ts')
 
 const config = (overrides = {}) => ({
@@ -109,6 +110,38 @@ const rollingTrades = () =>
     ),
   )
 
+const market = (overrides = {}) => ({
+  symbol: 'BTCUSDT',
+  quoteAsset: 'USDT',
+  interval: '5m',
+  points: [],
+  timeframes: [
+    {
+      interval: '1m',
+      points: [{ date: '2026-08-19T15:58:00.000Z', close: 100 }],
+    },
+    {
+      interval: '5m',
+      points: [{ date: '2026-08-19T15:55:00.000Z', close: 100 }],
+    },
+  ],
+  microstructure: {
+    orderBookImbalancePct: null,
+    spreadBps: null,
+    takerBuyRatioPct: null,
+    openInterestChangePct: null,
+  },
+  markPrice: 100,
+  fundingRatePct: null,
+  nextFundingTime: null,
+  openInterest: null,
+  updatedAt: '2026-08-19T16:00:00.000Z',
+  latencyMs: null,
+  status: 'live',
+  errorCode: null,
+  ...overrides,
+})
+
 const gate = (overrides = {}) =>
   evaluateBtcAutoEntryGate({
     config: config(),
@@ -151,6 +184,56 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
     baseline,
   )
   assert.notEqual(btcAutoStrategyVersion(config({ minimumDirectionalScore: 56 })), baseline)
+})
+
+test('market freshness rejects stale or incomplete minute data', () => {
+  const now = new Date('2026-08-19T16:00:30.000Z')
+  assert.equal(validateBtcAutoMarketFreshness(market(), now), null)
+  assert.equal(
+    validateBtcAutoMarketFreshness(
+      market({
+        timeframes: [
+          { interval: '1m', points: [{ date: '2026-08-19T15:50:00.000Z', close: 100 }] },
+          { interval: '5m', points: [{ date: '2026-08-19T15:55:00.000Z', close: 100 }] },
+        ],
+      }),
+      now,
+    ),
+    '1m行情已过期',
+  )
+  assert.equal(validateBtcAutoMarketFreshness(market({ markPrice: null }), now), 'BTC标记价不可用')
+  assert.equal(
+    validateBtcAutoMarketFreshness(
+      market({
+        timeframes: [
+          { interval: '1m', points: [{ date: '2026-08-19T15:58:00.000Z', close: 100 }] },
+          { interval: '5m', points: [{ date: '2026-08-19T15:40:00.000Z', close: 100 }] },
+        ],
+      }),
+      now,
+    ),
+    '5m行情已过期',
+  )
+  assert.equal(
+    validateBtcAutoMarketFreshness(
+      market({
+        timeframes: [
+          { interval: '1m', points: [{ date: '2026-08-19T16:01:00.000Z', close: 100 }] },
+          { interval: '5m', points: [{ date: '2026-08-19T15:55:00.000Z', close: 100 }] },
+        ],
+      }),
+      now,
+    ),
+    '1m行情时间异常',
+  )
+  const delayedCoinbase = market({
+    timeframes: [
+      { interval: '1m', points: [{ date: '2026-08-19T15:55:00.000Z', close: 100 }] },
+      { interval: '5m', points: [{ date: '2026-08-19T15:55:00.000Z', close: 100 }] },
+    ],
+  })
+  assert.equal(validateBtcAutoMarketFreshness(delayedCoinbase, now), '1m行情已过期')
+  assert.equal(validateBtcAutoMarketFreshness(delayedCoinbase, now, 'coinbase'), null)
 })
 
 test('a new strategy version resets signal confirmation history', () => {
