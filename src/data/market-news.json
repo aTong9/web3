@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-19T07:07:06.332Z",
+  "updatedAt": "2026-08-19T07:55:34.083Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -36,6 +36,56 @@
     }
   ],
   "articles": [
+    {
+      "id": "c35287a924d28141",
+      "title": "China’s backflipping robot maker Unitree pops 542% in Shanghai debut",
+      "url": "https://www.cnbc.com/2026/08/19/china-backflipping-robot-maker-unitree-jumps-shanghai-ipo.html",
+      "publishedAt": "2026-08-19T07:20:10.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "A股"
+      ],
+      "translatedTitle": "中国后空翻机器人制造商Unitree在上海首次亮相542%",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "74cdbc6ed08fce13",
+      "title": "Christine Lagarde: Panel remarks about the European economy during a discussion on the global economic outlook at the World Economic Forum",
+      "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp260819~98ddf24b7b.en.html",
+      "publishedAt": "2026-08-19T07:10:00.000Z",
+      "source": "欧洲央行",
+      "sourceType": "official",
+      "category": "macro",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [],
+      "translatedTitle": "克里斯蒂娜·拉加德（ Christine Lagarde ） ：在世界经济论坛讨论全球经济前景期间，小组就欧洲经济发表讲话",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "ce82e65f6b6e87ce",
+      "title": "Iran reportedly weighs attacks on U.S. targets in Europe as UAE severs trade with Tehran",
+      "url": "https://www.cnbc.com/2026/08/19/us-iran-war-trump-hormuz.html",
+      "publishedAt": "2026-08-19T07:08:19.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "据报道，在阿联酋切断与德黑兰的贸易时，伊朗权衡了对美国在欧洲目标的袭击",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "4ad67bf02cf1fb62",
       "title": "Zelenskyy faces challenge to his wartime rule as former defense chief calls for election",
@@ -69,22 +119,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "ce82e65f6b6e87ce",
-      "title": "Iran reportedly weighs attacks on European military targets as UAE severs trade with Tehran",
-      "url": "https://www.cnbc.com/2026/08/19/us-iran-war-trump-hormuz.html",
-      "publishedAt": "2026-08-19T06:52:12.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "geopolitics",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "据报道，在阿联酋切断与德黑兰的贸易时，伊朗权衡了对欧洲军事目标的袭击",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "d91570a8c9cdafb4",
       "title": "Trump pauses 50% scheduled tariffs on Canada for three days, announces 'deal' with Ottawa",
       "url": "https://www.cnbc.com/2026/08/18/trump-carney-canada-tariffs-dealine-talks.html",
@@ -113,24 +147,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "据报道，在特朗普寻求与朝鲜领导人金正恩举行峰会之际，华盛顿首尔将联合军演减半",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "c35287a924d28141",
-      "title": "China’s backflipping robot maker Unitree pops 542% in Shanghai debut",
-      "url": "https://www.cnbc.com/2026/08/19/china-backflipping-robot-maker-unitree-jumps-shanghai-ipo.html",
-      "publishedAt": "2026-08-19T01:37:01.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "A股"
-      ],
-      "translatedTitle": "中国后空翻机器人制造商Unitree在上海首次亮相542%",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
