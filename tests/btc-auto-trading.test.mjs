@@ -4,6 +4,7 @@ import { createJiti } from 'jiti'
 
 const jiti = createJiti(import.meta.url)
 const {
+  btcAutoStrategyVersion,
   calculateBtcAutoRollingHealth,
   calculateBtcAutoTradeResult,
   evaluateBtcAutoEntryGate,
@@ -37,6 +38,7 @@ const config = (overrides = {}) => ({
 })
 
 const signal = (overrides = {}) => ({
+  strategyVersion: 'btc-auto-v4-test',
   action: 'long',
   score: 70,
   confidence: 80,
@@ -52,6 +54,7 @@ const signal = (overrides = {}) => ({
 
 const trade = (overrides = {}) => ({
   id: 'trade-1',
+  strategyVersion: 'btc-auto-v4-test',
   executionMode: 'paper',
   symbol: 'BTCUSDT',
   direction: 'long',
@@ -120,6 +123,7 @@ test('signal evolution counts same-direction confirmations and detects changes',
     { action: 'long', score: 68, confidence: 74, latestPrice: 101, reasons: [], risks: [] },
     '2026-08-19T15:40:00.000Z',
     'binance',
+    'btc-auto-v4-test',
   )
   assert.equal(strengthened.confirmations, 3)
   assert.equal(strengthened.evolution, 'strengthened')
@@ -129,9 +133,32 @@ test('signal evolution counts same-direction confirmations and detects changes',
     { action: 'short', score: -70, confidence: 80, latestPrice: 99, reasons: [], risks: [] },
     '2026-08-19T15:45:00.000Z',
     'binance',
+    'btc-auto-v4-test',
   )
   assert.equal(falsified.confirmations, 1)
   assert.equal(falsified.evolution, 'falsified')
+})
+
+test('strategy fingerprint changes only when execution behavior changes', () => {
+  const baseline = btcAutoStrategyVersion(config())
+  assert.equal(
+    btcAutoStrategyVersion(config({ enabled: false, updatedAt: '2027-01-01T00:00:00.000Z' })),
+    baseline,
+  )
+  assert.notEqual(btcAutoStrategyVersion(config({ minimumDirectionalScore: 56 })), baseline)
+})
+
+test('a new strategy version resets signal confirmation history', () => {
+  const evolved = evolveBtcAutoSignal(
+    signal({ confirmations: 5 }),
+    { action: 'long', score: 75, confidence: 84, latestPrice: 102, reasons: [], risks: [] },
+    '2026-08-19T15:40:00.000Z',
+    'binance',
+    'btc-auto-v4-new',
+  )
+  assert.equal(evolved.strategyVersion, 'btc-auto-v4-new')
+  assert.equal(evolved.confirmations, 1)
+  assert.equal(evolved.evolution, 'new')
 })
 
 test('entry gate enforces high-priority safety stops before signal checks', () => {
@@ -197,6 +224,46 @@ test('rolling health accepts a sufficiently profitable full sample', () => {
   assert.equal(health.status, 'healthy')
   assert.equal(health.profitFactor, 1.5)
   assert.deepEqual(health.reasons, [])
+})
+
+test('rolling health falls back to all history until current version has a full sample', () => {
+  const currentVersion = 'btc-auto-v4-current'
+  const legacy = rollingTrades()
+  const current = Array.from({ length: 3 }, (_, index) =>
+    closedTrade(
+      `current-${index}`,
+      new Date(Date.UTC(2026, 7, 19, 1, index)).toISOString(),
+      2,
+      { strategyVersion: currentVersion },
+    ),
+  )
+  const fallback = calculateBtcAutoRollingHealth(
+    config(),
+    [...current, ...legacy],
+    new Date('2026-08-19T02:00:00.000Z'),
+    currentVersion,
+  )
+  assert.equal(fallback.sampleScope, 'allHistoryFallback')
+  assert.equal(fallback.currentVersionSampleSize, 3)
+  assert.equal(fallback.status, 'paused')
+
+  const fullCurrent = Array.from({ length: 20 }, (_, index) =>
+    closedTrade(
+      `current-full-${index}`,
+      new Date(Date.UTC(2026, 7, 19, 2, index)).toISOString(),
+      index % 2 === 0 ? 1.5 : -1,
+      { strategyVersion: currentVersion },
+    ),
+  )
+  const isolated = calculateBtcAutoRollingHealth(
+    config({ maximumRollingDrawdownUsdt: 10 }),
+    [...fullCurrent, ...legacy],
+    new Date('2026-08-19T03:00:00.000Z'),
+    currentVersion,
+  )
+  assert.equal(isolated.sampleScope, 'currentVersion')
+  assert.equal(isolated.sampleSize, 20)
+  assert.equal(isolated.status, 'healthy')
 })
 
 test('minute candles close at stop or target and ignore the partial entry minute', () => {

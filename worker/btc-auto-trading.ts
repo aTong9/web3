@@ -14,6 +14,7 @@ import type {
   ContractTradeDecision,
 } from '../src/types/index'
 import {
+  btcAutoStrategyVersion,
   calculateBtcAutoRollingHealth,
   calculateBtcAutoTradeResult,
   evaluateBtcAutoEntryGate,
@@ -55,6 +56,7 @@ interface BtcAutoConfigRow {
 }
 
 interface BtcAutoSignalRow {
+  strategy_version: string
   action: BtcAutoSignalSnapshot['action']
   score: number
   confidence: number
@@ -70,6 +72,7 @@ interface BtcAutoSignalRow {
 
 interface BtcAutoTradeRow {
   id: string
+  strategy_version: string
   execution_mode: BtcAutoExecutionMode
   symbol: 'BTCUSDT'
   direction: BtcAutoTrade['direction']
@@ -167,6 +170,7 @@ const toConfig = (row: BtcAutoConfigRow): BtcAutoTradingConfig => ({
 const toSignal = (row: BtcAutoSignalRow | null): BtcAutoSignalSnapshot | null =>
   row
     ? {
+        strategyVersion: row.strategy_version,
         action: row.action,
         score: row.score,
         confidence: row.confidence,
@@ -182,6 +186,7 @@ const toSignal = (row: BtcAutoSignalRow | null): BtcAutoSignalSnapshot | null =>
 
 const toTrade = (row: BtcAutoTradeRow): BtcAutoTrade => ({
   id: row.id,
+  strategyVersion: row.strategy_version,
   executionMode: row.execution_mode,
   symbol: row.symbol,
   direction: row.direction,
@@ -214,9 +219,9 @@ const configColumns = `enabled, execution_mode, symbol, interval, notional_usdt,
   daily_loss_limit_usdt, max_consecutive_losses, loss_pause_minutes,
   performance_window_trades, minimum_rolling_profit_factor, maximum_rolling_drawdown_usdt,
   performance_pause_minutes, fee_rate_pct, eligibility_confirmed, updated_at, last_run_at, last_error`
-const signalColumns = `action, score, confidence, price, evolution, confirmations, reasons, risks,
+const signalColumns = `strategy_version, action, score, confidence, price, evolution, confirmations, reasons, risks,
   observed_at, market_source, cooldown_until`
-const tradeColumns = `id, execution_mode, symbol, direction, status, quantity, notional_usdt,
+const tradeColumns = `id, strategy_version, execution_mode, symbol, direction, status, quantity, notional_usdt,
   leverage, entry_price, exit_price, stop_loss, take_profit, opened_at, closed_at, gross_pnl,
   fee_rate_pct, fees, net_pnl, return_pct, signal_score, signal_confidence, signal_reasons, close_reason,
   open_client_order_id, close_client_order_id, open_order_id, close_order_id, error`
@@ -687,16 +692,18 @@ const updateSignal = async (
 ) => {
   await env.DB.prepare(
     `INSERT INTO btc_auto_signal_state
-     (id, action, score, confidence, price, evolution, confirmations, reasons, risks,
+     (id, strategy_version, action, score, confidence, price, evolution, confirmations, reasons, risks,
       observed_at, market_source, cooldown_until)
-     VALUES ('default', ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)
-     ON CONFLICT(id) DO UPDATE SET action = excluded.action, score = excluded.score,
+     VALUES ('default', ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
+     ON CONFLICT(id) DO UPDATE SET strategy_version = excluded.strategy_version,
+       action = excluded.action, score = excluded.score,
        confidence = excluded.confidence, price = excluded.price, evolution = excluded.evolution,
        confirmations = excluded.confirmations, reasons = excluded.reasons, risks = excluded.risks,
        observed_at = excluded.observed_at, market_source = excluded.market_source,
        cooldown_until = excluded.cooldown_until`,
   )
     .bind(
+      signal.strategyVersion,
       signal.action,
       signal.score,
       signal.confidence,
@@ -721,11 +728,12 @@ const appendSignalHistory = async (
   await env.DB.batch([
     env.DB.prepare(
       `INSERT INTO btc_auto_signal_history
-       (id, action, score, confidence, price, evolution, confirmations, reasons, risks,
+       (id, strategy_version, action, score, confidence, price, evolution, confirmations, reasons, risks,
         observed_at, market_source, cooldown_until, entry_gate_reason, entry_eligible)
-       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)`,
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)`,
     ).bind(
       crypto.randomUUID(),
+      signal.strategyVersion,
       signal.action,
       signal.score,
       signal.confidence,
@@ -855,14 +863,15 @@ const openTrade = async (
   const now = new Date().toISOString()
   await env.DB.prepare(
     `INSERT INTO btc_auto_trades
-     (id, execution_mode, symbol, direction, status, quantity, notional_usdt, leverage,
+     (id, strategy_version, execution_mode, symbol, direction, status, quantity, notional_usdt, leverage,
       stop_loss, take_profit, opened_at, fee_rate_pct, signal_score, signal_confidence,
       signal_reasons, open_client_order_id, created_at, updated_at)
-     VALUES (?1, ?2, 'BTCUSDT', ?3, 'opening', ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11,
-             ?12, ?13, ?14, ?15, ?16)`,
+     VALUES (?1, ?2, ?3, 'BTCUSDT', ?4, 'opening', ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12,
+             ?13, ?14, ?15, ?16, ?17)`,
   )
     .bind(
       id,
+      signal.strategyVersion,
       config.executionMode,
       signal.action,
       quantity,
@@ -980,6 +989,7 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
   if (!(await acquireCycleLock(env, now))) return
   try {
     const config = toConfig(await loadConfigRow(env))
+    const strategyVersion = btcAutoStrategyVersion(config)
     let active = await activeTradeRow(env)
     if (!config.enabled && !active) {
       await releaseCycleLock(env, null)
@@ -989,7 +999,13 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
     const decision = buildContractTradeDecision(reading.market)
     const previousRow = await loadSignalRow(env)
     const previous = toSignal(previousRow)
-    const evolvedSignal = evolveBtcAutoSignal(previous, decision, now.toISOString(), reading.source)
+    const evolvedSignal = evolveBtcAutoSignal(
+      previous,
+      decision,
+      now.toISOString(),
+      reading.source,
+      strategyVersion,
+    )
     let cooldownUntil = previousRow?.cooldown_until ?? null
     const cooldownActive = cooldownUntil !== null && Date.parse(cooldownUntil) > now.getTime()
     const signal = cooldownActive ? { ...evolvedSignal, confirmations: 0 } : evolvedSignal
@@ -1023,6 +1039,7 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
       cooldownUntil,
       dailyNetPnl: daily?.netPnl ?? 0,
       now,
+      strategyVersion,
     })
     await updateSignal(env, signal, cooldownUntil)
     await appendSignalHistory(env, signal, cooldownUntil, gate)
@@ -1071,6 +1088,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
     listSignalHistory(env),
   ])
   const config = toConfig(configRow)
+  const strategyVersion = btcAutoStrategyVersion(config)
   const signal = toSignal(signalRow)
   const openTrade =
     trades.find((trade) => ['opening', 'open', 'closing'].includes(trade.status)) ?? null
@@ -1078,6 +1096,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
   const dailyNetPnl = performance.find((item) => item.period === 'day')?.netPnl ?? 0
   return {
     config,
+    strategyVersion,
     credentialsReady: Boolean(env.BINANCE_TESTNET_API_KEY && env.BINANCE_TESTNET_API_SECRET),
     lastRunAt: configRow.last_run_at,
     lastError: configRow.last_error,
@@ -1090,8 +1109,9 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
       hasActivePosition: Boolean(openTrade),
       cooldownUntil: signalRow?.cooldown_until ?? null,
       dailyNetPnl,
+      strategyVersion,
     }),
-    rollingHealth: calculateBtcAutoRollingHealth(config, trades),
+    rollingHealth: calculateBtcAutoRollingHealth(config, trades, new Date(), strategyVersion),
     openTrade,
     trades,
     performance,

@@ -14,6 +14,41 @@ const round = (value: number, digits = 4) => Number(value.toFixed(digits))
 const directional = (action: ContractTradeDecision['action']) =>
   action === 'long' || action === 'short'
 
+const strategyAlgorithmRevision = 'btc-auto-v4'
+
+const fnv1a = (value: string) => {
+  let hash = 0x811c9dc5
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index)
+    hash = Math.imul(hash, 0x01000193)
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0')
+}
+
+export const btcAutoStrategyVersion = (config: BtcAutoTradingConfig) => {
+  const behavior = [
+    strategyAlgorithmRevision,
+    config.executionMode,
+    config.symbol,
+    config.interval,
+    config.notionalUsdt,
+    config.leverage,
+    config.minimumConfidence,
+    config.minimumDirectionalScore,
+    config.requiredConfirmations,
+    config.cooldownMinutes,
+    config.dailyLossLimitUsdt,
+    config.maxConsecutiveLosses,
+    config.lossPauseMinutes,
+    config.performanceWindowTrades,
+    config.minimumRollingProfitFactor,
+    config.maximumRollingDrawdownUsdt,
+    config.performancePauseMinutes,
+    config.feeRatePct,
+  ].join('|')
+  return `${strategyAlgorithmRevision}-${fnv1a(behavior)}`
+}
+
 export const countConsecutiveBtcAutoLosses = (trades: readonly BtcAutoTrade[]) => {
   const closed = trades
     .filter((trade) => trade.status === 'closed' && trade.closedAt && trade.netPnl !== null)
@@ -30,10 +65,19 @@ export const calculateBtcAutoRollingHealth = (
   config: BtcAutoTradingConfig,
   trades: readonly BtcAutoTrade[],
   now = new Date(),
+  strategyVersion?: string,
 ): BtcAutoRollingHealth => {
-  const sample = trades
+  const closed = trades
     .filter((trade) => trade.status === 'closed' && trade.closedAt && trade.netPnl !== null)
     .sort((left, right) => Date.parse(right.closedAt ?? '') - Date.parse(left.closedAt ?? ''))
+  const currentVersion = strategyVersion
+    ? closed.filter((trade) => trade.strategyVersion === strategyVersion)
+    : closed
+  const sampleScope: BtcAutoRollingHealth['sampleScope'] =
+    currentVersion.length >= config.performanceWindowTrades
+      ? 'currentVersion'
+      : 'allHistoryFallback'
+  const sample = (sampleScope === 'currentVersion' ? currentVersion : closed)
     .slice(0, config.performanceWindowTrades)
   const grossProfit = sample.reduce((sum, trade) => sum + Math.max(0, trade.netPnl ?? 0), 0)
   const grossLoss = Math.abs(sample.reduce((sum, trade) => sum + Math.min(0, trade.netPnl ?? 0), 0))
@@ -76,7 +120,9 @@ export const calculateBtcAutoRollingHealth = (
           : 'probeEligible'
   return {
     sampleSize: sample.length,
+    currentVersionSampleSize: currentVersion.length,
     requiredSampleSize: config.performanceWindowTrades,
+    sampleScope,
     profitFactor,
     minimumProfitFactor: config.minimumRollingProfitFactor,
     maxDrawdownUsdt: round(maxDrawdownUsdt),
@@ -95,10 +141,16 @@ export const evaluateBtcAutoEntryGate = (input: {
   cooldownUntil: string | null
   dailyNetPnl: number
   now?: Date
+  strategyVersion?: string
 }): BtcAutoEntryGate => {
   const now = input.now ?? new Date()
   const streak = countConsecutiveBtcAutoLosses(input.trades)
-  const rollingHealth = calculateBtcAutoRollingHealth(input.config, input.trades, now)
+  const rollingHealth = calculateBtcAutoRollingHealth(
+    input.config,
+    input.trades,
+    now,
+    input.strategyVersion,
+  )
   const lossResumeAt = streak.lastClosedAt
     ? new Date(
         Date.parse(streak.lastClosedAt) + input.config.lossPauseMinutes * 60_000,
@@ -136,9 +188,13 @@ export const evolveBtcAutoSignal = (
   decision: ContractTradeDecision,
   observedAt: string,
   marketSource: BtcAutoSignalSnapshot['marketSource'],
+  strategyVersion: string,
 ): BtcAutoSignalSnapshot => {
-  const sameDirection = previous?.action === decision.action && directional(decision.action)
+  const sameVersion = previous?.strategyVersion === strategyVersion
+  const sameDirection =
+    sameVersion && previous?.action === decision.action && directional(decision.action)
   const oppositeDirection =
+    sameVersion &&
     previous &&
     directional(previous.action) &&
     directional(decision.action) &&
@@ -148,7 +204,7 @@ export const evolveBtcAutoSignal = (
     : directional(decision.action)
       ? 1
       : 0
-  let evolution: BtcAutoSignalSnapshot['evolution'] = previous ? 'unchanged' : 'new'
+  let evolution: BtcAutoSignalSnapshot['evolution'] = sameVersion ? 'unchanged' : 'new'
   if (oppositeDirection) evolution = 'falsified'
   else if (previous && sameDirection) {
     if (
@@ -161,10 +217,11 @@ export const evolveBtcAutoSignal = (
       Math.abs(decision.score) <= Math.abs(previous.score) - 5
     )
       evolution = 'weakened'
-  } else if (previous && directional(previous.action) && !directional(decision.action)) {
+  } else if (sameVersion && previous && directional(previous.action) && !directional(decision.action)) {
     evolution = 'weakened'
   }
   return {
+    strategyVersion,
     action: decision.action,
     score: decision.score,
     confidence: decision.confidence,

@@ -227,6 +227,27 @@ onMounted(load)
         </header>
         <dl>
           <div>
+            <dt>{{ t('assetTechnical.contract.auto.strategyVersion') }}</dt>
+            <dd><code>{{ dashboard.strategyVersion }}</code></dd>
+          </div>
+          <div>
+            <dt>{{ t('assetTechnical.contract.auto.currentVersionSample') }}</dt>
+            <dd>
+              {{ dashboard.rollingHealth.currentVersionSampleSize }} /
+              {{ dashboard.rollingHealth.requiredSampleSize }}
+            </dd>
+          </div>
+          <div>
+            <dt>{{ t('assetTechnical.contract.auto.sampleScopeLabel') }}</dt>
+            <dd>
+              {{
+                t(
+                  `assetTechnical.contract.auto.sampleScope.${dashboard.rollingHealth.sampleScope}`,
+                )
+              }}
+            </dd>
+          </div>
+          <div>
             <dt>{{ t('assetTechnical.contract.auto.rollingSample') }}</dt>
             <dd>
               {{ dashboard.rollingHealth.sampleSize }} /

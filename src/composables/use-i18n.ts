@@ -1049,6 +1049,13 @@ const messages: Record<Locale, DictionaryNode> = {
             lowProfitFactor: '滚动 Profit Factor 低于门槛',
             excessiveDrawdown: '滚动最大回撤达到上限',
           },
+          strategyVersion: '当前策略版本',
+          currentVersionSample: '当前版本已平仓样本',
+          sampleScopeLabel: '风控评估范围',
+          sampleScope: {
+            currentVersion: '仅当前策略版本',
+            allHistoryFallback: '全部历史保守回退',
+          },
           rollingSample: '已平仓样本',
           rollingProfitFactor: 'Profit Factor / 门槛',
           rollingDrawdown: '最大回撤 / 上限',
@@ -2835,6 +2842,13 @@ const messages: Record<Locale, DictionaryNode> = {
           rollingHealthReason: {
             lowProfitFactor: 'Rolling Profit Factor is below threshold',
             excessiveDrawdown: 'Rolling maximum drawdown reached its limit',
+          },
+          strategyVersion: 'Current strategy version',
+          currentVersionSample: 'Current-version closed trades',
+          sampleScopeLabel: 'Risk-control sample scope',
+          sampleScope: {
+            currentVersion: 'Current strategy version only',
+            allHistoryFallback: 'Conservative all-history fallback',
           },
           rollingSample: 'Closed-trade sample',
           rollingProfitFactor: 'Profit Factor / threshold',

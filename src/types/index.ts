@@ -1256,6 +1256,7 @@ export interface BtcAutoTradingConfig {
 }
 
 export interface BtcAutoSignalSnapshot {
+  strategyVersion: string
   action: ContractTradeAction
   score: number
   confidence: number
@@ -1270,6 +1271,7 @@ export interface BtcAutoSignalSnapshot {
 
 export interface BtcAutoTrade {
   id: string
+  strategyVersion: string
   executionMode: BtcAutoExecutionMode
   symbol: 'BTCUSDT'
   direction: ContractPositionDirection
@@ -1323,7 +1325,9 @@ export interface BtcAutoEntryGate {
 
 export interface BtcAutoRollingHealth {
   sampleSize: number
+  currentVersionSampleSize: number
   requiredSampleSize: number
+  sampleScope: 'currentVersion' | 'allHistoryFallback'
   profitFactor: number | null
   minimumProfitFactor: number
   maxDrawdownUsdt: number
@@ -1341,6 +1345,7 @@ export interface BtcAutoSignalHistoryItem extends BtcAutoSignalSnapshot {
 
 export interface BtcAutoTradingDashboard {
   config: BtcAutoTradingConfig
+  strategyVersion: string
   credentialsReady: boolean
   lastRunAt: string | null
   lastError: string | null
