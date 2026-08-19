@@ -15,9 +15,9 @@ import type {
 } from '../src/types/index'
 import {
   calculateBtcAutoTradeResult,
-  decideBtcAutoClose,
   evaluateBtcAutoEntryGate,
   evolveBtcAutoSignal,
+  resolveBtcAutoCloseTrigger,
   summarizeBtcAutoPerformance,
 } from '../src/utils/btc-auto-trading'
 import { buildContractTradeDecision } from '../src/utils/contract-trade-decision'
@@ -988,9 +988,16 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
       active = await reconcilePendingTrade(env, active, activeAdapter!)
     }
     if (active?.status === 'open') {
-      const reason = decideBtcAutoClose(toTrade(active), signal, config.minimumConfidence)
-      if (reason && signal.price !== null) {
-        await closeTrade(env, active, activeAdapter!, signal.price, reason)
+      const minutePoints =
+        reading.market.timeframes.find((item) => item.interval === '1m')?.points ?? []
+      const trigger = resolveBtcAutoCloseTrigger(
+        toTrade(active),
+        signal,
+        minutePoints,
+        config.minimumConfidence,
+      )
+      if (trigger) {
+        await closeTrade(env, active, activeAdapter!, trigger.referencePrice, trigger.reason)
         cooldownUntil = new Date(now.getTime() + config.cooldownMinutes * 60_000).toISOString()
         signal.confirmations = 0
         active = await activeTradeRow(env)

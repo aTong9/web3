@@ -117,6 +117,18 @@ const pnlClass = (value: number | null) =>
 const performance = computed(() => dashboard.value?.performance ?? [])
 const recentTrades = computed(() => dashboard.value?.trades.slice(0, 12) ?? [])
 const recentSignals = computed(() => dashboard.value?.signalHistory.slice(0, 12) ?? [])
+const openRisk = computed(() => {
+  const trade = dashboard.value?.openTrade
+  const price = dashboard.value?.signal?.price
+  if (!trade || !trade.entryPrice || !price) return null
+  const multiplier = trade.direction === 'long' ? 1 : -1
+  const gross = (price - trade.entryPrice) * trade.quantity * multiplier
+  const fees = (trade.entryPrice + price) * trade.quantity * (trade.feeRatePct / 100)
+  const riskToStop =
+    Math.abs(trade.entryPrice - trade.stopLoss) * trade.quantity +
+    (trade.entryPrice + trade.stopLoss) * trade.quantity * (trade.feeRatePct / 100)
+  return { unrealizedPnl: gross - fees, riskToStop }
+})
 const periodLabel = (summary: BtcAutoPerformanceSummary) =>
   t(`assetTechnical.contract.auto.period.${summary.period}`)
 const tradeDirection = (trade: BtcAutoTrade) =>
@@ -258,6 +270,16 @@ onMounted(load)
               <dt>{{ t('assetTechnical.contract.auto.target') }}</dt>
               <dd>{{ formatNumber(dashboard.openTrade.takeProfit) }}</dd>
             </div>
+            <div v-if="openRisk">
+              <dt>{{ t('assetTechnical.contract.auto.unrealizedPnl') }}</dt>
+              <dd :class="pnlClass(openRisk.unrealizedPnl)">
+                {{ formatSigned(openRisk.unrealizedPnl, 2, ' USDT') }}
+              </dd>
+            </div>
+            <div v-if="openRisk">
+              <dt>{{ t('assetTechnical.contract.auto.riskToStop') }}</dt>
+              <dd>{{ formatNumber(openRisk.riskToStop, 2) }} USDT</dd>
+            </div>
           </dl>
           <p v-else>{{ t('assetTechnical.contract.auto.flatHint') }}</p>
         </article>
@@ -285,6 +307,16 @@ onMounted(load)
             <div>
               <dt>{{ t('assetTechnical.contract.auto.profitFactor') }}</dt>
               <dd>{{ formatNumber(summary.profitFactor) }}</dd>
+            </div>
+            <div>
+              <dt>{{ t('assetTechnical.contract.auto.expectancy') }}</dt>
+              <dd :class="pnlClass(summary.expectancyUsdt)">
+                {{ formatSigned(summary.expectancyUsdt, 2) }}
+              </dd>
+            </div>
+            <div>
+              <dt>{{ t('assetTechnical.contract.auto.maxDrawdown') }}</dt>
+              <dd>{{ formatNumber(summary.maxDrawdownUsdt, 2) }}</dd>
             </div>
           </dl>
         </article>

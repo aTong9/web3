@@ -1305,6 +1305,8 @@ export interface BtcAutoPerformanceSummary {
   netPnl: number
   averageWinLossRatio: number | null
   profitFactor: number | null
+  expectancyUsdt: number | null
+  maxDrawdownUsdt: number
 }
 
 export interface BtcAutoEntryGate {

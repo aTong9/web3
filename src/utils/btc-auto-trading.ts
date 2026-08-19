@@ -1,4 +1,5 @@
 import type {
+  AssetPricePoint,
   BtcAutoCloseReason,
   BtcAutoEntryGate,
   BtcAutoPerformanceSummary,
@@ -137,6 +138,64 @@ export const decideBtcAutoClose = (
   return null
 }
 
+export interface BtcAutoCloseTrigger {
+  reason: BtcAutoCloseReason
+  referencePrice: number
+  source: 'minuteCandle' | 'markPrice' | 'signal'
+}
+
+const firstFullMinuteStart = (openedAt: string) => Math.ceil(Date.parse(openedAt) / 60_000) * 60_000
+
+export const resolveBtcAutoCloseTrigger = (
+  trade: BtcAutoTrade,
+  signal: BtcAutoSignalSnapshot,
+  minutePoints: readonly AssetPricePoint[],
+  minimumConfidence: number,
+): BtcAutoCloseTrigger | null => {
+  if (trade.status !== 'open') return null
+  const eligiblePoints = minutePoints
+    .filter((point) => Date.parse(point.date) >= firstFullMinuteStart(trade.openedAt))
+    .sort((left, right) => Date.parse(left.date) - Date.parse(right.date))
+  for (const point of eligiblePoints) {
+    const high = point.high ?? point.close
+    const low = point.low ?? point.close
+    const stopHit = trade.direction === 'long' ? low <= trade.stopLoss : high >= trade.stopLoss
+    const targetHit =
+      trade.direction === 'long' ? high >= trade.takeProfit : low <= trade.takeProfit
+    // OHLC cannot reveal the intraminute path. Stop-first avoids optimistic backfill.
+    if (stopHit) {
+      const candleOpen = point.open ?? trade.stopLoss
+      const referencePrice =
+        trade.direction === 'long'
+          ? Math.min(trade.stopLoss, candleOpen)
+          : Math.max(trade.stopLoss, candleOpen)
+      return { reason: 'stopLoss', referencePrice, source: 'minuteCandle' }
+    }
+    if (targetHit)
+      return { reason: 'takeProfit', referencePrice: trade.takeProfit, source: 'minuteCandle' }
+  }
+  const markReason = decideBtcAutoClose(trade, signal, Number.POSITIVE_INFINITY)
+  if (markReason === 'stopLoss' || markReason === 'takeProfit') {
+    const result: BtcAutoCloseTrigger = {
+      reason: markReason,
+      referencePrice: markReason === 'stopLoss' ? trade.stopLoss : trade.takeProfit,
+      source: 'markPrice',
+    }
+    if (markReason === 'stopLoss' && signal.price !== null) {
+      result.referencePrice =
+        trade.direction === 'long'
+          ? Math.min(result.referencePrice, signal.price)
+          : Math.max(result.referencePrice, signal.price)
+    }
+    return result
+  }
+  const signalReason = decideBtcAutoClose(trade, signal, minimumConfidence)
+  if (signalReason === 'signalFalsified' && signal.price !== null) {
+    return { reason: signalReason, referencePrice: signal.price, source: 'signal' }
+  }
+  return null
+}
+
 export const calculateBtcAutoTradeResult = (
   trade: BtcAutoTrade,
   exitPrice: number,
@@ -199,6 +258,17 @@ export const summarizeBtcAutoPerformance = (
     const grossLoss = Math.abs(losses.reduce((sum, trade) => sum + (trade.netPnl ?? 0), 0))
     const averageWin = wins.length ? grossProfit / wins.length : null
     const averageLoss = losses.length ? grossLoss / losses.length : null
+    const ordered = [...selected].sort(
+      (left, right) => Date.parse(left.closedAt ?? '') - Date.parse(right.closedAt ?? ''),
+    )
+    let equity = 0
+    let peak = 0
+    let maxDrawdown = 0
+    ordered.forEach((trade) => {
+      equity += trade.netPnl ?? 0
+      peak = Math.max(peak, equity)
+      maxDrawdown = Math.max(maxDrawdown, peak - equity)
+    })
     return {
       period,
       startAt: starts[period].toISOString(),
@@ -215,6 +285,8 @@ export const summarizeBtcAutoPerformance = (
           ? round(averageWin / averageLoss, 2)
           : null,
       profitFactor: grossLoss > 0 ? round(grossProfit / grossLoss, 2) : null,
+      expectancyUsdt: selected.length ? round((grossProfit - grossLoss) / selected.length) : null,
+      maxDrawdownUsdt: round(maxDrawdown),
     }
   })
 }
