@@ -20,6 +20,7 @@ import {
   btcAutoPerformanceQueryStartAt,
   btcAutoStrategyVersion,
   btcAutoStrategyDefinition,
+  btcAutoStrategyVersionFromDefinition,
   buildBtcAutoEquityCurve,
   calculateBtcAutoDirectionalMove,
   calculateBtcAutoRollingHealth,
@@ -27,6 +28,7 @@ import {
   calculateBtcAutoTradeResult,
   evaluateBtcAutoEntryGate,
   evolveBtcAutoSignal,
+  isBtcAutoStrategyDefinition,
   nextBtcAutoScheduledRunAt,
   resolveBtcAutoCloseTrigger,
   selectBtcAutoOutcomePoint,
@@ -379,17 +381,30 @@ const ensureStrategySnapshot = async (
     .run()
 }
 
-const listStrategySnapshots = async (env: Env) => {
-  const rows = await env.DB.prepare(
-    `SELECT strategy_version, definition_json, first_seen_at, last_seen_at
-     FROM btc_auto_strategy_snapshots ORDER BY last_seen_at DESC LIMIT 50`,
-  ).all<BtcAutoStrategySnapshotRow>()
+const listStrategySnapshots = async (env: Env, limit: number | null = 50) => {
+  const statement: D1PreparedStatement = limit
+    ? env.DB.prepare(
+        `SELECT strategy_version, definition_json, first_seen_at, last_seen_at
+         FROM btc_auto_strategy_snapshots ORDER BY last_seen_at DESC LIMIT ?1`,
+      ).bind(limit)
+    : env.DB.prepare(
+        `SELECT strategy_version, definition_json, first_seen_at, last_seen_at
+         FROM btc_auto_strategy_snapshots ORDER BY last_seen_at DESC`,
+      )
+  const rows = await statement.all<BtcAutoStrategySnapshotRow>()
   return rows.results.flatMap((row): BtcAutoStrategySnapshot[] => {
     try {
+      const definition: unknown = JSON.parse(row.definition_json)
+      if (
+        !isBtcAutoStrategyDefinition(definition) ||
+        btcAutoStrategyVersionFromDefinition(definition) !== row.strategy_version
+      ) {
+        throw new Error('strategy definition does not match its version fingerprint')
+      }
       return [
         {
           strategyVersion: row.strategy_version,
-          definition: JSON.parse(row.definition_json) as BtcAutoStrategySnapshot['definition'],
+          definition,
           firstSeenAt: row.first_seen_at,
           lastSeenAt: row.last_seen_at,
         },
@@ -1578,11 +1593,16 @@ export const btcAutoTradingCsv = async (
   env: Env,
   locale: BtcAutoTradingExportLocale,
 ) => {
-  const [dashboard, trades] = await Promise.all([btcAutoTradingDashboard(env), listAllTrades(env)])
+  const [dashboard, trades, strategySnapshots] = await Promise.all([
+    btcAutoTradingDashboard(env),
+    listAllTrades(env),
+    listStrategySnapshots(env, null),
+  ])
   return buildBtcAutoTradingCsv(
     {
       ...dashboard,
       trades,
+      strategySnapshots,
       performance: summarizeBtcAutoPerformance(trades),
     },
     locale,

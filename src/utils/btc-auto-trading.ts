@@ -122,8 +122,49 @@ export const btcAutoStrategyDefinition = (
   feeRatePct: config.feeRatePct,
 })
 
-export const btcAutoStrategyVersion = (config: BtcAutoTradingConfig) => {
-  const definition = btcAutoStrategyDefinition(config)
+const strategyDefinitionKeys: Array<keyof BtcAutoStrategyDefinition> = [
+  'executionMode',
+  'symbol',
+  'interval',
+  'notionalUsdt',
+  'leverage',
+  'minimumConfidence',
+  'minimumDirectionalScore',
+  'requiredConfirmations',
+  'cooldownMinutes',
+  'dailyLossLimitUsdt',
+  'maxConsecutiveLosses',
+  'lossPauseMinutes',
+  'performanceWindowTrades',
+  'minimumRollingProfitFactor',
+  'maximumRollingDrawdownUsdt',
+  'performancePauseMinutes',
+  'feeRatePct',
+]
+
+export const isBtcAutoStrategyDefinition = (
+  value: unknown,
+): value is BtcAutoStrategyDefinition => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const record = value as Record<string, unknown>
+  if (
+    !['paper', 'testnet'].includes(String(record.executionMode)) ||
+    record.symbol !== 'BTCUSDT' ||
+    record.interval !== '5m'
+  )
+    return false
+  const numberKeys = strategyDefinitionKeys.filter(
+    (key) => !['executionMode', 'symbol', 'interval'].includes(key),
+  )
+  if (!numberKeys.every((key) => typeof record[key] === 'number' && Number.isFinite(record[key]))) {
+    return false
+  }
+  return (
+    Object.keys(record).sort().join('|') === [...strategyDefinitionKeys].sort().join('|')
+  )
+}
+
+export const btcAutoStrategyVersionFromDefinition = (definition: BtcAutoStrategyDefinition) => {
   const behavior = [
     strategyAlgorithmRevision,
     definition.executionMode,
@@ -146,6 +187,9 @@ export const btcAutoStrategyVersion = (config: BtcAutoTradingConfig) => {
   ].join('|')
   return `${strategyAlgorithmRevision}-${fnv1a(behavior)}`
 }
+
+export const btcAutoStrategyVersion = (config: BtcAutoTradingConfig) =>
+  btcAutoStrategyVersionFromDefinition(btcAutoStrategyDefinition(config))
 
 export const countConsecutiveBtcAutoLosses = (trades: readonly BtcAutoTrade[]) => {
   const closed = trades

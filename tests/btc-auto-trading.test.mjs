@@ -6,6 +6,7 @@ const jiti = createJiti(import.meta.url)
 const {
   btcAutoStrategyVersion,
   btcAutoStrategyDefinition,
+  btcAutoStrategyVersionFromDefinition,
   btcAutoMonthStartAt,
   btcAutoPerformanceQueryStartAt,
   buildBtcAutoEquityCurve,
@@ -15,6 +16,7 @@ const {
   calculateBtcAutoTradeResult,
   evaluateBtcAutoEntryGate,
   evolveBtcAutoSignal,
+  isBtcAutoStrategyDefinition,
   nextBtcAutoScheduledRunAt,
   resolveBtcAutoCloseTrigger,
   selectBtcAutoOutcomePoint,
@@ -211,6 +213,11 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
     'requiredConfirmations',
     'symbol',
   ])
+  const definition = btcAutoStrategyDefinition(config())
+  assert.equal(btcAutoStrategyVersionFromDefinition(definition), baseline)
+  assert.equal(isBtcAutoStrategyDefinition(definition), true)
+  assert.equal(isBtcAutoStrategyDefinition({ ...definition, unexpected: true }), false)
+  assert.equal(isBtcAutoStrategyDefinition({ ...definition, feeRatePct: '0.05' }), false)
 })
 
 test('market freshness rejects stale or incomplete minute data', () => {
