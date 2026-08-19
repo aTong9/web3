@@ -6,6 +6,7 @@ const jiti = createJiti(import.meta.url)
 const {
   btcAutoStrategyVersion,
   calculateBtcAutoRollingHealth,
+  calculateBtcAutoReconciledResult,
   calculateBtcAutoTradeResult,
   evaluateBtcAutoEntryGate,
   evolveBtcAutoSignal,
@@ -71,8 +72,12 @@ const trade = (overrides = {}) => ({
   grossPnl: null,
   feeRatePct: 0.05,
   fees: null,
+  fundingFee: 0,
   netPnl: null,
   returnPct: null,
+  pnlSource: 'estimated',
+  reconciledAt: null,
+  reconciliationError: null,
   signalScore: 70,
   signalConfidence: 80,
   signalReasons: [],
@@ -352,6 +357,17 @@ test('trade result subtracts entry and exit fees', () => {
   })
 })
 
+test('reconciled trade result includes actual commission and signed funding income', () => {
+  assert.deepEqual(calculateBtcAutoReconciledResult(trade(), 10, 0.08, -0.02), {
+    grossPnl: 10,
+    fees: 0.08,
+    fundingFee: -0.02,
+    netPnl: 9.9,
+    returnPct: 9.9,
+  })
+  assert.equal(calculateBtcAutoReconciledResult(trade(), 10, -0.08, 0), null)
+})
+
 test('performance summaries use Asia/Shanghai boundaries and report drawdown', () => {
   const trades = [
     closedTrade('before-day', '2026-08-18T15:59:59.000Z', 50),
@@ -362,6 +378,8 @@ test('performance summaries use Asia/Shanghai boundaries and report drawdown', (
   ]
   const [day] = summarizeBtcAutoPerformance(trades, new Date('2026-08-19T05:00:00.000Z'))
   assert.equal(day.trades, 4)
+  assert.equal(day.reconciledTrades, 0)
+  assert.equal(day.estimatedTrades, 4)
   assert.equal(day.netPnl, 2)
   assert.equal(day.expectancyUsdt, 0.5)
   assert.equal(day.maxDrawdownUsdt, 4)

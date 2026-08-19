@@ -1219,6 +1219,7 @@ export type BtcAutoMarketSource = 'binance' | 'coinbase'
 export type BtcAutoTradeStatus = 'opening' | 'open' | 'closing' | 'closed' | 'error'
 export type BtcAutoSignalEvolution = 'new' | 'strengthened' | 'weakened' | 'falsified' | 'unchanged'
 export type BtcAutoCloseReason = 'stopLoss' | 'takeProfit' | 'signalFalsified' | 'manual'
+export type BtcAutoPnlSource = 'estimated' | 'reconciled'
 export type BtcAutoEntryGateReason =
   | 'ready'
   | 'disabled'
@@ -1288,8 +1289,12 @@ export interface BtcAutoTrade {
   grossPnl: number | null
   feeRatePct: number
   fees: number | null
+  fundingFee: number
   netPnl: number | null
   returnPct: number | null
+  pnlSource: BtcAutoPnlSource
+  reconciledAt: string | null
+  reconciliationError: string | null
   signalScore: number
   signalConfidence: number
   signalReasons: ContractDecisionReason[]
@@ -1304,6 +1309,8 @@ export interface BtcAutoPerformanceSummary {
   startAt: string
   endAt: string
   trades: number
+  reconciledTrades: number
+  estimatedTrades: number
   wins: number
   losses: number
   winRatePct: number | null

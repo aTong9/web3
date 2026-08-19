@@ -369,6 +369,10 @@ onMounted(load)
               <dd>{{ summary.trades }}</dd>
             </div>
             <div>
+              <dt>{{ t('assetTechnical.contract.auto.reconciliationCoverage') }}</dt>
+              <dd>{{ summary.reconciledTrades }} / {{ summary.trades }}</dd>
+            </div>
+            <div>
               <dt>{{ t('assetTechnical.contract.auto.winRate') }}</dt>
               <dd>{{ formatSigned(summary.winRatePct, 1, '%').replace('+', '') }}</dd>
             </div>
@@ -583,6 +587,7 @@ onMounted(load)
                 <th>{{ t('assetTechnical.contract.auto.modeLabel') }}</th>
                 <th>{{ t('assetTechnical.contract.auto.entryExit') }}</th>
                 <th>{{ t('assetTechnical.contract.auto.netPnl') }}</th>
+                <th>{{ t('assetTechnical.contract.auto.pnlSourceLabel') }}</th>
                 <th>{{ t('assetTechnical.contract.auto.closeReason') }}</th>
               </tr>
             </thead>
@@ -593,6 +598,16 @@ onMounted(load)
                 <td>{{ t(`assetTechnical.contract.auto.mode.${trade.executionMode}`) }}</td>
                 <td>{{ formatNumber(trade.entryPrice) }} / {{ formatNumber(trade.exitPrice) }}</td>
                 <td :class="pnlClass(trade.netPnl)">{{ formatSigned(trade.netPnl, 2) }}</td>
+                <td>
+                  {{ t(`assetTechnical.contract.auto.pnlSource.${trade.pnlSource}`) }}
+                  <small v-if="trade.fundingFee">
+                    · {{ t('assetTechnical.contract.auto.fundingFee') }}
+                    {{ formatSigned(trade.fundingFee, 4) }}
+                  </small>
+                  <small v-if="trade.reconciliationError" class="reconciliation-pending">
+                    · {{ t('assetTechnical.contract.auto.reconciliationPending') }}
+                  </small>
+                </td>
                 <td>
                   {{
                     trade.closeReason
@@ -961,6 +976,9 @@ th {
   color: var(--muted);
   font-size: 7px;
   font-weight: 600;
+}
+.reconciliation-pending {
+  color: var(--warning);
 }
 @media (max-width: 900px) {
   .performance-grid,

@@ -336,6 +336,23 @@ export const calculateBtcAutoTradeResult = (
   }
 }
 
+export const calculateBtcAutoReconciledResult = (
+  trade: BtcAutoTrade,
+  grossPnl: number,
+  fees: number,
+  fundingFee: number,
+) => {
+  if (![grossPnl, fees, fundingFee].every(Number.isFinite) || fees < 0) return null
+  const netPnl = grossPnl - fees + fundingFee
+  return {
+    grossPnl: round(grossPnl),
+    fees: round(fees),
+    fundingFee: round(fundingFee),
+    netPnl: round(netPnl),
+    returnPct: round((netPnl / trade.notionalUsdt) * 100),
+  }
+}
+
 const shanghaiDateParts = (value: Date) => {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Shanghai',
@@ -396,6 +413,8 @@ export const summarizeBtcAutoPerformance = (
       startAt: starts[period].toISOString(),
       endAt: now.toISOString(),
       trades: selected.length,
+      reconciledTrades: selected.filter((trade) => trade.pnlSource === 'reconciled').length,
+      estimatedTrades: selected.filter((trade) => trade.pnlSource !== 'reconciled').length,
       wins: wins.length,
       losses: losses.length,
       winRatePct: selected.length ? round((wins.length / selected.length) * 100, 2) : null,

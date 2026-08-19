@@ -16,6 +16,7 @@ import type {
 import {
   btcAutoStrategyVersion,
   calculateBtcAutoRollingHealth,
+  calculateBtcAutoReconciledResult,
   calculateBtcAutoTradeResult,
   evaluateBtcAutoEntryGate,
   evolveBtcAutoSignal,
@@ -89,8 +90,12 @@ interface BtcAutoTradeRow {
   gross_pnl: number | null
   fee_rate_pct: number
   fees: number | null
+  funding_fee: number
   net_pnl: number | null
   return_pct: number | null
+  pnl_source: BtcAutoTrade['pnlSource']
+  reconciled_at: string | null
+  reconciliation_error: string | null
   signal_score: number
   signal_confidence: number
   signal_reasons: string
@@ -128,6 +133,15 @@ interface ExecutionAdapter {
   size: (notionalUsdt: number, price: number) => Promise<number>
   execute: (command: ExecutionCommand, price: number) => Promise<ExecutionFill>
   query: (clientOrderId: string) => Promise<ExecutionFill>
+  reconcile?: (trade: BtcAutoTradeRow) => Promise<ExecutionReconciliation>
+}
+
+interface ExecutionReconciliation {
+  grossPnl: number
+  fees: number
+  fundingFee: number
+  netPnl: number
+  returnPct: number
 }
 
 interface MarketReading {
@@ -203,8 +217,12 @@ const toTrade = (row: BtcAutoTradeRow): BtcAutoTrade => ({
   grossPnl: row.gross_pnl,
   feeRatePct: row.fee_rate_pct,
   fees: row.fees,
+  fundingFee: row.funding_fee,
   netPnl: row.net_pnl,
   returnPct: row.return_pct,
+  pnlSource: row.pnl_source,
+  reconciledAt: row.reconciled_at,
+  reconciliationError: row.reconciliation_error,
   signalScore: row.signal_score,
   signalConfidence: row.signal_confidence,
   signalReasons: parseJsonArray(row.signal_reasons),
@@ -223,7 +241,8 @@ const signalColumns = `strategy_version, action, score, confidence, price, evolu
   observed_at, market_source, cooldown_until`
 const tradeColumns = `id, strategy_version, execution_mode, symbol, direction, status, quantity, notional_usdt,
   leverage, entry_price, exit_price, stop_loss, take_profit, opened_at, closed_at, gross_pnl,
-  fee_rate_pct, fees, net_pnl, return_pct, signal_score, signal_confidence, signal_reasons, close_reason,
+  fee_rate_pct, fees, funding_fee, net_pnl, return_pct, pnl_source, reconciled_at,
+  reconciliation_error, signal_score, signal_confidence, signal_reasons, close_reason,
   open_client_order_id, close_client_order_id, open_order_id, close_order_id, error`
 
 const loadConfigRow = async (env: Env) => {
@@ -615,6 +634,74 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
       averagePrice,
     }
   }
+  const reconcile = async (row: BtcAutoTradeRow): Promise<ExecutionReconciliation> => {
+    if (!row.open_order_id || !row.close_order_id || !row.closed_at) {
+      throw new Error('Testnet订单尚未具备完整对账标识')
+    }
+    interface AccountTrade {
+      id?: number
+      orderId?: number
+      realizedPnl?: string
+      commission?: string
+      commissionAsset?: string
+    }
+    const orderTrades = async (orderId: string) => {
+      const items = await signedRequest<AccountTrade[]>('GET', '/fapi/v1/userTrades', {
+        symbol,
+        orderId,
+      })
+      if (!Array.isArray(items) || !items.length) throw new Error(`订单 ${orderId} 暂无成交明细`)
+      return items
+    }
+    const fills = [...(await orderTrades(row.open_order_id)), ...(await orderTrades(row.close_order_id))]
+    const uniqueFills = [...new Map(fills.map((item) => [String(item.id), item])).values()]
+    if (
+      uniqueFills.some(
+        (item) => item.commissionAsset !== 'USDT' && Number(item.commission ?? 0) !== 0,
+      )
+    ) {
+      throw new Error('Testnet成交佣金不是USDT，暂不自动换算')
+    }
+    const grossPnl = uniqueFills.reduce((sum, item) => sum + Number(item.realizedPnl ?? 0), 0)
+    const fees = uniqueFills.reduce(
+      (sum, item) => sum + Math.abs(Number(item.commission ?? 0)),
+      0,
+    )
+    interface IncomeItem {
+      tranId?: number
+      income?: string
+      asset?: string
+    }
+    const incomes = new Map<string, IncomeItem>()
+    const closedAt = Date.parse(row.closed_at)
+    let windowStart = Date.parse(row.opened_at)
+    const maximumWindow = 6 * 86_400_000
+    while (windowStart <= closedAt) {
+      const windowEnd = Math.min(closedAt, windowStart + maximumWindow)
+      const items = await signedRequest<IncomeItem[]>('GET', '/fapi/v1/income', {
+        symbol,
+        incomeType: 'FUNDING_FEE',
+        startTime: String(windowStart),
+        endTime: String(windowEnd),
+        limit: '1000',
+      })
+      if (!Array.isArray(items)) throw new Error('Testnet资金费记录格式无效')
+      items.forEach((item, index) => incomes.set(String(item.tranId ?? `${windowStart}-${index}`), item))
+      windowStart = windowEnd + 1
+    }
+    const fundingItems = [...incomes.values()]
+    if (fundingItems.some((item) => item.asset !== 'USDT' && Number(item.income ?? 0) !== 0)) {
+      throw new Error('Testnet资金费不是USDT，暂不自动换算')
+    }
+    const fundingFee = fundingItems.reduce((sum, item) => sum + Number(item.income ?? 0), 0)
+    const values = [...uniqueFills.flatMap((item) => [item.realizedPnl, item.commission]), fundingFee]
+    if (values.some((value) => !Number.isFinite(Number(value)))) {
+      throw new Error('Testnet对账明细包含无效数值')
+    }
+    const result = calculateBtcAutoReconciledResult(toTrade(row), grossPnl, fees, fundingFee)
+    if (!result) throw new Error('无法计算Testnet已对账盈亏')
+    return result
+  }
   return {
     size: async (notionalUsdt, price) => {
       const payload = await readExchangeJson<{
@@ -679,6 +766,7 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
           origClientOrderId: clientOrderId,
         }),
       ),
+    reconcile,
   }
 }
 
@@ -781,8 +869,9 @@ const markTradeClosed = async (
   const closedAt = new Date().toISOString()
   await env.DB.prepare(
     `UPDATE btc_auto_trades SET status = 'closed', exit_price = ?1, closed_at = ?2,
-      gross_pnl = ?3, fees = ?4, net_pnl = ?5, return_pct = ?6, close_reason = ?7,
-      close_order_id = ?8, error = NULL, updated_at = ?9 WHERE id = ?10`,
+      gross_pnl = ?3, fees = ?4, funding_fee = 0, net_pnl = ?5, return_pct = ?6,
+      pnl_source = 'estimated', reconciled_at = NULL, reconciliation_error = NULL,
+      close_reason = ?7, close_order_id = ?8, error = NULL, updated_at = ?9 WHERE id = ?10`,
   )
     .bind(
       fill.averagePrice,
@@ -797,6 +886,45 @@ const markTradeClosed = async (
       row.id,
     )
     .run()
+}
+
+const reconcileLatestTestnetPnl = async (env: Env) => {
+  if (!env.BINANCE_TESTNET_API_KEY || !env.BINANCE_TESTNET_API_SECRET) return
+  const row = await env.DB.prepare(
+    `SELECT ${tradeColumns} FROM btc_auto_trades
+     WHERE execution_mode = 'testnet' AND status = 'closed' AND pnl_source = 'estimated'
+     ORDER BY CASE WHEN reconciliation_error IS NULL THEN 0 ELSE 1 END, updated_at ASC LIMIT 1`,
+  ).first<BtcAutoTradeRow>()
+  if (!row) return
+  const adapter = testnetAdapter(env)
+  try {
+    const result = await adapter.reconcile!(row)
+    const reconciledAt = new Date().toISOString()
+    await env.DB.prepare(
+      `UPDATE btc_auto_trades SET gross_pnl = ?1, fees = ?2, funding_fee = ?3,
+       net_pnl = ?4, return_pct = ?5, pnl_source = 'reconciled', reconciled_at = ?6,
+       reconciliation_error = NULL, updated_at = ?6 WHERE id = ?7 AND pnl_source = 'estimated'`,
+    )
+      .bind(
+        result.grossPnl,
+        result.fees,
+        result.fundingFee,
+        result.netPnl,
+        result.returnPct,
+        reconciledAt,
+        row.id,
+      )
+      .run()
+  } catch (error) {
+    const message = error instanceof Error ? error.message.slice(0, 300) : 'Testnet对账失败'
+    await env.DB.prepare(
+      `UPDATE btc_auto_trades SET reconciliation_error = ?1, updated_at = ?2
+       WHERE id = ?3 AND pnl_source = 'estimated'`,
+    )
+      .bind(message, new Date().toISOString(), row.id)
+      .run()
+    console.warn(JSON.stringify({ event: 'btc_auto_pnl_reconciliation_pending', message }))
+  }
 }
 
 const reconcilePendingTrade = async (env: Env, row: BtcAutoTradeRow, adapter: ExecutionAdapter) => {
@@ -990,6 +1118,7 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
   try {
     const config = toConfig(await loadConfigRow(env))
     const strategyVersion = btcAutoStrategyVersion(config)
+    await reconcileLatestTestnetPnl(env)
     let active = await activeTradeRow(env)
     if (!config.enabled && !active) {
       await releaseCycleLock(env, null)
