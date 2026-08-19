@@ -1257,6 +1257,33 @@ export interface BtcAutoTradingConfig {
   updatedAt: string
 }
 
+export interface BtcAutoStrategyDefinition {
+  executionMode: BtcAutoExecutionMode
+  symbol: 'BTCUSDT'
+  interval: '5m'
+  notionalUsdt: number
+  leverage: number
+  minimumConfidence: number
+  minimumDirectionalScore: number
+  requiredConfirmations: number
+  cooldownMinutes: number
+  dailyLossLimitUsdt: number
+  maxConsecutiveLosses: number
+  lossPauseMinutes: number
+  performanceWindowTrades: number
+  minimumRollingProfitFactor: number
+  maximumRollingDrawdownUsdt: number
+  performancePauseMinutes: number
+  feeRatePct: number
+}
+
+export interface BtcAutoStrategySnapshot {
+  strategyVersion: string
+  definition: BtcAutoStrategyDefinition
+  firstSeenAt: string
+  lastSeenAt: string
+}
+
 export interface BtcAutoSignalSnapshot {
   strategyVersion: string
   action: ContractTradeAction
@@ -1375,6 +1402,7 @@ export interface BtcAutoSignalOutcomeSummary {
 export interface BtcAutoTradingDashboard {
   config: BtcAutoTradingConfig
   strategyVersion: string
+  strategySnapshots: BtcAutoStrategySnapshot[]
   credentialsReady: boolean
   lastRunAt: string | null
   lastSuccessfulRunAt: string | null

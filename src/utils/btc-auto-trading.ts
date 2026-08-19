@@ -6,6 +6,7 @@ import type {
   BtcAutoMarketSource,
   BtcAutoPerformanceSummary,
   BtcAutoRollingHealth,
+  BtcAutoStrategyDefinition,
   BtcAutoSignalSnapshot,
   BtcAutoTrade,
   BtcAutoTradingConfig,
@@ -99,26 +100,49 @@ const fnv1a = (value: string) => {
   return (hash >>> 0).toString(16).padStart(8, '0')
 }
 
+export const btcAutoStrategyDefinition = (
+  config: BtcAutoTradingConfig,
+): BtcAutoStrategyDefinition => ({
+  executionMode: config.executionMode,
+  symbol: config.symbol,
+  interval: config.interval,
+  notionalUsdt: config.notionalUsdt,
+  leverage: config.leverage,
+  minimumConfidence: config.minimumConfidence,
+  minimumDirectionalScore: config.minimumDirectionalScore,
+  requiredConfirmations: config.requiredConfirmations,
+  cooldownMinutes: config.cooldownMinutes,
+  dailyLossLimitUsdt: config.dailyLossLimitUsdt,
+  maxConsecutiveLosses: config.maxConsecutiveLosses,
+  lossPauseMinutes: config.lossPauseMinutes,
+  performanceWindowTrades: config.performanceWindowTrades,
+  minimumRollingProfitFactor: config.minimumRollingProfitFactor,
+  maximumRollingDrawdownUsdt: config.maximumRollingDrawdownUsdt,
+  performancePauseMinutes: config.performancePauseMinutes,
+  feeRatePct: config.feeRatePct,
+})
+
 export const btcAutoStrategyVersion = (config: BtcAutoTradingConfig) => {
+  const definition = btcAutoStrategyDefinition(config)
   const behavior = [
     strategyAlgorithmRevision,
-    config.executionMode,
-    config.symbol,
-    config.interval,
-    config.notionalUsdt,
-    config.leverage,
-    config.minimumConfidence,
-    config.minimumDirectionalScore,
-    config.requiredConfirmations,
-    config.cooldownMinutes,
-    config.dailyLossLimitUsdt,
-    config.maxConsecutiveLosses,
-    config.lossPauseMinutes,
-    config.performanceWindowTrades,
-    config.minimumRollingProfitFactor,
-    config.maximumRollingDrawdownUsdt,
-    config.performancePauseMinutes,
-    config.feeRatePct,
+    definition.executionMode,
+    definition.symbol,
+    definition.interval,
+    definition.notionalUsdt,
+    definition.leverage,
+    definition.minimumConfidence,
+    definition.minimumDirectionalScore,
+    definition.requiredConfirmations,
+    definition.cooldownMinutes,
+    definition.dailyLossLimitUsdt,
+    definition.maxConsecutiveLosses,
+    definition.lossPauseMinutes,
+    definition.performanceWindowTrades,
+    definition.minimumRollingProfitFactor,
+    definition.maximumRollingDrawdownUsdt,
+    definition.performancePauseMinutes,
+    definition.feeRatePct,
   ].join('|')
   return `${strategyAlgorithmRevision}-${fnv1a(behavior)}`
 }

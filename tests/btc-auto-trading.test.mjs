@@ -5,6 +5,7 @@ import { createJiti } from 'jiti'
 const jiti = createJiti(import.meta.url)
 const {
   btcAutoStrategyVersion,
+  btcAutoStrategyDefinition,
   btcAutoMonthStartAt,
   btcAutoPerformanceQueryStartAt,
   buildBtcAutoEquityCurve,
@@ -191,6 +192,25 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
     baseline,
   )
   assert.notEqual(btcAutoStrategyVersion(config({ minimumDirectionalScore: 56 })), baseline)
+  assert.deepEqual(Object.keys(btcAutoStrategyDefinition(config())).sort(), [
+    'cooldownMinutes',
+    'dailyLossLimitUsdt',
+    'executionMode',
+    'feeRatePct',
+    'interval',
+    'leverage',
+    'lossPauseMinutes',
+    'maxConsecutiveLosses',
+    'maximumRollingDrawdownUsdt',
+    'minimumConfidence',
+    'minimumDirectionalScore',
+    'minimumRollingProfitFactor',
+    'notionalUsdt',
+    'performancePauseMinutes',
+    'performanceWindowTrades',
+    'requiredConfirmations',
+    'symbol',
+  ])
 })
 
 test('market freshness rejects stale or incomplete minute data', () => {
@@ -555,6 +575,14 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
     {
       config: config(),
       strategyVersion: 'btc-auto-v4-test',
+      strategySnapshots: [
+        {
+          strategyVersion: 'btc-auto-v4-test',
+          definition: btcAutoStrategyDefinition(config()),
+          firstSeenAt: '2026-08-19T00:00:00.000Z',
+          lastSeenAt: '2026-08-19T05:00:00.000Z',
+        },
+      ],
       credentialsReady: false,
       lastRunAt: '2026-08-19T05:00:00.000Z',
       lastSuccessfulRunAt: '2026-08-19T05:00:00.000Z',
@@ -592,6 +620,8 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
   assert.ok(csv.startsWith('\uFEFF运行信息\r\n'))
   assert.match(csv, /周期汇总/)
   assert.match(csv, /逐笔交易/)
+  assert.match(csv, /策略参数快照/)
+  assert.match(csv, /minimumDirectionalScore/)
   assert.match(csv, /btc-auto-v4-test/)
   assert.match(csv, /"retry, then ""filled"""/)
   assert.ok(csv.endsWith('\r\n'))

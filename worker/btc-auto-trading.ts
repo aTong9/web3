@@ -6,6 +6,7 @@ import type {
   BtcAutoMarketSource,
   BtcAutoSignalSnapshot,
   BtcAutoSignalHistoryItem,
+  BtcAutoStrategySnapshot,
   BtcAutoTrade,
   BtcAutoTradingConfig,
   BtcAutoTradingDashboard,
@@ -18,6 +19,7 @@ import {
   btcAutoMonthStartAt,
   btcAutoPerformanceQueryStartAt,
   btcAutoStrategyVersion,
+  btcAutoStrategyDefinition,
   buildBtcAutoEquityCurve,
   calculateBtcAutoDirectionalMove,
   calculateBtcAutoRollingHealth,
@@ -117,6 +119,13 @@ interface BtcAutoTradeRow {
   open_order_id: string | null
   close_order_id: string | null
   error: string | null
+}
+
+interface BtcAutoStrategySnapshotRow {
+  strategy_version: string
+  definition_json: string
+  first_seen_at: string
+  last_seen_at: string
 }
 
 interface BtcAutoSignalHistoryRow extends BtcAutoSignalRow {
@@ -352,6 +361,50 @@ const listSignalHistory = async (env: Env, limit = 24) => {
       forward24hAt: row.forward_24h_at,
     }),
   )
+}
+
+const ensureStrategySnapshot = async (
+  env: Env,
+  config: BtcAutoTradingConfig,
+  observedAt: string,
+) => {
+  const strategyVersion = btcAutoStrategyVersion(config)
+  await env.DB.prepare(
+    `INSERT INTO btc_auto_strategy_snapshots
+     (strategy_version, definition_json, first_seen_at, last_seen_at)
+     VALUES (?1, ?2, ?3, ?3)
+     ON CONFLICT(strategy_version) DO UPDATE SET last_seen_at = excluded.last_seen_at`,
+  )
+    .bind(strategyVersion, JSON.stringify(btcAutoStrategyDefinition(config)), observedAt)
+    .run()
+}
+
+const listStrategySnapshots = async (env: Env) => {
+  const rows = await env.DB.prepare(
+    `SELECT strategy_version, definition_json, first_seen_at, last_seen_at
+     FROM btc_auto_strategy_snapshots ORDER BY last_seen_at DESC LIMIT 50`,
+  ).all<BtcAutoStrategySnapshotRow>()
+  return rows.results.flatMap((row): BtcAutoStrategySnapshot[] => {
+    try {
+      return [
+        {
+          strategyVersion: row.strategy_version,
+          definition: JSON.parse(row.definition_json) as BtcAutoStrategySnapshot['definition'],
+          firstSeenAt: row.first_seen_at,
+          lastSeenAt: row.last_seen_at,
+        },
+      ]
+    } catch (error) {
+      console.warn(
+        JSON.stringify({
+          event: 'btc_auto_strategy_snapshot_invalid',
+          strategyVersion: row.strategy_version,
+          message: error instanceof Error ? error.message : 'invalid JSON',
+        }),
+      )
+      return []
+    }
+  })
 }
 
 const activeTradeRow = (env: Env) =>
@@ -1364,6 +1417,7 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
   try {
     const config = toConfig(await loadConfigRow(env))
     const strategyVersion = btcAutoStrategyVersion(config)
+    await ensureStrategySnapshot(env, config, now.toISOString())
     await reconcileLatestTestnetPnl(env)
     let active = await activeTradeRow(env)
     if (!config.enabled && !active) {
@@ -1466,13 +1520,15 @@ export const closeBtcAutoTradingPosition = async (env: Env) => {
 
 export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingDashboard> => {
   const now = new Date()
-  const [configRow, signalRow, trades, performanceTrades, signalHistory] = await Promise.all([
-    loadConfigRow(env),
-    loadSignalRow(env),
-    listTrades(env),
-    listPerformanceTrades(env, now),
-    listSignalHistory(env),
-  ])
+  const [configRow, signalRow, trades, performanceTrades, signalHistory, strategySnapshots] =
+    await Promise.all([
+      loadConfigRow(env),
+      loadSignalRow(env),
+      listTrades(env),
+      listPerformanceTrades(env, now),
+      listSignalHistory(env),
+      listStrategySnapshots(env),
+    ])
   const config = toConfig(configRow)
   const strategyVersion = btcAutoStrategyVersion(config)
   const signalOutcomes = await signalOutcomeSummaries(env, strategyVersion)
@@ -1485,6 +1541,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
   return {
     config,
     strategyVersion,
+    strategySnapshots,
     credentialsReady: Boolean(env.BINANCE_TESTNET_API_KEY && env.BINANCE_TESTNET_API_SECRET),
     lastRunAt: configRow.last_run_at,
     lastSuccessfulRunAt: configRow.last_success_at,
@@ -1643,5 +1700,6 @@ export const saveBtcAutoTradingConfig = async (
        VALUES (?1, ?2, 'btc-auto.config.update', 'btc-auto-trading', 'default', ?3, ?4)`,
     ).bind(crypto.randomUUID(), actorId, JSON.stringify(config), now),
   ])
+  await ensureStrategySnapshot(env, toConfig(await loadConfigRow(env)), now)
   return btcAutoTradingDashboard(env)
 }
