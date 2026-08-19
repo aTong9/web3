@@ -22,6 +22,7 @@ import {
   evolveBtcAutoSignal,
   resolveBtcAutoCloseTrigger,
   summarizeBtcAutoPerformance,
+  validateBtcAutoMarketFreshness,
 } from '../src/utils/btc-auto-trading'
 import { buildContractTradeDecision } from '../src/utils/contract-trade-decision'
 
@@ -292,17 +293,34 @@ const activeTradeRow = (env: Env) =>
 
 class ExchangeRequestError extends Error {
   readonly definiteRejection: boolean
+  readonly status: number
+  readonly retryAfterMs: number | null
 
-  constructor(message: string, status: number) {
+  constructor(message: string, status: number, retryAfterMs: number | null = null) {
     super(message)
     this.name = 'ExchangeRequestError'
+    this.status = status
+    this.retryAfterMs = retryAfterMs
     this.definiteRejection = status >= 400 && status < 500
   }
 }
 
+const retryAfterMilliseconds = (response: Response) => {
+  const value = response.headers.get('Retry-After')
+  if (!value) return null
+  const seconds = Number(value)
+  if (Number.isFinite(seconds)) return Math.max(0, seconds * 1000)
+  const date = Date.parse(value)
+  return Number.isFinite(date) ? Math.max(0, date - Date.now()) : null
+}
+
 const readExchangeJson = async <T>(response: Response): Promise<T> => {
   if (!response.body) {
-    throw new ExchangeRequestError(`上游响应为空：${response.status}`, response.status)
+    throw new ExchangeRequestError(
+      `上游响应为空：${response.status}`,
+      response.status,
+      retryAfterMilliseconds(response),
+    )
   }
   const reader = response.body.getReader()
   const chunks: Uint8Array[] = []
@@ -328,15 +346,43 @@ const readExchangeJson = async <T>(response: Response): Promise<T> => {
   try {
     payload = JSON.parse(body) as T & { code?: number; msg?: string; message?: string }
   } catch {
-    throw new ExchangeRequestError(`上游返回非JSON响应：${response.status}`, response.status)
+    throw new ExchangeRequestError(
+      `上游返回非JSON响应：${response.status}`,
+      response.status,
+      retryAfterMilliseconds(response),
+    )
   }
   if (!response.ok) {
     throw new ExchangeRequestError(
       payload.msg || payload.message || `上游请求失败：${response.status}`,
       response.status,
+      retryAfterMilliseconds(response),
     )
   }
   return payload
+}
+
+const publicJson = async <T>(url: URL, init: RequestInit = {}, label = '公开行情') => {
+  let lastError: unknown
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      return await readExchangeJson<T>(
+        await fetch(url, { ...init, signal: AbortSignal.timeout(8_000) }),
+      )
+    } catch (error) {
+      lastError = error
+      const retryable =
+        (error instanceof ExchangeRequestError &&
+          (error.status === 429 || error.status >= 500)) ||
+        error instanceof TypeError ||
+        (error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError'))
+      if (!retryable || attempt === 1) break
+      const requestedDelay =
+        error instanceof ExchangeRequestError ? (error.retryAfterMs ?? 300) : 300
+      await new Promise((resolve) => setTimeout(resolve, Math.min(1_200, requestedDelay)))
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(`${label}请求失败`)
 }
 
 const fetchKlines = async (
@@ -345,8 +391,7 @@ const fetchKlines = async (
 ): Promise<AssetPricePoint[]> => {
   const url = new URL('/fapi/v1/klines', baseUrl)
   url.search = new URLSearchParams({ symbol, interval, limit: '120' }).toString()
-  const response = await fetch(url, { headers: { Accept: 'application/json' } })
-  const payload = await readExchangeJson<unknown>(response)
+  const payload = await publicJson<unknown>(url, { headers: { Accept: 'application/json' } })
   if (!Array.isArray(payload)) throw new Error(`Binance ${interval} K线格式无效`)
   return payload.flatMap((row) => {
     if (!Array.isArray(row) || row.length < 7) return []
@@ -377,11 +422,11 @@ const fetchBinanceMarket = async (baseUrl: string): Promise<ContractMarketSnapsh
     (async () => {
       const url = new URL('/fapi/v1/premiumIndex', baseUrl)
       url.search = new URLSearchParams({ symbol }).toString()
-      return readExchangeJson<{
+      return publicJson<{
         markPrice?: string
         lastFundingRate?: string
         nextFundingTime?: number
-      }>(await fetch(url, { headers: { Accept: 'application/json' } }))
+      }>(url, { headers: { Accept: 'application/json' } })
     })(),
   ])
   const primary = series.find((item) => item.interval === strategyInterval)?.points ?? []
@@ -443,13 +488,15 @@ type CoinbaseCandle = [number, number, number, number, number, number]
 const fetchCoinbaseCandles = async (granularity: 60 | 300 | 900 | 3600) => {
   const url = new URL('https://api.exchange.coinbase.com/products/BTC-USD/candles')
   url.searchParams.set('granularity', String(granularity))
-  const payload = await readExchangeJson<CoinbaseCandle[]>(
-    await fetch(url, {
+  const payload = await publicJson<CoinbaseCandle[]>(
+    url,
+    {
       headers: {
         Accept: 'application/json',
         'User-Agent': 'web3-market-desk/1.0',
       },
-    }),
+    },
+    'Coinbase行情',
   )
   if (!Array.isArray(payload) || payload.length === 0) {
     throw new Error(`Coinbase BTC-USD ${granularity}秒行情不可用`)
@@ -475,12 +522,11 @@ const fetchCoinbaseCandles = async (granularity: 60 | 300 | 900 | 3600) => {
 }
 
 const fetchCoinbaseMarket = async (): Promise<ContractMarketSnapshot> => {
-  const [minutePoints, fiveMinutePoints, fifteenMinutePoints, hourlyPoints] = await Promise.all([
-    fetchCoinbaseCandles(60),
-    fetchCoinbaseCandles(300),
-    fetchCoinbaseCandles(900),
-    fetchCoinbaseCandles(3600),
-  ])
+  // Sequential fallback requests avoid creating a burst against Coinbase's shared public limit.
+  const minutePoints = await fetchCoinbaseCandles(60)
+  const fiveMinutePoints = await fetchCoinbaseCandles(300)
+  const fifteenMinutePoints = await fetchCoinbaseCandles(900)
+  const hourlyPoints = await fetchCoinbaseCandles(3600)
   const series = [
     { interval: '1m' as const, points: minutePoints.slice(-120) },
     { interval: '5m' as const, points: fiveMinutePoints },
@@ -513,13 +559,19 @@ const fetchCoinbaseMarket = async (): Promise<ContractMarketSnapshot> => {
   }
 }
 
+const verifiedMarket = (market: ContractMarketSnapshot) => {
+  const freshnessError = validateBtcAutoMarketFreshness(market)
+  if (freshnessError) throw new Error(freshnessError)
+  return market
+}
+
 const fetchMarket = async (env: Env, mode: BtcAutoExecutionMode): Promise<MarketReading> => {
   if (mode === 'testnet') {
-    return { market: await fetchBinanceMarket(testnetBase), source: 'binance' }
+    return { market: verifiedMarket(await fetchBinanceMarket(testnetBase)), source: 'binance' }
   }
   try {
     return {
-      market: await fetchBinanceMarket(env.BINANCE_FUTURES_PUBLIC_BASE),
+      market: verifiedMarket(await fetchBinanceMarket(env.BINANCE_FUTURES_PUBLIC_BASE)),
       source: 'binance',
     }
   } catch (error) {
@@ -530,7 +582,7 @@ const fetchMarket = async (env: Env, mode: BtcAutoExecutionMode): Promise<Market
         message: error instanceof Error ? error.message : 'Binance行情不可用',
       }),
     )
-    return { market: await fetchCoinbaseMarket(), source: 'coinbase' }
+    return { market: verifiedMarket(await fetchCoinbaseMarket()), source: 'coinbase' }
   }
 }
 
@@ -558,10 +610,13 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
   let serverOffsetPromise: Promise<number> | null = null
   const serverOffset = () => {
     if (!serverOffsetPromise) {
-      serverOffsetPromise = fetch(new URL('/fapi/v1/time', testnetBase), {
-        headers: { Accept: 'application/json' },
-      })
-        .then((response) => readExchangeJson<{ serverTime: number }>(response))
+      serverOffsetPromise = publicJson<{ serverTime: number }>(
+        new URL('/fapi/v1/time', testnetBase),
+        {
+          headers: { Accept: 'application/json' },
+        },
+        'Binance服务器时间',
+      )
         .then((result) => result.serverTime - Date.now())
     }
     return serverOffsetPromise
@@ -594,6 +649,7 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
         await fetch(url, {
           method,
           headers: { Accept: 'application/json', 'X-MBX-APIKEY': apiKey },
+          signal: AbortSignal.timeout(8_000),
         }),
       )
     }
@@ -606,6 +662,7 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
           'X-MBX-APIKEY': apiKey,
         },
         body: params.toString(),
+        signal: AbortSignal.timeout(8_000),
       }),
     )
   }
@@ -704,16 +761,18 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
   }
   return {
     size: async (notionalUsdt, price) => {
-      const payload = await readExchangeJson<{
+      const payload = await publicJson<{
         symbols?: Array<{
           symbol?: string
           quantityPrecision?: number
           filters?: Array<{ filterType?: string; stepSize?: string; minQty?: string }>
         }>
       }>(
-        await fetch(new URL('/fapi/v1/exchangeInfo', testnetBase), {
+        new URL('/fapi/v1/exchangeInfo', testnetBase),
+        {
           headers: { Accept: 'application/json' },
-        }),
+        },
+        'Binance合约规则',
       )
       const market = payload.symbols?.find((item) => item.symbol === symbol)
       const lot = market?.filters?.find((item) => item.filterType === 'MARKET_LOT_SIZE')

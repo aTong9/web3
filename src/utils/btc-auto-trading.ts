@@ -7,12 +7,43 @@ import type {
   BtcAutoSignalSnapshot,
   BtcAutoTrade,
   BtcAutoTradingConfig,
+  ContractMarketSnapshot,
   ContractTradeDecision,
 } from '@/types'
 
 const round = (value: number, digits = 4) => Number(value.toFixed(digits))
 const directional = (action: ContractTradeDecision['action']) =>
   action === 'long' || action === 'short'
+
+const intervalMilliseconds: Partial<Record<ContractMarketSnapshot['interval'], number>> = {
+  '1m': 60_000,
+  '5m': 300_000,
+  '15m': 900_000,
+  '1h': 3_600_000,
+  '4h': 14_400_000,
+}
+
+export const validateBtcAutoMarketFreshness = (
+  market: ContractMarketSnapshot,
+  now = new Date(),
+) => {
+  if (market.markPrice === null || !Number.isFinite(market.markPrice) || market.markPrice <= 0) {
+    return 'BTC标记价不可用'
+  }
+  const validate = (interval: '1m' | '5m', maximumLagMs: number) => {
+    const points = market.timeframes.find((item) => item.interval === interval)?.points ?? []
+    const latest = points[points.length - 1]
+    const openAt = latest ? Date.parse(latest.date) : Number.NaN
+    const closeAt = openAt + (intervalMilliseconds[interval] ?? 0)
+    if (!latest || !Number.isFinite(openAt) || !Number.isFinite(latest.close)) {
+      return `${interval}行情不可用`
+    }
+    if (closeAt > now.getTime() + 5_000) return `${interval}行情时间异常`
+    if (now.getTime() - closeAt > maximumLagMs) return `${interval}行情已过期`
+    return null
+  }
+  return validate('1m', 3 * 60_000) ?? validate('5m', 10 * 60_000)
+}
 
 const strategyAlgorithmRevision = 'btc-auto-v4'
 
