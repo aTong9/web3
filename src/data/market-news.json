@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-19T05:34:53.315Z",
+  "updatedAt": "2026-08-19T07:07:06.332Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -36,6 +36,54 @@
     }
   ],
   "articles": [
+    {
+      "id": "4ad67bf02cf1fb62",
+      "title": "Zelenskyy faces challenge to his wartime rule as former defense chief calls for election",
+      "url": "https://www.cnbc.com/2026/08/19/ukraine-war-fedorov-zelenskky-election.html",
+      "publishedAt": "2026-08-19T07:06:09.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "泽伦斯基面临着战时统治的挑战，因为前国防部长呼吁选举",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "c988edf4b7e2e41a",
+      "title": "Goldman studied where AI is squeezing labor markets. Here's what it found",
+      "url": "https://www.cnbc.com/2026/08/19/goldman-ai-impact-employment-jobs.html",
+      "publishedAt": "2026-08-19T06:55:57.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [],
+      "translatedTitle": "高盛研究了人工智能正在挤压劳动力市场的地方。以下是发现的内容",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "ce82e65f6b6e87ce",
+      "title": "Iran reportedly weighs attacks on European military targets as UAE severs trade with Tehran",
+      "url": "https://www.cnbc.com/2026/08/19/us-iran-war-trump-hormuz.html",
+      "publishedAt": "2026-08-19T06:52:12.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "据报道，在阿联酋切断与德黑兰的贸易时，伊朗权衡了对欧洲军事目标的袭击",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "d91570a8c9cdafb4",
       "title": "Trump pauses 50% scheduled tariffs on Canada for three days, announces 'deal' with Ottawa",
@@ -322,25 +370,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "b92ea7ce75fc89df",
-      "title": "Analysis: Bond market pressure is squeezing Main Street as Wall Street waits on Warsh",
-      "url": "https://www.cnbc.com/2026/08/18/bond-market-treasury-yields-warsh-main-street.html",
-      "publishedAt": "2026-08-18T16:48:00.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股",
-        "债券"
-      ],
-      "translatedTitle": "分析：随着华尔街等待Warsh ，债券市场压力正在挤压主街",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "2d33161a69bd4d7f",
       "title": "A fintech app built by crypto exchange Kraken just launched a cash back debit card in bid for consumer wallets",
       "url": "https://www.cnbc.com/2026/08/18/kraken-launches-debit-card-in-bid-for-consumer-wallets.html",
@@ -387,38 +416,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "英伟达的人工智能护城河正在从芯片转向资本",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "d37279c8e1b2dc46",
-      "title": "IRS clarifies 'no tax on overtime' deduction rules. What workers need to know",
-      "url": "https://www.cnbc.com/2026/08/18/irs-no-tax-on-overtime-deduction-rules-2026.html",
-      "publishedAt": "2026-08-18T15:59:41.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "美国国税局明确了“不对加班征税”的扣除规则。员工需要了解的信息",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "06e272457732d8cb",
-      "title": "Sea Ray parent Brunswick bets on AI navigation and new revenue streams to help stalling boat sales",
-      "url": "https://www.cnbc.com/2026/08/18/sea-ray-parent-brunswick-ai-recurring-revenue-boat-sales.html",
-      "publishedAt": "2026-08-18T15:45:15.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "Sea Ray母公司Brunswick押注人工智能导航和新的收入来源，以帮助拖延船只销售",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
