@@ -15,6 +15,7 @@ import type {
 } from '../src/types/index'
 import {
   btcAutoStrategyVersion,
+  calculateBtcAutoDirectionalMove,
   calculateBtcAutoRollingHealth,
   calculateBtcAutoReconciledResult,
   calculateBtcAutoTradeResult,
@@ -22,6 +23,7 @@ import {
   evolveBtcAutoSignal,
   nextBtcAutoScheduledRunAt,
   resolveBtcAutoCloseTrigger,
+  selectBtcAutoOutcomePoint,
   summarizeBtcAutoPerformance,
   validateBtcAutoMarketFreshness,
 } from '../src/utils/btc-auto-trading'
@@ -117,6 +119,22 @@ interface BtcAutoSignalHistoryRow extends BtcAutoSignalRow {
   id: string
   entry_gate_reason: BtcAutoEntryGate['reason']
   entry_eligible: number
+  forward_1h_pct: number | null
+  forward_1h_at: string | null
+  forward_4h_pct: number | null
+  forward_4h_at: string | null
+  forward_24h_pct: number | null
+  forward_24h_at: string | null
+}
+
+interface PendingSignalOutcomeRow {
+  id: string
+  action: BtcAutoSignalSnapshot['action']
+  price: number
+  observed_at: string
+  forward_1h_pct: number | null
+  forward_4h_pct: number | null
+  forward_24h_pct: number | null
 }
 
 interface ExecutionFill {
@@ -276,7 +294,9 @@ const listTrades = async (env: Env, limit = 200) => {
 
 const listSignalHistory = async (env: Env, limit = 24) => {
   const rows = await env.DB.prepare(
-    `SELECT id, ${signalColumns}, entry_gate_reason, entry_eligible
+    `SELECT id, ${signalColumns}, entry_gate_reason, entry_eligible,
+      forward_1h_pct, forward_1h_at, forward_4h_pct, forward_4h_at,
+      forward_24h_pct, forward_24h_at
      FROM btc_auto_signal_history ORDER BY observed_at DESC LIMIT ?1`,
   )
     .bind(limit)
@@ -287,6 +307,12 @@ const listSignalHistory = async (env: Env, limit = 24) => {
       id: row.id,
       entryGateReason: row.entry_gate_reason,
       entryEligible: Boolean(row.entry_eligible),
+      forward1hPct: row.forward_1h_pct,
+      forward1hAt: row.forward_1h_at,
+      forward4hPct: row.forward_4h_pct,
+      forward4hAt: row.forward_4h_at,
+      forward24hPct: row.forward_24h_pct,
+      forward24hAt: row.forward_24h_at,
     }),
   )
 }
@@ -593,6 +619,101 @@ const fetchMarket = async (env: Env, mode: BtcAutoExecutionMode): Promise<Market
     )
     return { market: verifiedMarket(await fetchCoinbaseMarket(), 'coinbase'), source: 'coinbase' }
   }
+}
+
+const outcomeSpecs = [
+  { key: '1h' as const, milliseconds: 3_600_000, intervals: ['1m', '5m', '15m'] as const },
+  { key: '4h' as const, milliseconds: 14_400_000, intervals: ['5m', '15m', '1h'] as const },
+  { key: '24h' as const, milliseconds: 86_400_000, intervals: ['15m', '1h'] as const },
+]
+
+const updateSignalOutcomes = async (
+  env: Env,
+  reading: MarketReading,
+  now: Date,
+) => {
+  const rows = await env.DB.prepare(
+    `SELECT id, action, price, observed_at, forward_1h_pct, forward_4h_pct, forward_24h_pct
+     FROM btc_auto_signal_history
+     WHERE market_source = ?1 AND action IN ('long', 'short') AND price > 0
+       AND observed_at <= ?2
+       AND (forward_1h_pct IS NULL OR forward_4h_pct IS NULL OR forward_24h_pct IS NULL)
+     ORDER BY observed_at ASC LIMIT 40`,
+  )
+    .bind(reading.source, new Date(now.getTime() - 3_600_000).toISOString())
+    .all<PendingSignalOutcomeRow>()
+  const statements = rows.results.flatMap((row) => {
+    const values: Record<string, { move: number; observedAt: string }> = {}
+    for (const spec of outcomeSpecs) {
+      const field = spec.key === '1h' ? row.forward_1h_pct : spec.key === '4h' ? row.forward_4h_pct : row.forward_24h_pct
+      if (field !== null) continue
+      const targetAt = Date.parse(row.observed_at) + spec.milliseconds
+      if (targetAt > now.getTime()) continue
+      const point = selectBtcAutoOutcomePoint(
+        reading.market,
+        targetAt,
+        spec.intervals,
+        now.getTime(),
+      )
+      const move = point
+        ? calculateBtcAutoDirectionalMove(row.action, row.price, point.price)
+        : null
+      if (point && move !== null) values[spec.key] = { move, observedAt: point.observedAt }
+    }
+    if (!Object.keys(values).length) return []
+    return [
+      env.DB.prepare(
+        `UPDATE btc_auto_signal_history SET
+         forward_1h_pct = COALESCE(?1, forward_1h_pct),
+         forward_1h_at = COALESCE(?2, forward_1h_at),
+         forward_4h_pct = COALESCE(?3, forward_4h_pct),
+         forward_4h_at = COALESCE(?4, forward_4h_at),
+         forward_24h_pct = COALESCE(?5, forward_24h_pct),
+         forward_24h_at = COALESCE(?6, forward_24h_at)
+         WHERE id = ?7`,
+      ).bind(
+        values['1h']?.move ?? null,
+        values['1h']?.observedAt ?? null,
+        values['4h']?.move ?? null,
+        values['4h']?.observedAt ?? null,
+        values['24h']?.move ?? null,
+        values['24h']?.observedAt ?? null,
+        row.id,
+      ),
+    ]
+  })
+  if (statements.length) await env.DB.batch(statements)
+}
+
+const signalOutcomeSummaries = async (env: Env, strategyVersion: string) => {
+  const rows = await Promise.all(
+    outcomeSpecs.map(async (spec) => {
+      const column = `forward_${spec.key}_pct`
+      const row = await env.DB.prepare(
+        `SELECT COUNT(${column}) AS samples,
+          AVG(${column}) AS average_directional_move_pct,
+          AVG(CASE WHEN ${column} > 0 THEN 100.0 ELSE 0 END) AS hit_rate_pct
+         FROM btc_auto_signal_history
+         WHERE strategy_version = ?1 AND action IN ('long', 'short') AND ${column} IS NOT NULL`,
+      )
+        .bind(strategyVersion)
+        .first<{
+          samples: number
+          average_directional_move_pct: number | null
+          hit_rate_pct: number | null
+        }>()
+      return {
+        horizon: spec.key,
+        samples: row?.samples ?? 0,
+        hitRatePct: row?.hit_rate_pct === null || row?.hit_rate_pct === undefined ? null : Number(row.hit_rate_pct.toFixed(2)),
+        averageDirectionalMovePct:
+          row?.average_directional_move_pct === null || row?.average_directional_move_pct === undefined
+            ? null
+            : Number(row.average_directional_move_pct.toFixed(4)),
+      }
+    }),
+  )
+  return rows
 }
 
 const paperAdapter: ExecutionAdapter = {
@@ -1213,6 +1334,16 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
       return
     }
     const reading = await fetchMarket(env, config.executionMode)
+    try {
+      await updateSignalOutcomes(env, reading, now)
+    } catch (error) {
+      console.warn(
+        JSON.stringify({
+          event: 'btc_auto_signal_outcome_update_failed',
+          message: error instanceof Error ? error.message : '影子验证回填失败',
+        }),
+      )
+    }
     const decision = buildContractTradeDecision(reading.market)
     const previousRow = await loadSignalRow(env)
     const previous = toSignal(previousRow)
@@ -1305,6 +1436,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
   ])
   const config = toConfig(configRow)
   const strategyVersion = btcAutoStrategyVersion(config)
+  const signalOutcomes = await signalOutcomeSummaries(env, strategyVersion)
   const signal = toSignal(signalRow)
   const openTrade =
     trades.find((trade) => ['opening', 'open', 'closing'].includes(trade.status)) ?? null
@@ -1323,6 +1455,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
     nextRunAt: nextBtcAutoScheduledRunAt(),
     signal,
     signalHistory,
+    signalOutcomes,
     entryGate: evaluateBtcAutoEntryGate({
       config,
       signal,

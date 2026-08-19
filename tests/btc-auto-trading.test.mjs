@@ -5,6 +5,7 @@ import { createJiti } from 'jiti'
 const jiti = createJiti(import.meta.url)
 const {
   btcAutoStrategyVersion,
+  calculateBtcAutoDirectionalMove,
   calculateBtcAutoRollingHealth,
   calculateBtcAutoReconciledResult,
   calculateBtcAutoTradeResult,
@@ -12,6 +13,7 @@ const {
   evolveBtcAutoSignal,
   nextBtcAutoScheduledRunAt,
   resolveBtcAutoCloseTrigger,
+  selectBtcAutoOutcomePoint,
   summarizeBtcAutoPerformance,
   validateBtcAutoMarketFreshness,
 } = jiti('../src/utils/btc-auto-trading.ts')
@@ -245,6 +247,47 @@ test('next scheduled run advances to the next five-minute UTC boundary', () => {
   assert.equal(
     nextBtcAutoScheduledRunAt(new Date('2026-08-19T16:44:59.999Z')),
     '2026-08-19T16:45:00.000Z',
+  )
+})
+
+test('shadow signal outcomes measure directional price movement without trading costs', () => {
+  assert.equal(calculateBtcAutoDirectionalMove('long', 100, 103), 3)
+  assert.equal(calculateBtcAutoDirectionalMove('short', 100, 97), 3)
+  assert.equal(calculateBtcAutoDirectionalMove('short', 100, 103), -3)
+  assert.equal(calculateBtcAutoDirectionalMove('wait', 100, 103), null)
+  assert.equal(calculateBtcAutoDirectionalMove('long', 0, 103), null)
+})
+
+test('shadow outcome selection uses the first complete candle after the target without lookahead', () => {
+  const outcomeMarket = market({
+    timeframes: [
+      {
+        interval: '5m',
+        points: [
+          { date: '2026-08-19T15:05:00.000Z', close: 101 },
+          { date: '2026-08-19T15:00:00.000Z', close: 100 },
+          { date: '2026-08-19T15:10:00.000Z', close: 102 },
+        ],
+      },
+    ],
+  })
+  assert.deepEqual(
+    selectBtcAutoOutcomePoint(
+      outcomeMarket,
+      Date.parse('2026-08-19T15:04:00.000Z'),
+      ['5m'],
+      Date.parse('2026-08-19T15:20:00.000Z'),
+    ),
+    { price: 100, observedAt: '2026-08-19T15:05:00.000Z' },
+  )
+  assert.equal(
+    selectBtcAutoOutcomePoint(
+      outcomeMarket,
+      Date.parse('2026-08-19T14:30:00.000Z'),
+      ['5m'],
+      Date.parse('2026-08-19T15:20:00.000Z'),
+    ),
+    null,
   )
 })
 

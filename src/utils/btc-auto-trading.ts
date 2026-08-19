@@ -8,6 +8,7 @@ import type {
   BtcAutoSignalSnapshot,
   BtcAutoTrade,
   BtcAutoTradingConfig,
+  ContractChartInterval,
   ContractMarketSnapshot,
   ContractTradeDecision,
 } from '@/types'
@@ -50,6 +51,41 @@ export const validateBtcAutoMarketFreshness = (
 
 export const nextBtcAutoScheduledRunAt = (now = new Date()) =>
   new Date((Math.floor(now.getTime() / 300_000) + 1) * 300_000).toISOString()
+
+export const calculateBtcAutoDirectionalMove = (
+  action: ContractTradeDecision['action'],
+  entryPrice: number,
+  outcomePrice: number,
+) => {
+  if (!directional(action) || entryPrice <= 0 || outcomePrice <= 0) return null
+  const multiplier = action === 'long' ? 1 : -1
+  return round(((outcomePrice - entryPrice) / entryPrice) * 100 * multiplier)
+}
+
+export const selectBtcAutoOutcomePoint = (
+  market: ContractMarketSnapshot,
+  targetAt: number,
+  intervals: readonly ContractChartInterval[],
+  now: number,
+) => {
+  for (const interval of intervals) {
+    const intervalMs = intervalMilliseconds[interval]
+    if (!intervalMs) continue
+    const point = (market.timeframes.find((item) => item.interval === interval)?.points ?? [])
+      .filter((item) => {
+        const closeAt = Date.parse(item.date) + intervalMs
+        return closeAt >= targetAt && closeAt <= now && closeAt - targetAt <= intervalMs * 2
+      })
+      .sort((left, right) => Date.parse(left.date) - Date.parse(right.date))[0]
+    if (point) {
+      return {
+        price: point.close,
+        observedAt: new Date(Date.parse(point.date) + intervalMs).toISOString(),
+      }
+    }
+  }
+  return null
+}
 
 const strategyAlgorithmRevision = 'btc-auto-v4'
 

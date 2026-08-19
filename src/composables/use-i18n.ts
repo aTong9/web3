@@ -1068,6 +1068,14 @@ const messages: Record<Locale, DictionaryNode> = {
           rollingSample: '已平仓样本',
           rollingProfitFactor: 'Profit Factor / 门槛',
           rollingDrawdown: '最大回撤 / 上限',
+          shadowValidation: '信号影子验证',
+          shadowValidationTitle: '不下单的前瞻结果',
+          shadowValidationHint:
+            '同源价格、当前策略版本；5分钟信号会重叠，不含手续费、滑点和资金费',
+          shadowSamples: '已评估样本',
+          shadowHitRate: '方向命中率',
+          shadowAverageMove: '平均方向涨跌',
+          forwardOutcome: '未来方向结果',
           evolutionState: {
             new: '新信号',
             strengthened: '已增强',
@@ -2876,6 +2884,14 @@ const messages: Record<Locale, DictionaryNode> = {
           rollingSample: 'Closed-trade sample',
           rollingProfitFactor: 'Profit Factor / threshold',
           rollingDrawdown: 'Max drawdown / limit',
+          shadowValidation: 'Signal shadow validation',
+          shadowValidationTitle: 'Forward outcomes without orders',
+          shadowValidationHint:
+            'Same-source prices and current strategy version; five-minute signals overlap; excludes fees, slippage and funding',
+          shadowSamples: 'Evaluated samples',
+          shadowHitRate: 'Directional hit rate',
+          shadowAverageMove: 'Average directional move',
+          forwardOutcome: 'Forward directional outcome',
           evolutionState: {
             new: 'New',
             strengthened: 'Strengthened',

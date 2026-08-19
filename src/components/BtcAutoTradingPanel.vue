@@ -297,6 +297,37 @@ onMounted(load)
         </p>
       </section>
 
+      <section class="shadow-validation">
+        <header>
+          <div>
+            <span>{{ t('assetTechnical.contract.auto.shadowValidation') }}</span>
+            <strong>{{ t('assetTechnical.contract.auto.shadowValidationTitle') }}</strong>
+          </div>
+          <small>{{ t('assetTechnical.contract.auto.shadowValidationHint') }}</small>
+        </header>
+        <div class="shadow-grid">
+          <article v-for="outcome in dashboard.signalOutcomes" :key="outcome.horizon">
+            <b>{{ outcome.horizon }}</b>
+            <dl>
+              <div>
+                <dt>{{ t('assetTechnical.contract.auto.shadowSamples') }}</dt>
+                <dd>{{ outcome.samples }}</dd>
+              </div>
+              <div>
+                <dt>{{ t('assetTechnical.contract.auto.shadowHitRate') }}</dt>
+                <dd>{{ formatSigned(outcome.hitRatePct, 1, '%').replace('+', '') }}</dd>
+              </div>
+              <div>
+                <dt>{{ t('assetTechnical.contract.auto.shadowAverageMove') }}</dt>
+                <dd :class="pnlClass(outcome.averageDirectionalMovePct)">
+                  {{ formatSigned(outcome.averageDirectionalMovePct, 3, '%') }}
+                </dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+      </section>
+
       <section class="signal-and-position">
         <article class="auto-signal">
           <header>
@@ -657,6 +688,7 @@ onMounted(load)
                 <th>{{ t('assetTechnical.contract.auto.score') }}</th>
                 <th>{{ t('assetTechnical.contract.auto.confidence') }}</th>
                 <th>{{ t('assetTechnical.contract.auto.evolution') }}</th>
+                <th>{{ t('assetTechnical.contract.auto.forwardOutcome') }}</th>
                 <th>{{ t('assetTechnical.contract.auto.entryGate') }}</th>
               </tr>
             </thead>
@@ -667,6 +699,11 @@ onMounted(load)
                 <td>{{ signal.score }}</td>
                 <td>{{ signal.confidence }}%</td>
                 <td>{{ t(`assetTechnical.contract.auto.evolutionState.${signal.evolution}`) }}</td>
+                <td>
+                  1h {{ formatSigned(signal.forward1hPct, 2, '%') }} · 4h
+                  {{ formatSigned(signal.forward4hPct, 2, '%') }} · 24h
+                  {{ formatSigned(signal.forward24hPct, 2, '%') }}
+                </td>
                 <td :class="signal.entryEligible ? 'positive' : 'neutral'">
                   {{ t(`assetTechnical.contract.auto.entryGateReason.${signal.entryGateReason}`) }}
                 </td>
@@ -755,6 +792,61 @@ onMounted(load)
   border-left: 3px solid var(--positive);
   border-radius: 7px;
   background: var(--surface-soft);
+}
+.shadow-validation {
+  margin-top: var(--auto-gap);
+  padding: 10px 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+.shadow-validation > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.shadow-validation > header div {
+  display: grid;
+  gap: 3px;
+}
+.shadow-validation span,
+.shadow-validation small,
+.shadow-validation dt {
+  color: var(--muted);
+  font-size: 7px;
+}
+.shadow-validation strong {
+  font-size: 9px;
+}
+.shadow-grid {
+  margin-top: 9px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.shadow-grid article {
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+}
+.shadow-grid article > b {
+  font-size: 9px;
+}
+.shadow-grid dl {
+  margin: 7px 0 0;
+  display: grid;
+  gap: 5px;
+}
+.shadow-grid dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.shadow-grid dd {
+  margin: 0;
+  font-size: 8px;
 }
 .strategy-health.paused {
   border-left-color: var(--negative);
@@ -1019,6 +1111,9 @@ th {
   .signal-and-position,
   .performance-grid,
   .config-fields {
+    grid-template-columns: 1fr;
+  }
+  .shadow-grid {
     grid-template-columns: 1fr;
   }
   .auto-config > header,

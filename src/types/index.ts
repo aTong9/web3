@@ -1349,6 +1349,19 @@ export interface BtcAutoSignalHistoryItem extends BtcAutoSignalSnapshot {
   id: string
   entryGateReason: BtcAutoEntryGateReason
   entryEligible: boolean
+  forward1hPct: number | null
+  forward1hAt: string | null
+  forward4hPct: number | null
+  forward4hAt: string | null
+  forward24hPct: number | null
+  forward24hAt: string | null
+}
+
+export interface BtcAutoSignalOutcomeSummary {
+  horizon: '1h' | '4h' | '24h'
+  samples: number
+  hitRatePct: number | null
+  averageDirectionalMovePct: number | null
 }
 
 export interface BtcAutoTradingDashboard {
@@ -1364,6 +1377,7 @@ export interface BtcAutoTradingDashboard {
   nextRunAt: string
   signal: BtcAutoSignalSnapshot | null
   signalHistory: BtcAutoSignalHistoryItem[]
+  signalOutcomes: BtcAutoSignalOutcomeSummary[]
   entryGate: BtcAutoEntryGate
   rollingHealth: BtcAutoRollingHealth
   openTrade: BtcAutoTrade | null
