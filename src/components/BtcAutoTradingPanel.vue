@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { EChartsCoreOption } from 'echarts/core'
 import { computed, onMounted, reactive, ref } from 'vue'
 import type {
   BtcAutoPerformanceSummary,
@@ -7,6 +8,7 @@ import type {
   BtcAutoTradingDashboard,
 } from '@/types'
 import DisclosureCard from '@/components/DisclosureCard.vue'
+import EChart from '@/components/EChart.vue'
 import { useI18n } from '@/composables/use-i18n'
 import { quantApi } from '@/utils/quant-api'
 
@@ -119,6 +121,62 @@ const formatTime = (value: string | null) =>
 const pnlClass = (value: number | null) =>
   value === null ? 'neutral' : value > 0 ? 'positive' : value < 0 ? 'negative' : 'neutral'
 const performance = computed(() => dashboard.value?.performance ?? [])
+const equityOption = computed<EChartsCoreOption>(() => {
+  const points = dashboard.value?.equityCurve ?? []
+  return {
+    animationDuration: 350,
+    grid: { left: 44, right: 18, top: 38, bottom: 30 },
+    legend: {
+      top: 0,
+      textStyle: { color: '#94a3b8', fontSize: 9 },
+      data: [
+        t('assetTechnical.contract.auto.dailyNetPnl'),
+        t('assetTechnical.contract.auto.cumulativeNetPnl'),
+        t('assetTechnical.contract.auto.drawdownSeries'),
+      ],
+    },
+    tooltip: { trigger: 'axis' },
+    xAxis: {
+      type: 'category',
+      data: points.map((point) => point.date.slice(5)),
+      axisLabel: { color: '#94a3b8', fontSize: 9 },
+      axisLine: { lineStyle: { color: '#334155' } },
+    },
+    yAxis: {
+      type: 'value',
+      name: 'USDT',
+      nameTextStyle: { color: '#94a3b8', fontSize: 9 },
+      axisLabel: { color: '#94a3b8', fontSize: 9 },
+      splitLine: { lineStyle: { color: 'rgba(148, 163, 184, 0.12)' } },
+    },
+    series: [
+      {
+        name: t('assetTechnical.contract.auto.dailyNetPnl'),
+        type: 'bar',
+        data: points.map((point) => ({
+          value: point.netPnl,
+          itemStyle: { color: point.netPnl >= 0 ? '#22c55e' : '#ef4444' },
+        })),
+      },
+      {
+        name: t('assetTechnical.contract.auto.cumulativeNetPnl'),
+        type: 'line',
+        data: points.map((point) => point.cumulativeNetPnl),
+        symbolSize: 5,
+        lineStyle: { width: 2, color: '#38bdf8' },
+        itemStyle: { color: '#38bdf8' },
+      },
+      {
+        name: t('assetTechnical.contract.auto.drawdownSeries'),
+        type: 'line',
+        data: points.map((point) => -point.drawdownUsdt),
+        symbol: 'none',
+        lineStyle: { width: 1, type: 'dashed', color: '#f59e0b' },
+        itemStyle: { color: '#f59e0b' },
+      },
+    ],
+  }
+})
 const recentTrades = computed(() => dashboard.value?.trades.slice(0, 12) ?? [])
 const recentSignals = computed(() => dashboard.value?.signalHistory.slice(0, 12) ?? [])
 const openRisk = computed(() => {
@@ -469,6 +527,22 @@ onMounted(load)
             </div>
           </dl>
         </article>
+      </section>
+
+      <section class="equity-curve">
+        <header>
+          <div>
+            <span>{{ t('assetTechnical.contract.auto.equityCurve') }}</span>
+            <strong>{{ t('assetTechnical.contract.auto.equityCurveTitle') }}</strong>
+          </div>
+          <small>{{ t('assetTechnical.contract.auto.equityCurveHint') }}</small>
+        </header>
+        <EChart
+          v-if="dashboard.equityCurve.length"
+          :option="equityOption"
+          :label="t('assetTechnical.contract.auto.equityCurveLabel')"
+        />
+        <p v-else class="panel-message">{{ t('assetTechnical.contract.auto.equityCurveEmpty') }}</p>
       </section>
 
       <form class="auto-config" @submit.prevent="save">
@@ -829,6 +903,35 @@ onMounted(load)
   border-left: 3px solid var(--positive);
   border-radius: 7px;
   background: var(--surface-soft);
+}
+.equity-curve {
+  margin-top: var(--auto-gap);
+  padding: 10px 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+.equity-curve > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.equity-curve > header div {
+  display: grid;
+  gap: 3px;
+}
+.equity-curve span,
+.equity-curve small {
+  color: var(--muted);
+  font-size: 7px;
+}
+.equity-curve strong {
+  font-size: 9px;
+}
+.equity-curve :deep(.chart) {
+  height: 240px;
+  min-height: 240px;
 }
 .shadow-validation {
   margin-top: var(--auto-gap);

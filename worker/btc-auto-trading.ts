@@ -17,6 +17,7 @@ import { buildBtcAutoTradingCsv, type BtcAutoTradingExportLocale } from '../src/
 import {
   btcAutoPerformanceWindowStartAt,
   btcAutoStrategyVersion,
+  buildBtcAutoEquityCurve,
   calculateBtcAutoDirectionalMove,
   calculateBtcAutoRollingHealth,
   calculateBtcAutoReconciledResult,
@@ -1506,6 +1507,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
     openTrade,
     trades,
     performance,
+    equityCurve: buildBtcAutoEquityCurve(performanceTrades),
   }
 }
 

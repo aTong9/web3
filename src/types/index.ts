@@ -1324,6 +1324,14 @@ export interface BtcAutoPerformanceSummary {
   maxDrawdownUsdt: number
 }
 
+export interface BtcAutoEquityPoint {
+  date: string
+  trades: number
+  netPnl: number
+  cumulativeNetPnl: number
+  drawdownUsdt: number
+}
+
 export interface BtcAutoEntryGate {
   reason: BtcAutoEntryGateReason
   eligible: boolean
@@ -1383,6 +1391,7 @@ export interface BtcAutoTradingDashboard {
   openTrade: BtcAutoTrade | null
   trades: BtcAutoTrade[]
   performance: BtcAutoPerformanceSummary[]
+  equityCurve: BtcAutoEquityPoint[]
 }
 
 export type ContractPositionDirection = 'long' | 'short'

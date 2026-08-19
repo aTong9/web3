@@ -6,6 +6,7 @@ const jiti = createJiti(import.meta.url)
 const {
   btcAutoStrategyVersion,
   btcAutoPerformanceWindowStartAt,
+  buildBtcAutoEquityCurve,
   calculateBtcAutoDirectionalMove,
   calculateBtcAutoRollingHealth,
   calculateBtcAutoReconciledResult,
@@ -577,6 +578,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       openTrade: null,
       trades: [closed],
       performance,
+      equityCurve: [],
     },
     'zh',
     new Date('2026-08-19T06:00:00.000Z'),
@@ -588,4 +590,28 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
   assert.match(csv, /btc-auto-v4-test/)
   assert.match(csv, /"retry, then ""filled"""/)
   assert.ok(csv.endsWith('\r\n'))
+})
+
+test('equity curve groups Shanghai trading dates and preserves intraday drawdown', () => {
+  const curve = buildBtcAutoEquityCurve([
+    closedTrade('a', '2026-08-18T16:30:00.000Z', 3),
+    closedTrade('b', '2026-08-19T01:00:00.000Z', -5),
+    closedTrade('c', '2026-08-19T16:10:00.000Z', 4),
+  ])
+  assert.deepEqual(curve, [
+    {
+      date: '2026-08-19',
+      trades: 2,
+      netPnl: -2,
+      cumulativeNetPnl: -2,
+      drawdownUsdt: 5,
+    },
+    {
+      date: '2026-08-20',
+      trades: 1,
+      netPnl: 4,
+      cumulativeNetPnl: 2,
+      drawdownUsdt: 1,
+    },
+  ])
 })

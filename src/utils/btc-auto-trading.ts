@@ -2,6 +2,7 @@ import type {
   AssetPricePoint,
   BtcAutoCloseReason,
   BtcAutoEntryGate,
+  BtcAutoEquityPoint,
   BtcAutoMarketSource,
   BtcAutoPerformanceSummary,
   BtcAutoRollingHealth,
@@ -506,4 +507,33 @@ export const summarizeBtcAutoPerformance = (
       maxDrawdownUsdt: round(maxDrawdown),
     }
   })
+}
+
+export const buildBtcAutoEquityCurve = (
+  trades: readonly BtcAutoTrade[],
+): BtcAutoEquityPoint[] => {
+  const closed = trades
+    .filter((trade) => trade.status === 'closed' && trade.closedAt && trade.netPnl !== null)
+    .sort((left, right) => Date.parse(left.closedAt ?? '') - Date.parse(right.closedAt ?? ''))
+  const points = new Map<string, BtcAutoEquityPoint>()
+  let equity = 0
+  let peak = 0
+  for (const trade of closed) {
+    const closedAt = new Date(trade.closedAt!)
+    const { year, month, day } = shanghaiDateParts(closedAt)
+    const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    const netPnl = trade.netPnl ?? 0
+    equity += netPnl
+    peak = Math.max(peak, equity)
+    const drawdown = peak - equity
+    const current = points.get(date)
+    points.set(date, {
+      date,
+      trades: (current?.trades ?? 0) + 1,
+      netPnl: round((current?.netPnl ?? 0) + netPnl),
+      cumulativeNetPnl: round(equity),
+      drawdownUsdt: round(Math.max(current?.drawdownUsdt ?? 0, drawdown)),
+    })
+  }
+  return [...points.values()]
 }
