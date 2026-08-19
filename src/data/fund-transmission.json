@@ -1,103 +1,103 @@
 {
-  "updatedAt": "2026-08-18T23:42:38.474Z",
-  "asOfDate": "2026-08-18",
+  "updatedAt": "2026-08-19T23:43:08.023Z",
+  "asOfDate": "2026-08-19",
   "markets": [
     {
       "id": "sp500",
       "name": "标普500",
-      "date": "2026-08-17",
-      "dailyMove": -0.52,
+      "date": "2026-08-18",
+      "dailyMove": -0.69,
       "dailyAttribution": {
         "alignment": "confirming",
-        "netContribution": -0.97,
-        "alignedDrivers": 3,
+        "netContribution": -0.38,
+        "alignedDrivers": 2,
         "totalDrivers": 3
       },
       "drivers": [
         {
+          "chain": "信用利差—美股链",
+          "driver": "美国高收益利差",
+          "driverMove": 5,
+          "driverZ": 1.5,
+          "correlation": -0.56,
+          "contribution": -0.36,
+          "effect": "headwind",
+          "text": "美国高收益利差上涨 5.00bp（+1.50σ），结合当前ρ -0.56，对标普500的共振贡献-0.36"
+        },
+        {
           "chain": "新兴市场HY收益率—美股链",
           "driver": "新兴市场高收益公司债有效收益率",
-          "driverMove": 4,
-          "driverZ": 1.4,
-          "correlation": -0.62,
-          "contribution": -0.37,
+          "driverMove": 3,
+          "driverZ": 1.06,
+          "correlation": -0.65,
+          "contribution": -0.31,
           "effect": "headwind",
-          "text": "新兴市场高收益公司债有效收益率上涨 4.00bp（+1.40σ），结合当前ρ -0.62，对标普500的共振贡献-0.37"
+          "text": "新兴市场高收益公司债有效收益率上涨 3.00bp（+1.06σ），结合当前ρ -0.65，对标普500的共振贡献-0.31"
         },
         {
-          "chain": "风险压力共振—标普500链",
-          "driver": "全球风险压力共振指数",
-          "driverMove": 1.32,
-          "driverZ": 1.35,
-          "correlation": -0.54,
-          "contribution": -0.32,
-          "effect": "headwind",
-          "text": "全球风险压力共振指数上涨 1.32点（+1.35σ），结合当前ρ -0.54，对标普500的共振贡献-0.32"
-        },
-        {
-          "chain": "VIX—美股去杠杆链",
-          "driver": "VIX波动率",
-          "driverMove": 6.6,
-          "driverZ": 0.77,
-          "correlation": -0.77,
-          "contribution": -0.28,
-          "effect": "headwind",
-          "text": "VIX波动率上涨 6.60%（+0.77σ），结合当前ρ -0.77，对标普500的共振贡献-0.28"
+          "chain": "10Y−3M曲线—美股状态链",
+          "driver": "美债10Y−3M期限利差",
+          "driverMove": -6,
+          "driverZ": -1.31,
+          "correlation": -0.5,
+          "contribution": 0.29,
+          "effect": "tailwind",
+          "text": "美债10Y−3M期限利差下跌 6.00bp（-1.31σ），结合当前ρ -0.50，对标普500的共振贡献+0.29"
         }
       ]
     },
     {
       "id": "nasdaq",
       "name": "纳斯达克综合",
-      "date": "2026-08-17",
-      "dailyMove": -0.32,
+      "date": "2026-08-18",
+      "dailyMove": -1.33,
       "dailyAttribution": {
         "alignment": "confirming",
-        "netContribution": -0.81,
-        "alignedDrivers": 3,
+        "netContribution": -0.31,
+        "alignedDrivers": 2,
         "totalDrivers": 3
       },
       "drivers": [
         {
-          "chain": "风险压力共振—纳指链",
-          "driver": "全球风险压力共振指数",
-          "driverMove": 1.32,
-          "driverZ": 1.35,
-          "correlation": -0.51,
-          "contribution": -0.3,
+          "chain": "高收益利差—科技股链",
+          "driver": "美国高收益利差",
+          "driverMove": 5,
+          "driverZ": 1.5,
+          "correlation": -0.57,
+          "contribution": -0.36,
           "effect": "headwind",
-          "text": "全球风险压力共振指数上涨 1.32点（+1.35σ），结合当前ρ -0.51，对纳斯达克综合的共振贡献-0.30"
+          "text": "美国高收益利差上涨 5.00bp（+1.50σ），结合当前ρ -0.57，对纳斯达克综合的共振贡献-0.36"
+        },
+        {
+          "chain": "实际利率—科技估值链",
+          "driver": "美债10Y实际利率",
+          "driverMove": -3,
+          "driverZ": -1.05,
+          "correlation": -0.46,
+          "contribution": 0.22,
+          "effect": "tailwind",
+          "text": "美债10Y实际利率下跌 3.00bp（-1.05σ），结合当前ρ -0.46，对纳斯达克综合的共振贡献+0.22"
         },
         {
           "chain": "VIX—科技股链",
           "driver": "VIX波动率",
-          "driverMove": 6.6,
-          "driverZ": 0.77,
-          "correlation": -0.73,
-          "contribution": -0.27,
+          "driverMove": 4.28,
+          "driverZ": 0.48,
+          "correlation": -0.72,
+          "contribution": -0.17,
           "effect": "headwind",
-          "text": "VIX波动率上涨 6.60%（+0.77σ），结合当前ρ -0.73，对纳斯达克综合的共振贡献-0.27"
-        },
-        {
-          "chain": "高收益利差—科技股链",
-          "driver": "美国高收益利差",
-          "driverMove": 3,
-          "driverZ": 0.93,
-          "correlation": -0.55,
-          "contribution": -0.24,
-          "effect": "headwind",
-          "text": "美国高收益利差上涨 3.00bp（+0.93σ），结合当前ρ -0.55，对纳斯达克综合的共振贡献-0.24"
+          "text": "VIX波动率上涨 4.28%（+0.48σ），结合当前ρ -0.72，对纳斯达克综合的共振贡献-0.17"
         }
       ]
     },
     {
       "id": "shanghai",
       "name": "上证综指",
-      "date": "2026-08-18",
-      "dailyMove": 0.19,
+      "date": "2026-08-19",
+      "dailyMove": -2.4,
       "dailyAttribution": {
         "alignment": "insufficient",
-        "netContribution": 0.07,
+        "netContribution": -0.04,
         "alignedDrivers": 1,
         "totalDrivers": 2
       },
@@ -105,12 +105,12 @@
         {
           "chain": "全球股指广度—A股链",
           "driver": "全球股指参与率（剔除上证综指）",
-          "driverMove": 20,
-          "driverZ": 0.5,
-          "correlation": 0.25,
-          "contribution": 0.06,
-          "effect": "tailwind",
-          "text": "全球股指参与率（剔除上证综指）上涨 20.00点（+0.50σ），结合当前ρ 0.25，对上证综指的共振贡献+0.06"
+          "driverMove": -20,
+          "driverZ": -0.48,
+          "correlation": 0.21,
+          "contribution": -0.05,
+          "effect": "neutral",
+          "text": "全球股指参与率（剔除上证综指）下跌 20.00点（-0.48σ），结合当前ρ 0.21，对上证综指的共振贡献-0.05"
         },
         {
           "chain": "USD/CNY—A股链",
@@ -132,7 +132,7 @@
       "right": "sp500",
       "status": "confirming",
       "strength": "strong",
-      "signal": -0.77,
+      "signal": -0.76,
       "interpretation": "VIX收益与标普500收益相关性"
     },
     {
@@ -141,17 +141,8 @@
       "right": "nasdaq",
       "status": "confirming",
       "strength": "strong",
-      "signal": -0.73,
+      "signal": -0.72,
       "interpretation": "VIX收益与纳指收益相关性"
-    },
-    {
-      "title": "美股—欧股链",
-      "left": "sp500",
-      "right": "euro50",
-      "status": "confirming",
-      "strength": "strong",
-      "signal": 0.62,
-      "interpretation": "标普500与Euro 50收益相关性"
     },
     {
       "title": "新兴市场HY收益率—美股链",
@@ -159,17 +150,17 @@
       "right": "sp500",
       "status": "confirming",
       "strength": "strong",
-      "signal": -0.62,
+      "signal": -0.65,
       "interpretation": "新兴市场HY有效收益率变化与标普后续收益关系"
     },
     {
-      "title": "信用利差—美股链",
-      "left": "hyspread",
-      "right": "sp500",
+      "title": "美股—欧股链",
+      "left": "sp500",
+      "right": "euro50",
       "status": "confirming",
       "strength": "strong",
-      "signal": -0.55,
-      "interpretation": "高收益利差日变化与标普500收益相关性"
+      "signal": 0.63,
+      "interpretation": "标普500与Euro 50收益相关性"
     },
     {
       "title": "高收益利差—科技股链",
@@ -177,8 +168,17 @@
       "right": "nasdaq",
       "status": "confirming",
       "strength": "strong",
-      "signal": -0.55,
+      "signal": -0.57,
       "interpretation": "高收益信用利差日变化与纳指收益关系"
+    },
+    {
+      "title": "信用利差—美股链",
+      "left": "hyspread",
+      "right": "sp500",
+      "status": "confirming",
+      "strength": "strong",
+      "signal": -0.56,
+      "interpretation": "高收益利差日变化与标普500收益相关性"
     },
     {
       "title": "风险压力共振—标普500链",
@@ -186,16 +186,7 @@
       "right": "sp500",
       "status": "confirming",
       "strength": "strong",
-      "signal": -0.54,
-      "interpretation": "合成指标逐日只使用当时可得数据，并以各分量此前60个观测的波动标准化；正值代表当日风险压力共振增强"
-    },
-    {
-      "title": "风险压力共振—纳指链",
-      "left": "riskstress",
-      "right": "nasdaq",
-      "status": "confirming",
-      "strength": "strong",
-      "signal": -0.51,
+      "signal": -0.53,
       "interpretation": "合成指标逐日只使用当时可得数据，并以各分量此前60个观测的波动标准化；正值代表当日风险压力共振增强"
     },
     {
@@ -208,22 +199,22 @@
       "interpretation": "曲线倒挂加深偏衰退预警，快速变陡也可能来自降息或压力，需结合利率方向"
     },
     {
+      "title": "风险压力共振—纳指链",
+      "left": "riskstress",
+      "right": "nasdaq",
+      "status": "confirming",
+      "strength": "strong",
+      "signal": -0.5,
+      "interpretation": "合成指标逐日只使用当时可得数据，并以各分量此前60个观测的波动标准化；正值代表当日风险压力共振增强"
+    },
+    {
       "title": "黄金—股票状态链",
       "left": "gold",
       "right": "sp500",
       "status": "context",
       "strength": "medium",
-      "signal": 0.48,
+      "signal": 0.49,
       "interpretation": "负相关偏传统避险；正相关可能是流动性或通胀共同驱动"
-    },
-    {
-      "title": "实际利率—科技估值链",
-      "left": "real10y",
-      "right": "nasdaq",
-      "status": "confirming",
-      "strength": "medium",
-      "signal": -0.48,
-      "interpretation": "10Y实际利率日变化与纳指收益相关性"
     },
     {
       "title": "美元—全球股票链",
@@ -244,12 +235,21 @@
       "interpretation": "10Y收益率日变化与纳指收益相关性"
     },
     {
+      "title": "实际利率—科技估值链",
+      "left": "real10y",
+      "right": "nasdaq",
+      "status": "confirming",
+      "strength": "medium",
+      "signal": -0.46,
+      "interpretation": "10Y实际利率日变化与纳指收益相关性"
+    },
+    {
       "title": "原油—美股增长链",
       "left": "wti",
       "right": "sp500",
       "status": "context",
       "strength": "medium",
-      "signal": -0.45,
+      "signal": -0.44,
       "interpretation": "同涨偏需求繁荣；油涨股跌偏供给冲击或通胀压力"
     },
     {
@@ -258,17 +258,17 @@
       "right": "eth",
       "status": "confirming",
       "strength": "medium",
-      "signal": 0.39,
+      "signal": 0.37,
       "interpretation": "纳指收益与ETH后续收益关系"
     },
     {
-      "title": "中国—港股链",
-      "left": "shanghai",
-      "right": "hangseng",
+      "title": "全球股指广度—科技股链",
+      "left": "globalbreadth_ex_nasdaq",
+      "right": "nasdaq",
       "status": "confirming",
       "strength": "medium",
       "signal": 0.37,
-      "interpretation": "上证综指与恒生指数收益相关性"
+      "interpretation": "六大股指上涨参与率变化与纳指后续收益关系"
     },
     {
       "title": "日元套息链",
@@ -280,22 +280,22 @@
       "interpretation": "USD/JPY与纳指收益相关性；正相关更符合典型套息风险偏好"
     },
     {
+      "title": "中国—港股链",
+      "left": "shanghai",
+      "right": "hangseng",
+      "status": "confirming",
+      "strength": "medium",
+      "signal": 0.35,
+      "interpretation": "上证综指与恒生指数收益相关性"
+    },
+    {
       "title": "科技股—BTC链",
       "left": "nasdaq",
       "right": "btc",
       "status": "confirming",
       "strength": "medium",
-      "signal": 0.36,
+      "signal": 0.34,
       "interpretation": "纳指与BTC收益相关性"
-    },
-    {
-      "title": "全球股指广度—科技股链",
-      "left": "globalbreadth_ex_nasdaq",
-      "right": "nasdaq",
-      "status": "confirming",
-      "strength": "medium",
-      "signal": 0.36,
-      "interpretation": "六大股指上涨参与率变化与纳指后续收益关系"
     },
     {
       "title": "2Y利率—科技股链",
@@ -303,7 +303,7 @@
       "right": "nasdaq",
       "status": "confirming",
       "strength": "medium",
-      "signal": -0.33,
+      "signal": -0.34,
       "interpretation": "2Y收益率日变化与纳指收益相关性"
     },
     {
@@ -338,27 +338,9 @@
       "left": "globalbreadth_ex_shanghai",
       "right": "shanghai",
       "status": "confirming",
-      "strength": "medium",
-      "signal": 0.25,
+      "strength": "weak",
+      "signal": 0.21,
       "interpretation": "全球股指参与率变化与上证综指后续收益关系"
-    },
-    {
-      "title": "10Y–2Y期限利差—美股状态链",
-      "left": "termspread",
-      "right": "sp500",
-      "status": "context",
-      "strength": "weak",
-      "signal": -0.18,
-      "interpretation": "曲线变陡可来自增长改善或降息预期，需结合利率方向解读"
-    },
-    {
-      "title": "通胀预期—科技股链",
-      "left": "breakeven10y",
-      "right": "nasdaq",
-      "status": "confirming",
-      "strength": "weak",
-      "signal": -0.18,
-      "interpretation": "10Y盈亏平衡通胀率日变化与纳指收益关系；增长型再通胀时可能反转"
     },
     {
       "title": "风险压力共振—上证综指链",
@@ -366,8 +348,17 @@
       "right": "shanghai",
       "status": "diverging",
       "strength": "weak",
-      "signal": 0.18,
+      "signal": 0.21,
       "interpretation": "合成指标逐日只使用当时可得数据，并以各分量此前60个观测的波动标准化；正值代表当日风险压力共振增强"
+    },
+    {
+      "title": "通胀预期—科技股链",
+      "left": "breakeven10y",
+      "right": "nasdaq",
+      "status": "confirming",
+      "strength": "weak",
+      "signal": -0.2,
+      "interpretation": "10Y盈亏平衡通胀率日变化与纳指收益关系；增长型再通胀时可能反转"
     },
     {
       "title": "预期短率成分—纳指链",
@@ -375,17 +366,26 @@
       "right": "nasdaq",
       "status": "confirming",
       "strength": "weak",
-      "signal": -0.15,
+      "signal": -0.19,
       "interpretation": "10Y恒定期限收益率减Kim–Wright期限溢价的透明代理；不是可直接观测的政策预期"
     },
     {
-      "title": "圣路易斯金融压力—上证综指链",
-      "left": "stlfsi",
-      "right": "shanghai",
+      "title": "10Y–2Y期限利差—美股状态链",
+      "left": "termspread",
+      "right": "sp500",
+      "status": "context",
+      "strength": "weak",
+      "signal": -0.16,
+      "interpretation": "曲线变陡可来自增长改善或降息预期，需结合利率方向解读"
+    },
+    {
+      "title": "5Y5Y通胀预期—科技股链",
+      "left": "forwardinflation5y5y",
+      "right": "nasdaq",
       "status": "dormant",
       "strength": "weak",
-      "signal": 0.14,
-      "interpretation": "独立官方周度压力指标；零为长期正常水平，正值代表高于平均的金融压力，按发布日期后移后参与检验"
+      "signal": -0.14,
+      "interpretation": "5Y5Y远期通胀预期变化与纳指后续收益关系"
     },
     {
       "title": "铜—美股增长链",
@@ -397,6 +397,24 @@
       "interpretation": "铜价与标普500收益关系；需区分供给扰动"
     },
     {
+      "title": "圣路易斯金融压力—上证综指链",
+      "left": "stlfsi",
+      "right": "shanghai",
+      "status": "dormant",
+      "strength": "weak",
+      "signal": 0.13,
+      "interpretation": "独立官方周度压力指标；零为长期正常水平，正值代表高于平均的金融压力，按发布日期后移后参与检验"
+    },
+    {
+      "title": "预期短率成分—标普500链",
+      "left": "expectedrate10y",
+      "right": "sp500",
+      "status": "dormant",
+      "strength": "weak",
+      "signal": -0.13,
+      "interpretation": "10Y恒定期限收益率减Kim–Wright期限溢价的透明代理；不是可直接观测的政策预期"
+    },
+    {
       "title": "初请失业金—美股状态链",
       "left": "claims",
       "right": "sp500",
@@ -406,13 +424,22 @@
       "interpretation": "对股市的方向取决于增长恶化与政策宽松哪个占主导"
     },
     {
-      "title": "5Y5Y通胀预期—科技股链",
-      "left": "forwardinflation5y5y",
+      "title": "SOFR−EFFR—科技股链",
+      "left": "fundingspread",
       "right": "nasdaq",
       "status": "dormant",
       "strength": "weak",
       "signal": -0.11,
-      "interpretation": "5Y5Y远期通胀预期变化与纳指后续收益关系"
+      "interpretation": "SOFR−EFFR差值变化与纳指后续收益关系"
+    },
+    {
+      "title": "10Y期限溢价—纳指链",
+      "left": "termpremium10y",
+      "right": "nasdaq",
+      "status": "dormant",
+      "strength": "weak",
+      "signal": -0.11,
+      "interpretation": "Kim–Wright三因子模型估计的10Y零息债期限溢价变化与目标后续变化关系"
     },
     {
       "title": "隔夜逆回购—美股状态链",
@@ -424,22 +451,13 @@
       "interpretation": "逆回购下降不必然直接流入股市，仅作流动性状态线索"
     },
     {
-      "title": "10Y期限溢价—纳指链",
-      "left": "termpremium10y",
-      "right": "nasdaq",
-      "status": "dormant",
-      "strength": "weak",
-      "signal": -0.1,
-      "interpretation": "Kim–Wright三因子模型估计的10Y零息债期限溢价变化与目标后续变化关系"
-    },
-    {
-      "title": "预期短率成分—标普500链",
-      "left": "expectedrate10y",
+      "title": "SOFR−EFFR—美股链",
+      "left": "fundingspread",
       "right": "sp500",
       "status": "dormant",
       "strength": "weak",
-      "signal": -0.1,
-      "interpretation": "10Y恒定期限收益率减Kim–Wright期限溢价的透明代理；不是可直接观测的政策预期"
+      "signal": -0.08,
+      "interpretation": "SOFR−EFFR差值变化与标普500后续收益关系；日常微幅变化可能无效"
     },
     {
       "title": "美联储资产—科技股流动性链",
@@ -451,31 +469,13 @@
       "interpretation": "美联储总资产周变化与纳指后续收益关系"
     },
     {
-      "title": "金融条件—美股链",
-      "left": "nfci",
+      "title": "10Y期限溢价—标普500链",
+      "left": "termpremium10y",
       "right": "sp500",
       "status": "dormant",
       "strength": "weak",
-      "signal": -0.06,
-      "interpretation": "NFCI周变化与标普500收益相关性；负相关符合收紧传导"
-    },
-    {
-      "title": "中国—原油需求链",
-      "left": "shanghai",
-      "right": "wti",
-      "status": "dormant",
-      "strength": "weak",
-      "signal": -0.05,
-      "interpretation": "上证综指与WTI收益相关性；仅作为中国需求高频代理"
-    },
-    {
-      "title": "SOFR−EFFR—科技股链",
-      "left": "fundingspread",
-      "right": "nasdaq",
-      "status": "dormant",
-      "strength": "weak",
-      "signal": -0.05,
-      "interpretation": "SOFR−EFFR差值变化与纳指后续收益关系"
+      "signal": -0.07,
+      "interpretation": "Kim–Wright三因子模型估计的10Y零息债期限溢价变化与目标后续变化关系"
     },
     {
       "title": "圣路易斯金融压力—纳指链",
@@ -487,13 +487,13 @@
       "interpretation": "独立官方周度压力指标；零为长期正常水平，正值代表高于平均的金融压力，按发布日期后移后参与检验"
     },
     {
-      "title": "10Y期限溢价—标普500链",
-      "left": "termpremium10y",
+      "title": "金融条件—美股链",
+      "left": "nfci",
       "right": "sp500",
       "status": "dormant",
       "strength": "weak",
-      "signal": -0.05,
-      "interpretation": "Kim–Wright三因子模型估计的10Y零息债期限溢价变化与目标后续变化关系"
+      "signal": -0.04,
+      "interpretation": "NFCI周变化与标普500收益相关性；负相关符合收紧传导"
     },
     {
       "title": "准备金—科技股链",
@@ -503,15 +503,6 @@
       "strength": "weak",
       "signal": 0.04,
       "interpretation": "银行准备金周变化与纳指后续收益关系"
-    },
-    {
-      "title": "政策路径差—科技股链",
-      "left": "policygap",
-      "right": "nasdaq",
-      "status": "dormant",
-      "strength": "weak",
-      "signal": 0.04,
-      "interpretation": "2Y−EFFR差值变化与纳指后续收益关系"
     },
     {
       "title": "圣路易斯金融压力—标普500链",
@@ -541,22 +532,31 @@
       "interpretation": "银行准备金周变化与标普500收益关系"
     },
     {
+      "title": "中国—原油需求链",
+      "left": "shanghai",
+      "right": "wti",
+      "status": "dormant",
+      "strength": "weak",
+      "signal": 0.02,
+      "interpretation": "上证综指与WTI收益相关性；仅作为中国需求高频代理"
+    },
+    {
+      "title": "政策路径差—科技股链",
+      "left": "policygap",
+      "right": "nasdaq",
+      "status": "dormant",
+      "strength": "weak",
+      "signal": 0.01,
+      "interpretation": "2Y−EFFR差值变化与纳指后续收益关系"
+    },
+    {
       "title": "政策路径差—美股链",
       "left": "policygap",
       "right": "sp500",
       "status": "dormant",
       "strength": "weak",
-      "signal": 0.02,
+      "signal": 0.01,
       "interpretation": "2Y−EFFR差值变化与标普500后续收益关系"
-    },
-    {
-      "title": "SOFR−EFFR—美股链",
-      "left": "fundingspread",
-      "right": "sp500",
-      "status": "dormant",
-      "strength": "weak",
-      "signal": -0.02,
-      "interpretation": "SOFR−EFFR差值变化与标普500后续收益关系；日常微幅变化可能无效"
     },
     {
       "title": "铜—A股周期链",
