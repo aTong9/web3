@@ -17,6 +17,7 @@ const {
   summarizeBtcAutoPerformance,
   validateBtcAutoMarketFreshness,
 } = jiti('../src/utils/btc-auto-trading.ts')
+const { buildBtcAutoTradingCsv } = jiti('../src/utils/btc-auto-trading-export.ts')
 
 const config = (overrides = {}) => ({
   enabled: true,
@@ -522,4 +523,57 @@ test('performance summaries use Asia/Shanghai boundaries and report drawdown', (
   assert.equal(day.expectancyUsdt, 0.5)
   assert.equal(day.maxDrawdownUsdt, 4)
   assert.equal(day.profitFactor, 1.5)
+})
+
+test('CSV export includes auditable summaries, strategy versions and escaped errors', () => {
+  const closed = closedTrade('csv-trade', '2026-08-19T02:00:00.000Z', 2, {
+    error: 'retry, then "filled"',
+  })
+  const performance = summarizeBtcAutoPerformance(
+    [closed],
+    new Date('2026-08-19T05:00:00.000Z'),
+  )
+  const csv = buildBtcAutoTradingCsv(
+    {
+      config: config(),
+      strategyVersion: 'btc-auto-v4-test',
+      credentialsReady: false,
+      lastRunAt: '2026-08-19T05:00:00.000Z',
+      lastSuccessfulRunAt: '2026-08-19T05:00:00.000Z',
+      lastFailureAt: null,
+      lastError: null,
+      lastCycleStatus: 'success',
+      consecutiveFailures: 0,
+      nextRunAt: '2026-08-19T05:05:00.000Z',
+      signal: null,
+      signalHistory: [],
+      signalOutcomes: [],
+      entryGate: { reason: 'waitingDirection', eligible: false, consecutiveLosses: 0, resumeAt: null },
+      rollingHealth: {
+        sampleSize: 1,
+        currentVersionSampleSize: 1,
+        requiredSampleSize: 20,
+        sampleScope: 'allHistoryFallback',
+        profitFactor: null,
+        minimumProfitFactor: 0.8,
+        maxDrawdownUsdt: 0,
+        maximumDrawdownUsdt: 3,
+        status: 'insufficientSample',
+        reasons: [],
+        resumeAt: null,
+      },
+      openTrade: null,
+      trades: [closed],
+      performance,
+    },
+    'zh',
+    new Date('2026-08-19T06:00:00.000Z'),
+  )
+
+  assert.ok(csv.startsWith('\uFEFF运行信息\r\n'))
+  assert.match(csv, /周期汇总/)
+  assert.match(csv, /逐笔交易/)
+  assert.match(csv, /btc-auto-v4-test/)
+  assert.match(csv, /"retry, then ""filled"""/)
+  assert.ok(csv.endsWith('\r\n'))
 })

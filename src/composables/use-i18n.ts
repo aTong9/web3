@@ -1129,6 +1129,7 @@ const messages: Record<Locale, DictionaryNode> = {
           manualCloseConfirm: '确认按当前市场价格关闭自动仓位？此操作不可撤销。',
           save: '保存风险配置',
           history: '逐笔交易与盈亏',
+          exportCsv: '导出完整 CSV',
           pnlBoundary:
             '模拟盘净盈亏按手续费假设估算；Testnet 自动核对真实成交佣金、已实现盈亏与持仓期间资金费，失败时保留估算并继续重试。',
           empty: '尚无自动交易记录。',
@@ -2950,6 +2951,7 @@ const messages: Record<Locale, DictionaryNode> = {
             'Close the automated position at the current market price? This cannot be undone.',
           save: 'Save risk controls',
           history: 'Trade-by-trade P&L',
+          exportCsv: 'Export full CSV',
           pnlBoundary:
             'Paper P&L uses the fee assumption. Testnet automatically reconciles realized P&L, actual commissions and funding during the holding period; estimates remain visible and retry when reconciliation fails.',
           empty: 'No automated trades yet.',

@@ -8,6 +8,7 @@ import type {
 } from '@/types'
 import DisclosureCard from '@/components/DisclosureCard.vue'
 import { useI18n } from '@/composables/use-i18n'
+import { buildBtcAutoTradingCsv } from '@/utils/btc-auto-trading-export'
 import { quantApi } from '@/utils/quant-api'
 
 const { locale, t } = useI18n()
@@ -137,6 +138,20 @@ const periodLabel = (summary: BtcAutoPerformanceSummary) =>
   t(`assetTechnical.contract.auto.period.${summary.period}`)
 const tradeDirection = (trade: BtcAutoTrade) =>
   t(`assetTechnical.contract.simulator.${trade.direction}`)
+
+const exportTrades = () => {
+  if (!dashboard.value) return
+  const csv = buildBtcAutoTradingCsv(dashboard.value, locale.value)
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
+  const anchor = document.createElement('a')
+  const day = new Date().toISOString().slice(0, 10)
+  anchor.href = url
+  anchor.download = `btc-auto-trading-${day}.csv`
+  document.body.append(anchor)
+  anchor.click()
+  anchor.remove()
+  window.setTimeout(() => URL.revokeObjectURL(url), 0)
+}
 
 onMounted(load)
 </script>
@@ -622,8 +637,13 @@ onMounted(load)
 
       <section class="trade-history">
         <header>
-          <span>{{ t('assetTechnical.contract.auto.history') }}</span>
-          <small>{{ t('assetTechnical.contract.auto.pnlBoundary') }}</small>
+          <div>
+            <span>{{ t('assetTechnical.contract.auto.history') }}</span>
+            <small>{{ t('assetTechnical.contract.auto.pnlBoundary') }}</small>
+          </div>
+          <button type="button" class="export-button" @click="exportTrades">
+            {{ t('assetTechnical.contract.auto.exportCsv') }}
+          </button>
         </header>
         <p v-if="!recentTrades.length" class="panel-message">
           {{ t('assetTechnical.contract.auto.empty') }}
@@ -721,6 +741,13 @@ onMounted(load)
 <style scoped>
 .btc-auto-panel {
   --auto-gap: 8px;
+}
+.trade-history > header > div {
+  display: grid;
+  gap: 3px;
+}
+.export-button {
+  flex: 0 0 auto;
 }
 .engine-state,
 .auto-status-strip,
