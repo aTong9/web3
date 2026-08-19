@@ -184,6 +184,25 @@ onMounted(load)
           >{{ t('assetTechnical.contract.auto.lastRun') }}
           {{ formatTime(dashboard.lastRunAt) }}</span
         >
+        <span :class="`cycle-${dashboard.lastCycleStatus}`">
+          {{ t(`assetTechnical.contract.auto.cycleStatus.${dashboard.lastCycleStatus}`) }}
+        </span>
+        <span>
+          {{ t('assetTechnical.contract.auto.lastSuccess') }}
+          {{ formatTime(dashboard.lastSuccessfulRunAt) }}
+        </span>
+        <span>
+          {{ t('assetTechnical.contract.auto.nextRun') }}
+          {{ formatTime(dashboard.nextRunAt) }}
+        </span>
+        <span v-if="dashboard.consecutiveFailures" class="cycle-failed">
+          {{
+            t('assetTechnical.contract.auto.consecutiveFailures', {
+              count: dashboard.consecutiveFailures,
+            })
+          }}
+          · {{ formatTime(dashboard.lastFailureAt) }}
+        </span>
       </div>
 
       <p v-if="error || dashboard.lastError" class="panel-message error">
@@ -688,6 +707,16 @@ onMounted(load)
 .auto-status-strip .pending,
 .panel-message.error {
   color: var(--warning);
+}
+.auto-status-strip .cycle-success {
+  color: var(--positive);
+}
+.auto-status-strip .cycle-failed {
+  color: var(--negative);
+}
+.auto-status-strip .cycle-skipped,
+.auto-status-strip .cycle-unknown {
+  color: var(--muted);
 }
 .entry-gate {
   margin-top: var(--auto-gap);

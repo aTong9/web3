@@ -20,6 +20,7 @@ import {
   calculateBtcAutoTradeResult,
   evaluateBtcAutoEntryGate,
   evolveBtcAutoSignal,
+  nextBtcAutoScheduledRunAt,
   resolveBtcAutoCloseTrigger,
   summarizeBtcAutoPerformance,
   validateBtcAutoMarketFreshness,
@@ -54,7 +55,11 @@ interface BtcAutoConfigRow {
   eligibility_confirmed: number
   updated_at: string
   last_run_at: string | null
+  last_success_at: string | null
+  last_failure_at: string | null
   last_error: string | null
+  last_cycle_status: BtcAutoTradingDashboard['lastCycleStatus']
+  consecutive_failures: number
 }
 
 interface BtcAutoSignalRow {
@@ -237,7 +242,8 @@ const configColumns = `enabled, execution_mode, symbol, interval, notional_usdt,
   minimum_confidence, minimum_directional_score, required_confirmations, cooldown_minutes,
   daily_loss_limit_usdt, max_consecutive_losses, loss_pause_minutes,
   performance_window_trades, minimum_rolling_profit_factor, maximum_rolling_drawdown_usdt,
-  performance_pause_minutes, fee_rate_pct, eligibility_confirmed, updated_at, last_run_at, last_error`
+  performance_pause_minutes, fee_rate_pct, eligibility_confirmed, updated_at, last_run_at,
+  last_success_at, last_failure_at, last_error, last_cycle_status, consecutive_failures`
 const signalColumns = `strategy_version, action, score, confidence, price, evolution, confirmations, reasons, risks,
   observed_at, market_source, cooldown_until`
 const tradeColumns = `id, strategy_version, execution_mode, symbol, direction, status, quantity, notional_usdt,
@@ -1166,12 +1172,32 @@ const acquireCycleLock = async (env: Env, now: Date) => {
   return Boolean(result.meta.changes)
 }
 
-const releaseCycleLock = (env: Env, lastError: string | null) =>
-  env.DB.prepare(
+const releaseCycleLock = (
+  env: Env,
+  status: Exclude<BtcAutoTradingDashboard['lastCycleStatus'], 'unknown'>,
+  lastError: string | null = null,
+) => {
+  const completedAt = new Date().toISOString()
+  return env.DB.prepare(
     `UPDATE btc_auto_trading_config SET cycle_lock_until = NULL, last_run_at = ?1,
-      last_error = ?2 WHERE id = 'default'`,
+      last_error = ?2, last_cycle_status = ?3,
+      last_success_at = CASE WHEN ?3 = 'success' THEN ?1 ELSE last_success_at END,
+      last_failure_at = CASE WHEN ?3 = 'failed' THEN ?1 ELSE last_failure_at END,
+      consecutive_failures = CASE
+        WHEN ?3 = 'success' THEN 0
+        WHEN ?3 = 'failed' THEN consecutive_failures + 1
+        ELSE consecutive_failures
+      END
+      WHERE id = 'default'`,
   )
-    .bind(new Date().toISOString(), lastError)
+    .bind(completedAt, lastError, status)
+    .run()
+}
+
+const releaseManualLock = (env: Env) =>
+  env.DB.prepare(
+    `UPDATE btc_auto_trading_config SET cycle_lock_until = NULL WHERE id = 'default'`,
+  )
     .run()
 
 export const runBtcAutoTradingCycle = async (env: Env) => {
@@ -1183,7 +1209,7 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
     await reconcileLatestTestnetPnl(env)
     let active = await activeTradeRow(env)
     if (!config.enabled && !active) {
-      await releaseCycleLock(env, null)
+      await releaseCycleLock(env, 'skipped')
       return
     }
     const reading = await fetchMarket(env, config.executionMode)
@@ -1237,10 +1263,10 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
     if (gate.eligible) {
       await openTrade(env, config, signal, decision, adapterFor(env, config.executionMode))
     }
-    await releaseCycleLock(env, null)
+    await releaseCycleLock(env, 'success')
   } catch (error) {
     const message = error instanceof Error ? error.message.slice(0, 300) : '未知错误'
-    await releaseCycleLock(env, message)
+    await releaseCycleLock(env, 'failed', message)
     console.error(JSON.stringify({ event: 'btc_auto_trading_failed', message }))
     throw error
   }
@@ -1249,7 +1275,6 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
 export const closeBtcAutoTradingPosition = async (env: Env) => {
   const now = new Date()
   if (!(await acquireCycleLock(env, now))) throw new Error('自动交易周期正在运行，请稍后重试')
-  let lastError: string | null = null
   try {
     let active = await activeTradeRow(env)
     if (!active) return
@@ -1263,11 +1288,11 @@ export const closeBtcAutoTradingPosition = async (env: Env) => {
     if (price === null) throw new Error('当前BTC价格不可用，无法安全提交平仓')
     await closeTrade(env, active, adapter, price, 'manual')
   } catch (error) {
-    lastError = error instanceof Error ? error.message.slice(0, 300) : '人工平仓失败'
-    console.error(JSON.stringify({ event: 'btc_auto_manual_close_failed', message: lastError }))
+    const message = error instanceof Error ? error.message.slice(0, 300) : '人工平仓失败'
+    console.error(JSON.stringify({ event: 'btc_auto_manual_close_failed', message }))
     throw error
   } finally {
-    await releaseCycleLock(env, lastError)
+    await releaseManualLock(env)
   }
 }
 
@@ -1290,7 +1315,12 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
     strategyVersion,
     credentialsReady: Boolean(env.BINANCE_TESTNET_API_KEY && env.BINANCE_TESTNET_API_SECRET),
     lastRunAt: configRow.last_run_at,
+    lastSuccessfulRunAt: configRow.last_success_at,
+    lastFailureAt: configRow.last_failure_at,
     lastError: configRow.last_error,
+    lastCycleStatus: configRow.last_cycle_status,
+    consecutiveFailures: configRow.consecutive_failures,
+    nextRunAt: nextBtcAutoScheduledRunAt(),
     signal,
     signalHistory,
     entryGate: evaluateBtcAutoEntryGate({

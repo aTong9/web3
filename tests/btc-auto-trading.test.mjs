@@ -10,6 +10,7 @@ const {
   calculateBtcAutoTradeResult,
   evaluateBtcAutoEntryGate,
   evolveBtcAutoSignal,
+  nextBtcAutoScheduledRunAt,
   resolveBtcAutoCloseTrigger,
   summarizeBtcAutoPerformance,
   validateBtcAutoMarketFreshness,
@@ -234,6 +235,17 @@ test('market freshness rejects stale or incomplete minute data', () => {
   })
   assert.equal(validateBtcAutoMarketFreshness(delayedCoinbase, now), '1m行情已过期')
   assert.equal(validateBtcAutoMarketFreshness(delayedCoinbase, now, 'coinbase'), null)
+})
+
+test('next scheduled run advances to the next five-minute UTC boundary', () => {
+  assert.equal(
+    nextBtcAutoScheduledRunAt(new Date('2026-08-19T16:40:00.000Z')),
+    '2026-08-19T16:45:00.000Z',
+  )
+  assert.equal(
+    nextBtcAutoScheduledRunAt(new Date('2026-08-19T16:44:59.999Z')),
+    '2026-08-19T16:45:00.000Z',
+  )
 })
 
 test('a new strategy version resets signal confirmation history', () => {

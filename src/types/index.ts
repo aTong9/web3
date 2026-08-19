@@ -1220,6 +1220,7 @@ export type BtcAutoTradeStatus = 'opening' | 'open' | 'closing' | 'closed' | 'er
 export type BtcAutoSignalEvolution = 'new' | 'strengthened' | 'weakened' | 'falsified' | 'unchanged'
 export type BtcAutoCloseReason = 'stopLoss' | 'takeProfit' | 'signalFalsified' | 'manual'
 export type BtcAutoPnlSource = 'estimated' | 'reconciled'
+export type BtcAutoCycleStatus = 'success' | 'failed' | 'skipped' | 'unknown'
 export type BtcAutoEntryGateReason =
   | 'ready'
   | 'disabled'
@@ -1355,7 +1356,12 @@ export interface BtcAutoTradingDashboard {
   strategyVersion: string
   credentialsReady: boolean
   lastRunAt: string | null
+  lastSuccessfulRunAt: string | null
+  lastFailureAt: string | null
   lastError: string | null
+  lastCycleStatus: BtcAutoCycleStatus
+  consecutiveFailures: number
+  nextRunAt: string
   signal: BtcAutoSignalSnapshot | null
   signalHistory: BtcAutoSignalHistoryItem[]
   entryGate: BtcAutoEntryGate

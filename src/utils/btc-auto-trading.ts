@@ -48,6 +48,9 @@ export const validateBtcAutoMarketFreshness = (
   return validate('1m', minuteLag) ?? validate('5m', 10 * 60_000)
 }
 
+export const nextBtcAutoScheduledRunAt = (now = new Date()) =>
+  new Date((Math.floor(now.getTime() / 300_000) + 1) * 300_000).toISOString()
+
 const strategyAlgorithmRevision = 'btc-auto-v4'
 
 const fnv1a = (value: string) => {
