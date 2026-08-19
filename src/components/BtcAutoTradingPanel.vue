@@ -23,9 +23,12 @@ const draft = reactive<BtcAutoTradingConfig>({
   notionalUsdt: 100,
   leverage: 2,
   minimumConfidence: 65,
+  minimumDirectionalScore: 55,
   requiredConfirmations: 2,
   cooldownMinutes: 30,
   dailyLossLimitUsdt: 10,
+  maxConsecutiveLosses: 3,
+  lossPauseMinutes: 360,
   feeRatePct: 0.05,
   eligibilityConfirmed: false,
   updatedAt: new Date(0).toISOString(),
@@ -113,6 +116,7 @@ const pnlClass = (value: number | null) =>
   value === null ? 'neutral' : value > 0 ? 'positive' : value < 0 ? 'negative' : 'neutral'
 const performance = computed(() => dashboard.value?.performance ?? [])
 const recentTrades = computed(() => dashboard.value?.trades.slice(0, 12) ?? [])
+const recentSignals = computed(() => dashboard.value?.signalHistory.slice(0, 12) ?? [])
 const periodLabel = (summary: BtcAutoPerformanceSummary) =>
   t(`assetTechnical.contract.auto.period.${summary.period}`)
 const tradeDirection = (trade: BtcAutoTrade) =>
@@ -169,6 +173,26 @@ onMounted(load)
       <p v-if="error || dashboard.lastError" class="panel-message error">
         {{ error || dashboard.lastError }}
       </p>
+
+      <section class="entry-gate" :class="dashboard.entryGate.eligible ? 'ready' : 'blocked'">
+        <div>
+          <span>{{ t('assetTechnical.contract.auto.entryGate') }}</span>
+          <strong>{{
+            t(`assetTechnical.contract.auto.entryGateReason.${dashboard.entryGate.reason}`)
+          }}</strong>
+        </div>
+        <small>
+          {{
+            t('assetTechnical.contract.auto.lossStreak', {
+              count: dashboard.entryGate.consecutiveLosses,
+            })
+          }}
+          <template v-if="dashboard.entryGate.resumeAt">
+            · {{ t('assetTechnical.contract.auto.resumeAt') }}
+            {{ formatTime(dashboard.entryGate.resumeAt) }}
+          </template>
+        </small>
+      </section>
 
       <section class="signal-and-position">
         <article class="auto-signal">
@@ -310,6 +334,16 @@ onMounted(load)
             />
           </label>
           <label>
+            <span>{{ t('assetTechnical.contract.auto.minimumDirectionalScore') }}</span>
+            <input
+              v-model.number="draft.minimumDirectionalScore"
+              type="number"
+              min="30"
+              max="90"
+              step="1"
+            />
+          </label>
+          <label>
             <span>{{ t('assetTechnical.contract.auto.requiredConfirmations') }}</span>
             <input
               v-model.number="draft.requiredConfirmations"
@@ -337,6 +371,26 @@ onMounted(load)
               min="1"
               max="1000"
               step="1"
+            />
+          </label>
+          <label>
+            <span>{{ t('assetTechnical.contract.auto.maxConsecutiveLosses') }}</span>
+            <input
+              v-model.number="draft.maxConsecutiveLosses"
+              type="number"
+              min="2"
+              max="10"
+              step="1"
+            />
+          </label>
+          <label>
+            <span>{{ t('assetTechnical.contract.auto.lossPauseMinutes') }}</span>
+            <input
+              v-model.number="draft.lossPauseMinutes"
+              type="number"
+              min="30"
+              max="2880"
+              step="30"
             />
           </label>
           <label>
@@ -407,6 +461,42 @@ onMounted(load)
           </table>
         </div>
       </section>
+
+      <section class="signal-history">
+        <header>
+          <span>{{ t('assetTechnical.contract.auto.signalHistory') }}</span>
+          <small>{{ t('assetTechnical.contract.auto.signalHistoryHint') }}</small>
+        </header>
+        <p v-if="!recentSignals.length" class="panel-message">
+          {{ t('assetTechnical.contract.auto.signalHistoryEmpty') }}
+        </p>
+        <div v-else class="trade-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ t('assetTechnical.contract.auto.time') }}</th>
+                <th>{{ t('assetTechnical.contract.auto.latestSignal') }}</th>
+                <th>{{ t('assetTechnical.contract.auto.score') }}</th>
+                <th>{{ t('assetTechnical.contract.auto.confidence') }}</th>
+                <th>{{ t('assetTechnical.contract.auto.evolution') }}</th>
+                <th>{{ t('assetTechnical.contract.auto.entryGate') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="signal in recentSignals" :key="signal.id">
+                <td>{{ formatTime(signal.observedAt) }}</td>
+                <td>{{ t(`assetTechnical.contract.action.${signal.action}`) }}</td>
+                <td>{{ signal.score }}</td>
+                <td>{{ signal.confidence }}%</td>
+                <td>{{ t(`assetTechnical.contract.auto.evolutionState.${signal.evolution}`) }}</td>
+                <td :class="signal.entryEligible ? 'positive' : 'neutral'">
+                  {{ t(`assetTechnical.contract.auto.entryGateReason.${signal.entryGateReason}`) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </template>
   </DisclosureCard>
 </template>
@@ -439,6 +529,36 @@ onMounted(load)
 .auto-status-strip .pending,
 .panel-message.error {
   color: var(--warning);
+}
+.entry-gate {
+  margin-top: var(--auto-gap);
+  padding: 10px 11px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+.entry-gate.ready {
+  border-left-color: var(--positive);
+}
+.entry-gate.blocked {
+  border-left-color: var(--warning);
+}
+.entry-gate div {
+  display: grid;
+  gap: 3px;
+}
+.entry-gate span,
+.entry-gate small {
+  color: var(--muted);
+  font-size: 7px;
+}
+.entry-gate strong {
+  font-size: 9px;
 }
 .panel-message {
   margin: 12px 0 0;
@@ -479,7 +599,8 @@ onMounted(load)
 .open-position,
 .performance-grid article,
 .auto-config,
-.trade-history {
+.trade-history,
+.signal-history {
   padding: 11px;
   border: 1px solid var(--border);
   border-radius: 7px;
@@ -490,6 +611,7 @@ onMounted(load)
 .performance-grid article > header,
 .auto-config > header,
 .trade-history > header,
+.signal-history > header,
 .auto-config > footer {
   display: flex;
   align-items: center;
@@ -500,7 +622,8 @@ onMounted(load)
 .open-position header span,
 .performance-grid header span,
 .auto-config header span,
-.trade-history header span {
+.trade-history header span,
+.signal-history header span {
   color: var(--muted);
   font-size: 7px;
 }
@@ -536,7 +659,8 @@ onMounted(load)
 dt,
 .open-position p,
 .auto-config small,
-.trade-history small {
+.trade-history small,
+.signal-history small {
   color: var(--muted);
   font-size: 7px;
 }
@@ -550,7 +674,8 @@ dd {
   margin: 12px 0 0;
 }
 .auto-config,
-.trade-history {
+.trade-history,
+.signal-history {
   margin-top: var(--auto-gap);
 }
 .auto-config header > div {
@@ -664,6 +789,10 @@ th {
   .auto-config > header,
   .auto-config > footer {
     align-items: stretch;
+    flex-direction: column;
+  }
+  .entry-gate {
+    align-items: start;
     flex-direction: column;
   }
   .auto-config footer small {

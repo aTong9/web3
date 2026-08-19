@@ -1014,6 +1014,7 @@ onMounted(async () => {
 <style scoped>
 .contract-workspace {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
 }
 .contract-toolbar,
@@ -1304,6 +1305,7 @@ onMounted(async () => {
 .contract-chart-column {
   min-width: 0;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
 }
 .contract-chart-card {
@@ -1850,7 +1852,7 @@ onMounted(async () => {
 }
 @media (max-width: 880px) {
   .execution-context {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .simulator-layout {
     grid-template-columns: 1fr;

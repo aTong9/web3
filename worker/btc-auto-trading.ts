@@ -1,9 +1,11 @@
 import type {
   AssetPricePoint,
   BtcAutoCloseReason,
+  BtcAutoEntryGate,
   BtcAutoExecutionMode,
   BtcAutoMarketSource,
   BtcAutoSignalSnapshot,
+  BtcAutoSignalHistoryItem,
   BtcAutoTrade,
   BtcAutoTradingConfig,
   BtcAutoTradingDashboard,
@@ -14,6 +16,7 @@ import type {
 import {
   calculateBtcAutoTradeResult,
   decideBtcAutoClose,
+  evaluateBtcAutoEntryGate,
   evolveBtcAutoSignal,
   summarizeBtcAutoPerformance,
 } from '../src/utils/btc-auto-trading'
@@ -33,9 +36,12 @@ interface BtcAutoConfigRow {
   notional_usdt: number
   leverage: number
   minimum_confidence: number
+  minimum_directional_score: number
   required_confirmations: number
   cooldown_minutes: number
   daily_loss_limit_usdt: number
+  max_consecutive_losses: number
+  loss_pause_minutes: number
   fee_rate_pct: number
   eligibility_confirmed: number
   updated_at: string
@@ -88,6 +94,12 @@ interface BtcAutoTradeRow {
   error: string | null
 }
 
+interface BtcAutoSignalHistoryRow extends BtcAutoSignalRow {
+  id: string
+  entry_gate_reason: BtcAutoEntryGate['reason']
+  entry_eligible: number
+}
+
 interface ExecutionFill {
   orderId: string
   clientOrderId: string
@@ -132,9 +144,12 @@ const toConfig = (row: BtcAutoConfigRow): BtcAutoTradingConfig => ({
   notionalUsdt: row.notional_usdt,
   leverage: row.leverage,
   minimumConfidence: row.minimum_confidence,
+  minimumDirectionalScore: row.minimum_directional_score,
   requiredConfirmations: row.required_confirmations,
   cooldownMinutes: row.cooldown_minutes,
   dailyLossLimitUsdt: row.daily_loss_limit_usdt,
+  maxConsecutiveLosses: row.max_consecutive_losses,
+  lossPauseMinutes: row.loss_pause_minutes,
   feeRatePct: row.fee_rate_pct,
   eligibilityConfirmed: Boolean(row.eligibility_confirmed),
   updatedAt: row.updated_at,
@@ -186,8 +201,9 @@ const toTrade = (row: BtcAutoTradeRow): BtcAutoTrade => ({
 })
 
 const configColumns = `enabled, execution_mode, symbol, interval, notional_usdt, leverage,
-  minimum_confidence, required_confirmations, cooldown_minutes, daily_loss_limit_usdt,
-  fee_rate_pct, eligibility_confirmed, updated_at, last_run_at, last_error`
+  minimum_confidence, minimum_directional_score, required_confirmations, cooldown_minutes,
+  daily_loss_limit_usdt, max_consecutive_losses, loss_pause_minutes, fee_rate_pct,
+  eligibility_confirmed, updated_at, last_run_at, last_error`
 const signalColumns = `action, score, confidence, price, evolution, confirmations, reasons, risks,
   observed_at, market_source, cooldown_until`
 const tradeColumns = `id, execution_mode, symbol, direction, status, quantity, notional_usdt,
@@ -215,6 +231,23 @@ const listTrades = async (env: Env, limit = 200) => {
     .bind(limit)
     .all<BtcAutoTradeRow>()
   return rows.results.map(toTrade)
+}
+
+const listSignalHistory = async (env: Env, limit = 24) => {
+  const rows = await env.DB.prepare(
+    `SELECT id, ${signalColumns}, entry_gate_reason, entry_eligible
+     FROM btc_auto_signal_history ORDER BY observed_at DESC LIMIT ?1`,
+  )
+    .bind(limit)
+    .all<BtcAutoSignalHistoryRow>()
+  return rows.results.map(
+    (row): BtcAutoSignalHistoryItem => ({
+      ...toSignal(row)!,
+      id: row.id,
+      entryGateReason: row.entry_gate_reason,
+      entryEligible: Boolean(row.entry_eligible),
+    }),
+  )
 }
 
 const activeTradeRow = (env: Env) =>
@@ -669,6 +702,40 @@ const updateSignal = async (
     .run()
 }
 
+const appendSignalHistory = async (
+  env: Env,
+  signal: BtcAutoSignalSnapshot,
+  cooldownUntil: string | null,
+  gate: BtcAutoEntryGate,
+) => {
+  await env.DB.batch([
+    env.DB.prepare(
+      `INSERT INTO btc_auto_signal_history
+       (id, action, score, confidence, price, evolution, confirmations, reasons, risks,
+        observed_at, market_source, cooldown_until, entry_gate_reason, entry_eligible)
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)`,
+    ).bind(
+      crypto.randomUUID(),
+      signal.action,
+      signal.score,
+      signal.confidence,
+      signal.price,
+      signal.evolution,
+      signal.confirmations,
+      JSON.stringify(signal.reasons),
+      JSON.stringify(signal.risks),
+      signal.observedAt,
+      signal.marketSource,
+      cooldownUntil,
+      gate.reason,
+      gate.eligible ? 1 : 0,
+    ),
+    env.DB.prepare(`DELETE FROM btc_auto_signal_history WHERE observed_at < ?1`).bind(
+      new Date(Date.now() - 90 * 86_400_000).toISOString(),
+    ),
+  ])
+}
+
 const markTradeOpen = async (env: Env, tradeId: string, fill: ExecutionFill) => {
   if (fill.status !== 'FILLED' || fill.averagePrice === null || fill.quantity <= 0) {
     throw new Error(`Binance开仓订单未完全成交：${fill.status}`)
@@ -760,6 +827,7 @@ const openTrade = async (
   if (
     signal.price === null ||
     (signal.action !== 'long' && signal.action !== 'short') ||
+    Math.abs(signal.score) < config.minimumDirectionalScore ||
     signal.confidence < config.minimumConfidence ||
     signal.confirmations < config.requiredConfirmations
   )
@@ -911,8 +979,10 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
     const decision = buildContractTradeDecision(reading.market)
     const previousRow = await loadSignalRow(env)
     const previous = toSignal(previousRow)
-    const signal = evolveBtcAutoSignal(previous, decision, now.toISOString(), reading.source)
-    await updateSignal(env, signal, previousRow?.cooldown_until ?? null)
+    const evolvedSignal = evolveBtcAutoSignal(previous, decision, now.toISOString(), reading.source)
+    let cooldownUntil = previousRow?.cooldown_until ?? null
+    const cooldownActive = cooldownUntil !== null && Date.parse(cooldownUntil) > now.getTime()
+    const signal = cooldownActive ? { ...evolvedSignal, confirmations: 0 } : evolvedSignal
     const activeAdapter = active ? adapterFor(env, active.execution_mode) : null
     if (active?.status === 'opening' || active?.status === 'closing') {
       active = await reconcilePendingTrade(env, active, activeAdapter!)
@@ -921,20 +991,26 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
       const reason = decideBtcAutoClose(toTrade(active), signal, config.minimumConfidence)
       if (reason && signal.price !== null) {
         await closeTrade(env, active, activeAdapter!, signal.price, reason)
-        const cooldownUntil = new Date(
-          now.getTime() + config.cooldownMinutes * 60_000,
-        ).toISOString()
-        await updateSignal(env, signal, cooldownUntil)
+        cooldownUntil = new Date(now.getTime() + config.cooldownMinutes * 60_000).toISOString()
+        signal.confirmations = 0
+        active = await activeTradeRow(env)
       }
-    } else if (!active && config.enabled) {
-      const trades = await listTrades(env, 1000)
-      const daily = summarizeBtcAutoPerformance(trades, now).find((item) => item.period === 'day')
-      const cooldownActive =
-        previousRow?.cooldown_until && Date.parse(previousRow.cooldown_until) > now.getTime()
-      const circuitOpen = daily ? daily.netPnl <= -config.dailyLossLimitUsdt : false
-      if (!cooldownActive && !circuitOpen) {
-        await openTrade(env, config, signal, decision, adapterFor(env, config.executionMode))
-      }
+    }
+    const trades = await listTrades(env, 1000)
+    const daily = summarizeBtcAutoPerformance(trades, now).find((item) => item.period === 'day')
+    const gate = evaluateBtcAutoEntryGate({
+      config,
+      signal,
+      trades,
+      hasActivePosition: Boolean(active),
+      cooldownUntil,
+      dailyNetPnl: daily?.netPnl ?? 0,
+      now,
+    })
+    await updateSignal(env, signal, cooldownUntil)
+    await appendSignalHistory(env, signal, cooldownUntil, gate)
+    if (gate.eligible) {
+      await openTrade(env, config, signal, decision, adapterFor(env, config.executionMode))
     }
     await releaseCycleLock(env, null)
   } catch (error) {
@@ -971,21 +1047,36 @@ export const closeBtcAutoTradingPosition = async (env: Env) => {
 }
 
 export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingDashboard> => {
-  const [configRow, signalRow, trades] = await Promise.all([
+  const [configRow, signalRow, trades, signalHistory] = await Promise.all([
     loadConfigRow(env),
     loadSignalRow(env),
     listTrades(env),
+    listSignalHistory(env),
   ])
+  const config = toConfig(configRow)
+  const signal = toSignal(signalRow)
+  const openTrade =
+    trades.find((trade) => ['opening', 'open', 'closing'].includes(trade.status)) ?? null
+  const performance = summarizeBtcAutoPerformance(trades)
+  const dailyNetPnl = performance.find((item) => item.period === 'day')?.netPnl ?? 0
   return {
-    config: toConfig(configRow),
+    config,
     credentialsReady: Boolean(env.BINANCE_TESTNET_API_KEY && env.BINANCE_TESTNET_API_SECRET),
     lastRunAt: configRow.last_run_at,
     lastError: configRow.last_error,
-    signal: toSignal(signalRow),
-    openTrade:
-      trades.find((trade) => ['opening', 'open', 'closing'].includes(trade.status)) ?? null,
+    signal,
+    signalHistory,
+    entryGate: evaluateBtcAutoEntryGate({
+      config,
+      signal,
+      trades,
+      hasActivePosition: Boolean(openTrade),
+      cooldownUntil: signalRow?.cooldown_until ?? null,
+      dailyNetPnl,
+    }),
+    openTrade,
     trades,
-    performance: summarizeBtcAutoPerformance(trades),
+    performance,
   }
 }
 
@@ -1028,9 +1119,12 @@ export const saveBtcAutoTradingConfig = async (
     notionalUsdt: boundedNumber(input.notionalUsdt, '名义仓位', 10, 10_000),
     leverage: boundedNumber(input.leverage, '杠杆', 1, 5, true),
     minimumConfidence: boundedNumber(input.minimumConfidence, '最低置信度', 55, 88, true),
+    minimumDirectionalScore: boundedNumber(input.minimumDirectionalScore, '最低方向分', 30, 90),
     requiredConfirmations: boundedNumber(input.requiredConfirmations, '连续确认次数', 2, 6, true),
     cooldownMinutes: boundedNumber(input.cooldownMinutes, '冷却时间', 5, 1440, true),
     dailyLossLimitUsdt: boundedNumber(input.dailyLossLimitUsdt, '日亏损熔断', 1, 1000),
+    maxConsecutiveLosses: boundedNumber(input.maxConsecutiveLosses, '连续亏损次数', 2, 10, true),
+    lossPauseMinutes: boundedNumber(input.lossPauseMinutes, '连续亏损暂停时间', 30, 2880, true),
     feeRatePct: boundedNumber(input.feeRatePct, '单边手续费率', 0, 1),
     eligibilityConfirmed: input.eligibilityConfirmed,
   }
@@ -1038,8 +1132,9 @@ export const saveBtcAutoTradingConfig = async (
     env.DB.prepare(
       `UPDATE btc_auto_trading_config SET enabled = ?1, execution_mode = ?2,
        notional_usdt = ?3, leverage = ?4, minimum_confidence = ?5,
-       required_confirmations = ?6, cooldown_minutes = ?7, daily_loss_limit_usdt = ?8,
-       fee_rate_pct = ?9, eligibility_confirmed = ?10, updated_by = ?11, updated_at = ?12
+       minimum_directional_score = ?6, required_confirmations = ?7, cooldown_minutes = ?8,
+       daily_loss_limit_usdt = ?9, max_consecutive_losses = ?10, loss_pause_minutes = ?11,
+       fee_rate_pct = ?12, eligibility_confirmed = ?13, updated_by = ?14, updated_at = ?15
        WHERE id = 'default'`,
     ).bind(
       config.enabled ? 1 : 0,
@@ -1047,9 +1142,12 @@ export const saveBtcAutoTradingConfig = async (
       config.notionalUsdt,
       config.leverage,
       config.minimumConfidence,
+      config.minimumDirectionalScore,
       config.requiredConfirmations,
       config.cooldownMinutes,
       config.dailyLossLimitUsdt,
+      config.maxConsecutiveLosses,
+      config.lossPauseMinutes,
       config.feeRatePct,
       config.eligibilityConfirmed ? 1 : 0,
       actorId,

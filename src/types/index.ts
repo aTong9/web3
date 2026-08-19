@@ -1219,6 +1219,17 @@ export type BtcAutoMarketSource = 'binance' | 'coinbase'
 export type BtcAutoTradeStatus = 'opening' | 'open' | 'closing' | 'closed' | 'error'
 export type BtcAutoSignalEvolution = 'new' | 'strengthened' | 'weakened' | 'falsified' | 'unchanged'
 export type BtcAutoCloseReason = 'stopLoss' | 'takeProfit' | 'signalFalsified' | 'manual'
+export type BtcAutoEntryGateReason =
+  | 'ready'
+  | 'disabled'
+  | 'positionOpen'
+  | 'waitingDirection'
+  | 'weakScore'
+  | 'lowConfidence'
+  | 'confirming'
+  | 'cooldown'
+  | 'dailyLossLimit'
+  | 'consecutiveLossPause'
 
 export interface BtcAutoTradingConfig {
   enabled: boolean
@@ -1228,9 +1239,12 @@ export interface BtcAutoTradingConfig {
   notionalUsdt: number
   leverage: number
   minimumConfidence: number
+  minimumDirectionalScore: number
   requiredConfirmations: number
   cooldownMinutes: number
   dailyLossLimitUsdt: number
+  maxConsecutiveLosses: number
+  lossPauseMinutes: number
   feeRatePct: number
   eligibilityConfirmed: boolean
   updatedAt: string
@@ -1293,12 +1307,27 @@ export interface BtcAutoPerformanceSummary {
   profitFactor: number | null
 }
 
+export interface BtcAutoEntryGate {
+  reason: BtcAutoEntryGateReason
+  eligible: boolean
+  consecutiveLosses: number
+  resumeAt: string | null
+}
+
+export interface BtcAutoSignalHistoryItem extends BtcAutoSignalSnapshot {
+  id: string
+  entryGateReason: BtcAutoEntryGateReason
+  entryEligible: boolean
+}
+
 export interface BtcAutoTradingDashboard {
   config: BtcAutoTradingConfig
   credentialsReady: boolean
   lastRunAt: string | null
   lastError: string | null
   signal: BtcAutoSignalSnapshot | null
+  signalHistory: BtcAutoSignalHistoryItem[]
+  entryGate: BtcAutoEntryGate
   openTrade: BtcAutoTrade | null
   trades: BtcAutoTrade[]
   performance: BtcAutoPerformanceSummary[]

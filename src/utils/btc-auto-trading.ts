@@ -1,14 +1,69 @@
 import type {
   BtcAutoCloseReason,
+  BtcAutoEntryGate,
   BtcAutoPerformanceSummary,
   BtcAutoSignalSnapshot,
   BtcAutoTrade,
+  BtcAutoTradingConfig,
   ContractTradeDecision,
 } from '@/types'
 
 const round = (value: number, digits = 4) => Number(value.toFixed(digits))
 const directional = (action: ContractTradeDecision['action']) =>
   action === 'long' || action === 'short'
+
+export const countConsecutiveBtcAutoLosses = (trades: readonly BtcAutoTrade[]) => {
+  const closed = trades
+    .filter((trade) => trade.status === 'closed' && trade.closedAt && trade.netPnl !== null)
+    .sort((left, right) => Date.parse(right.closedAt ?? '') - Date.parse(left.closedAt ?? ''))
+  let losses = 0
+  for (const trade of closed) {
+    if ((trade.netPnl ?? 0) >= 0) break
+    losses += 1
+  }
+  return { losses, lastClosedAt: closed[0]?.closedAt ?? null }
+}
+
+export const evaluateBtcAutoEntryGate = (input: {
+  config: BtcAutoTradingConfig
+  signal: BtcAutoSignalSnapshot | null
+  trades: readonly BtcAutoTrade[]
+  hasActivePosition: boolean
+  cooldownUntil: string | null
+  dailyNetPnl: number
+  now?: Date
+}): BtcAutoEntryGate => {
+  const now = input.now ?? new Date()
+  const streak = countConsecutiveBtcAutoLosses(input.trades)
+  const lossResumeAt = streak.lastClosedAt
+    ? new Date(
+        Date.parse(streak.lastClosedAt) + input.config.lossPauseMinutes * 60_000,
+      ).toISOString()
+    : null
+  const lossPauseActive =
+    streak.losses >= input.config.maxConsecutiveLosses &&
+    lossResumeAt !== null &&
+    Date.parse(lossResumeAt) > now.getTime()
+  const cooldownActive =
+    input.cooldownUntil !== null && Date.parse(input.cooldownUntil) > now.getTime()
+  const result = (reason: BtcAutoEntryGate['reason'], resumeAt: string | null = null) => ({
+    reason,
+    eligible: reason === 'ready',
+    consecutiveLosses: streak.losses,
+    resumeAt,
+  })
+  if (!input.config.enabled) return result('disabled')
+  if (input.hasActivePosition) return result('positionOpen')
+  if (input.dailyNetPnl <= -input.config.dailyLossLimitUsdt) return result('dailyLossLimit')
+  if (lossPauseActive) return result('consecutiveLossPause', lossResumeAt)
+  if (cooldownActive) return result('cooldown', input.cooldownUntil)
+  if (!input.signal || !directional(input.signal.action)) return result('waitingDirection')
+  if (Math.abs(input.signal.score) < input.config.minimumDirectionalScore)
+    return result('weakScore')
+  if (input.signal.confidence < input.config.minimumConfidence) return result('lowConfidence')
+  if (input.signal.confirmations < input.config.requiredConfirmations) return result('confirming')
+  return result('ready')
+}
 
 export const evolveBtcAutoSignal = (
   previous: BtcAutoSignalSnapshot | null,
