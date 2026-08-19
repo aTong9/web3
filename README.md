@@ -307,6 +307,15 @@ Testnet 模式最高允许5倍杠杆，仍受最低方向分、连续确认、�
 资金费和订单收入明细尚未自动对账。数据库升级和 Worker 发布使用 `npm run cloudflare:deploy`，该命令会先
 应用远端 D1 migrations，再发布新的 Cron 配置；GitHub Pages 工作流只发布前端，不会替代 Worker 发布。
 
+交易核心使用 Node 原生测试固化信号演化、入场门控优先级、滚动绩效暂停、保守止损/止盈、手续费和
+北京时间日/周/月统计边界：
+
+```bash
+npm run test:trading
+```
+
+GitHub Pages 构建会先运行这组测试；任一风控不变量失败时停止部署。
+
 ## 全球市场快讯
 
 运行 `npm run update:news` 可手动刷新 `src/data/market-news.json`。GitHub Actions 每15分钟聚合
