@@ -15,7 +15,8 @@ import type {
 } from '../src/types/index'
 import { buildBtcAutoTradingCsv, type BtcAutoTradingExportLocale } from '../src/utils/btc-auto-trading-export'
 import {
-  btcAutoPerformanceWindowStartAt,
+  btcAutoMonthStartAt,
+  btcAutoPerformanceQueryStartAt,
   btcAutoStrategyVersion,
   buildBtcAutoEquityCurve,
   calculateBtcAutoDirectionalMove,
@@ -300,7 +301,7 @@ const listPerformanceTrades = async (env: Env, now: Date) => {
     `SELECT ${tradeColumns} FROM btc_auto_trades
      WHERE status = 'closed' AND closed_at >= ?1 ORDER BY opened_at DESC, id DESC`,
   )
-    .bind(btcAutoPerformanceWindowStartAt(now))
+    .bind(btcAutoPerformanceQueryStartAt(now))
     .all<BtcAutoTradeRow>()
   return rows.results.map(toTrade)
 }
@@ -1480,6 +1481,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
     trades.find((trade) => ['opening', 'open', 'closing'].includes(trade.status)) ?? null
   const performance = summarizeBtcAutoPerformance(performanceTrades, now)
   const dailyNetPnl = performance.find((item) => item.period === 'day')?.netPnl ?? 0
+  const monthStart = Date.parse(btcAutoMonthStartAt(now))
   return {
     config,
     strategyVersion,
@@ -1507,7 +1509,11 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
     openTrade,
     trades,
     performance,
-    equityCurve: buildBtcAutoEquityCurve(performanceTrades),
+    equityCurve: buildBtcAutoEquityCurve(
+      performanceTrades.filter(
+        (trade) => trade.closedAt !== null && Date.parse(trade.closedAt) >= monthStart,
+      ),
+    ),
   }
 }
 

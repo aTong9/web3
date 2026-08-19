@@ -452,8 +452,12 @@ const periodStarts = (now: Date) => {
   return { day: dayStart, week: weekStart, month: monthStart }
 }
 
-export const btcAutoPerformanceWindowStartAt = (now = new Date()) =>
-  periodStarts(now).month.toISOString()
+export const btcAutoMonthStartAt = (now = new Date()) => periodStarts(now).month.toISOString()
+
+export const btcAutoPerformanceQueryStartAt = (now = new Date()) => {
+  const starts = periodStarts(now)
+  return new Date(Math.min(starts.week.getTime(), starts.month.getTime())).toISOString()
+}
 
 export const summarizeBtcAutoPerformance = (
   trades: readonly BtcAutoTrade[],

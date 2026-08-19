@@ -5,7 +5,8 @@ import { createJiti } from 'jiti'
 const jiti = createJiti(import.meta.url)
 const {
   btcAutoStrategyVersion,
-  btcAutoPerformanceWindowStartAt,
+  btcAutoMonthStartAt,
+  btcAutoPerformanceQueryStartAt,
   buildBtcAutoEquityCurve,
   calculateBtcAutoDirectionalMove,
   calculateBtcAutoRollingHealth,
@@ -527,13 +528,17 @@ test('performance summaries use Asia/Shanghai boundaries and report drawdown', (
   assert.equal(day.profitFactor, 1.5)
 })
 
-test('performance query starts at the current Shanghai calendar month', () => {
+test('performance query includes a prior-month week while equity stays month-scoped', () => {
   assert.equal(
-    btcAutoPerformanceWindowStartAt(new Date('2026-08-31T16:30:00.000Z')),
+    btcAutoPerformanceQueryStartAt(new Date('2026-08-31T16:30:00.000Z')),
+    '2026-08-30T16:00:00.000Z',
+  )
+  assert.equal(
+    btcAutoMonthStartAt(new Date('2026-08-31T16:30:00.000Z')),
     '2026-08-31T16:00:00.000Z',
   )
   assert.equal(
-    btcAutoPerformanceWindowStartAt(new Date('2026-08-31T15:59:59.000Z')),
+    btcAutoPerformanceQueryStartAt(new Date('2026-08-31T15:59:59.000Z')),
     '2026-07-31T16:00:00.000Z',
   )
 })
