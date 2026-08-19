@@ -684,6 +684,7 @@ onMounted(load)
             <thead>
               <tr>
                 <th>{{ t('assetTechnical.contract.auto.time') }}</th>
+                <th>{{ t('assetTechnical.contract.auto.strategyVersion') }}</th>
                 <th>{{ t('assetTechnical.contract.auto.latestSignal') }}</th>
                 <th>{{ t('assetTechnical.contract.auto.score') }}</th>
                 <th>{{ t('assetTechnical.contract.auto.confidence') }}</th>
@@ -695,6 +696,7 @@ onMounted(load)
             <tbody>
               <tr v-for="signal in recentSignals" :key="signal.id">
                 <td>{{ formatTime(signal.observedAt) }}</td>
+                <td><code>{{ signal.strategyVersion }}</code></td>
                 <td>{{ t(`assetTechnical.contract.action.${signal.action}`) }}</td>
                 <td>{{ signal.score }}</td>
                 <td>{{ signal.confidence }}%</td>
@@ -1082,7 +1084,7 @@ dd {
 }
 table {
   width: 100%;
-  min-width: 720px;
+  min-width: 840px;
   border-collapse: collapse;
   font-size: 8px;
 }
