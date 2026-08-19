@@ -3,6 +3,7 @@ import type {
   BtcAutoCloseReason,
   BtcAutoEntryGate,
   BtcAutoEquityPoint,
+  BtcAutoLegacyStrategyDefinition,
   BtcAutoMarketSource,
   BtcAutoPerformanceSummary,
   BtcAutoRollingHealth,
@@ -54,6 +55,36 @@ export const validateBtcAutoMarketFreshness = (
 export const nextBtcAutoScheduledRunAt = (now = new Date()) =>
   new Date((Math.floor(now.getTime() / 300_000) + 1) * 300_000).toISOString()
 
+export const buildBtcAutoOrderParameters = (input: {
+  kind: 'open' | 'close'
+  direction: 'long' | 'short'
+  quantity: number
+  clientOrderId: string
+  hedgeMode: boolean
+}) => {
+  const side =
+    input.kind === 'open'
+      ? input.direction === 'long'
+        ? 'BUY'
+        : 'SELL'
+      : input.direction === 'long'
+        ? 'SELL'
+        : 'BUY'
+  return {
+    symbol: 'BTCUSDT',
+    side,
+    type: 'MARKET',
+    quantity: String(input.quantity),
+    newClientOrderId: input.clientOrderId,
+    newOrderRespType: 'RESULT',
+    ...(input.hedgeMode
+      ? { positionSide: input.direction === 'long' ? 'LONG' : 'SHORT' }
+      : input.kind === 'close'
+        ? { reduceOnly: 'true' }
+        : {}),
+  }
+}
+
 export const calculateBtcAutoDirectionalMove = (
   action: ContractTradeDecision['action'],
   entryPrice: number,
@@ -89,7 +120,8 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v4'
+const strategyAlgorithmRevision = 'btc-auto-v5'
+const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 
 const fnv1a = (value: string) => {
   let hash = 0x811c9dc5
@@ -104,6 +136,9 @@ export const btcAutoStrategyDefinition = (
   config: BtcAutoTradingConfig,
 ): BtcAutoStrategyDefinition => ({
   executionMode: config.executionMode,
+  riskControlsEnabled: config.riskControlsEnabled,
+  hedgeModeEnabled: config.hedgeModeEnabled,
+  maxPositionsPerDirection: config.maxPositionsPerDirection,
   symbol: config.symbol,
   interval: config.interval,
   notionalUsdt: config.notionalUsdt,
@@ -124,6 +159,9 @@ export const btcAutoStrategyDefinition = (
 
 const strategyDefinitionKeys: Array<keyof BtcAutoStrategyDefinition> = [
   'executionMode',
+  'riskControlsEnabled',
+  'hedgeModeEnabled',
+  'maxPositionsPerDirection',
   'symbol',
   'interval',
   'notionalUsdt',
@@ -142,9 +180,11 @@ const strategyDefinitionKeys: Array<keyof BtcAutoStrategyDefinition> = [
   'feeRatePct',
 ]
 
-export const isBtcAutoStrategyDefinition = (
-  value: unknown,
-): value is BtcAutoStrategyDefinition => {
+const legacyStrategyDefinitionKeys = strategyDefinitionKeys.filter(
+  (key) => !['riskControlsEnabled', 'hedgeModeEnabled', 'maxPositionsPerDirection'].includes(key),
+)
+
+export const isBtcAutoStrategyDefinition = (value: unknown): value is BtcAutoStrategyDefinition => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false
   const record = value as Record<string, unknown>
   if (
@@ -153,14 +193,40 @@ export const isBtcAutoStrategyDefinition = (
     record.interval !== '5m'
   )
     return false
+  if (
+    typeof record.riskControlsEnabled !== 'boolean' ||
+    typeof record.hedgeModeEnabled !== 'boolean'
+  )
+    return false
   const numberKeys = strategyDefinitionKeys.filter(
-    (key) => !['executionMode', 'symbol', 'interval'].includes(key),
+    (key) =>
+      !['executionMode', 'symbol', 'interval', 'riskControlsEnabled', 'hedgeModeEnabled'].includes(
+        key,
+      ),
   )
   if (!numberKeys.every((key) => typeof record[key] === 'number' && Number.isFinite(record[key]))) {
     return false
   }
+  return Object.keys(record).sort().join('|') === [...strategyDefinitionKeys].sort().join('|')
+}
+
+export const isBtcAutoLegacyStrategyDefinition = (
+  value: unknown,
+): value is BtcAutoLegacyStrategyDefinition => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const record = value as Record<string, unknown>
+  if (
+    !['paper', 'testnet'].includes(String(record.executionMode)) ||
+    record.symbol !== 'BTCUSDT' ||
+    record.interval !== '5m'
+  )
+    return false
+  const numberKeys = legacyStrategyDefinitionKeys.filter(
+    (key) => !['executionMode', 'symbol', 'interval'].includes(key),
+  )
   return (
-    Object.keys(record).sort().join('|') === [...strategyDefinitionKeys].sort().join('|')
+    numberKeys.every((key) => typeof record[key] === 'number' && Number.isFinite(record[key])) &&
+    Object.keys(record).sort().join('|') === [...legacyStrategyDefinitionKeys].sort().join('|')
   )
 }
 
@@ -168,6 +234,9 @@ export const btcAutoStrategyVersionFromDefinition = (definition: BtcAutoStrategy
   const behavior = [
     strategyAlgorithmRevision,
     definition.executionMode,
+    definition.riskControlsEnabled,
+    definition.hedgeModeEnabled,
+    definition.maxPositionsPerDirection,
     definition.symbol,
     definition.interval,
     definition.notionalUsdt,
@@ -186,6 +255,32 @@ export const btcAutoStrategyVersionFromDefinition = (definition: BtcAutoStrategy
     definition.feeRatePct,
   ].join('|')
   return `${strategyAlgorithmRevision}-${fnv1a(behavior)}`
+}
+
+export const btcAutoLegacyStrategyVersionFromDefinition = (
+  definition: BtcAutoLegacyStrategyDefinition,
+) => {
+  const behavior = [
+    legacyStrategyAlgorithmRevision,
+    definition.executionMode,
+    definition.symbol,
+    definition.interval,
+    definition.notionalUsdt,
+    definition.leverage,
+    definition.minimumConfidence,
+    definition.minimumDirectionalScore,
+    definition.requiredConfirmations,
+    definition.cooldownMinutes,
+    definition.dailyLossLimitUsdt,
+    definition.maxConsecutiveLosses,
+    definition.lossPauseMinutes,
+    definition.performanceWindowTrades,
+    definition.minimumRollingProfitFactor,
+    definition.maximumRollingDrawdownUsdt,
+    definition.performancePauseMinutes,
+    definition.feeRatePct,
+  ].join('|')
+  return `${legacyStrategyAlgorithmRevision}-${fnv1a(behavior)}`
 }
 
 export const btcAutoStrategyVersion = (config: BtcAutoTradingConfig) =>
@@ -219,8 +314,10 @@ export const calculateBtcAutoRollingHealth = (
     currentVersion.length >= config.performanceWindowTrades
       ? 'currentVersion'
       : 'allHistoryFallback'
-  const sample = (sampleScope === 'currentVersion' ? currentVersion : closed)
-    .slice(0, config.performanceWindowTrades)
+  const sample = (sampleScope === 'currentVersion' ? currentVersion : closed).slice(
+    0,
+    config.performanceWindowTrades,
+  )
   const grossProfit = sample.reduce((sum, trade) => sum + Math.max(0, trade.netPnl ?? 0), 0)
   const grossLoss = Math.abs(sample.reduce((sum, trade) => sum + Math.min(0, trade.netPnl ?? 0), 0))
   const profitFactor = grossLoss > 0 ? round(grossProfit / grossLoss, 2) : null
@@ -280,6 +377,7 @@ export const evaluateBtcAutoEntryGate = (input: {
   signal: BtcAutoSignalSnapshot | null
   trades: readonly BtcAutoTrade[]
   hasActivePosition: boolean
+  activePositionsInDirection?: number
   cooldownUntil: string | null
   dailyNetPnl: number
   now?: Date
@@ -311,7 +409,16 @@ export const evaluateBtcAutoEntryGate = (input: {
     resumeAt,
   })
   if (!input.config.enabled) return result('disabled')
-  if (input.hasActivePosition) return result('positionOpen')
+  const directionalSignal = input.signal && directional(input.signal.action)
+  if (
+    directionalSignal &&
+    (input.activePositionsInDirection ?? (input.hasActivePosition ? 1 : 0)) >=
+      input.config.maxPositionsPerDirection
+  )
+    return result(input.config.maxPositionsPerDirection === 1 ? 'positionOpen' : 'positionLimit')
+  if (!input.config.riskControlsEnabled) {
+    return directionalSignal ? result('ready') : result('waitingDirection')
+  }
   if (input.dailyNetPnl <= -input.config.dailyLossLimitUsdt) return result('dailyLossLimit')
   if (lossPauseActive) return result('consecutiveLossPause', lossResumeAt)
   if (rollingHealth.status === 'paused')
@@ -359,7 +466,12 @@ export const evolveBtcAutoSignal = (
       Math.abs(decision.score) <= Math.abs(previous.score) - 5
     )
       evolution = 'weakened'
-  } else if (sameVersion && previous && directional(previous.action) && !directional(decision.action)) {
+  } else if (
+    sameVersion &&
+    previous &&
+    directional(previous.action) &&
+    !directional(decision.action)
+  ) {
     evolution = 'weakened'
   }
   return {
@@ -581,9 +693,7 @@ export const summarizeBtcAutoPerformance = (
   })
 }
 
-export const buildBtcAutoEquityCurve = (
-  trades: readonly BtcAutoTrade[],
-): BtcAutoEquityPoint[] => {
+export const buildBtcAutoEquityCurve = (trades: readonly BtcAutoTrade[]): BtcAutoEquityPoint[] => {
   const closed = trades
     .filter((trade) => trade.status === 'closed' && trade.closedAt && trade.netPnl !== null)
     .sort((left, right) => Date.parse(left.closedAt ?? '') - Date.parse(right.closedAt ?? ''))

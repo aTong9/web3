@@ -14,10 +14,15 @@ import type {
   ContractMarketSnapshot,
   ContractTradeDecision,
 } from '../src/types/index'
-import { buildBtcAutoTradingCsv, type BtcAutoTradingExportLocale } from '../src/utils/btc-auto-trading-export'
+import {
+  buildBtcAutoTradingCsv,
+  type BtcAutoTradingExportLocale,
+} from '../src/utils/btc-auto-trading-export'
 import {
   btcAutoMonthStartAt,
   btcAutoPerformanceQueryStartAt,
+  btcAutoLegacyStrategyVersionFromDefinition,
+  buildBtcAutoOrderParameters,
   btcAutoStrategyVersion,
   btcAutoStrategyDefinition,
   btcAutoStrategyVersionFromDefinition,
@@ -29,6 +34,7 @@ import {
   evaluateBtcAutoEntryGate,
   evolveBtcAutoSignal,
   isBtcAutoStrategyDefinition,
+  isBtcAutoLegacyStrategyDefinition,
   nextBtcAutoScheduledRunAt,
   resolveBtcAutoCloseTrigger,
   selectBtcAutoOutcomePoint,
@@ -46,6 +52,9 @@ const testnetBase = 'https://demo-fapi.binance.com'
 interface BtcAutoConfigRow {
   enabled: number
   execution_mode: BtcAutoExecutionMode
+  risk_controls_enabled: number
+  hedge_mode_enabled: number
+  max_positions_per_direction: number
   symbol: 'BTCUSDT'
   interval: '5m'
   notional_usdt: number
@@ -166,12 +175,14 @@ interface ExecutionCommand {
   quantity: number
   leverage: number
   clientOrderId: string
+  hedgeMode: boolean
 }
 
 interface ExecutionAdapter {
   size: (notionalUsdt: number, price: number) => Promise<number>
   execute: (command: ExecutionCommand, price: number) => Promise<ExecutionFill>
   query: (clientOrderId: string) => Promise<ExecutionFill>
+  configurePositionMode: (hedgeMode: boolean) => Promise<void>
   reconcile?: (trade: BtcAutoTradeRow) => Promise<ExecutionReconciliation>
 }
 
@@ -200,6 +211,9 @@ const parseJsonArray = <T>(value: string): T[] => {
 const toConfig = (row: BtcAutoConfigRow): BtcAutoTradingConfig => ({
   enabled: Boolean(row.enabled),
   executionMode: row.execution_mode,
+  riskControlsEnabled: Boolean(row.risk_controls_enabled),
+  hedgeModeEnabled: Boolean(row.hedge_mode_enabled),
+  maxPositionsPerDirection: row.max_positions_per_direction,
   symbol: row.symbol,
   interval: row.interval,
   notionalUsdt: row.notional_usdt,
@@ -271,7 +285,8 @@ const toTrade = (row: BtcAutoTradeRow): BtcAutoTrade => ({
   error: row.error,
 })
 
-const configColumns = `enabled, execution_mode, symbol, interval, notional_usdt, leverage,
+const configColumns = `enabled, execution_mode, risk_controls_enabled, hedge_mode_enabled,
+  max_positions_per_direction, symbol, interval, notional_usdt, leverage,
   minimum_confidence, minimum_directional_score, required_confirmations, cooldown_minutes,
   daily_loss_limit_usdt, max_consecutive_losses, loss_pause_minutes,
   performance_window_trades, minimum_rolling_profit_factor, maximum_rolling_drawdown_usdt,
@@ -395,10 +410,13 @@ const listStrategySnapshots = async (env: Env, limit: number | null = 50) => {
   return rows.results.flatMap((row): BtcAutoStrategySnapshot[] => {
     try {
       const definition: unknown = JSON.parse(row.definition_json)
-      if (
-        !isBtcAutoStrategyDefinition(definition) ||
-        btcAutoStrategyVersionFromDefinition(definition) !== row.strategy_version
-      ) {
+      const matchesCurrent =
+        isBtcAutoStrategyDefinition(definition) &&
+        btcAutoStrategyVersionFromDefinition(definition) === row.strategy_version
+      const matchesLegacy =
+        isBtcAutoLegacyStrategyDefinition(definition) &&
+        btcAutoLegacyStrategyVersionFromDefinition(definition) === row.strategy_version
+      if (!matchesCurrent && !matchesLegacy) {
         throw new Error('strategy definition does not match its version fingerprint')
       }
       return [
@@ -422,11 +440,13 @@ const listStrategySnapshots = async (env: Env, limit: number | null = 50) => {
   })
 }
 
-const activeTradeRow = (env: Env) =>
-  env.DB.prepare(
+const activeTradeRows = async (env: Env) => {
+  const rows = await env.DB.prepare(
     `SELECT ${tradeColumns} FROM btc_auto_trades
-     WHERE status IN ('opening', 'open', 'closing') ORDER BY opened_at DESC LIMIT 1`,
-  ).first<BtcAutoTradeRow>()
+     WHERE status IN ('opening', 'open', 'closing') ORDER BY opened_at ASC, id ASC`,
+  ).all<BtcAutoTradeRow>()
+  return rows.results
+}
 
 class ExchangeRequestError extends Error {
   readonly definiteRejection: boolean
@@ -509,8 +529,7 @@ const publicJson = async <T>(url: URL, init: RequestInit = {}, label = '公开�
     } catch (error) {
       lastError = error
       const retryable =
-        (error instanceof ExchangeRequestError &&
-          (error.status === 429 || error.status >= 500)) ||
+        (error instanceof ExchangeRequestError && (error.status === 429 || error.status >= 500)) ||
         error instanceof TypeError ||
         (error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError'))
       if (!retryable || attempt === 1) break
@@ -732,11 +751,7 @@ const outcomeSpecs = [
   { key: '24h' as const, milliseconds: 86_400_000, intervals: ['15m', '1h'] as const },
 ]
 
-const updateSignalOutcomes = async (
-  env: Env,
-  reading: MarketReading,
-  now: Date,
-) => {
+const updateSignalOutcomes = async (env: Env, reading: MarketReading, now: Date) => {
   const rows = await env.DB.prepare(
     `SELECT id, action, price, observed_at, forward_1h_pct, forward_4h_pct, forward_24h_pct
      FROM btc_auto_signal_history
@@ -750,7 +765,12 @@ const updateSignalOutcomes = async (
   const statements = rows.results.flatMap((row) => {
     const values: Record<string, { move: number; observedAt: string }> = {}
     for (const spec of outcomeSpecs) {
-      const field = spec.key === '1h' ? row.forward_1h_pct : spec.key === '4h' ? row.forward_4h_pct : row.forward_24h_pct
+      const field =
+        spec.key === '1h'
+          ? row.forward_1h_pct
+          : spec.key === '4h'
+            ? row.forward_4h_pct
+            : row.forward_24h_pct
       if (field !== null) continue
       const targetAt = Date.parse(row.observed_at) + spec.milliseconds
       if (targetAt > now.getTime()) continue
@@ -810,9 +830,13 @@ const signalOutcomeSummaries = async (env: Env, strategyVersion: string) => {
       return {
         horizon: spec.key,
         samples: row?.samples ?? 0,
-        hitRatePct: row?.hit_rate_pct === null || row?.hit_rate_pct === undefined ? null : Number(row.hit_rate_pct.toFixed(2)),
+        hitRatePct:
+          row?.hit_rate_pct === null || row?.hit_rate_pct === undefined
+            ? null
+            : Number(row.hit_rate_pct.toFixed(2)),
         averageDirectionalMovePct:
-          row?.average_directional_move_pct === null || row?.average_directional_move_pct === undefined
+          row?.average_directional_move_pct === null ||
+          row?.average_directional_move_pct === undefined
             ? null
             : Number(row.average_directional_move_pct.toFixed(4)),
       }
@@ -833,6 +857,7 @@ const paperAdapter: ExecutionAdapter = {
   query: async () => {
     throw new Error('本地模拟订单无需查询交易所')
   },
+  configurePositionMode: async () => undefined,
 }
 
 const hex = (buffer: ArrayBuffer) =>
@@ -851,8 +876,7 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
           headers: { Accept: 'application/json' },
         },
         'Binance服务器时间',
-      )
-        .then((result) => result.serverTime - Date.now())
+      ).then((result) => result.serverTime - Date.now())
     }
     return serverOffsetPromise
   }
@@ -945,7 +969,10 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
       if (!Array.isArray(items) || !items.length) throw new Error(`订单 ${orderId} 暂无成交明细`)
       return items
     }
-    const fills = [...(await orderTrades(row.open_order_id)), ...(await orderTrades(row.close_order_id))]
+    const fills = [
+      ...(await orderTrades(row.open_order_id)),
+      ...(await orderTrades(row.close_order_id)),
+    ]
     const uniqueFills = [...new Map(fills.map((item) => [String(item.id), item])).values()]
     if (
       uniqueFills.some(
@@ -955,10 +982,7 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
       throw new Error('Testnet成交佣金不是USDT，暂不自动换算')
     }
     const grossPnl = uniqueFills.reduce((sum, item) => sum + Number(item.realizedPnl ?? 0), 0)
-    const fees = uniqueFills.reduce(
-      (sum, item) => sum + Math.abs(Number(item.commission ?? 0)),
-      0,
-    )
+    const fees = uniqueFills.reduce((sum, item) => sum + Math.abs(Number(item.commission ?? 0)), 0)
     interface IncomeItem {
       tranId?: number
       income?: string
@@ -978,7 +1002,9 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
         limit: '1000',
       })
       if (!Array.isArray(items)) throw new Error('Testnet资金费记录格式无效')
-      items.forEach((item, index) => incomes.set(String(item.tranId ?? `${windowStart}-${index}`), item))
+      items.forEach((item, index) =>
+        incomes.set(String(item.tranId ?? `${windowStart}-${index}`), item),
+      )
       windowStart = windowEnd + 1
     }
     const fundingItems = [...incomes.values()]
@@ -986,7 +1012,10 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
       throw new Error('Testnet资金费不是USDT，暂不自动换算')
     }
     const fundingFee = fundingItems.reduce((sum, item) => sum + Number(item.income ?? 0), 0)
-    const values = [...uniqueFills.flatMap((item) => [item.realizedPnl, item.commission]), fundingFee]
+    const values = [
+      ...uniqueFills.flatMap((item) => [item.realizedPnl, item.commission]),
+      fundingFee,
+    ]
     if (values.some((value) => !Number.isFinite(Number(value)))) {
       throw new Error('Testnet对账明细包含无效数值')
     }
@@ -1026,6 +1055,17 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
         throw new Error('配置的名义仓位低于 BTCUSDT Testnet 最小下单数量')
       return Number(quantity.toFixed(8))
     },
+    configurePositionMode: async (hedgeMode) => {
+      const current = await signedRequest<{ dualSidePosition?: boolean }>(
+        'GET',
+        '/fapi/v1/positionSide/dual',
+        {},
+      )
+      if (Boolean(current.dualSidePosition) === hedgeMode) return
+      await signedRequest('POST', '/fapi/v1/positionSide/dual', {
+        dualSidePosition: hedgeMode ? 'true' : 'false',
+      })
+    },
     execute: async (command) => {
       if (command.kind === 'open') {
         await signedRequest('POST', '/fapi/v1/leverage', {
@@ -1033,24 +1073,8 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
           leverage: String(command.leverage),
         })
       }
-      const side =
-        command.kind === 'open'
-          ? command.direction === 'long'
-            ? 'BUY'
-            : 'SELL'
-          : command.direction === 'long'
-            ? 'SELL'
-            : 'BUY'
       return toFill(
-        await signedRequest('POST', '/fapi/v1/order', {
-          symbol,
-          side,
-          type: 'MARKET',
-          quantity: String(command.quantity),
-          newClientOrderId: command.clientOrderId,
-          newOrderRespType: 'RESULT',
-          ...(command.kind === 'close' ? { reduceOnly: 'true' } : {}),
-        }),
+        await signedRequest('POST', '/fapi/v1/order', buildBtcAutoOrderParameters(command)),
       )
     },
     query: async (clientOrderId) =>
@@ -1192,6 +1216,16 @@ const reconcileLatestTestnetPnl = async (env: Env) => {
   if (!row) return
   const adapter = testnetAdapter(env)
   try {
+    const overlap = await env.DB.prepare(
+      `SELECT COUNT(*) AS count FROM btc_auto_trades
+       WHERE id <> ?1 AND execution_mode = 'testnet' AND opened_at < ?2
+         AND COALESCE(closed_at, '9999-12-31T23:59:59.999Z') > ?3`,
+    )
+      .bind(row.id, row.closed_at, row.opened_at)
+      .first<{ count: number }>()
+    if ((overlap?.count ?? 0) > 0) {
+      throw new Error('Testnet仓位持有区间重叠，资金费无法可靠归属到单笔交易')
+    }
     const result = await adapter.reconcile!(row)
     const reconciledAt = new Date().toISOString()
     await env.DB.prepare(
@@ -1254,7 +1288,7 @@ const reconcilePendingTrade = async (env: Env, row: BtcAutoTradeRow, adapter: Ex
         .run()
     }
   }
-  return activeTradeRow(env)
+  return (await activeTradeRows(env)).find((item) => item.id === row.id) ?? null
 }
 
 const openTrade = async (
@@ -1267,9 +1301,9 @@ const openTrade = async (
   if (
     signal.price === null ||
     (signal.action !== 'long' && signal.action !== 'short') ||
-    Math.abs(signal.score) < config.minimumDirectionalScore ||
-    signal.confidence < config.minimumConfidence ||
-    signal.confirmations < config.requiredConfirmations
+    (config.riskControlsEnabled && Math.abs(signal.score) < config.minimumDirectionalScore) ||
+    (config.riskControlsEnabled && signal.confidence < config.minimumConfidence) ||
+    (config.riskControlsEnabled && signal.confirmations < config.requiredConfirmations)
   )
     return
   if (
@@ -1319,6 +1353,7 @@ const openTrade = async (
         quantity,
         leverage: config.leverage,
         clientOrderId,
+        hedgeMode: config.hedgeModeEnabled,
       },
       signal.price,
     )
@@ -1345,6 +1380,7 @@ const closeTrade = async (
   adapter: ExecutionAdapter,
   price: number,
   reason: BtcAutoCloseReason,
+  hedgeMode: boolean,
 ) => {
   const compactId = crypto.randomUUID().replaceAll('-', '')
   const clientOrderId = `md_c_${compactId.slice(0, 26)}`
@@ -1364,6 +1400,7 @@ const closeTrade = async (
         quantity: row.quantity,
         leverage: row.leverage,
         clientOrderId,
+        hedgeMode,
       },
       price,
     )
@@ -1423,8 +1460,7 @@ const releaseCycleLock = (
 const releaseManualLock = (env: Env) =>
   env.DB.prepare(
     `UPDATE btc_auto_trading_config SET cycle_lock_until = NULL WHERE id = 'default'`,
-  )
-    .run()
+  ).run()
 
 export const runBtcAutoTradingCycle = async (env: Env) => {
   const now = new Date()
@@ -1434,8 +1470,8 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
     const strategyVersion = btcAutoStrategyVersion(config)
     await ensureStrategySnapshot(env, config, now.toISOString())
     await reconcileLatestTestnetPnl(env)
-    let active = await activeTradeRow(env)
-    if (!config.enabled && !active) {
+    let active = await activeTradeRows(env)
+    if (!config.enabled && !active.length) {
       await releaseCycleLock(env, 'skipped')
       return
     }
@@ -1461,35 +1497,53 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
       strategyVersion,
     )
     let cooldownUntil = previousRow?.cooldown_until ?? null
-    const cooldownActive = cooldownUntil !== null && Date.parse(cooldownUntil) > now.getTime()
+    const cooldownActive =
+      config.riskControlsEnabled &&
+      cooldownUntil !== null &&
+      Date.parse(cooldownUntil) > now.getTime()
     const signal = cooldownActive ? { ...evolvedSignal, confirmations: 0 } : evolvedSignal
-    const activeAdapter = active ? adapterFor(env, active.execution_mode) : null
-    if (active?.status === 'opening' || active?.status === 'closing') {
-      active = await reconcilePendingTrade(env, active, activeAdapter!)
+    if (config.executionMode === 'testnet') {
+      await adapterFor(env, config.executionMode).configurePositionMode(config.hedgeModeEnabled)
     }
-    if (active?.status === 'open') {
-      const minutePoints =
-        reading.market.timeframes.find((item) => item.interval === '1m')?.points ?? []
+    for (const pending of active.filter(
+      (item) => item.status === 'opening' || item.status === 'closing',
+    )) {
+      await reconcilePendingTrade(env, pending, adapterFor(env, pending.execution_mode))
+    }
+    active = await activeTradeRows(env)
+    const minutePoints =
+      reading.market.timeframes.find((item) => item.interval === '1m')?.points ?? []
+    for (const open of active.filter((item) => item.status === 'open')) {
       const trigger = resolveBtcAutoCloseTrigger(
-        toTrade(active),
+        toTrade(open),
         signal,
         minutePoints,
-        config.minimumConfidence,
+        config.hedgeModeEnabled ? Number.POSITIVE_INFINITY : config.minimumConfidence,
       )
       if (trigger) {
-        await closeTrade(env, active, activeAdapter!, trigger.referencePrice, trigger.reason)
-        cooldownUntil = new Date(now.getTime() + config.cooldownMinutes * 60_000).toISOString()
-        signal.confirmations = 0
-        active = await activeTradeRow(env)
+        await closeTrade(
+          env,
+          open,
+          adapterFor(env, open.execution_mode),
+          trigger.referencePrice,
+          trigger.reason,
+          config.hedgeModeEnabled,
+        )
+        if (config.riskControlsEnabled) {
+          cooldownUntil = new Date(now.getTime() + config.cooldownMinutes * 60_000).toISOString()
+          signal.confirmations = 0
+        }
       }
     }
+    active = await activeTradeRows(env)
     const trades = await listTrades(env, 1000)
     const daily = summarizeBtcAutoPerformance(trades, now).find((item) => item.period === 'day')
     const gate = evaluateBtcAutoEntryGate({
       config,
       signal,
       trades,
-      hasActivePosition: Boolean(active),
+      hasActivePosition: active.length > 0,
+      activePositionsInDirection: active.filter((item) => item.direction === signal.action).length,
       cooldownUntil,
       dailyNetPnl: daily?.netPnl ?? 0,
       now,
@@ -1513,17 +1567,27 @@ export const closeBtcAutoTradingPosition = async (env: Env) => {
   const now = new Date()
   if (!(await acquireCycleLock(env, now))) throw new Error('自动交易周期正在运行，请稍后重试')
   try {
-    let active = await activeTradeRow(env)
-    if (!active) return
-    const adapter = adapterFor(env, active.execution_mode)
-    if (active.status === 'opening' || active.status === 'closing') {
-      active = await reconcilePendingTrade(env, active, adapter)
+    const config = toConfig(await loadConfigRow(env))
+    let active = await activeTradeRows(env)
+    for (const pending of active.filter(
+      (item) => item.status === 'opening' || item.status === 'closing',
+    )) {
+      await reconcilePendingTrade(env, pending, adapterFor(env, pending.execution_mode))
     }
-    if (!active || active.status !== 'open') return
-    const reading = await fetchMarket(env, active.execution_mode)
-    const price = reading.market.markPrice
-    if (price === null) throw new Error('当前BTC价格不可用，无法安全提交平仓')
-    await closeTrade(env, active, adapter, price, 'manual')
+    active = await activeTradeRows(env)
+    for (const open of active.filter((item) => item.status === 'open')) {
+      const reading = await fetchMarket(env, open.execution_mode)
+      const price = reading.market.markPrice
+      if (price === null) throw new Error('当前BTC价格不可用，无法安全提交平仓')
+      await closeTrade(
+        env,
+        open,
+        adapterFor(env, open.execution_mode),
+        price,
+        'manual',
+        config.hedgeModeEnabled,
+      )
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message.slice(0, 300) : '人工平仓失败'
     console.error(JSON.stringify({ event: 'btc_auto_manual_close_failed', message }))
@@ -1548,8 +1612,8 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
   const strategyVersion = btcAutoStrategyVersion(config)
   const signalOutcomes = await signalOutcomeSummaries(env, strategyVersion)
   const signal = toSignal(signalRow)
-  const openTrade =
-    trades.find((trade) => ['opening', 'open', 'closing'].includes(trade.status)) ?? null
+  const openTrades = trades.filter((trade) => ['opening', 'open', 'closing'].includes(trade.status))
+  const openTrade = openTrades[0] ?? null
   const performance = summarizeBtcAutoPerformance(performanceTrades, now)
   const dailyNetPnl = performance.find((item) => item.period === 'day')?.netPnl ?? 0
   const monthStart = Date.parse(btcAutoMonthStartAt(now))
@@ -1573,12 +1637,15 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
       signal,
       trades,
       hasActivePosition: Boolean(openTrade),
+      activePositionsInDirection: openTrades.filter((trade) => trade.direction === signal?.action)
+        .length,
       cooldownUntil: signalRow?.cooldown_until ?? null,
       dailyNetPnl,
       strategyVersion,
     }),
     rollingHealth: calculateBtcAutoRollingHealth(config, trades, now, strategyVersion),
     openTrade,
+    openTrades,
     trades,
     performance,
     equityCurve: buildBtcAutoEquityCurve(
@@ -1589,10 +1656,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
   }
 }
 
-export const btcAutoTradingCsv = async (
-  env: Env,
-  locale: BtcAutoTradingExportLocale,
-) => {
+export const btcAutoTradingCsv = async (env: Env, locale: BtcAutoTradingExportLocale) => {
   const [dashboard, trades, strategySnapshots] = await Promise.all([
     btcAutoTradingDashboard(env),
     listAllTrades(env),
@@ -1628,6 +1692,8 @@ export const saveBtcAutoTradingConfig = async (
   input: Record<string, unknown>,
 ) => {
   if (typeof input.enabled !== 'boolean') throw new Error('自动交易开关格式无效')
+  if (typeof input.riskControlsEnabled !== 'boolean') throw new Error('风险控制开关格式无效')
+  if (typeof input.hedgeModeEnabled !== 'boolean') throw new Error('对冲模式开关格式无效')
   if (input.executionMode !== 'paper' && input.executionMode !== 'testnet') {
     throw new Error('执行模式无效')
   }
@@ -1641,10 +1707,28 @@ export const saveBtcAutoTradingConfig = async (
     (!env.BINANCE_TESTNET_API_KEY || !env.BINANCE_TESTNET_API_SECRET)
   )
     throw new Error('启用Testnet前请先配置两项Cloudflare Secret')
+  const current = toConfig(await loadConfigRow(env))
+  const active = await activeTradeRows(env)
+  if (
+    active.length &&
+    (input.executionMode !== current.executionMode ||
+      input.hedgeModeEnabled !== current.hedgeModeEnabled)
+  ) {
+    throw new Error('存在活动仓位时不能切换执行模式或持仓模式，请先全部平仓')
+  }
   const now = new Date().toISOString()
   const config = {
     enabled: input.enabled,
     executionMode: input.executionMode,
+    riskControlsEnabled: input.riskControlsEnabled,
+    hedgeModeEnabled: input.hedgeModeEnabled,
+    maxPositionsPerDirection: boundedNumber(
+      input.maxPositionsPerDirection,
+      '每方向最大持仓数',
+      1,
+      20,
+      true,
+    ),
     notionalUsdt: boundedNumber(input.notionalUsdt, '名义仓位', 10, 10_000),
     leverage: boundedNumber(input.leverage, '杠杆', 1, 5, true),
     minimumConfidence: boundedNumber(input.minimumConfidence, '最低置信度', 55, 88, true),
@@ -1686,16 +1770,20 @@ export const saveBtcAutoTradingConfig = async (
   await env.DB.batch([
     env.DB.prepare(
       `UPDATE btc_auto_trading_config SET enabled = ?1, execution_mode = ?2,
-       notional_usdt = ?3, leverage = ?4, minimum_confidence = ?5,
-       minimum_directional_score = ?6, required_confirmations = ?7, cooldown_minutes = ?8,
-       daily_loss_limit_usdt = ?9, max_consecutive_losses = ?10, loss_pause_minutes = ?11,
-       performance_window_trades = ?12, minimum_rolling_profit_factor = ?13,
-       maximum_rolling_drawdown_usdt = ?14, performance_pause_minutes = ?15,
-       fee_rate_pct = ?16, eligibility_confirmed = ?17, updated_by = ?18, updated_at = ?19
+       risk_controls_enabled = ?3, hedge_mode_enabled = ?4, max_positions_per_direction = ?5,
+       notional_usdt = ?6, leverage = ?7, minimum_confidence = ?8,
+       minimum_directional_score = ?9, required_confirmations = ?10, cooldown_minutes = ?11,
+       daily_loss_limit_usdt = ?12, max_consecutive_losses = ?13, loss_pause_minutes = ?14,
+       performance_window_trades = ?15, minimum_rolling_profit_factor = ?16,
+       maximum_rolling_drawdown_usdt = ?17, performance_pause_minutes = ?18,
+       fee_rate_pct = ?19, eligibility_confirmed = ?20, updated_by = ?21, updated_at = ?22
        WHERE id = 'default'`,
     ).bind(
       config.enabled ? 1 : 0,
       config.executionMode,
+      config.riskControlsEnabled ? 1 : 0,
+      config.hedgeModeEnabled ? 1 : 0,
+      config.maxPositionsPerDirection,
       config.notionalUsdt,
       config.leverage,
       config.minimumConfidence,

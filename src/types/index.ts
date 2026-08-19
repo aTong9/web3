@@ -1225,6 +1225,7 @@ export type BtcAutoEntryGateReason =
   | 'ready'
   | 'disabled'
   | 'positionOpen'
+  | 'positionLimit'
   | 'waitingDirection'
   | 'weakScore'
   | 'lowConfidence'
@@ -1237,6 +1238,9 @@ export type BtcAutoEntryGateReason =
 export interface BtcAutoTradingConfig {
   enabled: boolean
   executionMode: BtcAutoExecutionMode
+  riskControlsEnabled: boolean
+  hedgeModeEnabled: boolean
+  maxPositionsPerDirection: number
   symbol: 'BTCUSDT'
   interval: '5m'
   notionalUsdt: number
@@ -1259,6 +1263,9 @@ export interface BtcAutoTradingConfig {
 
 export interface BtcAutoStrategyDefinition {
   executionMode: BtcAutoExecutionMode
+  riskControlsEnabled: boolean
+  hedgeModeEnabled: boolean
+  maxPositionsPerDirection: number
   symbol: 'BTCUSDT'
   interval: '5m'
   notionalUsdt: number
@@ -1277,9 +1284,14 @@ export interface BtcAutoStrategyDefinition {
   feeRatePct: number
 }
 
+export type BtcAutoLegacyStrategyDefinition = Omit<
+  BtcAutoStrategyDefinition,
+  'riskControlsEnabled' | 'hedgeModeEnabled' | 'maxPositionsPerDirection'
+>
+
 export interface BtcAutoStrategySnapshot {
   strategyVersion: string
-  definition: BtcAutoStrategyDefinition
+  definition: BtcAutoStrategyDefinition | BtcAutoLegacyStrategyDefinition
   firstSeenAt: string
   lastSeenAt: string
 }
@@ -1417,6 +1429,7 @@ export interface BtcAutoTradingDashboard {
   entryGate: BtcAutoEntryGate
   rollingHealth: BtcAutoRollingHealth
   openTrade: BtcAutoTrade | null
+  openTrades: BtcAutoTrade[]
   trades: BtcAutoTrade[]
   performance: BtcAutoPerformanceSummary[]
   equityCurve: BtcAutoEquityPoint[]

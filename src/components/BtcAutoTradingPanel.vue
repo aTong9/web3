@@ -24,6 +24,9 @@ const interactionLocked = computed(() => busy.value || refreshing.value)
 const draft = reactive<BtcAutoTradingConfig>({
   enabled: true,
   executionMode: 'paper',
+  riskControlsEnabled: true,
+  hedgeModeEnabled: false,
+  maxPositionsPerDirection: 1,
   symbol: 'BTCUSDT',
   interval: '5m',
   notionalUsdt: 100,
@@ -189,8 +192,7 @@ const equityOption = computed<EChartsCoreOption>(() => {
 })
 const recentTrades = computed(() => dashboard.value?.trades.slice(0, 12) ?? [])
 const recentSignals = computed(() => dashboard.value?.signalHistory.slice(0, 12) ?? [])
-const openRisk = computed(() => {
-  const trade = dashboard.value?.openTrade
+const openRisk = (trade: BtcAutoTrade) => {
   const price = dashboard.value?.signal?.price
   if (!trade || !trade.entryPrice || !price) return null
   const multiplier = trade.direction === 'long' ? 1 : -1
@@ -200,7 +202,7 @@ const openRisk = computed(() => {
     Math.abs(trade.entryPrice - trade.stopLoss) * trade.quantity +
     (trade.entryPrice + trade.stopLoss) * trade.quantity * (trade.feeRatePct / 100)
   return { unrealizedPnl: gross - fees, riskToStop }
-})
+}
 const periodLabel = (summary: BtcAutoPerformanceSummary) =>
   t(`assetTechnical.contract.auto.period.${summary.period}`)
 const tradeDirection = (trade: BtcAutoTrade) =>
@@ -213,14 +215,14 @@ const exportTrades = async () => {
   try {
     const blob = await quantApi.exportBtcAutoTrading(locale.value)
     const url = URL.createObjectURL(blob)
-  const anchor = document.createElement('a')
-  const day = new Date().toISOString().slice(0, 10)
-  anchor.href = url
-  anchor.download = `btc-auto-trading-${day}.csv`
-  document.body.append(anchor)
-  anchor.click()
-  anchor.remove()
-  window.setTimeout(() => URL.revokeObjectURL(url), 0)
+    const anchor = document.createElement('a')
+    const day = new Date().toISOString().slice(0, 10)
+    anchor.href = url
+    anchor.download = `btc-auto-trading-${day}.csv`
+    document.body.append(anchor)
+    anchor.click()
+    anchor.remove()
+    window.setTimeout(() => URL.revokeObjectURL(url), 0)
   } catch (exportError) {
     error.value =
       exportError instanceof Error ? exportError.message : t('assetTechnical.contract.auto.error')
@@ -351,7 +353,9 @@ onBeforeUnmount(() => {
         <dl>
           <div>
             <dt>{{ t('assetTechnical.contract.auto.strategyVersion') }}</dt>
-            <dd><code>{{ dashboard.strategyVersion }}</code></dd>
+            <dd>
+              <code>{{ dashboard.strategyVersion }}</code>
+            </dd>
           </div>
           <div>
             <dt>{{ t('assetTechnical.contract.auto.currentVersionSample') }}</dt>
@@ -364,9 +368,7 @@ onBeforeUnmount(() => {
             <dt>{{ t('assetTechnical.contract.auto.sampleScopeLabel') }}</dt>
             <dd>
               {{
-                t(
-                  `assetTechnical.contract.auto.sampleScope.${dashboard.rollingHealth.sampleScope}`,
-                )
+                t(`assetTechnical.contract.auto.sampleScope.${dashboard.rollingHealth.sampleScope}`)
               }}
             </dd>
           </div>
@@ -474,39 +476,35 @@ onBeforeUnmount(() => {
         <article class="open-position">
           <header>
             <span>{{ t('assetTechnical.contract.auto.openPosition') }}</span>
-            <b v-if="dashboard.openTrade" :class="dashboard.openTrade.direction">
-              {{ tradeDirection(dashboard.openTrade) }}
-            </b>
+            <b v-if="dashboard.openTrades.length">{{ dashboard.openTrades.length }}</b>
             <b v-else>{{ t('assetTechnical.contract.auto.flat') }}</b>
           </header>
-          <dl v-if="dashboard.openTrade">
-            <div>
-              <dt>{{ t('assetTechnical.contract.auto.entry') }}</dt>
-              <dd>{{ formatNumber(dashboard.openTrade.entryPrice) }}</dd>
-            </div>
-            <div>
-              <dt>{{ t('assetTechnical.contract.auto.quantity') }}</dt>
-              <dd>{{ formatNumber(dashboard.openTrade.quantity, 6) }} BTC</dd>
-            </div>
-            <div>
-              <dt>{{ t('assetTechnical.contract.auto.stop') }}</dt>
-              <dd>{{ formatNumber(dashboard.openTrade.stopLoss) }}</dd>
-            </div>
-            <div>
-              <dt>{{ t('assetTechnical.contract.auto.target') }}</dt>
-              <dd>{{ formatNumber(dashboard.openTrade.takeProfit) }}</dd>
-            </div>
-            <div v-if="openRisk">
-              <dt>{{ t('assetTechnical.contract.auto.unrealizedPnl') }}</dt>
-              <dd :class="pnlClass(openRisk.unrealizedPnl)">
-                {{ formatSigned(openRisk.unrealizedPnl, 2, ' USDT') }}
-              </dd>
-            </div>
-            <div v-if="openRisk">
-              <dt>{{ t('assetTechnical.contract.auto.riskToStop') }}</dt>
-              <dd>{{ formatNumber(openRisk.riskToStop, 2) }} USDT</dd>
-            </div>
-          </dl>
+          <div v-if="dashboard.openTrades.length" class="open-position-list">
+            <dl v-for="trade in dashboard.openTrades" :key="trade.id">
+              <div>
+                <dt>{{ tradeDirection(trade) }}</dt>
+                <dd :class="trade.direction">{{ formatNumber(trade.entryPrice) }}</dd>
+              </div>
+              <div>
+                <dt>{{ t('assetTechnical.contract.auto.quantity') }}</dt>
+                <dd>{{ formatNumber(trade.quantity, 6) }} BTC</dd>
+              </div>
+              <div>
+                <dt>{{ t('assetTechnical.contract.auto.stop') }}</dt>
+                <dd>{{ formatNumber(trade.stopLoss) }}</dd>
+              </div>
+              <div>
+                <dt>{{ t('assetTechnical.contract.auto.target') }}</dt>
+                <dd>{{ formatNumber(trade.takeProfit) }}</dd>
+              </div>
+              <div v-if="openRisk(trade)">
+                <dt>{{ t('assetTechnical.contract.auto.unrealizedPnl') }}</dt>
+                <dd :class="pnlClass(openRisk(trade)?.unrealizedPnl ?? null)">
+                  {{ formatSigned(openRisk(trade)?.unrealizedPnl ?? null, 2, ' USDT') }}
+                </dd>
+              </div>
+            </dl>
+          </div>
           <p v-else>{{ t('assetTechnical.contract.auto.flatHint') }}</p>
         </article>
       </section>
@@ -579,6 +577,9 @@ onBeforeUnmount(() => {
             {{ t('assetTechnical.contract.auto.allowEntries') }}
           </label>
         </header>
+        <p v-if="!draft.riskControlsEnabled" class="config-warning">
+          {{ t('assetTechnical.contract.auto.unrestrictedWarning') }}
+        </p>
         <div class="config-fields">
           <label>
             <span>{{ t('assetTechnical.contract.auto.executionMode') }}</span>
@@ -586,6 +587,30 @@ onBeforeUnmount(() => {
               <option value="paper">{{ t('assetTechnical.contract.auto.mode.paper') }}</option>
               <option value="testnet">{{ t('assetTechnical.contract.auto.mode.testnet') }}</option>
             </select>
+          </label>
+          <label>
+            <span>{{ t('assetTechnical.contract.auto.riskControlsEnabled') }}</span>
+            <select v-model="draft.riskControlsEnabled">
+              <option :value="true">{{ t('assetTechnical.contract.auto.guarded') }}</option>
+              <option :value="false">{{ t('assetTechnical.contract.auto.unrestricted') }}</option>
+            </select>
+          </label>
+          <label>
+            <span>{{ t('assetTechnical.contract.auto.hedgeModeEnabled') }}</span>
+            <select v-model="draft.hedgeModeEnabled">
+              <option :value="false">{{ t('assetTechnical.contract.auto.oneWay') }}</option>
+              <option :value="true">{{ t('assetTechnical.contract.auto.hedgeMode') }}</option>
+            </select>
+          </label>
+          <label>
+            <span>{{ t('assetTechnical.contract.auto.maxPositionsPerDirection') }}</span>
+            <input
+              v-model.number="draft.maxPositionsPerDirection"
+              type="number"
+              min="1"
+              max="20"
+              step="1"
+            />
           </label>
           <label>
             <span>{{ t('assetTechnical.contract.auto.notional') }}</span>
@@ -723,10 +748,12 @@ onBeforeUnmount(() => {
         <footer>
           <small>{{ t('assetTechnical.contract.auto.testnetBoundary') }}</small>
           <button
-            v-if="dashboard.openTrade"
+            v-if="dashboard.openTrades.length"
             type="button"
             class="danger"
-            :disabled="interactionLocked || dashboard.openTrade.status !== 'open'"
+            :disabled="
+              interactionLocked || !dashboard.openTrades.some((trade) => trade.status === 'open')
+            "
             @click="closePosition"
           >
             {{ t('assetTechnical.contract.auto.manualClose') }}
@@ -826,7 +853,9 @@ onBeforeUnmount(() => {
             <tbody>
               <tr v-for="signal in recentSignals" :key="signal.id">
                 <td>{{ formatTime(signal.observedAt) }}</td>
-                <td><code>{{ signal.strategyVersion }}</code></td>
+                <td>
+                  <code>{{ signal.strategyVersion }}</code>
+                </td>
                 <td>{{ t(`assetTechnical.contract.action.${signal.action}`) }}</td>
                 <td>{{ signal.score }}</td>
                 <td>{{ signal.confidence }}%</td>
@@ -1098,6 +1127,14 @@ onBeforeUnmount(() => {
   border-radius: 7px;
   background: var(--surface-soft);
 }
+.config-warning {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border: 1px solid var(--warning);
+  border-radius: 6px;
+  color: var(--warning);
+  font-size: 7px;
+}
 .auto-signal > header,
 .open-position > header,
 .performance-grid article > header,
@@ -1142,6 +1179,11 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
+}
+.open-position-list dl + dl {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
 }
 .auto-signal dl div,
 .open-position dl div,

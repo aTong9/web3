@@ -6,6 +6,8 @@ const jiti = createJiti(import.meta.url)
 const {
   btcAutoStrategyVersion,
   btcAutoStrategyDefinition,
+  btcAutoLegacyStrategyVersionFromDefinition,
+  buildBtcAutoOrderParameters,
   btcAutoStrategyVersionFromDefinition,
   btcAutoMonthStartAt,
   btcAutoPerformanceQueryStartAt,
@@ -17,6 +19,7 @@ const {
   evaluateBtcAutoEntryGate,
   evolveBtcAutoSignal,
   isBtcAutoStrategyDefinition,
+  isBtcAutoLegacyStrategyDefinition,
   nextBtcAutoScheduledRunAt,
   resolveBtcAutoCloseTrigger,
   selectBtcAutoOutcomePoint,
@@ -28,6 +31,9 @@ const { buildBtcAutoTradingCsv } = jiti('../src/utils/btc-auto-trading-export.ts
 const config = (overrides = {}) => ({
   enabled: true,
   executionMode: 'paper',
+  riskControlsEnabled: true,
+  hedgeModeEnabled: false,
+  maxPositionsPerDirection: 1,
   symbol: 'BTCUSDT',
   interval: '5m',
   notionalUsdt: 100,
@@ -199,10 +205,12 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
     'dailyLossLimitUsdt',
     'executionMode',
     'feeRatePct',
+    'hedgeModeEnabled',
     'interval',
     'leverage',
     'lossPauseMinutes',
     'maxConsecutiveLosses',
+    'maxPositionsPerDirection',
     'maximumRollingDrawdownUsdt',
     'minimumConfidence',
     'minimumDirectionalScore',
@@ -211,6 +219,7 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
     'performancePauseMinutes',
     'performanceWindowTrades',
     'requiredConfirmations',
+    'riskControlsEnabled',
     'symbol',
   ])
   const definition = btcAutoStrategyDefinition(config())
@@ -218,6 +227,12 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
   assert.equal(isBtcAutoStrategyDefinition(definition), true)
   assert.equal(isBtcAutoStrategyDefinition({ ...definition, unexpected: true }), false)
   assert.equal(isBtcAutoStrategyDefinition({ ...definition, feeRatePct: '0.05' }), false)
+  const legacy = { ...definition }
+  delete legacy.riskControlsEnabled
+  delete legacy.hedgeModeEnabled
+  delete legacy.maxPositionsPerDirection
+  assert.equal(isBtcAutoLegacyStrategyDefinition(legacy), true)
+  assert.equal(btcAutoLegacyStrategyVersionFromDefinition(legacy).startsWith('btc-auto-v4-'), true)
 })
 
 test('market freshness rejects stale or incomplete minute data', () => {
@@ -279,6 +294,30 @@ test('next scheduled run advances to the next five-minute UTC boundary', () => {
     nextBtcAutoScheduledRunAt(new Date('2026-08-19T16:44:59.999Z')),
     '2026-08-19T16:45:00.000Z',
   )
+})
+
+test('hedge orders use positionSide while one-way closes use reduceOnly', () => {
+  const hedgeClose = buildBtcAutoOrderParameters({
+    kind: 'close',
+    direction: 'short',
+    quantity: 0.01,
+    clientOrderId: 'hedge-close',
+    hedgeMode: true,
+  })
+  assert.equal(hedgeClose.side, 'BUY')
+  assert.equal(hedgeClose.positionSide, 'SHORT')
+  assert.equal('reduceOnly' in hedgeClose, false)
+
+  const oneWayClose = buildBtcAutoOrderParameters({
+    kind: 'close',
+    direction: 'long',
+    quantity: 0.01,
+    clientOrderId: 'one-way-close',
+    hedgeMode: false,
+  })
+  assert.equal(oneWayClose.side, 'SELL')
+  assert.equal(oneWayClose.reduceOnly, 'true')
+  assert.equal('positionSide' in oneWayClose, false)
 })
 
 test('shadow signal outcomes measure directional price movement without trading costs', () => {
@@ -365,6 +404,31 @@ test('entry gate requires direction, score, confidence and confirmations in orde
   })
 })
 
+test('unrestricted mode bypasses risk gates but still enforces directional capacity', () => {
+  const unrestricted = config({ riskControlsEnabled: false, maxPositionsPerDirection: 3 })
+  assert.equal(
+    gate({
+      config: unrestricted,
+      signal: signal({ score: 1, confidence: 1, confirmations: 0 }),
+      dailyNetPnl: -999,
+      cooldownUntil: '2026-08-20T02:00:00.000Z',
+      activePositionsInDirection: 2,
+    }).reason,
+    'ready',
+  )
+  assert.equal(
+    gate({
+      config: unrestricted,
+      activePositionsInDirection: 3,
+    }).reason,
+    'positionLimit',
+  )
+  assert.equal(
+    gate({ config: unrestricted, signal: signal({ action: 'wait' }) }).reason,
+    'waitingDirection',
+  )
+})
+
 test('rolling health pauses degraded samples and later permits one probe', () => {
   const trades = rollingTrades()
   const now = new Date('2026-08-19T01:00:00.000Z')
@@ -404,12 +468,9 @@ test('rolling health falls back to all history until current version has a full 
   const currentVersion = 'btc-auto-v4-current'
   const legacy = rollingTrades()
   const current = Array.from({ length: 3 }, (_, index) =>
-    closedTrade(
-      `current-${index}`,
-      new Date(Date.UTC(2026, 7, 19, 1, index)).toISOString(),
-      2,
-      { strategyVersion: currentVersion },
-    ),
+    closedTrade(`current-${index}`, new Date(Date.UTC(2026, 7, 19, 1, index)).toISOString(), 2, {
+      strategyVersion: currentVersion,
+    }),
   )
   const fallback = calculateBtcAutoRollingHealth(
     config(),
@@ -574,10 +635,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
   const closed = closedTrade('csv-trade', '2026-08-19T02:00:00.000Z', 2, {
     error: 'retry, then "filled"',
   })
-  const performance = summarizeBtcAutoPerformance(
-    [closed],
-    new Date('2026-08-19T05:00:00.000Z'),
-  )
+  const performance = summarizeBtcAutoPerformance([closed], new Date('2026-08-19T05:00:00.000Z'))
   const csv = buildBtcAutoTradingCsv(
     {
       config: config(),
@@ -601,7 +659,12 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       signal: null,
       signalHistory: [],
       signalOutcomes: [],
-      entryGate: { reason: 'waitingDirection', eligible: false, consecutiveLosses: 0, resumeAt: null },
+      entryGate: {
+        reason: 'waitingDirection',
+        eligible: false,
+        consecutiveLosses: 0,
+        resumeAt: null,
+      },
       rollingHealth: {
         sampleSize: 1,
         currentVersionSampleSize: 1,
@@ -616,6 +679,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
         resumeAt: null,
       },
       openTrade: null,
+      openTrades: [],
       trades: [closed],
       performance,
       equityCurve: [],
