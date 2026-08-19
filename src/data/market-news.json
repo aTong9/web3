@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-19T13:10:57.610Z",
+  "updatedAt": "2026-08-19T13:59:18.245Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -37,20 +37,20 @@
   ],
   "articles": [
     {
-      "id": "c86309b76c034f0a",
-      "title": "Treasury announces upscaled buyback operation for longer-term debt, sending yields lower",
-      "url": "https://www.cnbc.com/2026/08/19/treasury-announces-upscaled-buyback-operation-for-longer-term-debt-sending-yields-lower.html",
-      "publishedAt": "2026-08-19T13:09:43.000Z",
+      "id": "84d3deb652c5f22b",
+      "title": "Moderna, Merck cancer vaccine shows promise in late-stage trial; Moderna stock soars 90%",
+      "url": "https://www.cnbc.com/2026/08/19/moderna-merck-cancer-vaccine-shows-initial-late-stage-melanoma-data.html",
+      "publishedAt": "2026-08-19T13:48:47.000Z",
       "source": "CNBC",
       "sourceType": "media",
-      "category": "macro",
+      "category": "equities",
       "language": "English",
       "impact": "low",
       "impactScore": 1,
       "affectedAssets": [
-        "债券"
+        "美股"
       ],
-      "translatedTitle": "财政部宣布扩大长期债务的回购操作，导致收益率下降",
+      "translatedTitle": "默克癌症疫苗Moderna在后期试验中显示出前景； Moderna库存飙升90%",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -58,7 +58,7 @@
       "id": "c04dfcb8fd5da343",
       "title": "Target says its turnaround is picking up steam, with help from a big tariff refund",
       "url": "https://www.cnbc.com/2026/08/19/target-tgt-q2-2026-earnings.html",
-      "publishedAt": "2026-08-19T13:08:32.000Z",
+      "publishedAt": "2026-08-19T13:43:39.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "geopolitics",
@@ -71,10 +71,44 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "84d3deb652c5f22b",
-      "title": "Moderna, Merck cancer vaccine shows promise in late-stage trial; Moderna stock soars 90%",
-      "url": "https://www.cnbc.com/2026/08/19/moderna-merck-cancer-vaccine-shows-initial-late-stage-melanoma-data.html",
-      "publishedAt": "2026-08-19T12:57:32.000Z",
+      "id": "93697db67f688cea",
+      "title": "Hedge funds are about to jump into prediction markets in a big way",
+      "url": "https://www.cnbc.com/2026/08/19/hedge-funds-are-about-to-jump-in-big-to-prediction-markets.html",
+      "publishedAt": "2026-08-19T13:38:44.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "对冲基金即将大举进入预测市场",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "c86309b76c034f0a",
+      "title": "Treasury doubles debt buybacks as Bessent moves to steady bond market",
+      "url": "https://www.cnbc.com/2026/08/19/treasury-announces-upscaled-buyback-operation-for-longer-term-debt-sending-yields-lower.html",
+      "publishedAt": "2026-08-19T13:30:22.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "债券"
+      ],
+      "translatedTitle": "随着Bessent转向稳定债券市场，财政部将债券回购增加一倍",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "003010e42cbc95a0",
+      "title": "Jim Cramer's top 10 things to watch in the stock market Wednesday",
+      "url": "https://www.cnbc.com/2026/08/19/jim-cramers-top-10-things-to-watch-in-the-stock-market-wednesday.html",
+      "publishedAt": "2026-08-19T13:08:48.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "equities",
@@ -84,7 +118,7 @@
       "affectedAssets": [
         "美股"
       ],
-      "translatedTitle": "默克癌症疫苗Moderna在后期试验中显示出前景； Moderna库存飙升90%",
+      "translatedTitle": "吉姆·克莱默（ Jim Cramer ）周三在股市上值得关注的10件事",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -168,7 +202,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "阿联酋在报道导弹袭击后切断与伊朗的贸易",
       "translationStatus": "translated",
@@ -471,38 +505,6 @@
         "美股"
       ],
       "translatedTitle": "美国证券交易委员会指控前高管涉嫌与19亿美元次级汽车贷款机构Tricolor倒闭有关的欺诈行为",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "20591af511a09e30",
-      "title": "We upgraded Home Depot and raised our price target. It made the best of a terrible hand",
-      "url": "https://www.cnbc.com/2026/08/18/we-upgraded-home-depot-and-raised-our-price-target-it-made-the-best-of-a-terrible-hand.html",
-      "publishedAt": "2026-08-18T19:27:54.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "我们升级了家得宝，并提高了价格目标。它充分利用了一只糟糕的手",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "e13bc6d4306d9104",
-      "title": "Apple overhauls Europe app store fees to resolve payments clash",
-      "url": "https://www.cnbc.com/2026/08/18/apple-eu-app-store-fees-iphone.html",
-      "publishedAt": "2026-08-18T17:16:49.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "苹果彻底改革欧洲应用商店费用，以解决支付冲突",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
