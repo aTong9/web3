@@ -10,6 +10,7 @@ import type {
 const defaultApiBase = 'https://web3-quant-api.binson0426.workers.dev'
 const clientStorageKey = 'market-desk-quant-client-id-v1'
 const requestTimeoutMs = 12_000
+const fileRequestTimeoutMs = 60_000
 
 const apiBase = (import.meta.env.VITE_QUANT_API_BASE || defaultApiBase).replace(/\/$/, '')
 
@@ -47,7 +48,7 @@ const requestFile = async (path: string) => {
       Accept: 'text/csv',
       ...(sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {}),
     },
-    signal: AbortSignal.timeout(requestTimeoutMs),
+    signal: AbortSignal.timeout(fileRequestTimeoutMs),
   })
   if (!response.ok) {
     const payload = (await response.json().catch(() => null)) as { error?: string } | null

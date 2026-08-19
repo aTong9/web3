@@ -287,7 +287,7 @@ const loadSignalRow = (env: Env) =>
 
 const listTrades = async (env: Env, limit = 200) => {
   const rows = await env.DB.prepare(
-    `SELECT ${tradeColumns} FROM btc_auto_trades ORDER BY opened_at DESC LIMIT ?1`,
+    `SELECT ${tradeColumns} FROM btc_auto_trades ORDER BY opened_at DESC, id DESC LIMIT ?1`,
   )
     .bind(limit)
     .all<BtcAutoTradeRow>()
@@ -297,7 +297,7 @@ const listTrades = async (env: Env, limit = 200) => {
 const listPerformanceTrades = async (env: Env, now: Date) => {
   const rows = await env.DB.prepare(
     `SELECT ${tradeColumns} FROM btc_auto_trades
-     WHERE status = 'closed' AND closed_at >= ?1 ORDER BY opened_at DESC`,
+     WHERE status = 'closed' AND closed_at >= ?1 ORDER BY opened_at DESC, id DESC`,
   )
     .bind(btcAutoPerformanceWindowStartAt(now))
     .all<BtcAutoTradeRow>()
@@ -307,16 +307,23 @@ const listPerformanceTrades = async (env: Env, now: Date) => {
 const listAllTrades = async (env: Env) => {
   const pageSize = 1_000
   const trades: BtcAutoTrade[] = []
-  let offset = 0
+  let cursor: { openedAt: string; id: string } | null = null
   while (true) {
-    const rows = await env.DB.prepare(
-      `SELECT ${tradeColumns} FROM btc_auto_trades ORDER BY opened_at DESC LIMIT ?1 OFFSET ?2`,
-    )
-      .bind(pageSize, offset)
-      .all<BtcAutoTradeRow>()
+    const statement: D1PreparedStatement = cursor
+      ? env.DB.prepare(
+          `SELECT ${tradeColumns} FROM btc_auto_trades
+           WHERE opened_at < ?1 OR (opened_at = ?1 AND id < ?2)
+           ORDER BY opened_at DESC, id DESC LIMIT ?3`,
+        ).bind(cursor.openedAt, cursor.id, pageSize)
+      : env.DB.prepare(
+          `SELECT ${tradeColumns} FROM btc_auto_trades
+           ORDER BY opened_at DESC, id DESC LIMIT ?1`,
+        ).bind(pageSize)
+    const rows: D1Result<BtcAutoTradeRow> = await statement.all<BtcAutoTradeRow>()
     trades.push(...rows.results.map(toTrade))
     if (rows.results.length < pageSize) return trades
-    offset += pageSize
+    const last: BtcAutoTradeRow = rows.results[rows.results.length - 1]!
+    cursor = { openedAt: last.opened_at, id: last.id }
   }
 }
 
