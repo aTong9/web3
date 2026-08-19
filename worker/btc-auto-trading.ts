@@ -14,6 +14,7 @@ import type {
   ContractTradeDecision,
 } from '../src/types/index'
 import {
+  calculateBtcAutoRollingHealth,
   calculateBtcAutoTradeResult,
   evaluateBtcAutoEntryGate,
   evolveBtcAutoSignal,
@@ -42,6 +43,10 @@ interface BtcAutoConfigRow {
   daily_loss_limit_usdt: number
   max_consecutive_losses: number
   loss_pause_minutes: number
+  performance_window_trades: number
+  minimum_rolling_profit_factor: number
+  maximum_rolling_drawdown_usdt: number
+  performance_pause_minutes: number
   fee_rate_pct: number
   eligibility_confirmed: number
   updated_at: string
@@ -150,6 +155,10 @@ const toConfig = (row: BtcAutoConfigRow): BtcAutoTradingConfig => ({
   dailyLossLimitUsdt: row.daily_loss_limit_usdt,
   maxConsecutiveLosses: row.max_consecutive_losses,
   lossPauseMinutes: row.loss_pause_minutes,
+  performanceWindowTrades: row.performance_window_trades,
+  minimumRollingProfitFactor: row.minimum_rolling_profit_factor,
+  maximumRollingDrawdownUsdt: row.maximum_rolling_drawdown_usdt,
+  performancePauseMinutes: row.performance_pause_minutes,
   feeRatePct: row.fee_rate_pct,
   eligibilityConfirmed: Boolean(row.eligibility_confirmed),
   updatedAt: row.updated_at,
@@ -202,8 +211,9 @@ const toTrade = (row: BtcAutoTradeRow): BtcAutoTrade => ({
 
 const configColumns = `enabled, execution_mode, symbol, interval, notional_usdt, leverage,
   minimum_confidence, minimum_directional_score, required_confirmations, cooldown_minutes,
-  daily_loss_limit_usdt, max_consecutive_losses, loss_pause_minutes, fee_rate_pct,
-  eligibility_confirmed, updated_at, last_run_at, last_error`
+  daily_loss_limit_usdt, max_consecutive_losses, loss_pause_minutes,
+  performance_window_trades, minimum_rolling_profit_factor, maximum_rolling_drawdown_usdt,
+  performance_pause_minutes, fee_rate_pct, eligibility_confirmed, updated_at, last_run_at, last_error`
 const signalColumns = `action, score, confidence, price, evolution, confirmations, reasons, risks,
   observed_at, market_source, cooldown_until`
 const tradeColumns = `id, execution_mode, symbol, direction, status, quantity, notional_usdt,
@@ -1081,6 +1091,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
       cooldownUntil: signalRow?.cooldown_until ?? null,
       dailyNetPnl,
     }),
+    rollingHealth: calculateBtcAutoRollingHealth(config, trades),
     openTrade,
     trades,
     performance,
@@ -1132,6 +1143,32 @@ export const saveBtcAutoTradingConfig = async (
     dailyLossLimitUsdt: boundedNumber(input.dailyLossLimitUsdt, '日亏损熔断', 1, 1000),
     maxConsecutiveLosses: boundedNumber(input.maxConsecutiveLosses, '连续亏损次数', 2, 10, true),
     lossPauseMinutes: boundedNumber(input.lossPauseMinutes, '连续亏损暂停时间', 30, 2880, true),
+    performanceWindowTrades: boundedNumber(
+      input.performanceWindowTrades,
+      '滚动绩效样本数',
+      10,
+      100,
+      true,
+    ),
+    minimumRollingProfitFactor: boundedNumber(
+      input.minimumRollingProfitFactor,
+      '最低滚动Profit Factor',
+      0.5,
+      2,
+    ),
+    maximumRollingDrawdownUsdt: boundedNumber(
+      input.maximumRollingDrawdownUsdt,
+      '最大滚动回撤',
+      1,
+      1000,
+    ),
+    performancePauseMinutes: boundedNumber(
+      input.performancePauseMinutes,
+      '滚动绩效暂停时间',
+      60,
+      10_080,
+      true,
+    ),
     feeRatePct: boundedNumber(input.feeRatePct, '单边手续费率', 0, 1),
     eligibilityConfirmed: input.eligibilityConfirmed,
   }
@@ -1141,7 +1178,9 @@ export const saveBtcAutoTradingConfig = async (
        notional_usdt = ?3, leverage = ?4, minimum_confidence = ?5,
        minimum_directional_score = ?6, required_confirmations = ?7, cooldown_minutes = ?8,
        daily_loss_limit_usdt = ?9, max_consecutive_losses = ?10, loss_pause_minutes = ?11,
-       fee_rate_pct = ?12, eligibility_confirmed = ?13, updated_by = ?14, updated_at = ?15
+       performance_window_trades = ?12, minimum_rolling_profit_factor = ?13,
+       maximum_rolling_drawdown_usdt = ?14, performance_pause_minutes = ?15,
+       fee_rate_pct = ?16, eligibility_confirmed = ?17, updated_by = ?18, updated_at = ?19
        WHERE id = 'default'`,
     ).bind(
       config.enabled ? 1 : 0,
@@ -1155,6 +1194,10 @@ export const saveBtcAutoTradingConfig = async (
       config.dailyLossLimitUsdt,
       config.maxConsecutiveLosses,
       config.lossPauseMinutes,
+      config.performanceWindowTrades,
+      config.minimumRollingProfitFactor,
+      config.maximumRollingDrawdownUsdt,
+      config.performancePauseMinutes,
       config.feeRatePct,
       config.eligibilityConfirmed ? 1 : 0,
       actorId,

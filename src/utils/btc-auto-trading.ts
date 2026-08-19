@@ -3,6 +3,7 @@ import type {
   BtcAutoCloseReason,
   BtcAutoEntryGate,
   BtcAutoPerformanceSummary,
+  BtcAutoRollingHealth,
   BtcAutoSignalSnapshot,
   BtcAutoTrade,
   BtcAutoTradingConfig,
@@ -25,6 +26,67 @@ export const countConsecutiveBtcAutoLosses = (trades: readonly BtcAutoTrade[]) =
   return { losses, lastClosedAt: closed[0]?.closedAt ?? null }
 }
 
+export const calculateBtcAutoRollingHealth = (
+  config: BtcAutoTradingConfig,
+  trades: readonly BtcAutoTrade[],
+  now = new Date(),
+): BtcAutoRollingHealth => {
+  const sample = trades
+    .filter((trade) => trade.status === 'closed' && trade.closedAt && trade.netPnl !== null)
+    .sort((left, right) => Date.parse(right.closedAt ?? '') - Date.parse(left.closedAt ?? ''))
+    .slice(0, config.performanceWindowTrades)
+  const grossProfit = sample.reduce((sum, trade) => sum + Math.max(0, trade.netPnl ?? 0), 0)
+  const grossLoss = Math.abs(sample.reduce((sum, trade) => sum + Math.min(0, trade.netPnl ?? 0), 0))
+  const profitFactor = grossLoss > 0 ? round(grossProfit / grossLoss, 2) : null
+  let equity = 0
+  let peak = 0
+  let maxDrawdownUsdt = 0
+  sample
+    .slice()
+    .sort((left, right) => Date.parse(left.closedAt ?? '') - Date.parse(right.closedAt ?? ''))
+    .forEach((trade) => {
+      equity += trade.netPnl ?? 0
+      peak = Math.max(peak, equity)
+      maxDrawdownUsdt = Math.max(maxDrawdownUsdt, peak - equity)
+    })
+  const reasons: BtcAutoRollingHealth['reasons'] = []
+  if (
+    sample.length >= config.performanceWindowTrades &&
+    profitFactor !== null &&
+    profitFactor < config.minimumRollingProfitFactor
+  )
+    reasons.push('lowProfitFactor')
+  if (
+    sample.length >= config.performanceWindowTrades &&
+    maxDrawdownUsdt >= config.maximumRollingDrawdownUsdt
+  )
+    reasons.push('excessiveDrawdown')
+  const lastClosedAt = sample[0]?.closedAt ?? null
+  const resumeAt =
+    reasons.length && lastClosedAt
+      ? new Date(Date.parse(lastClosedAt) + config.performancePauseMinutes * 60_000).toISOString()
+      : null
+  const status: BtcAutoRollingHealth['status'] =
+    sample.length < config.performanceWindowTrades
+      ? 'insufficientSample'
+      : !reasons.length
+        ? 'healthy'
+        : resumeAt && Date.parse(resumeAt) > now.getTime()
+          ? 'paused'
+          : 'probeEligible'
+  return {
+    sampleSize: sample.length,
+    requiredSampleSize: config.performanceWindowTrades,
+    profitFactor,
+    minimumProfitFactor: config.minimumRollingProfitFactor,
+    maxDrawdownUsdt: round(maxDrawdownUsdt),
+    maximumDrawdownUsdt: config.maximumRollingDrawdownUsdt,
+    status,
+    reasons,
+    resumeAt,
+  }
+}
+
 export const evaluateBtcAutoEntryGate = (input: {
   config: BtcAutoTradingConfig
   signal: BtcAutoSignalSnapshot | null
@@ -36,6 +98,7 @@ export const evaluateBtcAutoEntryGate = (input: {
 }): BtcAutoEntryGate => {
   const now = input.now ?? new Date()
   const streak = countConsecutiveBtcAutoLosses(input.trades)
+  const rollingHealth = calculateBtcAutoRollingHealth(input.config, input.trades, now)
   const lossResumeAt = streak.lastClosedAt
     ? new Date(
         Date.parse(streak.lastClosedAt) + input.config.lossPauseMinutes * 60_000,
@@ -57,6 +120,8 @@ export const evaluateBtcAutoEntryGate = (input: {
   if (input.hasActivePosition) return result('positionOpen')
   if (input.dailyNetPnl <= -input.config.dailyLossLimitUsdt) return result('dailyLossLimit')
   if (lossPauseActive) return result('consecutiveLossPause', lossResumeAt)
+  if (rollingHealth.status === 'paused')
+    return result('rollingPerformancePause', rollingHealth.resumeAt)
   if (cooldownActive) return result('cooldown', input.cooldownUntil)
   if (!input.signal || !directional(input.signal.action)) return result('waitingDirection')
   if (Math.abs(input.signal.score) < input.config.minimumDirectionalScore)

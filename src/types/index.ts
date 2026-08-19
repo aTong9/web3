@@ -1230,6 +1230,7 @@ export type BtcAutoEntryGateReason =
   | 'cooldown'
   | 'dailyLossLimit'
   | 'consecutiveLossPause'
+  | 'rollingPerformancePause'
 
 export interface BtcAutoTradingConfig {
   enabled: boolean
@@ -1245,6 +1246,10 @@ export interface BtcAutoTradingConfig {
   dailyLossLimitUsdt: number
   maxConsecutiveLosses: number
   lossPauseMinutes: number
+  performanceWindowTrades: number
+  minimumRollingProfitFactor: number
+  maximumRollingDrawdownUsdt: number
+  performancePauseMinutes: number
   feeRatePct: number
   eligibilityConfirmed: boolean
   updatedAt: string
@@ -1316,6 +1321,18 @@ export interface BtcAutoEntryGate {
   resumeAt: string | null
 }
 
+export interface BtcAutoRollingHealth {
+  sampleSize: number
+  requiredSampleSize: number
+  profitFactor: number | null
+  minimumProfitFactor: number
+  maxDrawdownUsdt: number
+  maximumDrawdownUsdt: number
+  status: 'insufficientSample' | 'healthy' | 'paused' | 'probeEligible'
+  reasons: Array<'lowProfitFactor' | 'excessiveDrawdown'>
+  resumeAt: string | null
+}
+
 export interface BtcAutoSignalHistoryItem extends BtcAutoSignalSnapshot {
   id: string
   entryGateReason: BtcAutoEntryGateReason
@@ -1330,6 +1347,7 @@ export interface BtcAutoTradingDashboard {
   signal: BtcAutoSignalSnapshot | null
   signalHistory: BtcAutoSignalHistoryItem[]
   entryGate: BtcAutoEntryGate
+  rollingHealth: BtcAutoRollingHealth
   openTrade: BtcAutoTrade | null
   trades: BtcAutoTrade[]
   performance: BtcAutoPerformanceSummary[]

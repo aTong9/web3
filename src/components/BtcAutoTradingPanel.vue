@@ -29,6 +29,10 @@ const draft = reactive<BtcAutoTradingConfig>({
   dailyLossLimitUsdt: 10,
   maxConsecutiveLosses: 3,
   lossPauseMinutes: 360,
+  performanceWindowTrades: 20,
+  minimumRollingProfitFactor: 0.8,
+  maximumRollingDrawdownUsdt: 3,
+  performancePauseMinutes: 1440,
   feeRatePct: 0.05,
   eligibilityConfirmed: false,
   updatedAt: new Date(0).toISOString(),
@@ -204,6 +208,53 @@ onMounted(load)
             {{ formatTime(dashboard.entryGate.resumeAt) }}
           </template>
         </small>
+      </section>
+
+      <section class="strategy-health" :class="dashboard.rollingHealth.status">
+        <header>
+          <div>
+            <span>{{ t('assetTechnical.contract.auto.rollingHealth') }}</span>
+            <strong>{{
+              t(
+                `assetTechnical.contract.auto.rollingHealthStatus.${dashboard.rollingHealth.status}`,
+              )
+            }}</strong>
+          </div>
+          <small v-if="dashboard.rollingHealth.resumeAt">
+            {{ t('assetTechnical.contract.auto.resumeAt') }}
+            {{ formatTime(dashboard.rollingHealth.resumeAt) }}
+          </small>
+        </header>
+        <dl>
+          <div>
+            <dt>{{ t('assetTechnical.contract.auto.rollingSample') }}</dt>
+            <dd>
+              {{ dashboard.rollingHealth.sampleSize }} /
+              {{ dashboard.rollingHealth.requiredSampleSize }}
+            </dd>
+          </div>
+          <div>
+            <dt>{{ t('assetTechnical.contract.auto.rollingProfitFactor') }}</dt>
+            <dd>
+              {{ formatNumber(dashboard.rollingHealth.profitFactor) }} /
+              {{ formatNumber(dashboard.rollingHealth.minimumProfitFactor) }}
+            </dd>
+          </div>
+          <div>
+            <dt>{{ t('assetTechnical.contract.auto.rollingDrawdown') }}</dt>
+            <dd>
+              {{ formatNumber(dashboard.rollingHealth.maxDrawdownUsdt) }} /
+              {{ formatNumber(dashboard.rollingHealth.maximumDrawdownUsdt) }} USDT
+            </dd>
+          </div>
+        </dl>
+        <p v-if="dashboard.rollingHealth.reasons.length">
+          {{
+            dashboard.rollingHealth.reasons
+              .map((reason) => t(`assetTechnical.contract.auto.rollingHealthReason.${reason}`))
+              .join(' · ')
+          }}
+        </p>
       </section>
 
       <section class="signal-and-position">
@@ -426,6 +477,46 @@ onMounted(load)
             />
           </label>
           <label>
+            <span>{{ t('assetTechnical.contract.auto.performanceWindowTrades') }}</span>
+            <input
+              v-model.number="draft.performanceWindowTrades"
+              type="number"
+              min="10"
+              max="100"
+              step="1"
+            />
+          </label>
+          <label>
+            <span>{{ t('assetTechnical.contract.auto.minimumRollingProfitFactor') }}</span>
+            <input
+              v-model.number="draft.minimumRollingProfitFactor"
+              type="number"
+              min="0.5"
+              max="2"
+              step="0.05"
+            />
+          </label>
+          <label>
+            <span>{{ t('assetTechnical.contract.auto.maximumRollingDrawdown') }}</span>
+            <input
+              v-model.number="draft.maximumRollingDrawdownUsdt"
+              type="number"
+              min="1"
+              max="1000"
+              step="0.5"
+            />
+          </label>
+          <label>
+            <span>{{ t('assetTechnical.contract.auto.performancePauseMinutes') }}</span>
+            <input
+              v-model.number="draft.performancePauseMinutes"
+              type="number"
+              min="60"
+              max="10080"
+              step="60"
+            />
+          </label>
+          <label>
             <span>{{ t('assetTechnical.contract.auto.feeRate') }}</span>
             <input v-model.number="draft.feeRatePct" type="number" min="0" max="1" step="0.01" />
           </label>
@@ -591,6 +682,50 @@ onMounted(load)
 }
 .entry-gate strong {
   font-size: 9px;
+}
+.strategy-health {
+  margin-top: var(--auto-gap);
+  padding: 10px 11px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--positive);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+.strategy-health.paused {
+  border-left-color: var(--negative);
+}
+.strategy-health.insufficientSample,
+.strategy-health.probeEligible {
+  border-left-color: var(--warning);
+}
+.strategy-health > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.strategy-health > header div {
+  display: grid;
+  gap: 3px;
+}
+.strategy-health span,
+.strategy-health small,
+.strategy-health p {
+  color: var(--muted);
+  font-size: 7px;
+}
+.strategy-health strong {
+  font-size: 9px;
+}
+.strategy-health dl {
+  margin: 9px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.strategy-health p {
+  margin: 8px 0 0;
+  line-height: 1.5;
 }
 .panel-message {
   margin: 12px 0 0;
@@ -826,6 +961,13 @@ th {
   .entry-gate {
     align-items: start;
     flex-direction: column;
+  }
+  .strategy-health > header {
+    align-items: start;
+    flex-direction: column;
+  }
+  .strategy-health dl {
+    grid-template-columns: 1fr;
   }
   .auto-config footer small {
     margin-right: 0;
