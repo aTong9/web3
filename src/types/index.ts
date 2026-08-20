@@ -1431,6 +1431,10 @@ export interface BtcAutoSignalHistoryItem extends BtcAutoSignalSnapshot {
   ensembleRegime: BtcAutoStrategyRegime | null
   baselineAction: ContractTradeAction | null
   ensembleAction: ContractTradeAction | null
+  baselinePath1hPct: number | null
+  ensemblePath1hPct: number | null
+  shadowStopDistancePct: number | null
+  shadowTargetDistancePct: number | null
 }
 
 export interface BtcAutoSignalOutcomeSummary {

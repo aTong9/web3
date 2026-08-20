@@ -440,6 +440,75 @@ export const calculateBtcAutoDirectionalMove = (
   return round(((outcomePrice - entryPrice) / entryPrice) * 100 * multiplier)
 }
 
+export interface BtcAutoShadowPathOutcome {
+  grossMovePct: number
+  exitPrice: number
+  reason: 'stopLoss' | 'takeProfit' | 'timeStop'
+}
+
+export const calculateBtcAutoShadowPathOutcome = (input: {
+  action: ContractTradeDecision['action']
+  entryPrice: number
+  stopDistancePct: number
+  targetDistancePct: number
+  observedAt: string
+  targetAt: number
+  minutePoints: readonly AssetPricePoint[]
+  endpointPrice: number
+}): BtcAutoShadowPathOutcome | null => {
+  if (
+    !directional(input.action) ||
+    input.entryPrice <= 0 ||
+    input.endpointPrice <= 0 ||
+    input.stopDistancePct <= 0 ||
+    input.targetDistancePct <= 0
+  )
+    return null
+  const direction = input.action === 'long' ? 1 : -1
+  const stopPrice = input.entryPrice * (1 - direction * (input.stopDistancePct / 100))
+  const targetPrice = input.entryPrice * (1 + direction * (input.targetDistancePct / 100))
+  const firstMinute = firstFullMinuteStart(input.observedAt)
+  const eligiblePoints = input.minutePoints
+    .filter((point) => {
+      const openedAt = Date.parse(point.date)
+      return openedAt >= firstMinute && openedAt < input.targetAt
+    })
+    .sort((left, right) => Date.parse(left.date) - Date.parse(right.date))
+  for (const point of eligiblePoints) {
+    const candleOpen = point.open ?? point.close
+    const high = point.high ?? point.close
+    const low = point.low ?? point.close
+    const stopHit = input.action === 'long' ? low <= stopPrice : high >= stopPrice
+    const targetHit = input.action === 'long' ? high >= targetPrice : low <= targetPrice
+    // OHLC cannot reveal intraminute order. Stop-first prevents optimistic shadow results.
+    if (stopHit) {
+      const exitPrice =
+        input.action === 'long' ? Math.min(stopPrice, candleOpen) : Math.max(stopPrice, candleOpen)
+      return {
+        grossMovePct: calculateBtcAutoDirectionalMove(input.action, input.entryPrice, exitPrice)!,
+        exitPrice: round(exitPrice, 2),
+        reason: 'stopLoss',
+      }
+    }
+    if (targetHit) {
+      return {
+        grossMovePct: calculateBtcAutoDirectionalMove(input.action, input.entryPrice, targetPrice)!,
+        exitPrice: round(targetPrice, 2),
+        reason: 'takeProfit',
+      }
+    }
+  }
+  return {
+    grossMovePct: calculateBtcAutoDirectionalMove(
+      input.action,
+      input.entryPrice,
+      input.endpointPrice,
+    )!,
+    exitPrice: round(input.endpointPrice, 2),
+    reason: 'timeStop',
+  }
+}
+
 export const selectBtcAutoOutcomePoint = (
   market: ContractMarketSnapshot,
   targetAt: number,
@@ -465,10 +534,10 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v22'
+const strategyAlgorithmRevision = 'btc-auto-v23'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 export const btcAutoSignalModelVersion = 'btc-signal-model-v2'
-export const btcAutoEvidencePolicyVersion = 'btc-evidence-v8-temporal-validation'
+export const btcAutoEvidencePolicyVersion = 'btc-evidence-v9-path-realized'
 export const btcAutoPerformanceCohortVersion = 'btc-performance-v2-minute-strategy'
 
 const fnv1a = (value: string) => {

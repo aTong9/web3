@@ -16,6 +16,7 @@ const {
   btcAutoPerformanceQueryStartAt,
   buildBtcAutoEquityCurve,
   calculateBtcAutoDirectionalMove,
+  calculateBtcAutoShadowPathOutcome,
   calculateBtcAutoRollingHealth,
   calculateBtcAutoReconciledResult,
   calculateBtcAutoTradeResult,
@@ -76,6 +77,16 @@ const signal = (overrides = {}) => ({
   risks: [],
   observedAt: '2026-08-19T15:35:00.000Z',
   marketSource: 'binance',
+  ...overrides,
+})
+
+const point = (date, open, overrides = {}) => ({
+  date,
+  open,
+  high: open,
+  low: open,
+  close: open,
+  volume: 1,
   ...overrides,
 })
 
@@ -269,7 +280,7 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
 
 test('signal model cohort remains stable across execution configuration changes', () => {
   assert.equal(btcAutoSignalModelVersion, 'btc-signal-model-v2')
-  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v8-temporal-validation')
+  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v9-path-realized')
   assert.notEqual(
     btcAutoStrategyVersion(config()),
     btcAutoStrategyVersion(config({ minimumDirectionalScore: 70 })),
@@ -664,6 +675,41 @@ test('shadow signal outcomes measure directional price movement without trading 
   assert.equal(calculateBtcAutoDirectionalMove('long', 0, 103), null)
 })
 
+test('shadow path outcome follows minute barriers with conservative stop-first fills', () => {
+  const base = {
+    action: 'long',
+    entryPrice: 100,
+    stopDistancePct: 1,
+    targetDistancePct: 2,
+    observedAt: '2026-08-19T00:00:30.000Z',
+    targetAt: Date.parse('2026-08-19T01:00:30.000Z'),
+    endpointPrice: 103,
+  }
+  const stopped = calculateBtcAutoShadowPathOutcome({
+    ...base,
+    minutePoints: [
+      point('2026-08-19T00:00:00.000Z', 100, { high: 103, low: 98 }),
+      point('2026-08-19T00:01:00.000Z', 100, { high: 103, low: 98 }),
+    ],
+  })
+  assert.deepEqual(stopped, { grossMovePct: -1, exitPrice: 99, reason: 'stopLoss' })
+
+  const gapStop = calculateBtcAutoShadowPathOutcome({
+    ...base,
+    minutePoints: [point('2026-08-19T00:01:00.000Z', 98, { high: 99, low: 97 })],
+  })
+  assert.deepEqual(gapStop, { grossMovePct: -2, exitPrice: 98, reason: 'stopLoss' })
+
+  const target = calculateBtcAutoShadowPathOutcome({
+    ...base,
+    minutePoints: [point('2026-08-19T00:01:00.000Z', 100, { high: 102.5, low: 99.5 })],
+  })
+  assert.deepEqual(target, { grossMovePct: 2, exitPrice: 102, reason: 'takeProfit' })
+
+  const timeStop = calculateBtcAutoShadowPathOutcome({ ...base, minutePoints: [] })
+  assert.deepEqual(timeStop, { grossMovePct: 3, exitPrice: 103, reason: 'timeStop' })
+})
+
 test('shadow outcome selection uses the first complete candle after the target without lookahead', () => {
   const outcomeMarket = market({
     timeframes: [
@@ -1048,7 +1094,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       config: config(),
       strategyVersion: 'btc-auto-v4-test',
       signalModelVersion: 'btc-signal-model-v2',
-      evidencePolicyVersion: 'btc-evidence-v8-temporal-validation',
+      evidencePolicyVersion: 'btc-evidence-v9-path-realized',
       performanceCohortVersion: 'btc-performance-v2-minute-strategy',
       strategySnapshots: [
         {

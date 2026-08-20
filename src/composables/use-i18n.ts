@@ -1082,7 +1082,7 @@ const messages: Record<Locale, DictionaryNode> = {
           shadowAverageMove: '平均方向涨跌',
           strategyComparison: '策略候选样本外对比',
           strategyComparisonHint:
-            '每小时首组双方都有方向的同期信号；超过往返成本才计为命中，候选期望为正且98%校正优势下界大于0',
+            '每小时首组同期方向信号；按分钟路径执行冻结的止损/止盈，扣除往返成本后才判断命中与期望',
           evidencePolicyVersion: '证据口径',
           maximumPairedWindow: '每种状态最近配对样本上限',
           temporalValidation: '最近24个时间顺序复验样本',
@@ -1111,7 +1111,7 @@ const messages: Record<Locale, DictionaryNode> = {
           },
           scoreThresholdStudy: '入场分数门槛影子研究',
           scoreThresholdStudyHint:
-            '每小时首个方向信号；严格候选费用后期望必须为正，且98%单侧优势下界大于0',
+            '每小时首个方向信号；严格候选按分钟止损/止盈路径计算，费用后期望必须为正且98%优势下界大于0',
           currentThreshold: '当前门槛',
           candidateThreshold: '严格候选',
           hitRateLift: '候选胜率提升',
@@ -1124,7 +1124,7 @@ const messages: Record<Locale, DictionaryNode> = {
           },
           consensusStudy: '模型同向过滤影子研究',
           consensusStudyHint:
-            '每小时首个基线方向机会；同向子集费用后期望必须为正，且98%单侧优势下界大于0',
+            '每小时首个基线方向机会；同向子集按分钟止损/止盈路径计算，费用后期望必须为正且98%优势下界大于0',
           baselineOpportunity: '全部基线机会',
           consensusOpportunity: '双模型同向机会',
           consensusVerdict: {
@@ -2978,7 +2978,7 @@ const messages: Record<Locale, DictionaryNode> = {
           shadowAverageMove: 'Average directional move',
           strategyComparison: 'Out-of-sample strategy candidate comparison',
           strategyComparisonHint:
-            'First same-time directional pair per hour; wins must clear costs, expectancy must be positive, and the Bonferroni-adjusted 98% advantage floor must exceed zero',
+            'First same-hour directional pair; frozen stops and targets are replayed over minute candles before fee-adjusted hit rate and expectancy are evaluated',
           evidencePolicyVersion: 'Evidence policy',
           maximumPairedWindow: 'Recent paired-sample cap per regime',
           temporalValidation: 'Latest 24 chronological validation samples',
@@ -3007,7 +3007,7 @@ const messages: Record<Locale, DictionaryNode> = {
           },
           scoreThresholdStudy: 'Entry-score threshold shadow study',
           scoreThresholdStudyHint:
-            'First directional signal per hour; candidate expectancy must be positive after fees and its Bonferroni-adjusted 98% one-sided advantage floor must exceed zero',
+            'First directional signal per hour; the strict candidate uses minute-path stops and targets and needs positive fee-adjusted expectancy plus a positive 98% advantage floor',
           currentThreshold: 'Current threshold',
           candidateThreshold: 'Strict candidate',
           hitRateLift: 'Candidate hit-rate lift',
@@ -3020,7 +3020,7 @@ const messages: Record<Locale, DictionaryNode> = {
           },
           consensusStudy: 'Model-consensus filter shadow study',
           consensusStudyHint:
-            'First baseline opportunity per hour; the same-direction subset needs positive fee-adjusted expectancy and a positive Bonferroni-adjusted 98% one-sided advantage floor',
+            'First baseline opportunity per hour; the same-direction subset uses minute-path stops and targets and needs positive fee-adjusted expectancy plus a positive 98% advantage floor',
           baselineOpportunity: 'All baseline opportunities',
           consensusOpportunity: 'Same-direction model opportunities',
           consensusVerdict: {

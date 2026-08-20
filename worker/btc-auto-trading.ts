@@ -37,6 +37,7 @@ import {
   btcAutoStrategyVersionFromDefinition,
   buildBtcAutoEquityCurve,
   calculateBtcAutoDirectionalMove,
+  calculateBtcAutoShadowPathOutcome,
   calculateBtcAutoRollingHealth,
   calculateBtcAutoReconciledResult,
   calculateBtcAutoTradeResult,
@@ -168,6 +169,10 @@ interface BtcAutoSignalHistoryRow extends BtcAutoSignalRow {
   ensemble_regime: BtcAutoStrategyRegime | null
   baseline_action: ContractTradeDecision['action'] | null
   ensemble_action: ContractTradeDecision['action'] | null
+  baseline_path_1h_pct: number | null
+  ensemble_path_1h_pct: number | null
+  shadow_stop_distance_pct: number | null
+  shadow_target_distance_pct: number | null
 }
 
 interface PendingSignalOutcomeRow {
@@ -182,6 +187,10 @@ interface PendingSignalOutcomeRow {
   ensemble_action: ContractTradeDecision['action'] | null
   baseline_forward_1h_pct: number | null
   ensemble_forward_1h_pct: number | null
+  baseline_path_1h_pct: number | null
+  ensemble_path_1h_pct: number | null
+  shadow_stop_distance_pct: number | null
+  shadow_target_distance_pct: number | null
 }
 
 interface ExecutionFill {
@@ -386,7 +395,8 @@ const listSignalHistory = async (env: Env, limit = 24) => {
     `SELECT id, ${signalColumns}, signal_model_version, entry_gate_reason, entry_eligible,
       forward_1h_pct, forward_1h_at, forward_4h_pct, forward_4h_at,
       forward_24h_pct, forward_24h_at, applied_ensemble_weight_pct, ensemble_regime,
-      baseline_action, ensemble_action
+      baseline_action, ensemble_action, baseline_path_1h_pct, ensemble_path_1h_pct,
+      shadow_stop_distance_pct, shadow_target_distance_pct
      FROM btc_auto_signal_history ORDER BY observed_at DESC LIMIT ?1`,
   )
     .bind(limit)
@@ -408,6 +418,10 @@ const listSignalHistory = async (env: Env, limit = 24) => {
       ensembleRegime: row.ensemble_regime,
       baselineAction: row.baseline_action,
       ensembleAction: row.ensemble_action,
+      baselinePath1hPct: row.baseline_path_1h_pct,
+      ensemblePath1hPct: row.ensemble_path_1h_pct,
+      shadowStopDistancePct: row.shadow_stop_distance_pct,
+      shadowTargetDistancePct: row.shadow_target_distance_pct,
     }),
   )
 }
@@ -786,7 +800,9 @@ const outcomeSpecs = [
 const updateSignalOutcomes = async (env: Env, reading: MarketReading, now: Date) => {
   const rows = await env.DB.prepare(
     `SELECT id, action, price, observed_at, forward_1h_pct, forward_4h_pct, forward_24h_pct,
-       baseline_action, ensemble_action, baseline_forward_1h_pct, ensemble_forward_1h_pct
+       baseline_action, ensemble_action, baseline_forward_1h_pct, ensemble_forward_1h_pct,
+       baseline_path_1h_pct, ensemble_path_1h_pct, shadow_stop_distance_pct,
+       shadow_target_distance_pct
      FROM btc_auto_signal_history
      WHERE market_source = ?1 AND price > 0
        AND (action IN ('long', 'short') OR baseline_action IN ('long', 'short')
@@ -795,7 +811,11 @@ const updateSignalOutcomes = async (env: Env, reading: MarketReading, now: Date)
        AND ((action IN ('long', 'short')
            AND (forward_1h_pct IS NULL OR forward_4h_pct IS NULL OR forward_24h_pct IS NULL))
          OR (baseline_action IN ('long', 'short') AND baseline_forward_1h_pct IS NULL)
-         OR (ensemble_action IN ('long', 'short') AND ensemble_forward_1h_pct IS NULL))
+         OR (ensemble_action IN ('long', 'short') AND ensemble_forward_1h_pct IS NULL)
+         OR (baseline_action IN ('long', 'short') AND baseline_path_1h_pct IS NULL
+           AND shadow_stop_distance_pct IS NOT NULL AND shadow_target_distance_pct IS NOT NULL)
+         OR (ensemble_action IN ('long', 'short') AND ensemble_path_1h_pct IS NULL
+           AND shadow_stop_distance_pct IS NOT NULL AND shadow_target_distance_pct IS NOT NULL))
      ORDER BY observed_at ASC LIMIT 40`,
   )
     .bind(reading.source, new Date(now.getTime() - 3_600_000).toISOString())
@@ -837,7 +857,41 @@ const updateSignalOutcomes = async (env: Env, reading: MarketReading, now: Date)
       oneHourPoint && row.ensemble_forward_1h_pct === null && row.ensemble_action
         ? calculateBtcAutoDirectionalMove(row.ensemble_action, row.price, oneHourPoint.price)
         : null
-    if (!Object.keys(values).length && baselineMove === null && ensembleMove === null) return []
+    const targetAt = oneHourPoint ? Date.parse(oneHourPoint.observedAt) : Number.NaN
+    const minutePoints =
+      reading.market.timeframes.find((item) => item.interval === '1m')?.points ?? []
+    const pathInput =
+      oneHourPoint &&
+      row.shadow_stop_distance_pct !== null &&
+      row.shadow_target_distance_pct !== null
+        ? {
+            entryPrice: row.price,
+            stopDistancePct: row.shadow_stop_distance_pct,
+            targetDistancePct: row.shadow_target_distance_pct,
+            observedAt: row.observed_at,
+            targetAt,
+            minutePoints,
+            endpointPrice: oneHourPoint.price,
+          }
+        : null
+    const baselinePathMove =
+      pathInput && row.baseline_path_1h_pct === null && row.baseline_action
+        ? (calculateBtcAutoShadowPathOutcome({ ...pathInput, action: row.baseline_action })
+            ?.grossMovePct ?? null)
+        : null
+    const ensemblePathMove =
+      pathInput && row.ensemble_path_1h_pct === null && row.ensemble_action
+        ? (calculateBtcAutoShadowPathOutcome({ ...pathInput, action: row.ensemble_action })
+            ?.grossMovePct ?? null)
+        : null
+    if (
+      !Object.keys(values).length &&
+      baselineMove === null &&
+      ensembleMove === null &&
+      baselinePathMove === null &&
+      ensemblePathMove === null
+    )
+      return []
     return [
       env.DB.prepare(
         `UPDATE btc_auto_signal_history SET
@@ -848,8 +902,10 @@ const updateSignalOutcomes = async (env: Env, reading: MarketReading, now: Date)
          forward_24h_pct = COALESCE(?5, forward_24h_pct),
          forward_24h_at = COALESCE(?6, forward_24h_at),
          baseline_forward_1h_pct = COALESCE(?7, baseline_forward_1h_pct),
-         ensemble_forward_1h_pct = COALESCE(?8, ensemble_forward_1h_pct)
-         WHERE id = ?9`,
+         ensemble_forward_1h_pct = COALESCE(?8, ensemble_forward_1h_pct),
+         baseline_path_1h_pct = COALESCE(?9, baseline_path_1h_pct),
+         ensemble_path_1h_pct = COALESCE(?10, ensemble_path_1h_pct)
+         WHERE id = ?11`,
       ).bind(
         values['1h']?.move ?? null,
         values['1h']?.observedAt ?? null,
@@ -859,6 +915,8 @@ const updateSignalOutcomes = async (env: Env, reading: MarketReading, now: Date)
         values['24h']?.observedAt ?? null,
         baselineMove,
         ensembleMove,
+        baselinePathMove,
+        ensemblePathMove,
         row.id,
       ),
     ]
@@ -922,8 +980,8 @@ const strategyComparison = async (
      ), paired AS (
        SELECT * FROM hourly
        WHERE sample_rank = 1
-         AND baseline_forward_1h_pct IS NOT NULL
-         AND ensemble_forward_1h_pct IS NOT NULL
+         AND baseline_path_1h_pct IS NOT NULL
+         AND ensemble_path_1h_pct IS NOT NULL
      ), paired_window AS (
        SELECT * FROM paired ORDER BY observed_at DESC LIMIT 120
      ), ranked_window AS (
@@ -937,24 +995,24 @@ const strategyComparison = async (
      SELECT
        COUNT(*) AS paired_samples,
        COUNT(*) AS baseline_samples,
-       AVG(CASE WHEN baseline_forward_1h_pct > ?3 THEN 100.0 ELSE 0 END) AS baseline_hit_rate,
-       AVG(baseline_forward_1h_pct) AS baseline_average_move,
+       AVG(CASE WHEN baseline_path_1h_pct > ?3 THEN 100.0 ELSE 0 END) AS baseline_hit_rate,
+       AVG(baseline_path_1h_pct) AS baseline_average_move,
        COUNT(*) AS ensemble_samples,
-       AVG(CASE WHEN ensemble_forward_1h_pct > ?3 THEN 100.0 ELSE 0 END) AS ensemble_hit_rate,
-       AVG(ensemble_forward_1h_pct) AS ensemble_average_move,
-       SUM(CASE WHEN baseline_forward_1h_pct > ?3 AND ensemble_forward_1h_pct <= ?3
+       AVG(CASE WHEN ensemble_path_1h_pct > ?3 THEN 100.0 ELSE 0 END) AS ensemble_hit_rate,
+       AVG(ensemble_path_1h_pct) AS ensemble_average_move,
+       SUM(CASE WHEN baseline_path_1h_pct > ?3 AND ensemble_path_1h_pct <= ?3
          THEN 1 ELSE 0 END) AS baseline_only_wins,
-       SUM(CASE WHEN ensemble_forward_1h_pct > ?3 AND baseline_forward_1h_pct <= ?3
+       SUM(CASE WHEN ensemble_path_1h_pct > ?3 AND baseline_path_1h_pct <= ?3
          THEN 1 ELSE 0 END) AS ensemble_only_wins,
        (SELECT COUNT(*) FROM validation_window) AS validation_baseline_samples,
        (SELECT COUNT(*) FROM validation_window) AS validation_candidate_samples,
-       (SELECT AVG(CASE WHEN baseline_forward_1h_pct > ?3 THEN 100.0 ELSE 0 END)
+       (SELECT AVG(CASE WHEN baseline_path_1h_pct > ?3 THEN 100.0 ELSE 0 END)
          FROM validation_window) AS validation_baseline_hit_rate,
-       (SELECT AVG(CASE WHEN ensemble_forward_1h_pct > ?3 THEN 100.0 ELSE 0 END)
+       (SELECT AVG(CASE WHEN ensemble_path_1h_pct > ?3 THEN 100.0 ELSE 0 END)
          FROM validation_window) AS validation_candidate_hit_rate,
-       (SELECT AVG(baseline_forward_1h_pct) FROM validation_window)
+       (SELECT AVG(baseline_path_1h_pct) FROM validation_window)
          AS validation_baseline_average_move,
-       (SELECT AVG(ensemble_forward_1h_pct) FROM validation_window)
+       (SELECT AVG(ensemble_path_1h_pct) FROM validation_window)
          AS validation_candidate_average_move
      FROM evaluation_window`,
   )
@@ -1025,7 +1083,7 @@ const scoreThresholdStudy = async (
        ) AS sample_rank
        FROM btc_auto_signal_history
        WHERE signal_model_version = ?1 AND baseline_action IN ('long', 'short')
-         AND baseline_forward_1h_pct IS NOT NULL
+         AND baseline_path_1h_pct IS NOT NULL
      ), sample_pool AS (
        SELECT * FROM hourly WHERE sample_rank = 1 ORDER BY observed_at DESC LIMIT 120
      ), ranked_window AS (
@@ -1039,26 +1097,26 @@ const scoreThresholdStudy = async (
      SELECT
        SUM(CASE WHEN ABS(baseline_score) >= ?2 THEN 1 ELSE 0 END) AS current_samples,
        AVG(CASE WHEN ABS(baseline_score) >= ?2
-         THEN CASE WHEN baseline_forward_1h_pct > ?4 THEN 100.0 ELSE 0 END END) AS current_hit_rate,
-       AVG(CASE WHEN ABS(baseline_score) >= ?2 THEN baseline_forward_1h_pct END) AS current_average_move,
+         THEN CASE WHEN baseline_path_1h_pct > ?4 THEN 100.0 ELSE 0 END END) AS current_hit_rate,
+       AVG(CASE WHEN ABS(baseline_score) >= ?2 THEN baseline_path_1h_pct END) AS current_average_move,
        SUM(CASE WHEN ABS(baseline_score) >= ?3 THEN 1 ELSE 0 END) AS candidate_samples,
        AVG(CASE WHEN ABS(baseline_score) >= ?3
-         THEN CASE WHEN baseline_forward_1h_pct > ?4 THEN 100.0 ELSE 0 END END) AS candidate_hit_rate,
-       AVG(CASE WHEN ABS(baseline_score) >= ?3 THEN baseline_forward_1h_pct END)
+         THEN CASE WHEN baseline_path_1h_pct > ?4 THEN 100.0 ELSE 0 END END) AS candidate_hit_rate,
+       AVG(CASE WHEN ABS(baseline_score) >= ?3 THEN baseline_path_1h_pct END)
          AS candidate_average_move,
        (SELECT SUM(CASE WHEN ABS(baseline_score) >= ?2 THEN 1 ELSE 0 END)
          FROM validation_window) AS validation_baseline_samples,
        (SELECT SUM(CASE WHEN ABS(baseline_score) >= ?3 THEN 1 ELSE 0 END)
          FROM validation_window) AS validation_candidate_samples,
        (SELECT AVG(CASE WHEN ABS(baseline_score) >= ?2
-         THEN CASE WHEN baseline_forward_1h_pct > ?4 THEN 100.0 ELSE 0 END END)
+         THEN CASE WHEN baseline_path_1h_pct > ?4 THEN 100.0 ELSE 0 END END)
          FROM validation_window) AS validation_baseline_hit_rate,
        (SELECT AVG(CASE WHEN ABS(baseline_score) >= ?3
-         THEN CASE WHEN baseline_forward_1h_pct > ?4 THEN 100.0 ELSE 0 END END)
+         THEN CASE WHEN baseline_path_1h_pct > ?4 THEN 100.0 ELSE 0 END END)
          FROM validation_window) AS validation_candidate_hit_rate,
-       (SELECT AVG(CASE WHEN ABS(baseline_score) >= ?2 THEN baseline_forward_1h_pct END)
+       (SELECT AVG(CASE WHEN ABS(baseline_score) >= ?2 THEN baseline_path_1h_pct END)
          FROM validation_window) AS validation_baseline_average_move,
-       (SELECT AVG(CASE WHEN ABS(baseline_score) >= ?3 THEN baseline_forward_1h_pct END)
+       (SELECT AVG(CASE WHEN ABS(baseline_score) >= ?3 THEN baseline_path_1h_pct END)
          FROM validation_window) AS validation_candidate_average_move
      FROM samples`,
   )
@@ -1115,7 +1173,7 @@ const consensusStudy = async (
        FROM eligible
      ), samples_all AS (
        SELECT * FROM hourly
-       WHERE sample_rank = 1 AND baseline_forward_1h_pct IS NOT NULL
+       WHERE sample_rank = 1 AND baseline_path_1h_pct IS NOT NULL
      ), sample_pool AS (
        SELECT * FROM samples_all ORDER BY observed_at DESC LIMIT 120
      ), ranked_window AS (
@@ -1128,24 +1186,24 @@ const consensusStudy = async (
      )
      SELECT
        COUNT(*) AS baseline_samples,
-       AVG(CASE WHEN baseline_forward_1h_pct > ?2 THEN 100.0 ELSE 0 END) AS baseline_hit_rate,
-       AVG(baseline_forward_1h_pct) AS baseline_average_move,
+       AVG(CASE WHEN baseline_path_1h_pct > ?2 THEN 100.0 ELSE 0 END) AS baseline_hit_rate,
+       AVG(baseline_path_1h_pct) AS baseline_average_move,
        SUM(CASE WHEN ensemble_action = baseline_action THEN 1 ELSE 0 END) AS consensus_samples,
        AVG(CASE WHEN ensemble_action = baseline_action
-         THEN CASE WHEN baseline_forward_1h_pct > ?2 THEN 100.0 ELSE 0 END END) AS consensus_hit_rate,
+         THEN CASE WHEN baseline_path_1h_pct > ?2 THEN 100.0 ELSE 0 END END) AS consensus_hit_rate,
        AVG(CASE WHEN ensemble_action = baseline_action
-         THEN baseline_forward_1h_pct END) AS consensus_average_move,
+         THEN baseline_path_1h_pct END) AS consensus_average_move,
        (SELECT COUNT(*) FROM validation_window) AS validation_baseline_samples,
        (SELECT SUM(CASE WHEN ensemble_action = baseline_action THEN 1 ELSE 0 END)
          FROM validation_window) AS validation_candidate_samples,
-       (SELECT AVG(CASE WHEN baseline_forward_1h_pct > ?2 THEN 100.0 ELSE 0 END)
+       (SELECT AVG(CASE WHEN baseline_path_1h_pct > ?2 THEN 100.0 ELSE 0 END)
          FROM validation_window) AS validation_baseline_hit_rate,
        (SELECT AVG(CASE WHEN ensemble_action = baseline_action
-         THEN CASE WHEN baseline_forward_1h_pct > ?2 THEN 100.0 ELSE 0 END END)
+         THEN CASE WHEN baseline_path_1h_pct > ?2 THEN 100.0 ELSE 0 END END)
          FROM validation_window) AS validation_candidate_hit_rate,
-       (SELECT AVG(baseline_forward_1h_pct) FROM validation_window)
+       (SELECT AVG(baseline_path_1h_pct) FROM validation_window)
          AS validation_baseline_average_move,
-       (SELECT AVG(CASE WHEN ensemble_action = baseline_action THEN baseline_forward_1h_pct END)
+       (SELECT AVG(CASE WHEN ensemble_action = baseline_action THEN baseline_path_1h_pct END)
          FROM validation_window) AS validation_candidate_average_move
      FROM samples`,
   )
@@ -1471,15 +1529,19 @@ const appendSignalHistory = async (
   decision: ContractTradeDecision,
 ) => {
   const diagnostics = decision.strategyDiagnostics
+  const atrPct = decision.expectedMovePct === null ? null : decision.expectedMovePct / Math.sqrt(3)
+  const shadowStopDistancePct = atrPct === null ? null : Number((atrPct * 1.25).toFixed(6))
+  const shadowTargetDistancePct = atrPct === null ? null : Number((atrPct * 2).toFixed(6))
   await env.DB.batch([
     env.DB.prepare(
       `INSERT INTO btc_auto_signal_history
        (id, strategy_version, signal_model_version, action, score, confidence, price, evolution, confirmations, reasons, risks,
         observed_at, market_source, cooldown_until, entry_gate_reason, entry_eligible,
         baseline_action, baseline_score, ensemble_action, ensemble_score,
-        ensemble_regime, ensemble_confidence, applied_ensemble_weight_pct)
+        ensemble_regime, ensemble_confidence, applied_ensemble_weight_pct,
+        shadow_stop_distance_pct, shadow_target_distance_pct)
        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15,
-         ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23)`,
+         ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25)`,
     ).bind(
       crypto.randomUUID(),
       signal.strategyVersion,
@@ -1504,6 +1566,8 @@ const appendSignalHistory = async (
       diagnostics?.ensembleRegime ?? null,
       diagnostics?.ensembleConfidence ?? null,
       diagnostics?.appliedEnsembleWeightPct ?? null,
+      shadowStopDistancePct,
+      shadowTargetDistancePct,
     ),
     env.DB.prepare(`DELETE FROM btc_auto_signal_history WHERE observed_at < ?1`).bind(
       new Date(Date.now() - 90 * 86_400_000).toISOString(),
