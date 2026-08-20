@@ -74,6 +74,7 @@ interface BtcAutoConfigRow {
   minimum_rolling_profit_factor: number
   maximum_rolling_drawdown_usdt: number
   performance_pause_minutes: number
+  maximum_holding_minutes: number
   fee_rate_pct: number
   eligibility_confirmed: number
   updated_at: string
@@ -239,6 +240,7 @@ const toConfig = (row: BtcAutoConfigRow): BtcAutoTradingConfig => ({
   minimumRollingProfitFactor: row.minimum_rolling_profit_factor,
   maximumRollingDrawdownUsdt: row.maximum_rolling_drawdown_usdt,
   performancePauseMinutes: row.performance_pause_minutes,
+  maximumHoldingMinutes: row.maximum_holding_minutes,
   feeRatePct: row.fee_rate_pct,
   eligibilityConfirmed: Boolean(row.eligibility_confirmed),
   updatedAt: row.updated_at,
@@ -300,7 +302,8 @@ const configColumns = `enabled, execution_mode, risk_controls_enabled, hedge_mod
   minimum_confidence, minimum_directional_score, required_confirmations, cooldown_minutes,
   daily_loss_limit_usdt, max_consecutive_losses, loss_pause_minutes,
   performance_window_trades, minimum_rolling_profit_factor, maximum_rolling_drawdown_usdt,
-  performance_pause_minutes, fee_rate_pct, eligibility_confirmed, updated_at, last_run_at,
+  performance_pause_minutes, maximum_holding_minutes, fee_rate_pct, eligibility_confirmed,
+  updated_at, last_run_at,
   last_success_at, last_failure_at, last_error, last_cycle_status, consecutive_failures`
 const signalColumns = `strategy_version, action, score, confidence, price, evolution, confirmations, reasons, risks,
   observed_at, market_source, cooldown_until`
@@ -1650,6 +1653,7 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
         signal,
         minutePoints,
         config.hedgeModeEnabled ? Number.POSITIVE_INFINITY : config.minimumConfidence,
+        config.maximumHoldingMinutes,
       )
       if (trigger) {
         await closeTrade(
@@ -1905,6 +1909,13 @@ export const saveBtcAutoTradingConfig = async (
       10_080,
       true,
     ),
+    maximumHoldingMinutes: boundedNumber(
+      input.maximumHoldingMinutes,
+      '最大持仓时间',
+      0,
+      1440,
+      true,
+    ),
     feeRatePct: boundedNumber(input.feeRatePct, '单边手续费率', 0, 1),
     eligibilityConfirmed: input.eligibilityConfirmed,
   }
@@ -1917,7 +1928,8 @@ export const saveBtcAutoTradingConfig = async (
        daily_loss_limit_usdt = ?12, max_consecutive_losses = ?13, loss_pause_minutes = ?14,
        performance_window_trades = ?15, minimum_rolling_profit_factor = ?16,
        maximum_rolling_drawdown_usdt = ?17, performance_pause_minutes = ?18,
-       fee_rate_pct = ?19, eligibility_confirmed = ?20, updated_by = ?21, updated_at = ?22
+       maximum_holding_minutes = ?19, fee_rate_pct = ?20, eligibility_confirmed = ?21,
+       updated_by = ?22, updated_at = ?23
        WHERE id = 'default'`,
     ).bind(
       config.enabled ? 1 : 0,
@@ -1938,6 +1950,7 @@ export const saveBtcAutoTradingConfig = async (
       config.minimumRollingProfitFactor,
       config.maximumRollingDrawdownUsdt,
       config.performancePauseMinutes,
+      config.maximumHoldingMinutes,
       config.feeRatePct,
       config.eligibilityConfirmed ? 1 : 0,
       actorId,

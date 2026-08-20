@@ -212,7 +212,7 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v11'
+const strategyAlgorithmRevision = 'btc-auto-v12'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 
 const fnv1a = (value: string) => {
@@ -246,6 +246,7 @@ export const btcAutoStrategyDefinition = (
   minimumRollingProfitFactor: config.minimumRollingProfitFactor,
   maximumRollingDrawdownUsdt: config.maximumRollingDrawdownUsdt,
   performancePauseMinutes: config.performancePauseMinutes,
+  maximumHoldingMinutes: config.maximumHoldingMinutes,
   feeRatePct: config.feeRatePct,
 })
 
@@ -269,6 +270,7 @@ const strategyDefinitionKeys: Array<keyof BtcAutoStrategyDefinition> = [
   'minimumRollingProfitFactor',
   'maximumRollingDrawdownUsdt',
   'performancePauseMinutes',
+  'maximumHoldingMinutes',
   'feeRatePct',
 ]
 
@@ -344,6 +346,7 @@ export const btcAutoStrategyVersionFromDefinition = (definition: BtcAutoStrategy
     definition.minimumRollingProfitFactor,
     definition.maximumRollingDrawdownUsdt,
     definition.performancePauseMinutes,
+    definition.maximumHoldingMinutes,
     definition.feeRatePct,
   ].join('|')
   return `${strategyAlgorithmRevision}-${fnv1a(behavior)}`
@@ -370,6 +373,7 @@ export const btcAutoLegacyStrategyVersionFromDefinition = (
     definition.minimumRollingProfitFactor,
     definition.maximumRollingDrawdownUsdt,
     definition.performancePauseMinutes,
+    definition.maximumHoldingMinutes,
     definition.feeRatePct,
   ].join('|')
   return `${legacyStrategyAlgorithmRevision}-${fnv1a(behavior)}`
@@ -612,7 +616,7 @@ export const decideBtcAutoClose = (
 export interface BtcAutoCloseTrigger {
   reason: BtcAutoCloseReason
   referencePrice: number
-  source: 'minuteCandle' | 'markPrice' | 'signal'
+  source: 'minuteCandle' | 'markPrice' | 'signal' | 'time'
 }
 
 const firstFullMinuteStart = (openedAt: string) => Math.ceil(Date.parse(openedAt) / 60_000) * 60_000
@@ -622,6 +626,7 @@ export const resolveBtcAutoCloseTrigger = (
   signal: BtcAutoSignalSnapshot,
   minutePoints: readonly AssetPricePoint[],
   minimumConfidence: number,
+  maximumHoldingMinutes = 0,
 ): BtcAutoCloseTrigger | null => {
   if (trade.status !== 'open') return null
   const eligiblePoints = minutePoints
@@ -663,6 +668,13 @@ export const resolveBtcAutoCloseTrigger = (
   const signalReason = decideBtcAutoClose(trade, signal, minimumConfidence)
   if (signalReason === 'signalFalsified' && signal.price !== null) {
     return { reason: signalReason, referencePrice: signal.price, source: 'signal' }
+  }
+  if (
+    maximumHoldingMinutes > 0 &&
+    signal.price !== null &&
+    Date.parse(signal.observedAt) - Date.parse(trade.openedAt) >= maximumHoldingMinutes * 60_000
+  ) {
+    return { reason: 'timeStop', referencePrice: signal.price, source: 'time' }
   }
   return null
 }

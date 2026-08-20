@@ -1233,7 +1233,12 @@ export type BtcAutoExecutionMode = 'paper' | 'testnet'
 export type BtcAutoMarketSource = 'binance' | 'coinbase'
 export type BtcAutoTradeStatus = 'opening' | 'open' | 'closing' | 'closed' | 'error'
 export type BtcAutoSignalEvolution = 'new' | 'strengthened' | 'weakened' | 'falsified' | 'unchanged'
-export type BtcAutoCloseReason = 'stopLoss' | 'takeProfit' | 'signalFalsified' | 'manual'
+export type BtcAutoCloseReason =
+  | 'stopLoss'
+  | 'takeProfit'
+  | 'signalFalsified'
+  | 'timeStop'
+  | 'manual'
 export type BtcAutoPnlSource = 'estimated' | 'reconciled'
 export type BtcAutoCycleStatus = 'success' | 'failed' | 'skipped' | 'unknown'
 export type BtcAutoEntryGateReason =
@@ -1271,6 +1276,7 @@ export interface BtcAutoTradingConfig {
   minimumRollingProfitFactor: number
   maximumRollingDrawdownUsdt: number
   performancePauseMinutes: number
+  maximumHoldingMinutes: number
   feeRatePct: number
   eligibilityConfirmed: boolean
   updatedAt: string
@@ -1296,6 +1302,7 @@ export interface BtcAutoStrategyDefinition {
   minimumRollingProfitFactor: number
   maximumRollingDrawdownUsdt: number
   performancePauseMinutes: number
+  maximumHoldingMinutes: number
   feeRatePct: number
 }
 

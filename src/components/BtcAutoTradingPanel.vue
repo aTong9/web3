@@ -42,6 +42,7 @@ const draft = reactive<BtcAutoTradingConfig>({
   minimumRollingProfitFactor: 0.8,
   maximumRollingDrawdownUsdt: 3,
   performancePauseMinutes: 1440,
+  maximumHoldingMinutes: 60,
   feeRatePct: 0.05,
   eligibilityConfirmed: false,
   updatedAt: new Date(0).toISOString(),
@@ -840,6 +841,16 @@ onBeforeUnmount(() => {
               min="60"
               max="10080"
               step="60"
+            />
+          </label>
+          <label>
+            <span>{{ t('assetTechnical.contract.auto.maximumHoldingMinutes') }}</span>
+            <input
+              v-model.number="draft.maximumHoldingMinutes"
+              type="number"
+              min="0"
+              max="1440"
+              step="5"
             />
           </label>
           <label>

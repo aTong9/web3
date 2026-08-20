@@ -52,6 +52,7 @@ const config = (overrides = {}) => ({
   minimumRollingProfitFactor: 0.8,
   maximumRollingDrawdownUsdt: 3,
   performancePauseMinutes: 1440,
+  maximumHoldingMinutes: 60,
   feeRatePct: 0.05,
   eligibilityConfirmed: false,
   updatedAt: '2026-08-19T00:00:00.000Z',
@@ -225,6 +226,7 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
     'lossPauseMinutes',
     'maxConsecutiveLosses',
     'maxPositionsPerDirection',
+    'maximumHoldingMinutes',
     'maximumRollingDrawdownUsdt',
     'minimumConfidence',
     'minimumDirectionalScore',
@@ -731,6 +733,39 @@ test('mark price and strong opposite signals can close an open trade', () => {
       65,
     ),
     { reason: 'signalFalsified', referencePrice: 100, source: 'signal' },
+  )
+})
+
+test('maximum holding time exits at the observed mark while preserving stop precedence', () => {
+  assert.equal(
+    resolveBtcAutoCloseTrigger(
+      trade(),
+      signal({ action: 'wait', observedAt: '2026-08-19T16:29:00.000Z' }),
+      [],
+      65,
+      60,
+    ),
+    null,
+  )
+  assert.deepEqual(
+    resolveBtcAutoCloseTrigger(
+      trade(),
+      signal({ action: 'wait', price: 101, observedAt: '2026-08-19T16:31:00.000Z' }),
+      [],
+      65,
+      60,
+    ),
+    { reason: 'timeStop', referencePrice: 101, source: 'time' },
+  )
+  assert.equal(
+    resolveBtcAutoCloseTrigger(
+      trade(),
+      signal({ action: 'wait', price: 90, observedAt: '2026-08-19T16:31:00.000Z' }),
+      [],
+      65,
+      60,
+    )?.reason,
+    'stopLoss',
   )
 })
 

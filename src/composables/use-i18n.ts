@@ -1162,6 +1162,7 @@ const messages: Record<Locale, DictionaryNode> = {
           minimumRollingProfitFactor: '最低滚动 Profit Factor',
           maximumRollingDrawdown: '最大滚动回撤（USDT）',
           performancePauseMinutes: '策略失效暂停（分钟）',
+          maximumHoldingMinutes: '最大持仓时间（分钟，0为不限）',
           feeRate: '单边手续费假设（%）',
           testnetBoundary:
             '关闭开仓开关后仍会管理已有仓位。Testnet 密钥只存 Cloudflare Secret；页面和 D1 都不会保存明文。',
@@ -1191,6 +1192,7 @@ const messages: Record<Locale, DictionaryNode> = {
             stopLoss: '触发止损',
             takeProfit: '触发止盈',
             signalFalsified: '方向信号被证伪',
+            timeStop: '达到最大持仓时间',
             manual: '人工关闭',
           },
           tradeStatus: {
@@ -3027,6 +3029,7 @@ const messages: Record<Locale, DictionaryNode> = {
           minimumRollingProfitFactor: 'Minimum rolling Profit Factor',
           maximumRollingDrawdown: 'Maximum rolling drawdown (USDT)',
           performancePauseMinutes: 'Strategy degradation pause (minutes)',
+          maximumHoldingMinutes: 'Maximum holding time (minutes, 0 = unlimited)',
           feeRate: 'One-way fee assumption (%)',
           testnetBoundary:
             'Disabling entries still manages an existing position. Testnet credentials stay in Cloudflare Secrets and are never stored in the page or D1.',
@@ -3057,6 +3060,7 @@ const messages: Record<Locale, DictionaryNode> = {
             stopLoss: 'Stop loss',
             takeProfit: 'Take profit',
             signalFalsified: 'Direction signal falsified',
+            timeStop: 'Maximum holding time reached',
             manual: 'Manual close',
           },
           tradeStatus: {
