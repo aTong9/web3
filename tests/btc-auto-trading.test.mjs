@@ -29,6 +29,7 @@ const {
 } = jiti('../src/utils/btc-auto-trading.ts')
 const { buildBtcAutoTradingCsv } = jiti('../src/utils/btc-auto-trading-export.ts')
 const { buildContractStrategyEnsemble } = jiti('../src/utils/contract-strategy-ensemble.ts')
+const { blendContractStrategyScores } = jiti('../src/utils/contract-strategy-weight.ts')
 
 const config = (overrides = {}) => ({
   enabled: true,
@@ -387,8 +388,8 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
       ...base,
       baselineSamples: 23,
       ensembleSamples: 23,
-    }).verdict,
-    'collecting',
+    }).recommendedEnsembleWeightPct,
+    0,
   )
   const ahead = evaluateBtcAutoStrategyComparison({
     ...base,
@@ -398,14 +399,15 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
   assert.equal(ahead.verdict, 'outperforming')
   assert.equal(ahead.hitRateAdvantagePct, 4)
   assert.equal(ahead.ensembleAverageNetMovePct, 0.08)
+  assert.equal(ahead.recommendedEnsembleWeightPct, 35)
   assert.equal(
     evaluateBtcAutoStrategyComparison({
       ...base,
       baselineSamples: 24,
       ensembleSamples: 24,
       ensembleAverageMovePct: 0.12,
-    }).verdict,
-    'mixed',
+    }).recommendedEnsembleWeightPct,
+    0,
   )
   assert.equal(
     evaluateBtcAutoStrategyComparison({
@@ -417,6 +419,21 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
     }).verdict,
     'underperforming',
   )
+})
+
+test('unproven ensemble stays shadow-only and promoted weight is capped', () => {
+  assert.deepEqual(blendContractStrategyScores(60, -60, 0), {
+    score: 60,
+    ensembleWeight: 0,
+  })
+  assert.deepEqual(blendContractStrategyScores(60, -60, 0.35), {
+    score: 18,
+    ensembleWeight: 0.35,
+  })
+  assert.deepEqual(blendContractStrategyScores(60, -60, 1), {
+    score: 18,
+    ensembleWeight: 0.35,
+  })
 })
 
 test('shadow signal outcomes measure directional price movement without trading costs', () => {
@@ -772,6 +789,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
         estimatedRoundTripCostPct: 0.1,
         hitRateAdvantagePct: null,
         verdict: 'collecting',
+        recommendedEnsembleWeightPct: 0,
       },
       entryGate: {
         reason: 'waitingDirection',

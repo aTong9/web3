@@ -499,6 +499,10 @@ onBeforeUnmount(() => {
               {{ t('assetTechnical.contract.auto.estimatedRoundTripCost') }}
               {{ formatNumber(dashboard.strategyComparison.estimatedRoundTripCostPct, 3) }}%
             </small>
+            <small>
+              {{ t('assetTechnical.contract.auto.appliedCandidateWeight') }}
+              {{ dashboard.strategyComparison.recommendedEnsembleWeightPct }}%
+            </small>
           </article>
         </div>
       </section>

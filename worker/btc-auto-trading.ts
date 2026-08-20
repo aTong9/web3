@@ -151,6 +151,7 @@ interface BtcAutoSignalHistoryRow extends BtcAutoSignalRow {
   forward_4h_at: string | null
   forward_24h_pct: number | null
   forward_24h_at: string | null
+  applied_ensemble_weight_pct: number | null
 }
 
 interface PendingSignalOutcomeRow {
@@ -365,7 +366,7 @@ const listSignalHistory = async (env: Env, limit = 24) => {
   const rows = await env.DB.prepare(
     `SELECT id, ${signalColumns}, entry_gate_reason, entry_eligible,
       forward_1h_pct, forward_1h_at, forward_4h_pct, forward_4h_at,
-      forward_24h_pct, forward_24h_at
+      forward_24h_pct, forward_24h_at, applied_ensemble_weight_pct
      FROM btc_auto_signal_history ORDER BY observed_at DESC LIMIT ?1`,
   )
     .bind(limit)
@@ -382,6 +383,7 @@ const listSignalHistory = async (env: Env, limit = 24) => {
       forward4hAt: row.forward_4h_at,
       forward24hPct: row.forward_24h_pct,
       forward24hAt: row.forward_24h_at,
+      appliedEnsembleWeightPct: row.applied_ensemble_weight_pct,
     }),
   )
 }
@@ -1219,9 +1221,9 @@ const appendSignalHistory = async (
        (id, strategy_version, action, score, confidence, price, evolution, confirmations, reasons, risks,
         observed_at, market_source, cooldown_until, entry_gate_reason, entry_eligible,
         baseline_action, baseline_score, ensemble_action, ensemble_score,
-        ensemble_regime, ensemble_confidence)
+        ensemble_regime, ensemble_confidence, applied_ensemble_weight_pct)
        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15,
-         ?16, ?17, ?18, ?19, ?20, ?21)`,
+         ?16, ?17, ?18, ?19, ?20, ?21, ?22)`,
     ).bind(
       crypto.randomUUID(),
       signal.strategyVersion,
@@ -1244,6 +1246,7 @@ const appendSignalHistory = async (
       diagnostics?.ensembleScore ?? null,
       diagnostics?.ensembleRegime ?? null,
       diagnostics?.ensembleConfidence ?? null,
+      diagnostics?.appliedEnsembleWeightPct ?? null,
     ),
     env.DB.prepare(`DELETE FROM btc_auto_signal_history WHERE observed_at < ?1`).bind(
       new Date(Date.now() - 90 * 86_400_000).toISOString(),
@@ -1577,7 +1580,10 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
         }),
       )
     }
-    const decision = buildContractTradeDecision(reading.market)
+    const comparison = await strategyComparison(env, strategyVersion, config.feeRatePct)
+    const decision = buildContractTradeDecision(reading.market, {
+      ensembleWeight: comparison.recommendedEnsembleWeightPct / 100,
+    })
     const previousRow = await loadSignalRow(env)
     const previous = toSignal(previousRow)
     const evolvedSignal = evolveBtcAutoSignal(

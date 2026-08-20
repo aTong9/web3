@@ -1224,6 +1224,7 @@ export interface ContractStrategyDiagnostics {
   ensembleScore: number
   ensembleAction: ContractTradeAction
   ensembleConfidence: number
+  appliedEnsembleWeightPct: number
 }
 
 export type BtcAutoExecutionMode = 'paper' | 'testnet'
@@ -1414,6 +1415,7 @@ export interface BtcAutoSignalHistoryItem extends BtcAutoSignalSnapshot {
   forward4hAt: string | null
   forward24hPct: number | null
   forward24hAt: string | null
+  appliedEnsembleWeightPct: number | null
 }
 
 export interface BtcAutoSignalOutcomeSummary {
@@ -1437,6 +1439,7 @@ export interface BtcAutoStrategyComparison {
   estimatedRoundTripCostPct: number
   hitRateAdvantagePct: number | null
   verdict: 'collecting' | 'outperforming' | 'mixed' | 'underperforming'
+  recommendedEnsembleWeightPct: number
 }
 
 export interface BtcAutoTradingDashboard {

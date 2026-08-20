@@ -1,0 +1,1 @@
+ALTER TABLE btc_auto_signal_history ADD COLUMN applied_ensemble_weight_pct REAL;

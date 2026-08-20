@@ -9,6 +9,7 @@ import type {
 } from '@/types'
 import { analyzeTechnicalSignals } from '@/utils/technical-analysis'
 import { buildContractStrategyEnsemble } from '@/utils/contract-strategy-ensemble'
+import { blendContractStrategyScores } from './contract-strategy-weight'
 
 type ContractMarketInput = Readonly<Omit<ContractMarketSnapshot, 'points' | 'timeframes'>> & {
   readonly points: readonly AssetPricePoint[]
@@ -89,7 +90,12 @@ const buildTimeframeReadings = (market: ContractMarketInput): ContractTimeframeR
 const actionFromScore = (score: number): ContractTradeAction =>
   score >= 38 ? 'long' : score <= -38 ? 'short' : Math.abs(score) < 16 ? 'noTrade' : 'wait'
 
-export const buildContractTradeDecision = (market: ContractMarketInput): ContractTradeDecision => {
+export const buildContractTradeDecision = (
+  market: ContractMarketInput,
+  options: { ensembleWeight?: number } = {},
+): ContractTradeDecision => {
+  const requestedEnsembleWeight = options.ensembleWeight ?? 0.35
+  const ensembleWeight = clamp(requestedEnsembleWeight, 0, 0.35)
   const timeframes = buildTimeframeReadings(market)
   if (market.points.length < 80) {
     return {
@@ -114,7 +120,7 @@ export const buildContractTradeDecision = (market: ContractMarketInput): Contrac
 
   const analysis = analyzeTechnicalSignals([...market.points])
   const latest = market.markPrice ?? analysis.latest
-  if (latest === null) return buildContractTradeDecision({ ...market, points: [] })
+  if (latest === null) return buildContractTradeDecision({ ...market, points: [] }, options)
 
   const latestMa20 = last(analysis.ma20) ?? null
   const latestMa60 = last(analysis.ma60) ?? null
@@ -348,12 +354,13 @@ export const buildContractTradeDecision = (market: ContractMarketInput): Contrac
   indicators.push({
     id: 'strategyEnsemble',
     signal: signalFromScore(strategyEnsemble.score),
-    score: round(strategyEnsemble.score * 0.35),
-    value: `${strategyEnsemble.version} · ${strategyEnsemble.regime} · ${strategyEnsemble.confidence}%`,
+    score: round(strategyEnsemble.score * ensembleWeight),
+    value: `${strategyEnsemble.version} · ${strategyEnsemble.regime} · ${strategyEnsemble.confidence}% · ${round(ensembleWeight * 100)}%`,
   })
 
   const baselineScore = round(clamp(score, -100, 100))
-  score = round(clamp(baselineScore * 0.65 + strategyEnsemble.score * 0.35, -100, 100))
+  const blended = blendContractStrategyScores(baselineScore, strategyEnsemble.score, ensembleWeight)
+  score = blended.score
   const absoluteScore = Math.abs(score)
   let action: ContractTradeAction = actionFromScore(score)
   if (risks.includes('signalsConflict') || risks.includes('lowVolatility')) {
@@ -431,6 +438,7 @@ export const buildContractTradeDecision = (market: ContractMarketInput): Contrac
       ensembleScore: strategyEnsemble.score,
       ensembleAction: actionFromScore(strategyEnsemble.score),
       ensembleConfidence: strategyEnsemble.confidence,
+      appliedEnsembleWeightPct: round(ensembleWeight * 100),
     },
   }
 }

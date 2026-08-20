@@ -1082,6 +1082,7 @@ const messages: Record<Locale, DictionaryNode> = {
           hitRateAdvantage: '候选胜率优势',
           netMove: '扣估算手续费后',
           estimatedRoundTripCost: '往返成本假设',
+          appliedCandidateWeight: '下周期候选权重',
           strategyVerdict: {
             collecting: '样本收集中',
             outperforming: '候选明显占优',
@@ -2932,6 +2933,7 @@ const messages: Record<Locale, DictionaryNode> = {
           hitRateAdvantage: 'Candidate hit-rate advantage',
           netMove: 'After estimated fees',
           estimatedRoundTripCost: 'Round-trip cost assumption',
+          appliedCandidateWeight: 'Next-cycle candidate weight',
           strategyVerdict: {
             collecting: 'Collecting samples',
             outperforming: 'Candidate clearly ahead',

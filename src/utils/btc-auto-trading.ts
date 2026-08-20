@@ -90,6 +90,7 @@ export const evaluateBtcAutoStrategyComparison = (input: {
           (ensembleAverageNetMovePct ?? 0) <= (baselineAverageNetMovePct ?? 0)
         ? 'underperforming'
         : 'mixed'
+  const recommendedEnsembleWeightPct = verdict === 'outperforming' ? 35 : 0
   return {
     horizon: '1h',
     minimumSamples,
@@ -108,6 +109,7 @@ export const evaluateBtcAutoStrategyComparison = (input: {
     estimatedRoundTripCostPct,
     hitRateAdvantagePct,
     verdict,
+    recommendedEnsembleWeightPct,
   }
 }
 
@@ -176,7 +178,7 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v6'
+const strategyAlgorithmRevision = 'btc-auto-v7'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 
 const fnv1a = (value: string) => {
