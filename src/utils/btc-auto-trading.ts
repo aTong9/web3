@@ -10,6 +10,7 @@ import type {
   BtcAutoStrategyDefinition,
   BtcAutoSignalSnapshot,
   BtcAutoScoreThresholdStudy,
+  BtcAutoConsensusStudy,
   BtcAutoStrategyComparison,
   BtcAutoTrade,
   BtcAutoTradingConfig,
@@ -214,6 +215,63 @@ export const evaluateBtcAutoScoreThresholdStudy = (input: {
   }
 }
 
+export const evaluateBtcAutoConsensusStudy = (input: {
+  minimumSamples?: number
+  baselineSamples: number
+  consensusSamples: number
+  baselineHitRatePct: number | null
+  consensusHitRatePct: number | null
+  baselineAverageMovePct: number | null
+  consensusAverageMovePct: number | null
+  feeRatePct: number
+}): BtcAutoConsensusStudy => {
+  const minimumSamples = input.minimumSamples ?? 30
+  const roundTripCostPct = btcAutoEstimatedRoundTripCostPct(input.feeRatePct)
+  const baselineAverageNetMovePct =
+    input.baselineAverageMovePct === null
+      ? null
+      : round(input.baselineAverageMovePct - roundTripCostPct)
+  const consensusAverageNetMovePct =
+    input.consensusAverageMovePct === null
+      ? null
+      : round(input.consensusAverageMovePct - roundTripCostPct)
+  const consensusCoveragePct = input.baselineSamples
+    ? round((input.consensusSamples / input.baselineSamples) * 100, 2)
+    : null
+  const hitRateLiftPct =
+    input.baselineHitRatePct === null || input.consensusHitRatePct === null
+      ? null
+      : round(input.consensusHitRatePct - input.baselineHitRatePct, 2)
+  const enough = input.baselineSamples >= minimumSamples && input.consensusSamples >= minimumSamples
+  const verdict: BtcAutoConsensusStudy['verdict'] = !enough
+    ? 'collecting'
+    : (hitRateLiftPct ?? 0) >= 5 &&
+        (consensusAverageNetMovePct ?? Number.NEGATIVE_INFINITY) >
+          (baselineAverageNetMovePct ?? 0) &&
+        (consensusCoveragePct ?? 0) >= 30
+      ? 'promote'
+      : (hitRateLiftPct ?? 0) <= 0 ||
+          (consensusAverageNetMovePct ?? 0) <= (baselineAverageNetMovePct ?? 0)
+        ? 'keep'
+        : 'mixed'
+  return {
+    horizon: '1h',
+    minimumSamples,
+    baselineSamples: input.baselineSamples,
+    consensusSamples: input.consensusSamples,
+    baselineHitRatePct:
+      input.baselineHitRatePct === null ? null : round(input.baselineHitRatePct, 2),
+    consensusHitRatePct:
+      input.consensusHitRatePct === null ? null : round(input.consensusHitRatePct, 2),
+    baselineAverageNetMovePct,
+    consensusAverageNetMovePct,
+    consensusCoveragePct,
+    hitRateLiftPct,
+    verdict,
+    consensusRequired: verdict === 'promote',
+  }
+}
+
 export const buildBtcAutoOrderParameters = (input: {
   kind: 'open' | 'close'
   direction: 'long' | 'short'
@@ -279,10 +337,10 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v16'
+const strategyAlgorithmRevision = 'btc-auto-v17'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 export const btcAutoSignalModelVersion = 'btc-signal-model-v2'
-export const btcAutoEvidencePolicyVersion = 'btc-evidence-v3-first-eligible-pair'
+export const btcAutoEvidencePolicyVersion = 'btc-evidence-v4-consensus-gate'
 
 const fnv1a = (value: string) => {
   let hash = 0x811c9dc5
@@ -550,6 +608,7 @@ export const evaluateBtcAutoEntryGate = (input: {
   dailyNetPnl: number
   now?: Date
   strategyVersion?: string
+  consensusEligible?: boolean
 }): BtcAutoEntryGate => {
   const now = input.now ?? new Date()
   const streak = countConsecutiveBtcAutoLosses(input.trades)
@@ -597,6 +656,7 @@ export const evaluateBtcAutoEntryGate = (input: {
     return result('weakScore')
   if (input.signal.confidence < input.config.minimumConfidence) return result('lowConfidence')
   if (input.signal.confirmations < input.config.requiredConfirmations) return result('confirming')
+  if (input.consensusEligible === false) return result('strategyConsensusConflict')
   return result('ready')
 }
 

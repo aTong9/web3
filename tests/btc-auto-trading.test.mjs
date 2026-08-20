@@ -20,6 +20,7 @@ const {
   calculateBtcAutoReconciledResult,
   calculateBtcAutoTradeResult,
   evaluateBtcAutoEntryGate,
+  evaluateBtcAutoConsensusStudy,
   evaluateBtcAutoScoreThresholdStudy,
   evaluateBtcAutoStrategyComparison,
   evolveBtcAutoSignal,
@@ -257,7 +258,7 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
 
 test('signal model cohort remains stable across execution configuration changes', () => {
   assert.equal(btcAutoSignalModelVersion, 'btc-signal-model-v2')
-  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v3-first-eligible-pair')
+  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v4-consensus-gate')
   assert.notEqual(
     btcAutoStrategyVersion(config()),
     btcAutoStrategyVersion(config({ minimumDirectionalScore: 70 })),
@@ -522,6 +523,34 @@ test('score threshold study waits for coverage and requires precision plus net i
   )
 })
 
+test('consensus filter promotes only with enough precision, net improvement and coverage', () => {
+  const collecting = evaluateBtcAutoConsensusStudy({
+    baselineSamples: 100,
+    consensusSamples: 29,
+    baselineHitRatePct: 48,
+    consensusHitRatePct: 60,
+    baselineAverageMovePct: 0.16,
+    consensusAverageMovePct: 0.3,
+    feeRatePct: 0.05,
+  })
+  assert.equal(collecting.verdict, 'collecting')
+  assert.equal(collecting.consensusRequired, false)
+
+  const promoted = evaluateBtcAutoConsensusStudy({
+    baselineSamples: 100,
+    consensusSamples: 40,
+    baselineHitRatePct: 48,
+    consensusHitRatePct: 56,
+    baselineAverageMovePct: 0.16,
+    consensusAverageMovePct: 0.3,
+    feeRatePct: 0.05,
+  })
+  assert.equal(promoted.verdict, 'promote')
+  assert.equal(promoted.consensusCoveragePct, 40)
+  assert.equal(promoted.consensusAverageNetMovePct, 0.2)
+  assert.equal(promoted.consensusRequired, true)
+})
+
 test('shadow signal outcomes measure directional price movement without trading costs', () => {
   assert.equal(calculateBtcAutoDirectionalMove('long', 100, 103), 3)
   assert.equal(calculateBtcAutoDirectionalMove('short', 100, 97), 3)
@@ -598,6 +627,7 @@ test('entry gate requires direction, score, confidence and confirmations in orde
   assert.equal(gate({ signal: signal({ score: 54 }) }).reason, 'weakScore')
   assert.equal(gate({ signal: signal({ confidence: 64 }) }).reason, 'lowConfidence')
   assert.equal(gate({ signal: signal({ confirmations: 1 }) }).reason, 'confirming')
+  assert.equal(gate({ consensusEligible: false }).reason, 'strategyConsensusConflict')
   assert.deepEqual(gate(), {
     reason: 'ready',
     eligible: true,
@@ -615,6 +645,7 @@ test('unrestricted mode bypasses risk gates but still enforces directional capac
       dailyNetPnl: -999,
       cooldownUntil: '2026-08-20T02:00:00.000Z',
       activePositionsInDirection: 2,
+      consensusEligible: false,
     }).reason,
     'ready',
   )
@@ -893,7 +924,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       config: config(),
       strategyVersion: 'btc-auto-v4-test',
       signalModelVersion: 'btc-signal-model-v2',
-      evidencePolicyVersion: 'btc-evidence-v3-first-eligible-pair',
+      evidencePolicyVersion: 'btc-evidence-v4-consensus-gate',
       strategySnapshots: [
         {
           strategyVersion: 'btc-auto-v4-test',
@@ -952,6 +983,20 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
         candidateCoveragePct: null,
         hitRateLiftPct: null,
         verdict: 'collecting',
+      },
+      consensusStudy: {
+        horizon: '1h',
+        minimumSamples: 30,
+        baselineSamples: 0,
+        consensusSamples: 0,
+        baselineHitRatePct: null,
+        consensusHitRatePct: null,
+        baselineAverageNetMovePct: null,
+        consensusAverageNetMovePct: null,
+        consensusCoveragePct: null,
+        hitRateLiftPct: null,
+        verdict: 'collecting',
+        consensusRequired: false,
       },
       entryGate: {
         reason: 'waitingDirection',

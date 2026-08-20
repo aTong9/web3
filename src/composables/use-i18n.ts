@@ -1047,6 +1047,7 @@ const messages: Record<Locale, DictionaryNode> = {
             dailyLossLimit: '触发日亏损熔断',
             consecutiveLossPause: '连续亏损暂停中',
             rollingPerformancePause: '滚动策略绩效暂停中',
+            strategyConsensusConflict: '基线与状态模型方向不一致',
           },
           rollingHealth: '滚动策略健康度',
           rollingHealthStatus: {
@@ -1113,6 +1114,17 @@ const messages: Record<Locale, DictionaryNode> = {
             collecting: '样本收集中',
             raise: '严格门槛具备优势',
             keep: '维持当前门槛',
+            mixed: '证据混合',
+          },
+          consensusStudy: '模型同向过滤影子研究',
+          consensusStudyHint:
+            '每小时首个基线方向机会，对比全部基线与双模型同向子集；只有严格晋级后才限制新开仓',
+          baselineOpportunity: '全部基线机会',
+          consensusOpportunity: '双模型同向机会',
+          consensusVerdict: {
+            collecting: '样本收集中',
+            promote: '同向过滤已晋级',
+            keep: '保持当前开仓规则',
             mixed: '证据混合',
           },
           forwardOutcome: '未来方向结果',
@@ -2924,6 +2936,7 @@ const messages: Record<Locale, DictionaryNode> = {
             dailyLossLimit: 'Daily loss circuit is open',
             consecutiveLossPause: 'Consecutive-loss pause active',
             rollingPerformancePause: 'Rolling strategy performance pause active',
+            strategyConsensusConflict: 'Baseline and regime model directions disagree',
           },
           rollingHealth: 'Rolling strategy health',
           rollingHealthStatus: {
@@ -2992,6 +3005,17 @@ const messages: Record<Locale, DictionaryNode> = {
             collecting: 'Collecting samples',
             raise: 'Strict threshold shows an advantage',
             keep: 'Keep current threshold',
+            mixed: 'Mixed evidence',
+          },
+          consensusStudy: 'Model-consensus filter shadow study',
+          consensusStudyHint:
+            'First baseline opportunity per hour; compares all baseline signals with the same-direction model subset; restricts new entries only after strict promotion',
+          baselineOpportunity: 'All baseline opportunities',
+          consensusOpportunity: 'Same-direction model opportunities',
+          consensusVerdict: {
+            collecting: 'Collecting samples',
+            promote: 'Consensus filter promoted',
+            keep: 'Keep current entry rules',
             mixed: 'Mixed evidence',
           },
           forwardOutcome: 'Forward directional outcome',

@@ -1254,6 +1254,7 @@ export type BtcAutoEntryGateReason =
   | 'dailyLossLimit'
   | 'consecutiveLossPause'
   | 'rollingPerformancePause'
+  | 'strategyConsensusConflict'
 
 export interface BtcAutoTradingConfig {
   enabled: boolean
@@ -1427,6 +1428,8 @@ export interface BtcAutoSignalHistoryItem extends BtcAutoSignalSnapshot {
   forward24hAt: string | null
   appliedEnsembleWeightPct: number | null
   ensembleRegime: BtcAutoStrategyRegime | null
+  baselineAction: ContractTradeAction | null
+  ensembleAction: ContractTradeAction | null
 }
 
 export interface BtcAutoSignalOutcomeSummary {
@@ -1480,6 +1483,21 @@ export interface BtcAutoScoreThresholdStudy {
   verdict: 'collecting' | 'raise' | 'keep' | 'mixed'
 }
 
+export interface BtcAutoConsensusStudy {
+  horizon: '1h'
+  minimumSamples: number
+  baselineSamples: number
+  consensusSamples: number
+  baselineHitRatePct: number | null
+  consensusHitRatePct: number | null
+  baselineAverageNetMovePct: number | null
+  consensusAverageNetMovePct: number | null
+  consensusCoveragePct: number | null
+  hitRateLiftPct: number | null
+  verdict: 'collecting' | 'promote' | 'keep' | 'mixed'
+  consensusRequired: boolean
+}
+
 export interface BtcAutoTradingDashboard {
   config: BtcAutoTradingConfig
   strategyVersion: string
@@ -1501,6 +1519,7 @@ export interface BtcAutoTradingDashboard {
   activeStrategyRegime: BtcAutoStrategyRegime | null
   strategyComparisonsByRegime: BtcAutoRegimeStrategyComparison[]
   scoreThresholdStudy: BtcAutoScoreThresholdStudy
+  consensusStudy: BtcAutoConsensusStudy
   entryGate: BtcAutoEntryGate
   rollingHealth: BtcAutoRollingHealth
   openTrade: BtcAutoTrade | null

@@ -1,6 +1,7 @@
 import type {
   AssetPricePoint,
   BtcAutoCloseReason,
+  BtcAutoConsensusStudy,
   BtcAutoEntryGate,
   BtcAutoExecutionMode,
   BtcAutoMarketSource,
@@ -39,6 +40,7 @@ import {
   calculateBtcAutoReconciledResult,
   calculateBtcAutoTradeResult,
   evaluateBtcAutoEntryGate,
+  evaluateBtcAutoConsensusStudy,
   evaluateBtcAutoScoreThresholdStudy,
   evaluateBtcAutoStrategyComparison,
   evolveBtcAutoSignal,
@@ -162,6 +164,8 @@ interface BtcAutoSignalHistoryRow extends BtcAutoSignalRow {
   forward_24h_at: string | null
   applied_ensemble_weight_pct: number | null
   ensemble_regime: BtcAutoStrategyRegime | null
+  baseline_action: ContractTradeDecision['action'] | null
+  ensemble_action: ContractTradeDecision['action'] | null
 }
 
 interface PendingSignalOutcomeRow {
@@ -378,7 +382,8 @@ const listSignalHistory = async (env: Env, limit = 24) => {
   const rows = await env.DB.prepare(
     `SELECT id, ${signalColumns}, signal_model_version, entry_gate_reason, entry_eligible,
       forward_1h_pct, forward_1h_at, forward_4h_pct, forward_4h_at,
-      forward_24h_pct, forward_24h_at, applied_ensemble_weight_pct, ensemble_regime
+      forward_24h_pct, forward_24h_at, applied_ensemble_weight_pct, ensemble_regime,
+      baseline_action, ensemble_action
      FROM btc_auto_signal_history ORDER BY observed_at DESC LIMIT ?1`,
   )
     .bind(limit)
@@ -398,6 +403,8 @@ const listSignalHistory = async (env: Env, limit = 24) => {
       forward24hAt: row.forward_24h_at,
       appliedEnsembleWeightPct: row.applied_ensemble_weight_pct,
       ensembleRegime: row.ensemble_regime,
+      baselineAction: row.baseline_action,
+      ensembleAction: row.ensemble_action,
     }),
   )
 }
@@ -1015,6 +1022,56 @@ const scoreThresholdStudy = async (
     candidateHitRatePct: row?.candidate_hit_rate ?? null,
     currentAverageMovePct: row?.current_average_move ?? null,
     candidateAverageMovePct: row?.candidate_average_move ?? null,
+    feeRatePct,
+  })
+}
+
+const consensusStudy = async (
+  env: Env,
+  signalModelVersion: string,
+  feeRatePct: number,
+): Promise<BtcAutoConsensusStudy> => {
+  const estimatedRoundTripCostPct = btcAutoEstimatedRoundTripCostPct(feeRatePct)
+  const row = await env.DB.prepare(
+    `WITH eligible AS (
+       SELECT * FROM btc_auto_signal_history
+       WHERE signal_model_version = ?1 AND baseline_action IN ('long', 'short')
+     ), hourly AS (
+       SELECT *, ROW_NUMBER() OVER (
+         PARTITION BY substr(observed_at, 1, 13) ORDER BY observed_at ASC
+       ) AS sample_rank
+       FROM eligible
+     ), samples AS (
+       SELECT * FROM hourly
+       WHERE sample_rank = 1 AND baseline_forward_1h_pct IS NOT NULL
+     )
+     SELECT
+       COUNT(*) AS baseline_samples,
+       AVG(CASE WHEN baseline_forward_1h_pct > ?2 THEN 100.0 ELSE 0 END) AS baseline_hit_rate,
+       AVG(baseline_forward_1h_pct) AS baseline_average_move,
+       SUM(CASE WHEN ensemble_action = baseline_action THEN 1 ELSE 0 END) AS consensus_samples,
+       AVG(CASE WHEN ensemble_action = baseline_action
+         THEN CASE WHEN baseline_forward_1h_pct > ?2 THEN 100.0 ELSE 0 END END) AS consensus_hit_rate,
+       AVG(CASE WHEN ensemble_action = baseline_action
+         THEN baseline_forward_1h_pct END) AS consensus_average_move
+     FROM samples`,
+  )
+    .bind(signalModelVersion, estimatedRoundTripCostPct)
+    .first<{
+      baseline_samples: number
+      baseline_hit_rate: number | null
+      baseline_average_move: number | null
+      consensus_samples: number
+      consensus_hit_rate: number | null
+      consensus_average_move: number | null
+    }>()
+  return evaluateBtcAutoConsensusStudy({
+    baselineSamples: row?.baseline_samples ?? 0,
+    consensusSamples: row?.consensus_samples ?? 0,
+    baselineHitRatePct: row?.baseline_hit_rate ?? null,
+    consensusHitRatePct: row?.consensus_hit_rate ?? null,
+    baselineAverageMovePct: row?.baseline_average_move ?? null,
+    consensusAverageMovePct: row?.consensus_average_move ?? null,
     feeRatePct,
   })
 }
@@ -1675,12 +1732,10 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
     }
     const shadowDecision = buildContractTradeDecision(reading.market, { ensembleWeight: 0 })
     const activeRegime = shadowDecision.strategyDiagnostics?.ensembleRegime ?? null
-    const comparison = await strategyComparison(
-      env,
-      btcAutoSignalModelVersion,
-      config.feeRatePct,
-      activeRegime,
-    )
+    const [comparison, consensus] = await Promise.all([
+      strategyComparison(env, btcAutoSignalModelVersion, config.feeRatePct, activeRegime),
+      consensusStudy(env, btcAutoSignalModelVersion, config.feeRatePct),
+    ])
     const decision = buildContractTradeDecision(reading.market, {
       ensembleWeight: comparison.recommendedEnsembleWeightPct / 100,
     })
@@ -1746,6 +1801,10 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
       dailyNetPnl: daily?.netPnl ?? 0,
       now,
       strategyVersion,
+      consensusEligible:
+        !consensus.consensusRequired ||
+        (decision.strategyDiagnostics?.baselineAction === signal.action &&
+          decision.strategyDiagnostics?.ensembleAction === signal.action),
     })
     await updateSignal(env, signal, cooldownUntil)
     await appendSignalHistory(env, signal, cooldownUntil, gate, decision)
@@ -1808,17 +1867,19 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
     ])
   const config = toConfig(configRow)
   const strategyVersion = btcAutoStrategyVersion(config)
-  const [signalOutcomes, overallComparison, regimeComparisons, thresholdStudy] = await Promise.all([
-    signalOutcomeSummaries(env, strategyVersion),
-    strategyComparison(env, btcAutoSignalModelVersion, config.feeRatePct),
-    strategyComparisonsByRegime(env, btcAutoSignalModelVersion, config.feeRatePct),
-    scoreThresholdStudy(
-      env,
-      btcAutoSignalModelVersion,
-      config.minimumDirectionalScore,
-      config.feeRatePct,
-    ),
-  ])
+  const [signalOutcomes, overallComparison, regimeComparisons, thresholdStudy, consensus] =
+    await Promise.all([
+      signalOutcomeSummaries(env, strategyVersion),
+      strategyComparison(env, btcAutoSignalModelVersion, config.feeRatePct),
+      strategyComparisonsByRegime(env, btcAutoSignalModelVersion, config.feeRatePct),
+      scoreThresholdStudy(
+        env,
+        btcAutoSignalModelVersion,
+        config.minimumDirectionalScore,
+        config.feeRatePct,
+      ),
+      consensusStudy(env, btcAutoSignalModelVersion, config.feeRatePct),
+    ])
   const activeStrategyRegime = signalHistory[0]?.ensembleRegime ?? null
   const comparison =
     regimeComparisons.find((item) => item.regime === activeStrategyRegime) ?? overallComparison
@@ -1849,6 +1910,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
     activeStrategyRegime,
     strategyComparisonsByRegime: regimeComparisons,
     scoreThresholdStudy: thresholdStudy,
+    consensusStudy: consensus,
     entryGate: evaluateBtcAutoEntryGate({
       config,
       signal,
@@ -1859,6 +1921,10 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
       cooldownUntil: signalRow?.cooldown_until ?? null,
       dailyNetPnl,
       strategyVersion,
+      consensusEligible:
+        !consensus.consensusRequired ||
+        (signalHistory[0]?.baselineAction === signal?.action &&
+          signalHistory[0]?.ensembleAction === signal?.action),
     }),
     rollingHealth: calculateBtcAutoRollingHealth(config, trades, now, strategyVersion),
     openTrade,

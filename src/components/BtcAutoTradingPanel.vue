@@ -627,6 +627,66 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
+      <section class="score-threshold-study">
+        <header>
+          <div>
+            <span>{{ t('assetTechnical.contract.auto.consensusStudy') }}</span>
+            <strong>
+              {{
+                t(
+                  `assetTechnical.contract.auto.consensusVerdict.${dashboard.consensusStudy.verdict}`,
+                )
+              }}
+            </strong>
+          </div>
+          <small>{{ t('assetTechnical.contract.auto.consensusStudyHint') }}</small>
+        </header>
+        <div class="comparison-grid">
+          <article>
+            <b>{{ t('assetTechnical.contract.auto.baselineOpportunity') }}</b>
+            <span>
+              {{ dashboard.consensusStudy.baselineSamples }} /
+              {{ dashboard.consensusStudy.minimumSamples }}
+            </span>
+            <strong>
+              {{
+                formatSigned(dashboard.consensusStudy.baselineHitRatePct, 1, '%').replace('+', '')
+              }}
+            </strong>
+            <small>
+              {{ t('assetTechnical.contract.auto.netMove') }}
+              {{ formatSigned(dashboard.consensusStudy.baselineAverageNetMovePct, 3, '%') }}
+            </small>
+          </article>
+          <article>
+            <b>{{ t('assetTechnical.contract.auto.consensusOpportunity') }}</b>
+            <span>
+              {{ dashboard.consensusStudy.consensusSamples }} /
+              {{ dashboard.consensusStudy.minimumSamples }}
+            </span>
+            <strong>
+              {{
+                formatSigned(dashboard.consensusStudy.consensusHitRatePct, 1, '%').replace('+', '')
+              }}
+            </strong>
+            <small>
+              {{ t('assetTechnical.contract.auto.netMove') }}
+              {{ formatSigned(dashboard.consensusStudy.consensusAverageNetMovePct, 3, '%') }}
+            </small>
+          </article>
+          <article>
+            <b>{{ t('assetTechnical.contract.auto.hitRateLift') }}</b>
+            <strong :class="pnlClass(dashboard.consensusStudy.hitRateLiftPct)">
+              {{ formatSigned(dashboard.consensusStudy.hitRateLiftPct, 1, 'pp') }}
+            </strong>
+            <small>
+              {{ t('assetTechnical.contract.auto.candidateCoverage') }}
+              {{ formatNumber(dashboard.consensusStudy.consensusCoveragePct, 1) }}%
+            </small>
+          </article>
+        </div>
+      </section>
+
       <section class="signal-and-position">
         <article class="auto-signal">
           <header>
