@@ -1214,7 +1214,8 @@ onBeforeUnmount(() => {
   border-left-color: var(--negative);
 }
 .strategy-health.insufficientSample,
-.strategy-health.probeEligible {
+.strategy-health.probeEligible,
+.strategy-health.newVersionProbeEligible {
   border-left-color: var(--warning);
 }
 .strategy-health > header {

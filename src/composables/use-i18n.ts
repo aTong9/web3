@@ -1054,6 +1054,7 @@ const messages: Record<Locale, DictionaryNode> = {
             healthy: '策略健康门槛通过',
             paused: '策略失效，暂停探测',
             probeEligible: '暂停结束，可进行一次探测交易',
+            newVersionProbeEligible: '新版本冷启动，可进行一笔受控探测',
           },
           rollingHealthReason: {
             lowProfitFactor: '滚动 Profit Factor 低于门槛',
@@ -2912,6 +2913,7 @@ const messages: Record<Locale, DictionaryNode> = {
             healthy: 'Strategy health gates passed',
             paused: 'Strategy degraded; probe trading paused',
             probeEligible: 'Pause expired; one probe trade is eligible',
+            newVersionProbeEligible: 'New-version cold start; one controlled probe is eligible',
           },
           rollingHealthReason: {
             lowProfitFactor: 'Rolling Profit Factor is below threshold',

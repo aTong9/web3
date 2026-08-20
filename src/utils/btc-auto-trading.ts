@@ -212,7 +212,7 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v10'
+const strategyAlgorithmRevision = 'btc-auto-v11'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 
 const fnv1a = (value: string) => {
@@ -396,16 +396,17 @@ export const calculateBtcAutoRollingHealth = (
   now = new Date(),
   strategyVersion?: string,
 ): BtcAutoRollingHealth => {
+  const currentVersionTrades = strategyVersion
+    ? trades.filter((trade) => trade.strategyVersion === strategyVersion)
+    : trades
   const closed = trades
     .filter((trade) => trade.status === 'closed' && trade.closedAt && trade.netPnl !== null)
     .sort((left, right) => Date.parse(right.closedAt ?? '') - Date.parse(left.closedAt ?? ''))
-  const currentVersion = strategyVersion
-    ? closed.filter((trade) => trade.strategyVersion === strategyVersion)
-    : closed
+  const currentVersion = currentVersionTrades
+    .filter((trade) => trade.status === 'closed' && trade.closedAt && trade.netPnl !== null)
+    .sort((left, right) => Date.parse(right.closedAt ?? '') - Date.parse(left.closedAt ?? ''))
   const sampleScope: BtcAutoRollingHealth['sampleScope'] =
-    currentVersion.length >= config.performanceWindowTrades
-      ? 'currentVersion'
-      : 'allHistoryFallback'
+    strategyVersion && currentVersion.length > 0 ? 'currentVersion' : 'allHistoryFallback'
   const sample = (sampleScope === 'currentVersion' ? currentVersion : closed).slice(
     0,
     config.performanceWindowTrades,
@@ -442,13 +443,15 @@ export const calculateBtcAutoRollingHealth = (
       ? new Date(Date.parse(lastClosedAt) + config.performancePauseMinutes * 60_000).toISOString()
       : null
   const status: BtcAutoRollingHealth['status'] =
-    sample.length < config.performanceWindowTrades
-      ? 'insufficientSample'
-      : !reasons.length
-        ? 'healthy'
-        : resumeAt && Date.parse(resumeAt) > now.getTime()
-          ? 'paused'
-          : 'probeEligible'
+    strategyVersion && currentVersionTrades.length === 0
+      ? 'newVersionProbeEligible'
+      : sample.length < config.performanceWindowTrades
+        ? 'insufficientSample'
+        : !reasons.length
+          ? 'healthy'
+          : resumeAt && Date.parse(resumeAt) > now.getTime()
+            ? 'paused'
+            : 'probeEligible'
   return {
     sampleSize: sample.length,
     currentVersionSampleSize: currentVersion.length,

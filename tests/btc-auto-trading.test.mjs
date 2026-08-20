@@ -603,23 +603,40 @@ test('rolling health accepts a sufficiently profitable full sample', () => {
   assert.deepEqual(health.reasons, [])
 })
 
-test('rolling health falls back to all history until current version has a full sample', () => {
+test('new strategy gets one controlled probe then uses only its own closed samples', () => {
   const currentVersion = 'btc-auto-v4-current'
   const legacy = rollingTrades()
+  const coldStart = calculateBtcAutoRollingHealth(
+    config(),
+    legacy,
+    new Date('2026-08-19T02:00:00.000Z'),
+    currentVersion,
+  )
+  assert.equal(coldStart.sampleScope, 'allHistoryFallback')
+  assert.equal(coldStart.status, 'newVersionProbeEligible')
+  assert.equal(gate({ trades: legacy, strategyVersion: currentVersion }).reason, 'ready')
+  assert.equal(
+    gate({
+      trades: [...legacy, trade({ id: 'probe', strategyVersion: currentVersion })],
+      strategyVersion: currentVersion,
+    }).reason,
+    'rollingPerformancePause',
+  )
   const current = Array.from({ length: 3 }, (_, index) =>
     closedTrade(`current-${index}`, new Date(Date.UTC(2026, 7, 19, 1, index)).toISOString(), 2, {
       strategyVersion: currentVersion,
     }),
   )
-  const fallback = calculateBtcAutoRollingHealth(
+  const building = calculateBtcAutoRollingHealth(
     config(),
     [...current, ...legacy],
     new Date('2026-08-19T02:00:00.000Z'),
     currentVersion,
   )
-  assert.equal(fallback.sampleScope, 'allHistoryFallback')
-  assert.equal(fallback.currentVersionSampleSize, 3)
-  assert.equal(fallback.status, 'paused')
+  assert.equal(building.sampleScope, 'currentVersion')
+  assert.equal(building.currentVersionSampleSize, 3)
+  assert.equal(building.sampleSize, 3)
+  assert.equal(building.status, 'insufficientSample')
 
   const fullCurrent = Array.from({ length: 20 }, (_, index) =>
     closedTrade(
@@ -832,7 +849,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
         sampleSize: 1,
         currentVersionSampleSize: 1,
         requiredSampleSize: 20,
-        sampleScope: 'allHistoryFallback',
+        sampleScope: 'currentVersion',
         profitFactor: null,
         minimumProfitFactor: 0.8,
         maxDrawdownUsdt: 0,

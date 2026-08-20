@@ -1402,7 +1402,7 @@ export interface BtcAutoRollingHealth {
   minimumProfitFactor: number
   maxDrawdownUsdt: number
   maximumDrawdownUsdt: number
-  status: 'insufficientSample' | 'healthy' | 'paused' | 'probeEligible'
+  status: 'insufficientSample' | 'healthy' | 'paused' | 'probeEligible' | 'newVersionProbeEligible'
   reasons: Array<'lowProfitFactor' | 'excessiveDrawdown'>
   resumeAt: string | null
 }
