@@ -450,6 +450,10 @@ onBeforeUnmount(() => {
             </strong>
           </div>
           <small>{{ t('assetTechnical.contract.auto.strategyComparisonHint') }}</small>
+          <small v-if="dashboard.activeStrategyRegime">
+            {{ t('assetTechnical.contract.auto.activeStrategyRegime') }}
+            {{ t(`assetTechnical.contract.auto.strategyRegime.${dashboard.activeStrategyRegime}`) }}
+          </small>
         </header>
         <div class="comparison-grid">
           <article>
@@ -520,6 +524,18 @@ onBeforeUnmount(() => {
               {{ dashboard.strategyComparison.ensembleOnlyWins }} :
               {{ dashboard.strategyComparison.baselineOnlyWins }}
             </small>
+          </article>
+        </div>
+        <div class="regime-comparison-grid">
+          <article
+            v-for="item in dashboard.strategyComparisonsByRegime"
+            :key="item.regime"
+            :class="{ active: item.regime === dashboard.activeStrategyRegime }"
+          >
+            <b>{{ t(`assetTechnical.contract.auto.strategyRegime.${item.regime}`) }}</b>
+            <span>{{ item.pairedSamples }} / {{ item.minimumSamples }}</span>
+            <strong>{{ t(`assetTechnical.contract.auto.strategyVerdict.${item.verdict}`) }}</strong>
+            <small>{{ item.recommendedEnsembleWeightPct }}%</small>
           </article>
         </div>
       </section>
@@ -1122,6 +1138,24 @@ onBeforeUnmount(() => {
   border: 1px solid var(--border);
   border-radius: 6px;
 }
+.regime-comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+.regime-comparison-grid article {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 8px;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.regime-comparison-grid article.active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
 .verdict-outperforming {
   border-color: var(--positive);
 }
@@ -1458,6 +1492,9 @@ th {
     grid-template-columns: 1fr;
   }
   .comparison-grid {
+    grid-template-columns: 1fr;
+  }
+  .regime-comparison-grid {
     grid-template-columns: 1fr;
   }
   .auto-config > header,

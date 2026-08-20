@@ -820,6 +820,8 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
         verdict: 'collecting',
         recommendedEnsembleWeightPct: 0,
       },
+      activeStrategyRegime: null,
+      strategyComparisonsByRegime: [],
       entryGate: {
         reason: 'waitingDirection',
         eligible: false,

@@ -1227,6 +1227,8 @@ export interface ContractStrategyDiagnostics {
   appliedEnsembleWeightPct: number
 }
 
+export type BtcAutoStrategyRegime = ContractStrategyDiagnostics['ensembleRegime']
+
 export type BtcAutoExecutionMode = 'paper' | 'testnet'
 export type BtcAutoMarketSource = 'binance' | 'coinbase'
 export type BtcAutoTradeStatus = 'opening' | 'open' | 'closing' | 'closed' | 'error'
@@ -1416,6 +1418,7 @@ export interface BtcAutoSignalHistoryItem extends BtcAutoSignalSnapshot {
   forward24hPct: number | null
   forward24hAt: string | null
   appliedEnsembleWeightPct: number | null
+  ensembleRegime: BtcAutoStrategyRegime | null
 }
 
 export interface BtcAutoSignalOutcomeSummary {
@@ -1448,6 +1451,10 @@ export interface BtcAutoStrategyComparison {
   recommendedEnsembleWeightPct: number
 }
 
+export interface BtcAutoRegimeStrategyComparison extends BtcAutoStrategyComparison {
+  regime: BtcAutoStrategyRegime
+}
+
 export interface BtcAutoTradingDashboard {
   config: BtcAutoTradingConfig
   strategyVersion: string
@@ -1464,6 +1471,8 @@ export interface BtcAutoTradingDashboard {
   signalHistory: BtcAutoSignalHistoryItem[]
   signalOutcomes: BtcAutoSignalOutcomeSummary[]
   strategyComparison: BtcAutoStrategyComparison
+  activeStrategyRegime: BtcAutoStrategyRegime | null
+  strategyComparisonsByRegime: BtcAutoRegimeStrategyComparison[]
   entryGate: BtcAutoEntryGate
   rollingHealth: BtcAutoRollingHealth
   openTrade: BtcAutoTrade | null

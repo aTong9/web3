@@ -4,10 +4,12 @@ import type {
   BtcAutoEntryGate,
   BtcAutoExecutionMode,
   BtcAutoMarketSource,
+  BtcAutoRegimeStrategyComparison,
   BtcAutoSignalSnapshot,
   BtcAutoSignalHistoryItem,
   BtcAutoStrategySnapshot,
   BtcAutoStrategyComparison,
+  BtcAutoStrategyRegime,
   BtcAutoTrade,
   BtcAutoTradingConfig,
   BtcAutoTradingDashboard,
@@ -152,6 +154,7 @@ interface BtcAutoSignalHistoryRow extends BtcAutoSignalRow {
   forward_24h_pct: number | null
   forward_24h_at: string | null
   applied_ensemble_weight_pct: number | null
+  ensemble_regime: BtcAutoStrategyRegime | null
 }
 
 interface PendingSignalOutcomeRow {
@@ -366,7 +369,7 @@ const listSignalHistory = async (env: Env, limit = 24) => {
   const rows = await env.DB.prepare(
     `SELECT id, ${signalColumns}, entry_gate_reason, entry_eligible,
       forward_1h_pct, forward_1h_at, forward_4h_pct, forward_4h_at,
-      forward_24h_pct, forward_24h_at, applied_ensemble_weight_pct
+      forward_24h_pct, forward_24h_at, applied_ensemble_weight_pct, ensemble_regime
      FROM btc_auto_signal_history ORDER BY observed_at DESC LIMIT ?1`,
   )
     .bind(limit)
@@ -384,6 +387,7 @@ const listSignalHistory = async (env: Env, limit = 24) => {
       forward24hPct: row.forward_24h_pct,
       forward24hAt: row.forward_24h_at,
       appliedEnsembleWeightPct: row.applied_ensemble_weight_pct,
+      ensembleRegime: row.ensemble_regime,
     }),
   )
 }
@@ -881,6 +885,7 @@ const strategyComparison = async (
   env: Env,
   strategyVersion: string,
   feeRatePct: number,
+  regime: BtcAutoStrategyRegime | null = null,
 ): Promise<BtcAutoStrategyComparison> => {
   const row = await env.DB.prepare(
     `WITH hourly AS (
@@ -888,7 +893,7 @@ const strategyComparison = async (
          PARTITION BY substr(observed_at, 1, 13) ORDER BY observed_at ASC
        ) AS sample_rank
        FROM btc_auto_signal_history
-       WHERE strategy_version = ?1
+       WHERE strategy_version = ?1 AND (?2 IS NULL OR ensemble_regime = ?2)
      ), paired AS (
        SELECT * FROM hourly
        WHERE sample_rank = 1
@@ -911,7 +916,7 @@ const strategyComparison = async (
          THEN 1 ELSE 0 END) AS ensemble_only_wins
      FROM paired`,
   )
-    .bind(strategyVersion)
+    .bind(strategyVersion, regime)
     .first<{
       paired_samples: number
       baseline_samples: number
@@ -936,6 +941,18 @@ const strategyComparison = async (
     feeRatePct,
   })
 }
+
+const strategyComparisonsByRegime = async (
+  env: Env,
+  strategyVersion: string,
+  feeRatePct: number,
+): Promise<BtcAutoRegimeStrategyComparison[]> =>
+  Promise.all(
+    (['trending', 'ranging', 'volatile'] as const).map(async (regime) => ({
+      ...(await strategyComparison(env, strategyVersion, feeRatePct, regime)),
+      regime,
+    })),
+  )
 
 const paperAdapter: ExecutionAdapter = {
   size: async (notionalUsdt, price) => Number((notionalUsdt / price).toFixed(6)),
@@ -1590,7 +1607,14 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
         }),
       )
     }
-    const comparison = await strategyComparison(env, strategyVersion, config.feeRatePct)
+    const shadowDecision = buildContractTradeDecision(reading.market, { ensembleWeight: 0 })
+    const activeRegime = shadowDecision.strategyDiagnostics?.ensembleRegime ?? null
+    const comparison = await strategyComparison(
+      env,
+      strategyVersion,
+      config.feeRatePct,
+      activeRegime,
+    )
     const decision = buildContractTradeDecision(reading.market, {
       ensembleWeight: comparison.recommendedEnsembleWeightPct / 100,
     })
@@ -1717,8 +1741,14 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
     ])
   const config = toConfig(configRow)
   const strategyVersion = btcAutoStrategyVersion(config)
-  const signalOutcomes = await signalOutcomeSummaries(env, strategyVersion)
-  const comparison = await strategyComparison(env, strategyVersion, config.feeRatePct)
+  const [signalOutcomes, overallComparison, regimeComparisons] = await Promise.all([
+    signalOutcomeSummaries(env, strategyVersion),
+    strategyComparison(env, strategyVersion, config.feeRatePct),
+    strategyComparisonsByRegime(env, strategyVersion, config.feeRatePct),
+  ])
+  const activeStrategyRegime = signalHistory[0]?.ensembleRegime ?? null
+  const comparison =
+    regimeComparisons.find((item) => item.regime === activeStrategyRegime) ?? overallComparison
   const signal = toSignal(signalRow)
   const openTrades = trades.filter((trade) => ['opening', 'open', 'closing'].includes(trade.status))
   const openTrade = openTrades[0] ?? null
@@ -1741,6 +1771,8 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
     signalHistory,
     signalOutcomes,
     strategyComparison: comparison,
+    activeStrategyRegime,
+    strategyComparisonsByRegime: regimeComparisons,
     entryGate: evaluateBtcAutoEntryGate({
       config,
       signal,

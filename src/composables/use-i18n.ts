@@ -1077,6 +1077,12 @@ const messages: Record<Locale, DictionaryNode> = {
           shadowAverageMove: '平均方向涨跌',
           strategyComparison: '策略候选样本外对比',
           strategyComparisonHint: '每小时只取首个信号，未来1小时结果；当前策略版本独立统计',
+          activeStrategyRegime: '当前状态',
+          strategyRegime: {
+            trending: '趋势市场',
+            ranging: '震荡市场',
+            volatile: '高波动市场',
+          },
           baselineStrategy: '原指标基线',
           ensembleCandidate: '状态组合候选',
           hitRateAdvantage: '候选胜率优势',
@@ -2931,6 +2937,12 @@ const messages: Record<Locale, DictionaryNode> = {
           strategyComparison: 'Out-of-sample strategy candidate comparison',
           strategyComparisonHint:
             'First signal per hour, forward one-hour outcome; isolated by strategy version',
+          activeStrategyRegime: 'Active regime',
+          strategyRegime: {
+            trending: 'Trending',
+            ranging: 'Ranging',
+            volatile: 'High volatility',
+          },
           baselineStrategy: 'Original indicator baseline',
           ensembleCandidate: 'Regime ensemble candidate',
           hitRateAdvantage: 'Candidate hit-rate advantage',
