@@ -1429,6 +1429,9 @@ export interface BtcAutoStrategyComparison {
   horizon: '1h'
   minimumSamples: number
   confidenceLevelPct: number
+  pairedSamples: number
+  baselineOnlyWins: number
+  ensembleOnlyWins: number
   baselineSamples: number
   baselineHitRatePct: number | null
   baselineAverageMovePct: number | null

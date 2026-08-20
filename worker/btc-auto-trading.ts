@@ -889,34 +889,44 @@ const strategyComparison = async (
        ) AS sample_rank
        FROM btc_auto_signal_history
        WHERE strategy_version = ?1
+     ), paired AS (
+       SELECT * FROM hourly
+       WHERE sample_rank = 1
+         AND baseline_action IN ('long', 'short')
+         AND ensemble_action IN ('long', 'short')
+         AND baseline_forward_1h_pct IS NOT NULL
+         AND ensemble_forward_1h_pct IS NOT NULL
      )
      SELECT
-       SUM(CASE WHEN baseline_action IN ('long', 'short')
-         AND baseline_forward_1h_pct IS NOT NULL THEN 1 ELSE 0 END) AS baseline_samples,
-       AVG(CASE WHEN baseline_action IN ('long', 'short')
-         AND baseline_forward_1h_pct IS NOT NULL
-         THEN CASE WHEN baseline_forward_1h_pct > 0 THEN 100.0 ELSE 0 END END) AS baseline_hit_rate,
-       AVG(CASE WHEN baseline_action IN ('long', 'short')
-         THEN baseline_forward_1h_pct END) AS baseline_average_move,
-       SUM(CASE WHEN ensemble_action IN ('long', 'short')
-         AND ensemble_forward_1h_pct IS NOT NULL THEN 1 ELSE 0 END) AS ensemble_samples,
-       AVG(CASE WHEN ensemble_action IN ('long', 'short')
-         AND ensemble_forward_1h_pct IS NOT NULL
-         THEN CASE WHEN ensemble_forward_1h_pct > 0 THEN 100.0 ELSE 0 END END) AS ensemble_hit_rate,
-       AVG(CASE WHEN ensemble_action IN ('long', 'short')
-         THEN ensemble_forward_1h_pct END) AS ensemble_average_move
-     FROM hourly WHERE sample_rank = 1`,
+       COUNT(*) AS paired_samples,
+       COUNT(*) AS baseline_samples,
+       AVG(CASE WHEN baseline_forward_1h_pct > 0 THEN 100.0 ELSE 0 END) AS baseline_hit_rate,
+       AVG(baseline_forward_1h_pct) AS baseline_average_move,
+       COUNT(*) AS ensemble_samples,
+       AVG(CASE WHEN ensemble_forward_1h_pct > 0 THEN 100.0 ELSE 0 END) AS ensemble_hit_rate,
+       AVG(ensemble_forward_1h_pct) AS ensemble_average_move,
+       SUM(CASE WHEN baseline_forward_1h_pct > 0 AND ensemble_forward_1h_pct <= 0
+         THEN 1 ELSE 0 END) AS baseline_only_wins,
+       SUM(CASE WHEN ensemble_forward_1h_pct > 0 AND baseline_forward_1h_pct <= 0
+         THEN 1 ELSE 0 END) AS ensemble_only_wins
+     FROM paired`,
   )
     .bind(strategyVersion)
     .first<{
+      paired_samples: number
       baseline_samples: number
       baseline_hit_rate: number | null
       baseline_average_move: number | null
       ensemble_samples: number
       ensemble_hit_rate: number | null
       ensemble_average_move: number | null
+      baseline_only_wins: number
+      ensemble_only_wins: number
     }>()
   return evaluateBtcAutoStrategyComparison({
+    pairedSamples: row?.paired_samples ?? 0,
+    baselineOnlyWins: row?.baseline_only_wins ?? 0,
+    ensembleOnlyWins: row?.ensemble_only_wins ?? 0,
     baselineSamples: row?.baseline_samples ?? 0,
     baselineHitRatePct: row?.baseline_hit_rate ?? null,
     baselineAverageMovePct: row?.baseline_average_move ?? null,

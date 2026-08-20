@@ -58,6 +58,9 @@ export const nextBtcAutoScheduledRunAt = (now = new Date()) =>
 
 export const evaluateBtcAutoStrategyComparison = (input: {
   minimumSamples?: number
+  pairedSamples: number
+  baselineOnlyWins: number
+  ensembleOnlyWins: number
   baselineSamples: number
   baselineHitRatePct: number | null
   baselineAverageMovePct: number | null
@@ -82,17 +85,19 @@ export const evaluateBtcAutoStrategyComparison = (input: {
     input.baselineHitRatePct === null || input.ensembleHitRatePct === null
       ? null
       : round(input.ensembleHitRatePct - input.baselineHitRatePct, 2)
+  const discordantSamples = input.baselineOnlyWins + input.ensembleOnlyWins
+  const discordantDifference = input.ensembleOnlyWins - input.baselineOnlyWins
   const hitRateDifferenceStandardErrorPct =
     input.baselineHitRatePct === null ||
     input.ensembleHitRatePct === null ||
-    input.baselineSamples <= 0 ||
-    input.ensembleSamples <= 0
+    input.pairedSamples <= 0
       ? null
       : Math.sqrt(
-          ((input.baselineHitRatePct / 100) * (1 - input.baselineHitRatePct / 100)) /
-            input.baselineSamples +
-            ((input.ensembleHitRatePct / 100) * (1 - input.ensembleHitRatePct / 100)) /
-              input.ensembleSamples,
+          Math.max(
+            0,
+            discordantSamples - (discordantDifference * discordantDifference) / input.pairedSamples,
+          ) /
+            (input.pairedSamples * input.pairedSamples),
         ) * 100
   const hitRateAdvantageLowerBoundPct =
     hitRateAdvantagePct === null || hitRateDifferenceStandardErrorPct === null
@@ -102,7 +107,7 @@ export const evaluateBtcAutoStrategyComparison = (input: {
     hitRateAdvantagePct === null || hitRateDifferenceStandardErrorPct === null
       ? null
       : round(hitRateAdvantagePct + oneSidedZScore * hitRateDifferenceStandardErrorPct, 2)
-  const enough = input.baselineSamples >= minimumSamples && input.ensembleSamples >= minimumSamples
+  const enough = input.pairedSamples >= minimumSamples
   const verdict: BtcAutoStrategyComparison['verdict'] = !enough
     ? 'collecting'
     : (hitRateAdvantagePct ?? 0) >= 3 &&
@@ -118,6 +123,9 @@ export const evaluateBtcAutoStrategyComparison = (input: {
     horizon: '1h',
     minimumSamples,
     confidenceLevelPct,
+    pairedSamples: input.pairedSamples,
+    baselineOnlyWins: input.baselineOnlyWins,
+    ensembleOnlyWins: input.ensembleOnlyWins,
     baselineSamples: input.baselineSamples,
     baselineHitRatePct:
       input.baselineHitRatePct === null ? null : round(input.baselineHitRatePct, 2),
@@ -204,7 +212,7 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v8'
+const strategyAlgorithmRevision = 'btc-auto-v9'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 
 const fnv1a = (value: string) => {

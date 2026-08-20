@@ -386,6 +386,9 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
   assert.equal(
     evaluateBtcAutoStrategyComparison({
       ...base,
+      pairedSamples: 47,
+      baselineOnlyWins: 9,
+      ensembleOnlyWins: 11,
       baselineSamples: 47,
       ensembleSamples: 47,
     }).recommendedEnsembleWeightPct,
@@ -393,6 +396,9 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
   )
   const noisyLead = evaluateBtcAutoStrategyComparison({
     ...base,
+    pairedSamples: 48,
+    baselineOnlyWins: 10,
+    ensembleOnlyWins: 12,
     baselineSamples: 48,
     ensembleSamples: 48,
   })
@@ -400,6 +406,9 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
   assert.ok(noisyLead.hitRateAdvantageLowerBoundPct < 0)
   const ahead = evaluateBtcAutoStrategyComparison({
     ...base,
+    pairedSamples: 1000,
+    baselineOnlyWins: 80,
+    ensembleOnlyWins: 120,
     baselineSamples: 1000,
     ensembleSamples: 1000,
   })
@@ -411,6 +420,9 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
   assert.equal(
     evaluateBtcAutoStrategyComparison({
       ...base,
+      pairedSamples: 1000,
+      baselineOnlyWins: 80,
+      ensembleOnlyWins: 120,
       baselineSamples: 1000,
       ensembleSamples: 1000,
       ensembleAverageMovePct: 0.12,
@@ -420,6 +432,9 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
   assert.equal(
     evaluateBtcAutoStrategyComparison({
       ...base,
+      pairedSamples: 1000,
+      baselineOnlyWins: 120,
+      ensembleOnlyWins: 70,
       baselineSamples: 1000,
       ensembleSamples: 1000,
       ensembleHitRatePct: 45,
@@ -787,6 +802,9 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
         horizon: '1h',
         minimumSamples: 48,
         confidenceLevelPct: 80,
+        pairedSamples: 0,
+        baselineOnlyWins: 0,
+        ensembleOnlyWins: 0,
         baselineSamples: 0,
         baselineHitRatePct: null,
         baselineAverageMovePct: null,

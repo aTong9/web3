@@ -492,6 +492,11 @@ onBeforeUnmount(() => {
           </article>
           <article>
             <b>{{ t('assetTechnical.contract.auto.hitRateAdvantage') }}</b>
+            <span>
+              {{ t('assetTechnical.contract.auto.pairedSamples') }}
+              {{ dashboard.strategyComparison.pairedSamples }} /
+              {{ dashboard.strategyComparison.minimumSamples }}
+            </span>
             <strong :class="pnlClass(dashboard.strategyComparison.hitRateAdvantagePct)">
               {{ formatSigned(dashboard.strategyComparison.hitRateAdvantagePct, 1, 'pp') }}
             </strong>
@@ -509,6 +514,11 @@ onBeforeUnmount(() => {
             <small>
               {{ t('assetTechnical.contract.auto.appliedCandidateWeight') }}
               {{ dashboard.strategyComparison.recommendedEnsembleWeightPct }}%
+            </small>
+            <small>
+              {{ t('assetTechnical.contract.auto.discordantWins') }}
+              {{ dashboard.strategyComparison.ensembleOnlyWins }} :
+              {{ dashboard.strategyComparison.baselineOnlyWins }}
             </small>
           </article>
         </div>
