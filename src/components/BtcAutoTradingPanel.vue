@@ -458,6 +458,10 @@ onBeforeUnmount(() => {
           </div>
           <small>{{ t('assetTechnical.contract.auto.strategyComparisonHint') }}</small>
           <small>
+            {{ t('assetTechnical.contract.auto.evidencePolicyVersion') }}
+            <code>{{ dashboard.evidencePolicyVersion }}</code>
+          </small>
+          <small>
             {{ t('assetTechnical.contract.auto.maximumPairedWindow') }}
             {{ dashboard.strategyComparison.maximumSamples }}
           </small>

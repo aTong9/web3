@@ -25,6 +25,8 @@ import {
 import {
   btcAutoMonthStartAt,
   btcAutoPerformanceQueryStartAt,
+  btcAutoEstimatedRoundTripCostPct,
+  btcAutoEvidencePolicyVersion,
   btcAutoSignalModelVersion,
   btcAutoLegacyStrategyVersionFromDefinition,
   buildBtcAutoOrderParameters,
@@ -895,6 +897,7 @@ const strategyComparison = async (
   feeRatePct: number,
   regime: BtcAutoStrategyRegime | null = null,
 ): Promise<BtcAutoStrategyComparison> => {
+  const estimatedRoundTripCostPct = btcAutoEstimatedRoundTripCostPct(feeRatePct)
   const row = await env.DB.prepare(
     `WITH hourly AS (
        SELECT *, ROW_NUMBER() OVER (
@@ -915,18 +918,18 @@ const strategyComparison = async (
      SELECT
        COUNT(*) AS paired_samples,
        COUNT(*) AS baseline_samples,
-       AVG(CASE WHEN baseline_forward_1h_pct > 0 THEN 100.0 ELSE 0 END) AS baseline_hit_rate,
+       AVG(CASE WHEN baseline_forward_1h_pct > ?3 THEN 100.0 ELSE 0 END) AS baseline_hit_rate,
        AVG(baseline_forward_1h_pct) AS baseline_average_move,
        COUNT(*) AS ensemble_samples,
-       AVG(CASE WHEN ensemble_forward_1h_pct > 0 THEN 100.0 ELSE 0 END) AS ensemble_hit_rate,
+       AVG(CASE WHEN ensemble_forward_1h_pct > ?3 THEN 100.0 ELSE 0 END) AS ensemble_hit_rate,
        AVG(ensemble_forward_1h_pct) AS ensemble_average_move,
-       SUM(CASE WHEN baseline_forward_1h_pct > 0 AND ensemble_forward_1h_pct <= 0
+       SUM(CASE WHEN baseline_forward_1h_pct > ?3 AND ensemble_forward_1h_pct <= ?3
          THEN 1 ELSE 0 END) AS baseline_only_wins,
-       SUM(CASE WHEN ensemble_forward_1h_pct > 0 AND baseline_forward_1h_pct <= 0
+       SUM(CASE WHEN ensemble_forward_1h_pct > ?3 AND baseline_forward_1h_pct <= ?3
          THEN 1 ELSE 0 END) AS ensemble_only_wins
      FROM paired_window`,
   )
-    .bind(signalModelVersion, regime)
+    .bind(signalModelVersion, regime, estimatedRoundTripCostPct)
     .first<{
       paired_samples: number
       baseline_samples: number
@@ -971,6 +974,7 @@ const scoreThresholdStudy = async (
   feeRatePct: number,
 ): Promise<BtcAutoScoreThresholdStudy> => {
   const candidateThreshold = Math.min(90, Math.max(70, currentThreshold + 10))
+  const estimatedRoundTripCostPct = btcAutoEstimatedRoundTripCostPct(feeRatePct)
   const row = await env.DB.prepare(
     `WITH hourly AS (
        SELECT *, ROW_NUMBER() OVER (
@@ -983,15 +987,15 @@ const scoreThresholdStudy = async (
      SELECT
        SUM(CASE WHEN ABS(baseline_score) >= ?2 THEN 1 ELSE 0 END) AS current_samples,
        AVG(CASE WHEN ABS(baseline_score) >= ?2
-         THEN CASE WHEN baseline_forward_1h_pct > 0 THEN 100.0 ELSE 0 END END) AS current_hit_rate,
+         THEN CASE WHEN baseline_forward_1h_pct > ?4 THEN 100.0 ELSE 0 END END) AS current_hit_rate,
        AVG(CASE WHEN ABS(baseline_score) >= ?2 THEN baseline_forward_1h_pct END) AS current_average_move,
        SUM(CASE WHEN ABS(baseline_score) >= ?3 THEN 1 ELSE 0 END) AS candidate_samples,
        AVG(CASE WHEN ABS(baseline_score) >= ?3
-         THEN CASE WHEN baseline_forward_1h_pct > 0 THEN 100.0 ELSE 0 END END) AS candidate_hit_rate,
+         THEN CASE WHEN baseline_forward_1h_pct > ?4 THEN 100.0 ELSE 0 END END) AS candidate_hit_rate,
        AVG(CASE WHEN ABS(baseline_score) >= ?3 THEN baseline_forward_1h_pct END) AS candidate_average_move
      FROM hourly WHERE sample_rank = 1`,
   )
-    .bind(signalModelVersion, currentThreshold, candidateThreshold)
+    .bind(signalModelVersion, currentThreshold, candidateThreshold, estimatedRoundTripCostPct)
     .first<{
       current_samples: number
       current_hit_rate: number | null
@@ -1826,6 +1830,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
     config,
     strategyVersion,
     signalModelVersion: btcAutoSignalModelVersion,
+    evidencePolicyVersion: btcAutoEvidencePolicyVersion,
     strategySnapshots,
     credentialsReady: Boolean(env.BINANCE_TESTNET_API_KEY && env.BINANCE_TESTNET_API_SECRET),
     lastRunAt: configRow.last_run_at,

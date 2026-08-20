@@ -6,6 +6,8 @@ const jiti = createJiti(import.meta.url)
 const {
   btcAutoStrategyVersion,
   btcAutoSignalModelVersion,
+  btcAutoEvidencePolicyVersion,
+  isBtcAutoFeeAdjustedSignalWin,
   btcAutoStrategyDefinition,
   btcAutoLegacyStrategyVersionFromDefinition,
   buildBtcAutoOrderParameters,
@@ -255,10 +257,17 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
 
 test('signal model cohort remains stable across execution configuration changes', () => {
   assert.equal(btcAutoSignalModelVersion, 'btc-signal-model-v2')
+  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v2-fee-adjusted-win')
   assert.notEqual(
     btcAutoStrategyVersion(config()),
     btcAutoStrategyVersion(config({ minimumDirectionalScore: 70 })),
   )
+})
+
+test('fee-adjusted signal wins must clear the estimated round-trip cost', () => {
+  assert.equal(isBtcAutoFeeAdjustedSignalWin(0.1, 0.05), false)
+  assert.equal(isBtcAutoFeeAdjustedSignalWin(0.1001, 0.05), true)
+  assert.equal(isBtcAutoFeeAdjustedSignalWin(-0.2, 0.05), false)
 })
 
 test('market freshness rejects stale or incomplete minute data', () => {
@@ -884,6 +893,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       config: config(),
       strategyVersion: 'btc-auto-v4-test',
       signalModelVersion: 'btc-signal-model-v2',
+      evidencePolicyVersion: 'btc-evidence-v2-fee-adjusted-win',
       strategySnapshots: [
         {
           strategyVersion: 'btc-auto-v4-test',

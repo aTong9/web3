@@ -1484,6 +1484,7 @@ export interface BtcAutoTradingDashboard {
   config: BtcAutoTradingConfig
   strategyVersion: string
   signalModelVersion: string
+  evidencePolicyVersion: string
   strategySnapshots: BtcAutoStrategySnapshot[]
   credentialsReady: boolean
   lastRunAt: string | null

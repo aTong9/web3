@@ -57,6 +57,11 @@ export const validateBtcAutoMarketFreshness = (
 export const nextBtcAutoScheduledRunAt = (now = new Date()) =>
   new Date((Math.floor(now.getTime() / 300_000) + 1) * 300_000).toISOString()
 
+export const btcAutoEstimatedRoundTripCostPct = (feeRatePct: number) => round(feeRatePct * 2)
+
+export const isBtcAutoFeeAdjustedSignalWin = (movePct: number, feeRatePct: number) =>
+  movePct > btcAutoEstimatedRoundTripCostPct(feeRatePct)
+
 export const evaluateBtcAutoStrategyComparison = (input: {
   minimumSamples?: number
   pairedSamples: number
@@ -74,7 +79,7 @@ export const evaluateBtcAutoStrategyComparison = (input: {
   const maximumSamples = 120
   const confidenceLevelPct = 80
   const oneSidedZScore = 1.282
-  const estimatedRoundTripCostPct = round(input.feeRatePct * 2)
+  const estimatedRoundTripCostPct = btcAutoEstimatedRoundTripCostPct(input.feeRatePct)
   const baselineAverageNetMovePct =
     input.baselineAverageMovePct === null
       ? null
@@ -274,9 +279,10 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v14'
+const strategyAlgorithmRevision = 'btc-auto-v15'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 export const btcAutoSignalModelVersion = 'btc-signal-model-v2'
+export const btcAutoEvidencePolicyVersion = 'btc-evidence-v2-fee-adjusted-win'
 
 const fnv1a = (value: string) => {
   let hash = 0x811c9dc5
