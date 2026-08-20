@@ -274,8 +274,9 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v13'
+const strategyAlgorithmRevision = 'btc-auto-v14'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
+export const btcAutoSignalModelVersion = 'btc-signal-model-v2'
 
 const fnv1a = (value: string) => {
   let hash = 0x811c9dc5

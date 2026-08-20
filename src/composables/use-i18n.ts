@@ -1061,6 +1061,7 @@ const messages: Record<Locale, DictionaryNode> = {
             excessiveDrawdown: '滚动最大回撤达到上限',
           },
           strategyVersion: '当前策略版本',
+          signalModelVersion: '信号模型版本',
           currentVersionSample: '当前版本已平仓样本',
           sampleScopeLabel: '风控评估范围',
           sampleScope: {
@@ -2935,6 +2936,7 @@ const messages: Record<Locale, DictionaryNode> = {
             excessiveDrawdown: 'Rolling maximum drawdown reached its limit',
           },
           strategyVersion: 'Current strategy version',
+          signalModelVersion: 'Signal model version',
           currentVersionSample: 'Current-version closed trades',
           sampleScopeLabel: 'Risk-control sample scope',
           sampleScope: {

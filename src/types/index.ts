@@ -1416,6 +1416,7 @@ export interface BtcAutoRollingHealth {
 
 export interface BtcAutoSignalHistoryItem extends BtcAutoSignalSnapshot {
   id: string
+  signalModelVersion: string | null
   entryGateReason: BtcAutoEntryGateReason
   entryEligible: boolean
   forward1hPct: number | null
@@ -1482,6 +1483,7 @@ export interface BtcAutoScoreThresholdStudy {
 export interface BtcAutoTradingDashboard {
   config: BtcAutoTradingConfig
   strategyVersion: string
+  signalModelVersion: string
   strategySnapshots: BtcAutoStrategySnapshot[]
   credentialsReady: boolean
   lastRunAt: string | null

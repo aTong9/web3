@@ -359,6 +359,12 @@ onBeforeUnmount(() => {
             </dd>
           </div>
           <div>
+            <dt>{{ t('assetTechnical.contract.auto.signalModelVersion') }}</dt>
+            <dd>
+              <code>{{ dashboard.signalModelVersion }}</code>
+            </dd>
+          </div>
+          <div>
             <dt>{{ t('assetTechnical.contract.auto.currentVersionSample') }}</dt>
             <dd>
               {{ dashboard.rollingHealth.currentVersionSampleSize }} /

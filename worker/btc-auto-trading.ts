@@ -25,6 +25,7 @@ import {
 import {
   btcAutoMonthStartAt,
   btcAutoPerformanceQueryStartAt,
+  btcAutoSignalModelVersion,
   btcAutoLegacyStrategyVersionFromDefinition,
   buildBtcAutoOrderParameters,
   btcAutoStrategyVersion,
@@ -148,6 +149,7 @@ interface BtcAutoStrategySnapshotRow {
 
 interface BtcAutoSignalHistoryRow extends BtcAutoSignalRow {
   id: string
+  signal_model_version: string | null
   entry_gate_reason: BtcAutoEntryGate['reason']
   entry_eligible: number
   forward_1h_pct: number | null
@@ -372,7 +374,7 @@ const listAllTrades = async (env: Env) => {
 
 const listSignalHistory = async (env: Env, limit = 24) => {
   const rows = await env.DB.prepare(
-    `SELECT id, ${signalColumns}, entry_gate_reason, entry_eligible,
+    `SELECT id, ${signalColumns}, signal_model_version, entry_gate_reason, entry_eligible,
       forward_1h_pct, forward_1h_at, forward_4h_pct, forward_4h_at,
       forward_24h_pct, forward_24h_at, applied_ensemble_weight_pct, ensemble_regime
      FROM btc_auto_signal_history ORDER BY observed_at DESC LIMIT ?1`,
@@ -383,6 +385,7 @@ const listSignalHistory = async (env: Env, limit = 24) => {
     (row): BtcAutoSignalHistoryItem => ({
       ...toSignal(row)!,
       id: row.id,
+      signalModelVersion: row.signal_model_version,
       entryGateReason: row.entry_gate_reason,
       entryEligible: Boolean(row.entry_eligible),
       forward1hPct: row.forward_1h_pct,
@@ -888,7 +891,7 @@ const signalOutcomeSummaries = async (env: Env, strategyVersion: string) => {
 
 const strategyComparison = async (
   env: Env,
-  strategyVersion: string,
+  signalModelVersion: string,
   feeRatePct: number,
   regime: BtcAutoStrategyRegime | null = null,
 ): Promise<BtcAutoStrategyComparison> => {
@@ -898,7 +901,7 @@ const strategyComparison = async (
          PARTITION BY substr(observed_at, 1, 13) ORDER BY observed_at ASC
        ) AS sample_rank
        FROM btc_auto_signal_history
-       WHERE strategy_version = ?1 AND (?2 IS NULL OR ensemble_regime = ?2)
+       WHERE signal_model_version = ?1 AND (?2 IS NULL OR ensemble_regime = ?2)
      ), paired AS (
        SELECT * FROM hourly
        WHERE sample_rank = 1
@@ -923,7 +926,7 @@ const strategyComparison = async (
          THEN 1 ELSE 0 END) AS ensemble_only_wins
      FROM paired_window`,
   )
-    .bind(strategyVersion, regime)
+    .bind(signalModelVersion, regime)
     .first<{
       paired_samples: number
       baseline_samples: number
@@ -951,19 +954,19 @@ const strategyComparison = async (
 
 const strategyComparisonsByRegime = async (
   env: Env,
-  strategyVersion: string,
+  signalModelVersion: string,
   feeRatePct: number,
 ): Promise<BtcAutoRegimeStrategyComparison[]> =>
   Promise.all(
     (['trending', 'ranging', 'volatile'] as const).map(async (regime) => ({
-      ...(await strategyComparison(env, strategyVersion, feeRatePct, regime)),
+      ...(await strategyComparison(env, signalModelVersion, feeRatePct, regime)),
       regime,
     })),
   )
 
 const scoreThresholdStudy = async (
   env: Env,
-  strategyVersion: string,
+  signalModelVersion: string,
   currentThreshold: number,
   feeRatePct: number,
 ): Promise<BtcAutoScoreThresholdStudy> => {
@@ -974,21 +977,21 @@ const scoreThresholdStudy = async (
          PARTITION BY substr(observed_at, 1, 13) ORDER BY observed_at ASC
        ) AS sample_rank
        FROM btc_auto_signal_history
-       WHERE strategy_version = ?1 AND action IN ('long', 'short')
-         AND forward_1h_pct IS NOT NULL
+       WHERE signal_model_version = ?1 AND baseline_action IN ('long', 'short')
+         AND baseline_forward_1h_pct IS NOT NULL
      )
      SELECT
-       SUM(CASE WHEN ABS(score) >= ?2 THEN 1 ELSE 0 END) AS current_samples,
-       AVG(CASE WHEN ABS(score) >= ?2
-         THEN CASE WHEN forward_1h_pct > 0 THEN 100.0 ELSE 0 END END) AS current_hit_rate,
-       AVG(CASE WHEN ABS(score) >= ?2 THEN forward_1h_pct END) AS current_average_move,
-       SUM(CASE WHEN ABS(score) >= ?3 THEN 1 ELSE 0 END) AS candidate_samples,
-       AVG(CASE WHEN ABS(score) >= ?3
-         THEN CASE WHEN forward_1h_pct > 0 THEN 100.0 ELSE 0 END END) AS candidate_hit_rate,
-       AVG(CASE WHEN ABS(score) >= ?3 THEN forward_1h_pct END) AS candidate_average_move
+       SUM(CASE WHEN ABS(baseline_score) >= ?2 THEN 1 ELSE 0 END) AS current_samples,
+       AVG(CASE WHEN ABS(baseline_score) >= ?2
+         THEN CASE WHEN baseline_forward_1h_pct > 0 THEN 100.0 ELSE 0 END END) AS current_hit_rate,
+       AVG(CASE WHEN ABS(baseline_score) >= ?2 THEN baseline_forward_1h_pct END) AS current_average_move,
+       SUM(CASE WHEN ABS(baseline_score) >= ?3 THEN 1 ELSE 0 END) AS candidate_samples,
+       AVG(CASE WHEN ABS(baseline_score) >= ?3
+         THEN CASE WHEN baseline_forward_1h_pct > 0 THEN 100.0 ELSE 0 END END) AS candidate_hit_rate,
+       AVG(CASE WHEN ABS(baseline_score) >= ?3 THEN baseline_forward_1h_pct END) AS candidate_average_move
      FROM hourly WHERE sample_rank = 1`,
   )
-    .bind(strategyVersion, currentThreshold, candidateThreshold)
+    .bind(signalModelVersion, currentThreshold, candidateThreshold)
     .first<{
       current_samples: number
       current_hit_rate: number | null
@@ -1301,15 +1304,16 @@ const appendSignalHistory = async (
   await env.DB.batch([
     env.DB.prepare(
       `INSERT INTO btc_auto_signal_history
-       (id, strategy_version, action, score, confidence, price, evolution, confirmations, reasons, risks,
+       (id, strategy_version, signal_model_version, action, score, confidence, price, evolution, confirmations, reasons, risks,
         observed_at, market_source, cooldown_until, entry_gate_reason, entry_eligible,
         baseline_action, baseline_score, ensemble_action, ensemble_score,
         ensemble_regime, ensemble_confidence, applied_ensemble_weight_pct)
        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15,
-         ?16, ?17, ?18, ?19, ?20, ?21, ?22)`,
+         ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23)`,
     ).bind(
       crypto.randomUUID(),
       signal.strategyVersion,
+      btcAutoSignalModelVersion,
       signal.action,
       signal.score,
       signal.confidence,
@@ -1667,7 +1671,7 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
     const activeRegime = shadowDecision.strategyDiagnostics?.ensembleRegime ?? null
     const comparison = await strategyComparison(
       env,
-      strategyVersion,
+      btcAutoSignalModelVersion,
       config.feeRatePct,
       activeRegime,
     )
@@ -1800,9 +1804,14 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
   const strategyVersion = btcAutoStrategyVersion(config)
   const [signalOutcomes, overallComparison, regimeComparisons, thresholdStudy] = await Promise.all([
     signalOutcomeSummaries(env, strategyVersion),
-    strategyComparison(env, strategyVersion, config.feeRatePct),
-    strategyComparisonsByRegime(env, strategyVersion, config.feeRatePct),
-    scoreThresholdStudy(env, strategyVersion, config.minimumDirectionalScore, config.feeRatePct),
+    strategyComparison(env, btcAutoSignalModelVersion, config.feeRatePct),
+    strategyComparisonsByRegime(env, btcAutoSignalModelVersion, config.feeRatePct),
+    scoreThresholdStudy(
+      env,
+      btcAutoSignalModelVersion,
+      config.minimumDirectionalScore,
+      config.feeRatePct,
+    ),
   ])
   const activeStrategyRegime = signalHistory[0]?.ensembleRegime ?? null
   const comparison =
@@ -1816,6 +1825,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
   return {
     config,
     strategyVersion,
+    signalModelVersion: btcAutoSignalModelVersion,
     strategySnapshots,
     credentialsReady: Boolean(env.BINANCE_TESTNET_API_KEY && env.BINANCE_TESTNET_API_SECRET),
     lastRunAt: configRow.last_run_at,

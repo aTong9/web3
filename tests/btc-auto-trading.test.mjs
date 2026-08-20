@@ -5,6 +5,7 @@ import { createJiti } from 'jiti'
 const jiti = createJiti(import.meta.url)
 const {
   btcAutoStrategyVersion,
+  btcAutoSignalModelVersion,
   btcAutoStrategyDefinition,
   btcAutoLegacyStrategyVersionFromDefinition,
   buildBtcAutoOrderParameters,
@@ -250,6 +251,14 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
   delete legacy.maxPositionsPerDirection
   assert.equal(isBtcAutoLegacyStrategyDefinition(legacy), true)
   assert.equal(btcAutoLegacyStrategyVersionFromDefinition(legacy).startsWith('btc-auto-v4-'), true)
+})
+
+test('signal model cohort remains stable across execution configuration changes', () => {
+  assert.equal(btcAutoSignalModelVersion, 'btc-signal-model-v2')
+  assert.notEqual(
+    btcAutoStrategyVersion(config()),
+    btcAutoStrategyVersion(config({ minimumDirectionalScore: 70 })),
+  )
 })
 
 test('market freshness rejects stale or incomplete minute data', () => {
@@ -874,6 +883,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
     {
       config: config(),
       strategyVersion: 'btc-auto-v4-test',
+      signalModelVersion: 'btc-signal-model-v2',
       strategySnapshots: [
         {
           strategyVersion: 'btc-auto-v4-test',
