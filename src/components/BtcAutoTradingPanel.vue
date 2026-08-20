@@ -365,6 +365,12 @@ onBeforeUnmount(() => {
             </dd>
           </div>
           <div>
+            <dt>{{ t('assetTechnical.contract.auto.performanceCohortVersion') }}</dt>
+            <dd>
+              <code>{{ dashboard.performanceCohortVersion }}</code>
+            </dd>
+          </div>
+          <div>
             <dt>{{ t('assetTechnical.contract.auto.currentVersionSample') }}</dt>
             <dd>
               {{ dashboard.rollingHealth.currentVersionSampleSize }} /

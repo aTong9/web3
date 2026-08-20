@@ -28,6 +28,7 @@ import {
   btcAutoPerformanceQueryStartAt,
   btcAutoEstimatedRoundTripCostPct,
   btcAutoEvidencePolicyVersion,
+  btcAutoPerformanceCohortVersion,
   btcAutoSignalModelVersion,
   btcAutoLegacyStrategyVersionFromDefinition,
   buildBtcAutoOrderParameters,
@@ -111,6 +112,7 @@ interface BtcAutoSignalRow {
 interface BtcAutoTradeRow {
   id: string
   strategy_version: string
+  performance_cohort_version: string | null
   execution_mode: BtcAutoExecutionMode
   symbol: 'BTCUSDT'
   direction: BtcAutoTrade['direction']
@@ -276,6 +278,7 @@ const toSignal = (row: BtcAutoSignalRow | null): BtcAutoSignalSnapshot | null =>
 const toTrade = (row: BtcAutoTradeRow): BtcAutoTrade => ({
   id: row.id,
   strategyVersion: row.strategy_version,
+  performanceCohortVersion: row.performance_cohort_version,
   executionMode: row.execution_mode,
   symbol: row.symbol,
   direction: row.direction,
@@ -317,7 +320,7 @@ const configColumns = `enabled, execution_mode, risk_controls_enabled, hedge_mod
   last_success_at, last_failure_at, last_error, last_cycle_status, consecutive_failures`
 const signalColumns = `strategy_version, action, score, confidence, price, evolution, confirmations, reasons, risks,
   observed_at, market_source, cooldown_until`
-const tradeColumns = `id, strategy_version, execution_mode, symbol, direction, status, quantity, notional_usdt,
+const tradeColumns = `id, strategy_version, performance_cohort_version, execution_mode, symbol, direction, status, quantity, notional_usdt,
   leverage, entry_price, exit_price, stop_loss, take_profit, opened_at, closed_at, gross_pnl,
   fee_rate_pct, fees, funding_fee, net_pnl, return_pct, pnl_source, reconciled_at,
   reconciliation_error, signal_score, signal_confidence, signal_reasons, close_reason,
@@ -1563,15 +1566,16 @@ const openTrade = async (
   const now = new Date().toISOString()
   await env.DB.prepare(
     `INSERT INTO btc_auto_trades
-     (id, strategy_version, execution_mode, symbol, direction, status, quantity, notional_usdt, leverage,
+     (id, strategy_version, performance_cohort_version, execution_mode, symbol, direction, status, quantity, notional_usdt, leverage,
       stop_loss, take_profit, opened_at, fee_rate_pct, signal_score, signal_confidence,
       signal_reasons, open_client_order_id, created_at, updated_at)
-     VALUES (?1, ?2, ?3, 'BTCUSDT', ?4, 'opening', ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12,
-             ?13, ?14, ?15, ?16, ?17)`,
+     VALUES (?1, ?2, ?3, ?4, 'BTCUSDT', ?5, 'opening', ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13,
+             ?14, ?15, ?16, ?17, ?18)`,
   )
     .bind(
       id,
       signal.strategyVersion,
+      btcAutoPerformanceCohortVersion,
       config.executionMode,
       signal.action,
       quantity,
@@ -1801,6 +1805,7 @@ export const runBtcAutoTradingCycle = async (env: Env) => {
       dailyNetPnl: daily?.netPnl ?? 0,
       now,
       strategyVersion,
+      performanceCohortVersion: btcAutoPerformanceCohortVersion,
       consensusEligible:
         !consensus.consensusRequired ||
         (decision.strategyDiagnostics?.baselineAction === signal.action &&
@@ -1894,6 +1899,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
     strategyVersion,
     signalModelVersion: btcAutoSignalModelVersion,
     evidencePolicyVersion: btcAutoEvidencePolicyVersion,
+    performanceCohortVersion: btcAutoPerformanceCohortVersion,
     strategySnapshots,
     credentialsReady: Boolean(env.BINANCE_TESTNET_API_KEY && env.BINANCE_TESTNET_API_SECRET),
     lastRunAt: configRow.last_run_at,
@@ -1921,12 +1927,19 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
       cooldownUntil: signalRow?.cooldown_until ?? null,
       dailyNetPnl,
       strategyVersion,
+      performanceCohortVersion: btcAutoPerformanceCohortVersion,
       consensusEligible:
         !consensus.consensusRequired ||
         (signalHistory[0]?.baselineAction === signal?.action &&
           signalHistory[0]?.ensembleAction === signal?.action),
     }),
-    rollingHealth: calculateBtcAutoRollingHealth(config, trades, now, strategyVersion),
+    rollingHealth: calculateBtcAutoRollingHealth(
+      config,
+      trades,
+      now,
+      strategyVersion,
+      btcAutoPerformanceCohortVersion,
+    ),
     openTrade,
     openTrades,
     trades,

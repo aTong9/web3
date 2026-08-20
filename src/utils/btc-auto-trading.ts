@@ -340,10 +340,11 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v18'
+const strategyAlgorithmRevision = 'btc-auto-v19'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 export const btcAutoSignalModelVersion = 'btc-signal-model-v2'
 export const btcAutoEvidencePolicyVersion = 'btc-evidence-v5-positive-expectancy'
+export const btcAutoPerformanceCohortVersion = 'btc-performance-v2-minute-strategy'
 
 const fnv1a = (value: string) => {
   let hash = 0x811c9dc5
@@ -529,10 +530,13 @@ export const calculateBtcAutoRollingHealth = (
   trades: readonly BtcAutoTrade[],
   now = new Date(),
   strategyVersion?: string,
+  performanceCohortVersion?: string,
 ): BtcAutoRollingHealth => {
-  const currentVersionTrades = strategyVersion
-    ? trades.filter((trade) => trade.strategyVersion === strategyVersion)
-    : trades
+  const currentVersionTrades = performanceCohortVersion
+    ? trades.filter((trade) => trade.performanceCohortVersion === performanceCohortVersion)
+    : strategyVersion
+      ? trades.filter((trade) => trade.strategyVersion === strategyVersion)
+      : trades
   const closed = trades
     .filter((trade) => trade.status === 'closed' && trade.closedAt && trade.netPnl !== null)
     .sort((left, right) => Date.parse(right.closedAt ?? '') - Date.parse(left.closedAt ?? ''))
@@ -540,8 +544,12 @@ export const calculateBtcAutoRollingHealth = (
     .filter((trade) => trade.status === 'closed' && trade.closedAt && trade.netPnl !== null)
     .sort((left, right) => Date.parse(right.closedAt ?? '') - Date.parse(left.closedAt ?? ''))
   const sampleScope: BtcAutoRollingHealth['sampleScope'] =
-    strategyVersion && currentVersion.length > 0 ? 'currentVersion' : 'allHistoryFallback'
-  const sample = (sampleScope === 'currentVersion' ? currentVersion : closed).slice(
+    performanceCohortVersion && currentVersion.length > 0
+      ? 'performanceCohort'
+      : strategyVersion && currentVersion.length > 0
+        ? 'currentVersion'
+        : 'allHistoryFallback'
+  const sample = (sampleScope !== 'allHistoryFallback' ? currentVersion : closed).slice(
     0,
     config.performanceWindowTrades,
   )
@@ -611,6 +619,7 @@ export const evaluateBtcAutoEntryGate = (input: {
   dailyNetPnl: number
   now?: Date
   strategyVersion?: string
+  performanceCohortVersion?: string
   consensusEligible?: boolean
 }): BtcAutoEntryGate => {
   const now = input.now ?? new Date()
@@ -620,6 +629,7 @@ export const evaluateBtcAutoEntryGate = (input: {
     input.trades,
     now,
     input.strategyVersion,
+    input.performanceCohortVersion,
   )
   const lossResumeAt = streak.lastClosedAt
     ? new Date(

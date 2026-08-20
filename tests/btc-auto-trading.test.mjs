@@ -82,6 +82,7 @@ const signal = (overrides = {}) => ({
 const trade = (overrides = {}) => ({
   id: 'trade-1',
   strategyVersion: 'btc-auto-v4-test',
+  performanceCohortVersion: null,
   executionMode: 'paper',
   symbol: 'BTCUSDT',
   direction: 'long',
@@ -783,6 +784,25 @@ test('new strategy gets one controlled probe then uses only its own closed sampl
   assert.equal(isolated.status, 'healthy')
 })
 
+test('compatible strategy versions share one rolling performance cohort', () => {
+  const cohort = 'btc-performance-v2-minute-strategy'
+  const priorVersionLoss = closedTrade('prior-version-loss', '2026-08-19T01:00:00.000Z', -1, {
+    strategyVersion: 'btc-auto-v11-old',
+    performanceCohortVersion: cohort,
+  })
+  const health = calculateBtcAutoRollingHealth(
+    config(),
+    [priorVersionLoss],
+    new Date('2026-08-19T02:00:00.000Z'),
+    'btc-auto-v19-current',
+    cohort,
+  )
+  assert.equal(health.sampleScope, 'performanceCohort')
+  assert.equal(health.currentVersionSampleSize, 1)
+  assert.equal(health.status, 'insufficientSample')
+  assert.notEqual(health.status, 'newVersionProbeEligible')
+})
+
 test('minute candles close at stop or target and ignore the partial entry minute', () => {
   const stop = resolveBtcAutoCloseTrigger(
     trade(),
@@ -957,6 +977,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       strategyVersion: 'btc-auto-v4-test',
       signalModelVersion: 'btc-signal-model-v2',
       evidencePolicyVersion: 'btc-evidence-v5-positive-expectancy',
+      performanceCohortVersion: 'btc-performance-v2-minute-strategy',
       strategySnapshots: [
         {
           strategyVersion: 'btc-auto-v4-test',
