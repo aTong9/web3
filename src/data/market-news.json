@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-20T14:00:48.903Z",
+  "updatedAt": "2026-08-20T14:56:31.700Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -37,10 +37,44 @@
   ],
   "articles": [
     {
+      "id": "7a758db7fab2b6b9",
+      "title": "Oil prices rise 2% as Trump sharpens Iran rhetoric amid diplomatic impasse",
+      "url": "https://www.cnbc.com/2026/08/20/oil-prices-brent-wti-hormuz-trump.html",
+      "publishedAt": "2026-08-20T14:54:04.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "commodities",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "原油"
+      ],
+      "translatedTitle": "随着特朗普在外交僵局中加剧伊朗言论，油价上涨2 ％",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "f807dc202411ca66",
+      "title": "California AG tells CNBC that settling Paramount-WBD lawsuit would require 'robust structural remedies'",
+      "url": "https://www.cnbc.com/2026/08/20/california-ag-bonta-paramount-wbd-lawsuit-remedies.html",
+      "publishedAt": "2026-08-20T14:52:28.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "加州股份公司告诉CNBC ，解决派拉蒙-WBD诉讼需要“强有力的结构性补救措施”",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "908b2b8b0d47d07b",
       "title": "Treasury yields rebound, wiping out the decline following Bessent's intervention",
       "url": "https://www.cnbc.com/2026/08/20/bond-yields-edge-higher-as-traders-digest-treasury-debt-buyback-plan.html",
-      "publishedAt": "2026-08-20T13:51:22.000Z",
+      "publishedAt": "2026-08-20T14:47:28.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "macro",
@@ -51,6 +85,56 @@
         "债券"
       ],
       "translatedTitle": "国债收益率反弹，抵消了贝森特干预后的下滑",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "363e03326afc62b2",
+      "title": "Walmart hikes full-year outlook and gets huge tariff refund, but stock falls on sales concerns",
+      "url": "https://www.cnbc.com/2026/08/20/walmart-wmt-q2-2027-earnings.html",
+      "publishedAt": "2026-08-20T14:21:29.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "high",
+      "impactScore": 4,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "沃尔玛上调全年展望并获得巨额关税退款，但由于销售担忧而股价下跌",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "fbe370f33bad74c0",
+      "title": "Where commercial real estate demand is the highest, according to new data",
+      "url": "https://www.cnbc.com/2026/08/20/commercial-real-estate-demand-nar-data.html",
+      "publishedAt": "2026-08-20T14:21:00.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "根据新数据，商业房地产需求最高的地区",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "280dcb30d29f8b1f",
+      "title": "AI data center outrage is showing up everywhere from ads to elections",
+      "url": "https://www.cnbc.com/2026/08/20/ai-data-center-election-backlash.html",
+      "publishedAt": "2026-08-20T14:04:23.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "从广告到选举，人工智能数据中心的愤怒无处不在",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -67,24 +151,6 @@
       "impactScore": 1,
       "affectedAssets": [],
       "translatedTitle": "美光500 $十亿博伊西建设如何重塑其家乡",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "363e03326afc62b2",
-      "title": "Walmart hikes full-year outlook and gets huge tariff refund, but stock falls on sales concerns",
-      "url": "https://www.cnbc.com/2026/08/20/walmart-wmt-q2-2027-earnings.html",
-      "publishedAt": "2026-08-20T13:48:48.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "geopolitics",
-      "language": "English",
-      "impact": "high",
-      "impactScore": 4,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "沃尔玛上调全年展望并获得巨额关税退款，但由于销售担忧而股价下跌",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -186,25 +252,9 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "现代全新旗舰车型为大型豪华Genesis EV",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "fbe370f33bad74c0",
-      "title": "Where commercial real estate demand is the highest, according to new data",
-      "url": "https://www.cnbc.com/2026/08/20/commercial-real-estate-demand-nar-data.html",
-      "publishedAt": "2026-08-20T12:38:23.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "根据新数据，商业房地产需求最高的地区",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -218,27 +268,9 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "特朗普威胁对伊朗的“经济D日”和对其支持者的“巨大”后果",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "7a758db7fab2b6b9",
-      "title": "Oil prices rise 3% as Trump sharpens Iran rhetoric amid talks impasse",
-      "url": "https://www.cnbc.com/2026/08/20/oil-prices-brent-wti-hormuz-trump.html",
-      "publishedAt": "2026-08-20T11:59:29.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "commodities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "原油"
-      ],
-      "translatedTitle": "油价上涨3% ，特朗普在谈判陷入僵局之际加剧伊朗言论",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -287,22 +319,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "Unitree创始人表示，人形机器人的“ChatGPT时刻”可能还需要10年时间",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "d34b92efcebbb26d",
-      "title": "Japan exports beat estimates in July as robust chip shipments power fifth straight month of gains",
-      "url": "https://www.cnbc.com/2026/08/20/japan-exports-imports-july-chip-ai.html",
-      "publishedAt": "2026-08-20T08:41:41.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "日本7月出口高于预期，因为强劲的芯片出货量连续第五个月上涨",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -408,22 +424,6 @@
         "A股"
       ],
       "translatedTitle": "印度境内通讯：芯片挤压在印度击中中国智能手机，因为苹果，三星获得优势",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "ce94ead8f152d233",
-      "title": "Asia's hydrogen dreams: Region bets on emerging green technology to improve transportation",
-      "url": "https://www.cnbc.com/2026/08/20/asia-hydrogen-trains-green-transport.html",
-      "publishedAt": "2026-08-20T00:09:09.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "亚洲氢能梦：该地区押注新兴绿色技术，以改善交通运输",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
