@@ -259,7 +259,7 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
 
 test('signal model cohort remains stable across execution configuration changes', () => {
   assert.equal(btcAutoSignalModelVersion, 'btc-signal-model-v2')
-  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v5-positive-expectancy')
+  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v6-confidence-bound')
   assert.notEqual(
     btcAutoStrategyVersion(config()),
     btcAutoStrategyVersion(config({ minimumDirectionalScore: 70 })),
@@ -511,7 +511,7 @@ test('score threshold study waits for coverage and requires precision plus net i
   assert.equal(collecting.verdict, 'collecting')
   assert.equal(collecting.candidateCoveragePct, 50)
 
-  const raise = evaluateBtcAutoScoreThresholdStudy({
+  const noisyLead = evaluateBtcAutoScoreThresholdStudy({
     currentThreshold: 55,
     candidateThreshold: 70,
     currentSamples: 100,
@@ -522,8 +522,23 @@ test('score threshold study waits for coverage and requires precision plus net i
     candidateAverageMovePct: 0.32,
     feeRatePct: 0.05,
   })
+  assert.notEqual(noisyLead.verdict, 'raise')
+  assert.ok(noisyLead.hitRateLiftLowerBoundPct < 0)
+
+  const raise = evaluateBtcAutoScoreThresholdStudy({
+    currentThreshold: 55,
+    candidateThreshold: 70,
+    currentSamples: 1000,
+    candidateSamples: 400,
+    currentHitRatePct: 50,
+    candidateHitRatePct: 60,
+    currentAverageMovePct: 0.2,
+    candidateAverageMovePct: 0.32,
+    feeRatePct: 0.05,
+  })
   assert.equal(raise.verdict, 'raise')
-  assert.equal(raise.hitRateLiftPct, 8)
+  assert.equal(raise.hitRateLiftPct, 10)
+  assert.ok(raise.hitRateLiftLowerBoundPct > 0)
   assert.equal(raise.candidateAverageNetMovePct, 0.22)
 
   assert.notEqual(
@@ -560,7 +575,7 @@ test('consensus filter promotes only with enough precision, net improvement and 
   assert.equal(collecting.verdict, 'collecting')
   assert.equal(collecting.consensusRequired, false)
 
-  const promoted = evaluateBtcAutoConsensusStudy({
+  const noisyLead = evaluateBtcAutoConsensusStudy({
     baselineSamples: 100,
     consensusSamples: 40,
     baselineHitRatePct: 48,
@@ -569,8 +584,21 @@ test('consensus filter promotes only with enough precision, net improvement and 
     consensusAverageMovePct: 0.3,
     feeRatePct: 0.05,
   })
+  assert.equal(noisyLead.consensusRequired, false)
+  assert.ok(noisyLead.hitRateLiftLowerBoundPct < 0)
+
+  const promoted = evaluateBtcAutoConsensusStudy({
+    baselineSamples: 1000,
+    consensusSamples: 400,
+    baselineHitRatePct: 48,
+    consensusHitRatePct: 58,
+    baselineAverageMovePct: 0.16,
+    consensusAverageMovePct: 0.3,
+    feeRatePct: 0.05,
+  })
   assert.equal(promoted.verdict, 'promote')
   assert.equal(promoted.consensusCoveragePct, 40)
+  assert.ok(promoted.hitRateLiftLowerBoundPct > 0)
   assert.equal(promoted.consensusAverageNetMovePct, 0.2)
   assert.equal(promoted.consensusRequired, true)
   assert.equal(
@@ -976,7 +1004,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       config: config(),
       strategyVersion: 'btc-auto-v4-test',
       signalModelVersion: 'btc-signal-model-v2',
-      evidencePolicyVersion: 'btc-evidence-v5-positive-expectancy',
+      evidencePolicyVersion: 'btc-evidence-v6-confidence-bound',
       performanceCohortVersion: 'btc-performance-v2-minute-strategy',
       strategySnapshots: [
         {
@@ -1025,6 +1053,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       scoreThresholdStudy: {
         horizon: '1h',
         minimumSamples: 30,
+        confidenceLevelPct: 80,
         currentThreshold: 55,
         candidateThreshold: 70,
         currentSamples: 0,
@@ -1035,11 +1064,13 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
         candidateAverageNetMovePct: null,
         candidateCoveragePct: null,
         hitRateLiftPct: null,
+        hitRateLiftLowerBoundPct: null,
         verdict: 'collecting',
       },
       consensusStudy: {
         horizon: '1h',
         minimumSamples: 30,
+        confidenceLevelPct: 80,
         baselineSamples: 0,
         consensusSamples: 0,
         baselineHitRatePct: null,
@@ -1048,6 +1079,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
         consensusAverageNetMovePct: null,
         consensusCoveragePct: null,
         hitRateLiftPct: null,
+        hitRateLiftLowerBoundPct: null,
         verdict: 'collecting',
         consensusRequired: false,
       },

@@ -629,6 +629,10 @@ onBeforeUnmount(() => {
               {{ t('assetTechnical.contract.auto.candidateCoverage') }}
               {{ formatNumber(dashboard.scoreThresholdStudy.candidateCoveragePct, 1) }}%
             </small>
+            <small>
+              {{ t('assetTechnical.contract.auto.conservativeAdvantage') }}
+              {{ formatSigned(dashboard.scoreThresholdStudy.hitRateLiftLowerBoundPct, 1, 'pp') }}
+            </small>
           </article>
         </div>
       </section>
@@ -688,6 +692,10 @@ onBeforeUnmount(() => {
             <small>
               {{ t('assetTechnical.contract.auto.candidateCoverage') }}
               {{ formatNumber(dashboard.consensusStudy.consensusCoveragePct, 1) }}%
+            </small>
+            <small>
+              {{ t('assetTechnical.contract.auto.conservativeAdvantage') }}
+              {{ formatSigned(dashboard.consensusStudy.hitRateLiftLowerBoundPct, 1, 'pp') }}
             </small>
           </article>
         </div>

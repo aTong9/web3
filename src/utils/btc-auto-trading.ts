@@ -63,6 +63,29 @@ export const btcAutoEstimatedRoundTripCostPct = (feeRatePct: number) => round(fe
 export const isBtcAutoFeeAdjustedSignalWin = (movePct: number, feeRatePct: number) =>
   movePct > btcAutoEstimatedRoundTripCostPct(feeRatePct)
 
+const conservativeHitRateLiftLowerBoundPct = (
+  baselineHitRatePct: number | null,
+  baselineSamples: number,
+  candidateHitRatePct: number | null,
+  candidateSamples: number,
+) => {
+  if (
+    baselineHitRatePct === null ||
+    candidateHitRatePct === null ||
+    baselineSamples <= 0 ||
+    candidateSamples <= 0
+  )
+    return null
+  const baselineRate = baselineHitRatePct / 100
+  const candidateRate = candidateHitRatePct / 100
+  const standardErrorPct =
+    Math.sqrt(
+      (baselineRate * (1 - baselineRate)) / baselineSamples +
+        (candidateRate * (1 - candidateRate)) / candidateSamples,
+    ) * 100
+  return round(candidateHitRatePct - baselineHitRatePct - 1.282 * standardErrorPct, 2)
+}
+
 export const evaluateBtcAutoStrategyComparison = (input: {
   minimumSamples?: number
   pairedSamples: number
@@ -170,6 +193,7 @@ export const evaluateBtcAutoScoreThresholdStudy = (input: {
   feeRatePct: number
 }): BtcAutoScoreThresholdStudy => {
   const minimumSamples = input.minimumSamples ?? 30
+  const confidenceLevelPct = 80
   const roundTripCostPct = input.feeRatePct * 2
   const currentAverageNetMovePct =
     input.currentAverageMovePct === null
@@ -186,10 +210,17 @@ export const evaluateBtcAutoScoreThresholdStudy = (input: {
     input.currentHitRatePct === null || input.candidateHitRatePct === null
       ? null
       : round(input.candidateHitRatePct - input.currentHitRatePct, 2)
+  const hitRateLiftLowerBoundPct = conservativeHitRateLiftLowerBoundPct(
+    input.currentHitRatePct,
+    input.currentSamples,
+    input.candidateHitRatePct,
+    input.candidateSamples,
+  )
   const enough = input.currentSamples >= minimumSamples && input.candidateSamples >= minimumSamples
   const verdict: BtcAutoScoreThresholdStudy['verdict'] = !enough
     ? 'collecting'
     : (hitRateLiftPct ?? 0) >= 5 &&
+        (hitRateLiftLowerBoundPct ?? Number.NEGATIVE_INFINITY) > 0 &&
         (candidateAverageNetMovePct ?? Number.NEGATIVE_INFINITY) > 0 &&
         (candidateAverageNetMovePct ?? Number.NEGATIVE_INFINITY) >
           (currentAverageNetMovePct ?? 0) &&
@@ -202,6 +233,7 @@ export const evaluateBtcAutoScoreThresholdStudy = (input: {
   return {
     horizon: '1h',
     minimumSamples,
+    confidenceLevelPct,
     currentThreshold: input.currentThreshold,
     candidateThreshold: input.candidateThreshold,
     currentSamples: input.currentSamples,
@@ -213,6 +245,7 @@ export const evaluateBtcAutoScoreThresholdStudy = (input: {
     candidateAverageNetMovePct,
     candidateCoveragePct,
     hitRateLiftPct,
+    hitRateLiftLowerBoundPct,
     verdict,
   }
 }
@@ -228,6 +261,7 @@ export const evaluateBtcAutoConsensusStudy = (input: {
   feeRatePct: number
 }): BtcAutoConsensusStudy => {
   const minimumSamples = input.minimumSamples ?? 30
+  const confidenceLevelPct = 80
   const roundTripCostPct = btcAutoEstimatedRoundTripCostPct(input.feeRatePct)
   const baselineAverageNetMovePct =
     input.baselineAverageMovePct === null
@@ -244,10 +278,17 @@ export const evaluateBtcAutoConsensusStudy = (input: {
     input.baselineHitRatePct === null || input.consensusHitRatePct === null
       ? null
       : round(input.consensusHitRatePct - input.baselineHitRatePct, 2)
+  const hitRateLiftLowerBoundPct = conservativeHitRateLiftLowerBoundPct(
+    input.baselineHitRatePct,
+    input.baselineSamples,
+    input.consensusHitRatePct,
+    input.consensusSamples,
+  )
   const enough = input.baselineSamples >= minimumSamples && input.consensusSamples >= minimumSamples
   const verdict: BtcAutoConsensusStudy['verdict'] = !enough
     ? 'collecting'
     : (hitRateLiftPct ?? 0) >= 5 &&
+        (hitRateLiftLowerBoundPct ?? Number.NEGATIVE_INFINITY) > 0 &&
         (consensusAverageNetMovePct ?? Number.NEGATIVE_INFINITY) > 0 &&
         (consensusAverageNetMovePct ?? Number.NEGATIVE_INFINITY) >
           (baselineAverageNetMovePct ?? 0) &&
@@ -260,6 +301,7 @@ export const evaluateBtcAutoConsensusStudy = (input: {
   return {
     horizon: '1h',
     minimumSamples,
+    confidenceLevelPct,
     baselineSamples: input.baselineSamples,
     consensusSamples: input.consensusSamples,
     baselineHitRatePct:
@@ -270,6 +312,7 @@ export const evaluateBtcAutoConsensusStudy = (input: {
     consensusAverageNetMovePct,
     consensusCoveragePct,
     hitRateLiftPct,
+    hitRateLiftLowerBoundPct,
     verdict,
     consensusRequired: verdict === 'promote',
   }
@@ -340,10 +383,10 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v19'
+const strategyAlgorithmRevision = 'btc-auto-v20'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 export const btcAutoSignalModelVersion = 'btc-signal-model-v2'
-export const btcAutoEvidencePolicyVersion = 'btc-evidence-v5-positive-expectancy'
+export const btcAutoEvidencePolicyVersion = 'btc-evidence-v6-confidence-bound'
 export const btcAutoPerformanceCohortVersion = 'btc-performance-v2-minute-strategy'
 
 const fnv1a = (value: string) => {

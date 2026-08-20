@@ -1108,7 +1108,7 @@ const messages: Record<Locale, DictionaryNode> = {
           },
           scoreThresholdStudy: '入场分数门槛影子研究',
           scoreThresholdStudyHint:
-            '每小时首个方向信号，未来1小时结果；严格候选费用后期望必须为正，只研究不自动改配置',
+            '每小时首个方向信号；严格候选费用后期望必须为正，且80%单侧保守优势下界大于0',
           currentThreshold: '当前门槛',
           candidateThreshold: '严格候选',
           hitRateLift: '候选胜率提升',
@@ -1121,7 +1121,7 @@ const messages: Record<Locale, DictionaryNode> = {
           },
           consensusStudy: '模型同向过滤影子研究',
           consensusStudyHint:
-            '每小时首个基线方向机会，对比全部基线与双模型同向子集；同向子集费用后期望必须为正才可晋级',
+            '每小时首个基线方向机会；同向子集费用后期望必须为正，且80%单侧保守优势下界大于0',
           baselineOpportunity: '全部基线机会',
           consensusOpportunity: '双模型同向机会',
           consensusVerdict: {
@@ -3001,7 +3001,7 @@ const messages: Record<Locale, DictionaryNode> = {
           },
           scoreThresholdStudy: 'Entry-score threshold shadow study',
           scoreThresholdStudyHint:
-            'First directional signal per hour; strict candidate expectancy must be positive after fees; research only and never changes configuration automatically',
+            'First directional signal per hour; candidate expectancy must be positive after fees and its conservative 80% one-sided advantage floor must exceed zero',
           currentThreshold: 'Current threshold',
           candidateThreshold: 'Strict candidate',
           hitRateLift: 'Candidate hit-rate lift',
@@ -3014,7 +3014,7 @@ const messages: Record<Locale, DictionaryNode> = {
           },
           consensusStudy: 'Model-consensus filter shadow study',
           consensusStudyHint:
-            'First baseline opportunity per hour; the same-direction subset must have positive fee-adjusted expectancy before promotion',
+            'First baseline opportunity per hour; the same-direction subset needs positive fee-adjusted expectancy and a positive conservative 80% one-sided advantage floor',
           baselineOpportunity: 'All baseline opportunities',
           consensusOpportunity: 'Same-direction model opportunities',
           consensusVerdict: {

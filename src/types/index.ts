@@ -1471,6 +1471,7 @@ export interface BtcAutoRegimeStrategyComparison extends BtcAutoStrategyComparis
 export interface BtcAutoScoreThresholdStudy {
   horizon: '1h'
   minimumSamples: number
+  confidenceLevelPct: number
   currentThreshold: number
   candidateThreshold: number
   currentSamples: number
@@ -1481,12 +1482,14 @@ export interface BtcAutoScoreThresholdStudy {
   candidateAverageNetMovePct: number | null
   candidateCoveragePct: number | null
   hitRateLiftPct: number | null
+  hitRateLiftLowerBoundPct: number | null
   verdict: 'collecting' | 'raise' | 'keep' | 'mixed'
 }
 
 export interface BtcAutoConsensusStudy {
   horizon: '1h'
   minimumSamples: number
+  confidenceLevelPct: number
   baselineSamples: number
   consensusSamples: number
   baselineHitRatePct: number | null
@@ -1495,6 +1498,7 @@ export interface BtcAutoConsensusStudy {
   consensusAverageNetMovePct: number | null
   consensusCoveragePct: number | null
   hitRateLiftPct: number | null
+  hitRateLiftLowerBoundPct: number | null
   verdict: 'collecting' | 'promote' | 'keep' | 'mixed'
   consensusRequired: boolean
 }
