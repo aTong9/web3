@@ -416,6 +416,7 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
     ensembleSamples: 1000,
   })
   assert.equal(ahead.verdict, 'outperforming')
+  assert.equal(ahead.maximumSamples, 120)
   assert.equal(ahead.hitRateAdvantagePct, 4)
   assert.ok(ahead.hitRateAdvantageLowerBoundPct > 0)
   assert.equal(ahead.ensembleAverageNetMovePct, 0.08)
@@ -895,6 +896,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       strategyComparison: {
         horizon: '1h',
         minimumSamples: 48,
+        maximumSamples: 120,
         confidenceLevelPct: 80,
         pairedSamples: 0,
         baselineOnlyWins: 0,

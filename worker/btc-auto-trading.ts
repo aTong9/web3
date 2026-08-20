@@ -906,6 +906,8 @@ const strategyComparison = async (
          AND ensemble_action IN ('long', 'short')
          AND baseline_forward_1h_pct IS NOT NULL
          AND ensemble_forward_1h_pct IS NOT NULL
+     ), paired_window AS (
+       SELECT * FROM paired ORDER BY observed_at DESC LIMIT 120
      )
      SELECT
        COUNT(*) AS paired_samples,
@@ -919,7 +921,7 @@ const strategyComparison = async (
          THEN 1 ELSE 0 END) AS baseline_only_wins,
        SUM(CASE WHEN ensemble_forward_1h_pct > 0 AND baseline_forward_1h_pct <= 0
          THEN 1 ELSE 0 END) AS ensemble_only_wins
-     FROM paired`,
+     FROM paired_window`,
   )
     .bind(strategyVersion, regime)
     .first<{

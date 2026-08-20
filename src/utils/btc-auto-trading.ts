@@ -71,6 +71,7 @@ export const evaluateBtcAutoStrategyComparison = (input: {
   feeRatePct: number
 }): BtcAutoStrategyComparison => {
   const minimumSamples = input.minimumSamples ?? 48
+  const maximumSamples = 120
   const confidenceLevelPct = 80
   const oneSidedZScore = 1.282
   const estimatedRoundTripCostPct = round(input.feeRatePct * 2)
@@ -123,6 +124,7 @@ export const evaluateBtcAutoStrategyComparison = (input: {
   return {
     horizon: '1h',
     minimumSamples,
+    maximumSamples,
     confidenceLevelPct,
     pairedSamples: input.pairedSamples,
     baselineOnlyWins: input.baselineOnlyWins,
@@ -272,7 +274,7 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v12'
+const strategyAlgorithmRevision = 'btc-auto-v13'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 
 const fnv1a = (value: string) => {

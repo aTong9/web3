@@ -1438,6 +1438,7 @@ export interface BtcAutoSignalOutcomeSummary {
 export interface BtcAutoStrategyComparison {
   horizon: '1h'
   minimumSamples: number
+  maximumSamples: number
   confidenceLevelPct: number
   pairedSamples: number
   baselineOnlyWins: number

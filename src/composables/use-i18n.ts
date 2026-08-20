@@ -1077,7 +1077,8 @@ const messages: Record<Locale, DictionaryNode> = {
           shadowHitRate: '方向命中率',
           shadowAverageMove: '平均方向涨跌',
           strategyComparison: '策略候选样本外对比',
-          strategyComparisonHint: '每小时只取首个信号，未来1小时结果；当前策略版本独立统计',
+          strategyComparisonHint: '每小时只取首个信号，未来1小时结果；按策略版本和市场状态隔离',
+          maximumPairedWindow: '每种状态最近配对样本上限',
           activeStrategyRegime: '当前状态',
           strategyRegime: {
             trending: '趋势市场',
@@ -2952,7 +2953,8 @@ const messages: Record<Locale, DictionaryNode> = {
           shadowAverageMove: 'Average directional move',
           strategyComparison: 'Out-of-sample strategy candidate comparison',
           strategyComparisonHint:
-            'First signal per hour, forward one-hour outcome; isolated by strategy version',
+            'First signal per hour, forward one-hour outcome; isolated by strategy version and market regime',
+          maximumPairedWindow: 'Recent paired-sample cap per regime',
           activeStrategyRegime: 'Active regime',
           strategyRegime: {
             trending: 'Trending',

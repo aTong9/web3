@@ -451,6 +451,10 @@ onBeforeUnmount(() => {
             </strong>
           </div>
           <small>{{ t('assetTechnical.contract.auto.strategyComparisonHint') }}</small>
+          <small>
+            {{ t('assetTechnical.contract.auto.maximumPairedWindow') }}
+            {{ dashboard.strategyComparison.maximumSamples }}
+          </small>
           <small v-if="dashboard.activeStrategyRegime">
             {{ t('assetTechnical.contract.auto.activeStrategyRegime') }}
             {{ t(`assetTechnical.contract.auto.strategyRegime.${dashboard.activeStrategyRegime}`) }}
