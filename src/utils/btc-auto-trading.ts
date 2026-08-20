@@ -279,10 +279,10 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v15'
+const strategyAlgorithmRevision = 'btc-auto-v16'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 export const btcAutoSignalModelVersion = 'btc-signal-model-v2'
-export const btcAutoEvidencePolicyVersion = 'btc-evidence-v2-fee-adjusted-win'
+export const btcAutoEvidencePolicyVersion = 'btc-evidence-v3-first-eligible-pair'
 
 const fnv1a = (value: string) => {
   let hash = 0x811c9dc5

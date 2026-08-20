@@ -1079,7 +1079,7 @@ const messages: Record<Locale, DictionaryNode> = {
           shadowAverageMove: '平均方向涨跌',
           strategyComparison: '策略候选样本外对比',
           strategyComparisonHint:
-            '每小时只取首个信号，未来1小时结果；按信号模型和市场状态隔离，只有超过往返成本才计为命中',
+            '每小时只取首组双方都有方向的同期信号，未来1小时结果；按信号模型和市场状态隔离，只有超过往返成本才计为命中',
           evidencePolicyVersion: '证据口径',
           maximumPairedWindow: '每种状态最近配对样本上限',
           activeStrategyRegime: '当前状态',
@@ -2957,7 +2957,7 @@ const messages: Record<Locale, DictionaryNode> = {
           shadowAverageMove: 'Average directional move',
           strategyComparison: 'Out-of-sample strategy candidate comparison',
           strategyComparisonHint:
-            'First signal per hour, forward one-hour outcome; isolated by signal model and market regime; only moves above round-trip cost count as wins',
+            'First same-time pair where both models are directional per hour, forward one-hour outcome; isolated by signal model and regime; only moves above round-trip cost count as wins',
           evidencePolicyVersion: 'Evidence policy',
           maximumPairedWindow: 'Recent paired-sample cap per regime',
           activeStrategyRegime: 'Active regime',

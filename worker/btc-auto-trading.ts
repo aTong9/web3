@@ -899,17 +899,19 @@ const strategyComparison = async (
 ): Promise<BtcAutoStrategyComparison> => {
   const estimatedRoundTripCostPct = btcAutoEstimatedRoundTripCostPct(feeRatePct)
   const row = await env.DB.prepare(
-    `WITH hourly AS (
+    `WITH eligible AS (
+       SELECT * FROM btc_auto_signal_history
+       WHERE signal_model_version = ?1 AND (?2 IS NULL OR ensemble_regime = ?2)
+         AND baseline_action IN ('long', 'short')
+         AND ensemble_action IN ('long', 'short')
+     ), hourly AS (
        SELECT *, ROW_NUMBER() OVER (
          PARTITION BY substr(observed_at, 1, 13) ORDER BY observed_at ASC
        ) AS sample_rank
-       FROM btc_auto_signal_history
-       WHERE signal_model_version = ?1 AND (?2 IS NULL OR ensemble_regime = ?2)
+       FROM eligible
      ), paired AS (
        SELECT * FROM hourly
        WHERE sample_rank = 1
-         AND baseline_action IN ('long', 'short')
-         AND ensemble_action IN ('long', 'short')
          AND baseline_forward_1h_pct IS NOT NULL
          AND ensemble_forward_1h_pct IS NOT NULL
      ), paired_window AS (

@@ -257,7 +257,7 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
 
 test('signal model cohort remains stable across execution configuration changes', () => {
   assert.equal(btcAutoSignalModelVersion, 'btc-signal-model-v2')
-  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v2-fee-adjusted-win')
+  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v3-first-eligible-pair')
   assert.notEqual(
     btcAutoStrategyVersion(config()),
     btcAutoStrategyVersion(config({ minimumDirectionalScore: 70 })),
@@ -893,7 +893,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       config: config(),
       strategyVersion: 'btc-auto-v4-test',
       signalModelVersion: 'btc-signal-model-v2',
-      evidencePolicyVersion: 'btc-evidence-v2-fee-adjusted-win',
+      evidencePolicyVersion: 'btc-evidence-v3-first-eligible-pair',
       strategySnapshots: [
         {
           strategyVersion: 'btc-auto-v4-test',
