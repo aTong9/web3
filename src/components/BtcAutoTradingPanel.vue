@@ -496,6 +496,13 @@ onBeforeUnmount(() => {
               {{ formatSigned(dashboard.strategyComparison.hitRateAdvantagePct, 1, 'pp') }}
             </strong>
             <small>
+              {{ t('assetTechnical.contract.auto.conservativeAdvantage') }}
+              {{
+                formatSigned(dashboard.strategyComparison.hitRateAdvantageLowerBoundPct, 1, 'pp')
+              }}
+              · {{ dashboard.strategyComparison.confidenceLevelPct }}%
+            </small>
+            <small>
               {{ t('assetTechnical.contract.auto.estimatedRoundTripCost') }}
               {{ formatNumber(dashboard.strategyComparison.estimatedRoundTripCostPct, 3) }}%
             </small>

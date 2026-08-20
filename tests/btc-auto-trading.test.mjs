@@ -386,25 +386,33 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
   assert.equal(
     evaluateBtcAutoStrategyComparison({
       ...base,
-      baselineSamples: 23,
-      ensembleSamples: 23,
+      baselineSamples: 47,
+      ensembleSamples: 47,
     }).recommendedEnsembleWeightPct,
     0,
   )
+  const noisyLead = evaluateBtcAutoStrategyComparison({
+    ...base,
+    baselineSamples: 48,
+    ensembleSamples: 48,
+  })
+  assert.equal(noisyLead.verdict, 'mixed')
+  assert.ok(noisyLead.hitRateAdvantageLowerBoundPct < 0)
   const ahead = evaluateBtcAutoStrategyComparison({
     ...base,
-    baselineSamples: 24,
-    ensembleSamples: 24,
+    baselineSamples: 1000,
+    ensembleSamples: 1000,
   })
   assert.equal(ahead.verdict, 'outperforming')
   assert.equal(ahead.hitRateAdvantagePct, 4)
+  assert.ok(ahead.hitRateAdvantageLowerBoundPct > 0)
   assert.equal(ahead.ensembleAverageNetMovePct, 0.08)
   assert.equal(ahead.recommendedEnsembleWeightPct, 35)
   assert.equal(
     evaluateBtcAutoStrategyComparison({
       ...base,
-      baselineSamples: 24,
-      ensembleSamples: 24,
+      baselineSamples: 1000,
+      ensembleSamples: 1000,
       ensembleAverageMovePct: 0.12,
     }).recommendedEnsembleWeightPct,
     0,
@@ -412,8 +420,8 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
   assert.equal(
     evaluateBtcAutoStrategyComparison({
       ...base,
-      baselineSamples: 24,
-      ensembleSamples: 24,
+      baselineSamples: 1000,
+      ensembleSamples: 1000,
       ensembleHitRatePct: 45,
       ensembleAverageMovePct: 0.1,
     }).verdict,
@@ -777,7 +785,8 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       signalOutcomes: [],
       strategyComparison: {
         horizon: '1h',
-        minimumSamples: 24,
+        minimumSamples: 48,
+        confidenceLevelPct: 80,
         baselineSamples: 0,
         baselineHitRatePct: null,
         baselineAverageMovePct: null,
@@ -788,6 +797,8 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
         ensembleAverageNetMovePct: null,
         estimatedRoundTripCostPct: 0.1,
         hitRateAdvantagePct: null,
+        hitRateAdvantageLowerBoundPct: null,
+        hitRateAdvantageUpperBoundPct: null,
         verdict: 'collecting',
         recommendedEnsembleWeightPct: 0,
       },

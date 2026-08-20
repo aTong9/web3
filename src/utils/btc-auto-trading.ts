@@ -66,7 +66,9 @@ export const evaluateBtcAutoStrategyComparison = (input: {
   ensembleAverageMovePct: number | null
   feeRatePct: number
 }): BtcAutoStrategyComparison => {
-  const minimumSamples = input.minimumSamples ?? 24
+  const minimumSamples = input.minimumSamples ?? 48
+  const confidenceLevelPct = 80
+  const oneSidedZScore = 1.282
   const estimatedRoundTripCostPct = round(input.feeRatePct * 2)
   const baselineAverageNetMovePct =
     input.baselineAverageMovePct === null
@@ -80,13 +82,34 @@ export const evaluateBtcAutoStrategyComparison = (input: {
     input.baselineHitRatePct === null || input.ensembleHitRatePct === null
       ? null
       : round(input.ensembleHitRatePct - input.baselineHitRatePct, 2)
+  const hitRateDifferenceStandardErrorPct =
+    input.baselineHitRatePct === null ||
+    input.ensembleHitRatePct === null ||
+    input.baselineSamples <= 0 ||
+    input.ensembleSamples <= 0
+      ? null
+      : Math.sqrt(
+          ((input.baselineHitRatePct / 100) * (1 - input.baselineHitRatePct / 100)) /
+            input.baselineSamples +
+            ((input.ensembleHitRatePct / 100) * (1 - input.ensembleHitRatePct / 100)) /
+              input.ensembleSamples,
+        ) * 100
+  const hitRateAdvantageLowerBoundPct =
+    hitRateAdvantagePct === null || hitRateDifferenceStandardErrorPct === null
+      ? null
+      : round(hitRateAdvantagePct - oneSidedZScore * hitRateDifferenceStandardErrorPct, 2)
+  const hitRateAdvantageUpperBoundPct =
+    hitRateAdvantagePct === null || hitRateDifferenceStandardErrorPct === null
+      ? null
+      : round(hitRateAdvantagePct + oneSidedZScore * hitRateDifferenceStandardErrorPct, 2)
   const enough = input.baselineSamples >= minimumSamples && input.ensembleSamples >= minimumSamples
   const verdict: BtcAutoStrategyComparison['verdict'] = !enough
     ? 'collecting'
     : (hitRateAdvantagePct ?? 0) >= 3 &&
+        (hitRateAdvantageLowerBoundPct ?? Number.NEGATIVE_INFINITY) > 0 &&
         (ensembleAverageNetMovePct ?? Number.NEGATIVE_INFINITY) > (baselineAverageNetMovePct ?? 0)
       ? 'outperforming'
-      : (hitRateAdvantagePct ?? 0) < 0 &&
+      : (hitRateAdvantageUpperBoundPct ?? Number.POSITIVE_INFINITY) < 0 &&
           (ensembleAverageNetMovePct ?? 0) <= (baselineAverageNetMovePct ?? 0)
         ? 'underperforming'
         : 'mixed'
@@ -94,6 +117,7 @@ export const evaluateBtcAutoStrategyComparison = (input: {
   return {
     horizon: '1h',
     minimumSamples,
+    confidenceLevelPct,
     baselineSamples: input.baselineSamples,
     baselineHitRatePct:
       input.baselineHitRatePct === null ? null : round(input.baselineHitRatePct, 2),
@@ -108,6 +132,8 @@ export const evaluateBtcAutoStrategyComparison = (input: {
     ensembleAverageNetMovePct,
     estimatedRoundTripCostPct,
     hitRateAdvantagePct,
+    hitRateAdvantageLowerBoundPct,
+    hitRateAdvantageUpperBoundPct,
     verdict,
     recommendedEnsembleWeightPct,
   }
@@ -178,7 +204,7 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v7'
+const strategyAlgorithmRevision = 'btc-auto-v8'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 
 const fnv1a = (value: string) => {

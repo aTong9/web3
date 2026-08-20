@@ -1428,6 +1428,7 @@ export interface BtcAutoSignalOutcomeSummary {
 export interface BtcAutoStrategyComparison {
   horizon: '1h'
   minimumSamples: number
+  confidenceLevelPct: number
   baselineSamples: number
   baselineHitRatePct: number | null
   baselineAverageMovePct: number | null
@@ -1438,6 +1439,8 @@ export interface BtcAutoStrategyComparison {
   ensembleAverageNetMovePct: number | null
   estimatedRoundTripCostPct: number
   hitRateAdvantagePct: number | null
+  hitRateAdvantageLowerBoundPct: number | null
+  hitRateAdvantageUpperBoundPct: number | null
   verdict: 'collecting' | 'outperforming' | 'mixed' | 'underperforming'
   recommendedEnsembleWeightPct: number
 }
