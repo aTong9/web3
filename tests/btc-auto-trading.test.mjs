@@ -258,7 +258,7 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
 
 test('signal model cohort remains stable across execution configuration changes', () => {
   assert.equal(btcAutoSignalModelVersion, 'btc-signal-model-v2')
-  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v4-consensus-gate')
+  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v5-positive-expectancy')
   assert.notEqual(
     btcAutoStrategyVersion(config()),
     btcAutoStrategyVersion(config({ minimumDirectionalScore: 70 })),
@@ -448,6 +448,19 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
       ensembleOnlyWins: 120,
       baselineSamples: 1000,
       ensembleSamples: 1000,
+      baselineAverageMovePct: -0.1,
+      ensembleAverageMovePct: 0.05,
+    }).recommendedEnsembleWeightPct,
+    0,
+  )
+  assert.equal(
+    evaluateBtcAutoStrategyComparison({
+      ...base,
+      pairedSamples: 1000,
+      baselineOnlyWins: 80,
+      ensembleOnlyWins: 120,
+      baselineSamples: 1000,
+      ensembleSamples: 1000,
       ensembleAverageMovePct: 0.12,
     }).recommendedEnsembleWeightPct,
     0,
@@ -512,6 +525,16 @@ test('score threshold study waits for coverage and requires precision plus net i
   assert.equal(raise.hitRateLiftPct, 8)
   assert.equal(raise.candidateAverageNetMovePct, 0.22)
 
+  assert.notEqual(
+    evaluateBtcAutoScoreThresholdStudy({
+      ...raise,
+      currentAverageMovePct: -0.1,
+      candidateAverageMovePct: 0.05,
+      feeRatePct: 0.05,
+    }).verdict,
+    'raise',
+  )
+
   assert.equal(
     evaluateBtcAutoScoreThresholdStudy({
       ...raise,
@@ -549,6 +572,15 @@ test('consensus filter promotes only with enough precision, net improvement and 
   assert.equal(promoted.consensusCoveragePct, 40)
   assert.equal(promoted.consensusAverageNetMovePct, 0.2)
   assert.equal(promoted.consensusRequired, true)
+  assert.equal(
+    evaluateBtcAutoConsensusStudy({
+      ...promoted,
+      baselineAverageMovePct: -0.1,
+      consensusAverageMovePct: 0.05,
+      feeRatePct: 0.05,
+    }).consensusRequired,
+    false,
+  )
 })
 
 test('shadow signal outcomes measure directional price movement without trading costs', () => {
@@ -924,7 +956,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       config: config(),
       strategyVersion: 'btc-auto-v4-test',
       signalModelVersion: 'btc-signal-model-v2',
-      evidencePolicyVersion: 'btc-evidence-v4-consensus-gate',
+      evidencePolicyVersion: 'btc-evidence-v5-positive-expectancy',
       strategySnapshots: [
         {
           strategyVersion: 'btc-auto-v4-test',

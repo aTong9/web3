@@ -120,6 +120,7 @@ export const evaluateBtcAutoStrategyComparison = (input: {
     ? 'collecting'
     : (hitRateAdvantagePct ?? 0) >= 3 &&
         (hitRateAdvantageLowerBoundPct ?? Number.NEGATIVE_INFINITY) > 0 &&
+        (ensembleAverageNetMovePct ?? Number.NEGATIVE_INFINITY) > 0 &&
         (ensembleAverageNetMovePct ?? Number.NEGATIVE_INFINITY) > (baselineAverageNetMovePct ?? 0)
       ? 'outperforming'
       : (hitRateAdvantageUpperBoundPct ?? Number.POSITIVE_INFINITY) < 0 &&
@@ -189,6 +190,7 @@ export const evaluateBtcAutoScoreThresholdStudy = (input: {
   const verdict: BtcAutoScoreThresholdStudy['verdict'] = !enough
     ? 'collecting'
     : (hitRateLiftPct ?? 0) >= 5 &&
+        (candidateAverageNetMovePct ?? Number.NEGATIVE_INFINITY) > 0 &&
         (candidateAverageNetMovePct ?? Number.NEGATIVE_INFINITY) >
           (currentAverageNetMovePct ?? 0) &&
         (candidateCoveragePct ?? 0) >= 30
@@ -246,6 +248,7 @@ export const evaluateBtcAutoConsensusStudy = (input: {
   const verdict: BtcAutoConsensusStudy['verdict'] = !enough
     ? 'collecting'
     : (hitRateLiftPct ?? 0) >= 5 &&
+        (consensusAverageNetMovePct ?? Number.NEGATIVE_INFINITY) > 0 &&
         (consensusAverageNetMovePct ?? Number.NEGATIVE_INFINITY) >
           (baselineAverageNetMovePct ?? 0) &&
         (consensusCoveragePct ?? 0) >= 30
@@ -337,10 +340,10 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v17'
+const strategyAlgorithmRevision = 'btc-auto-v18'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 export const btcAutoSignalModelVersion = 'btc-signal-model-v2'
-export const btcAutoEvidencePolicyVersion = 'btc-evidence-v4-consensus-gate'
+export const btcAutoEvidencePolicyVersion = 'btc-evidence-v5-positive-expectancy'
 
 const fnv1a = (value: string) => {
   let hash = 0x811c9dc5
