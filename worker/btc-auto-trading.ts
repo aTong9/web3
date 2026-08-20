@@ -5,6 +5,7 @@ import type {
   BtcAutoExecutionMode,
   BtcAutoMarketSource,
   BtcAutoRegimeStrategyComparison,
+  BtcAutoScoreThresholdStudy,
   BtcAutoSignalSnapshot,
   BtcAutoSignalHistoryItem,
   BtcAutoStrategySnapshot,
@@ -35,6 +36,7 @@ import {
   calculateBtcAutoReconciledResult,
   calculateBtcAutoTradeResult,
   evaluateBtcAutoEntryGate,
+  evaluateBtcAutoScoreThresholdStudy,
   evaluateBtcAutoStrategyComparison,
   evolveBtcAutoSignal,
   isBtcAutoStrategyDefinition,
@@ -957,6 +959,55 @@ const strategyComparisonsByRegime = async (
     })),
   )
 
+const scoreThresholdStudy = async (
+  env: Env,
+  strategyVersion: string,
+  currentThreshold: number,
+  feeRatePct: number,
+): Promise<BtcAutoScoreThresholdStudy> => {
+  const candidateThreshold = Math.min(90, Math.max(70, currentThreshold + 10))
+  const row = await env.DB.prepare(
+    `WITH hourly AS (
+       SELECT *, ROW_NUMBER() OVER (
+         PARTITION BY substr(observed_at, 1, 13) ORDER BY observed_at ASC
+       ) AS sample_rank
+       FROM btc_auto_signal_history
+       WHERE strategy_version = ?1 AND action IN ('long', 'short')
+         AND forward_1h_pct IS NOT NULL
+     )
+     SELECT
+       SUM(CASE WHEN ABS(score) >= ?2 THEN 1 ELSE 0 END) AS current_samples,
+       AVG(CASE WHEN ABS(score) >= ?2
+         THEN CASE WHEN forward_1h_pct > 0 THEN 100.0 ELSE 0 END END) AS current_hit_rate,
+       AVG(CASE WHEN ABS(score) >= ?2 THEN forward_1h_pct END) AS current_average_move,
+       SUM(CASE WHEN ABS(score) >= ?3 THEN 1 ELSE 0 END) AS candidate_samples,
+       AVG(CASE WHEN ABS(score) >= ?3
+         THEN CASE WHEN forward_1h_pct > 0 THEN 100.0 ELSE 0 END END) AS candidate_hit_rate,
+       AVG(CASE WHEN ABS(score) >= ?3 THEN forward_1h_pct END) AS candidate_average_move
+     FROM hourly WHERE sample_rank = 1`,
+  )
+    .bind(strategyVersion, currentThreshold, candidateThreshold)
+    .first<{
+      current_samples: number
+      current_hit_rate: number | null
+      current_average_move: number | null
+      candidate_samples: number
+      candidate_hit_rate: number | null
+      candidate_average_move: number | null
+    }>()
+  return evaluateBtcAutoScoreThresholdStudy({
+    currentThreshold,
+    candidateThreshold,
+    currentSamples: row?.current_samples ?? 0,
+    candidateSamples: row?.candidate_samples ?? 0,
+    currentHitRatePct: row?.current_hit_rate ?? null,
+    candidateHitRatePct: row?.candidate_hit_rate ?? null,
+    currentAverageMovePct: row?.current_average_move ?? null,
+    candidateAverageMovePct: row?.candidate_average_move ?? null,
+    feeRatePct,
+  })
+}
+
 const paperAdapter: ExecutionAdapter = {
   size: async (notionalUsdt, price) => Number((notionalUsdt / price).toFixed(6)),
   execute: async (command, price) => ({
@@ -1745,10 +1796,11 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
     ])
   const config = toConfig(configRow)
   const strategyVersion = btcAutoStrategyVersion(config)
-  const [signalOutcomes, overallComparison, regimeComparisons] = await Promise.all([
+  const [signalOutcomes, overallComparison, regimeComparisons, thresholdStudy] = await Promise.all([
     signalOutcomeSummaries(env, strategyVersion),
     strategyComparison(env, strategyVersion, config.feeRatePct),
     strategyComparisonsByRegime(env, strategyVersion, config.feeRatePct),
+    scoreThresholdStudy(env, strategyVersion, config.minimumDirectionalScore, config.feeRatePct),
   ])
   const activeStrategyRegime = signalHistory[0]?.ensembleRegime ?? null
   const comparison =
@@ -1777,6 +1829,7 @@ export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingD
     strategyComparison: comparison,
     activeStrategyRegime,
     strategyComparisonsByRegime: regimeComparisons,
+    scoreThresholdStudy: thresholdStudy,
     entryGate: evaluateBtcAutoEntryGate({
       config,
       signal,

@@ -17,6 +17,7 @@ const {
   calculateBtcAutoReconciledResult,
   calculateBtcAutoTradeResult,
   evaluateBtcAutoEntryGate,
+  evaluateBtcAutoScoreThresholdStudy,
   evaluateBtcAutoStrategyComparison,
   evolveBtcAutoSignal,
   isBtcAutoStrategyDefinition,
@@ -461,6 +462,47 @@ test('unproven ensemble stays shadow-only and promoted weight is capped', () => 
   })
 })
 
+test('score threshold study waits for coverage and requires precision plus net improvement', () => {
+  const collecting = evaluateBtcAutoScoreThresholdStudy({
+    currentThreshold: 55,
+    candidateThreshold: 70,
+    currentSamples: 40,
+    candidateSamples: 20,
+    currentHitRatePct: 50,
+    candidateHitRatePct: 65,
+    currentAverageMovePct: 0.2,
+    candidateAverageMovePct: 0.3,
+    feeRatePct: 0.05,
+  })
+  assert.equal(collecting.verdict, 'collecting')
+  assert.equal(collecting.candidateCoveragePct, 50)
+
+  const raise = evaluateBtcAutoScoreThresholdStudy({
+    currentThreshold: 55,
+    candidateThreshold: 70,
+    currentSamples: 100,
+    candidateSamples: 40,
+    currentHitRatePct: 50,
+    candidateHitRatePct: 58,
+    currentAverageMovePct: 0.2,
+    candidateAverageMovePct: 0.32,
+    feeRatePct: 0.05,
+  })
+  assert.equal(raise.verdict, 'raise')
+  assert.equal(raise.hitRateLiftPct, 8)
+  assert.equal(raise.candidateAverageNetMovePct, 0.22)
+
+  assert.equal(
+    evaluateBtcAutoScoreThresholdStudy({
+      ...raise,
+      currentAverageMovePct: 0.2,
+      candidateAverageMovePct: 0.18,
+      feeRatePct: 0.05,
+    }).verdict,
+    'keep',
+  )
+})
+
 test('shadow signal outcomes measure directional price movement without trading costs', () => {
   assert.equal(calculateBtcAutoDirectionalMove('long', 100, 103), 3)
   assert.equal(calculateBtcAutoDirectionalMove('short', 100, 97), 3)
@@ -874,6 +916,21 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       },
       activeStrategyRegime: null,
       strategyComparisonsByRegime: [],
+      scoreThresholdStudy: {
+        horizon: '1h',
+        minimumSamples: 30,
+        currentThreshold: 55,
+        candidateThreshold: 70,
+        currentSamples: 0,
+        candidateSamples: 0,
+        currentHitRatePct: null,
+        candidateHitRatePct: null,
+        currentAverageNetMovePct: null,
+        candidateAverageNetMovePct: null,
+        candidateCoveragePct: null,
+        hitRateLiftPct: null,
+        verdict: 'collecting',
+      },
       entryGate: {
         reason: 'waitingDirection',
         eligible: false,

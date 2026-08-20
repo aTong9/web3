@@ -1462,6 +1462,22 @@ export interface BtcAutoRegimeStrategyComparison extends BtcAutoStrategyComparis
   regime: BtcAutoStrategyRegime
 }
 
+export interface BtcAutoScoreThresholdStudy {
+  horizon: '1h'
+  minimumSamples: number
+  currentThreshold: number
+  candidateThreshold: number
+  currentSamples: number
+  candidateSamples: number
+  currentHitRatePct: number | null
+  candidateHitRatePct: number | null
+  currentAverageNetMovePct: number | null
+  candidateAverageNetMovePct: number | null
+  candidateCoveragePct: number | null
+  hitRateLiftPct: number | null
+  verdict: 'collecting' | 'raise' | 'keep' | 'mixed'
+}
+
 export interface BtcAutoTradingDashboard {
   config: BtcAutoTradingConfig
   strategyVersion: string
@@ -1480,6 +1496,7 @@ export interface BtcAutoTradingDashboard {
   strategyComparison: BtcAutoStrategyComparison
   activeStrategyRegime: BtcAutoStrategyRegime | null
   strategyComparisonsByRegime: BtcAutoRegimeStrategyComparison[]
+  scoreThresholdStudy: BtcAutoScoreThresholdStudy
   entryGate: BtcAutoEntryGate
   rollingHealth: BtcAutoRollingHealth
   openTrade: BtcAutoTrade | null

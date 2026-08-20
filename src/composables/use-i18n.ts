@@ -1099,6 +1099,18 @@ const messages: Record<Locale, DictionaryNode> = {
             mixed: '结果混合',
             underperforming: '候选落后基线',
           },
+          scoreThresholdStudy: '入场分数门槛影子研究',
+          scoreThresholdStudyHint: '每小时首个方向信号，未来1小时结果；只研究，不自动修改配置',
+          currentThreshold: '当前门槛',
+          candidateThreshold: '严格候选',
+          hitRateLift: '候选胜率提升',
+          candidateCoverage: '候选机会覆盖率',
+          scoreThresholdVerdict: {
+            collecting: '样本收集中',
+            raise: '严格门槛具备优势',
+            keep: '维持当前门槛',
+            mixed: '证据混合',
+          },
           forwardOutcome: '未来方向结果',
           evolutionState: {
             new: '新信号',
@@ -2961,6 +2973,19 @@ const messages: Record<Locale, DictionaryNode> = {
             outperforming: 'Candidate clearly ahead',
             mixed: 'Mixed evidence',
             underperforming: 'Candidate trails baseline',
+          },
+          scoreThresholdStudy: 'Entry-score threshold shadow study',
+          scoreThresholdStudyHint:
+            'First directional signal per hour, forward one-hour outcome; research only, never changes configuration automatically',
+          currentThreshold: 'Current threshold',
+          candidateThreshold: 'Strict candidate',
+          hitRateLift: 'Candidate hit-rate lift',
+          candidateCoverage: 'Candidate opportunity coverage',
+          scoreThresholdVerdict: {
+            collecting: 'Collecting samples',
+            raise: 'Strict threshold shows an advantage',
+            keep: 'Keep current threshold',
+            mixed: 'Mixed evidence',
           },
           forwardOutcome: 'Forward directional outcome',
           evolutionState: {

@@ -541,6 +541,78 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
+      <section class="score-threshold-study">
+        <header>
+          <div>
+            <span>{{ t('assetTechnical.contract.auto.scoreThresholdStudy') }}</span>
+            <strong>
+              {{
+                t(
+                  `assetTechnical.contract.auto.scoreThresholdVerdict.${dashboard.scoreThresholdStudy.verdict}`,
+                )
+              }}
+            </strong>
+          </div>
+          <small>{{ t('assetTechnical.contract.auto.scoreThresholdStudyHint') }}</small>
+        </header>
+        <div class="comparison-grid">
+          <article>
+            <b>
+              {{ t('assetTechnical.contract.auto.currentThreshold') }}
+              {{ dashboard.scoreThresholdStudy.currentThreshold }}
+            </b>
+            <span>
+              {{ dashboard.scoreThresholdStudy.currentSamples }} /
+              {{ dashboard.scoreThresholdStudy.minimumSamples }}
+            </span>
+            <strong>
+              {{
+                formatSigned(dashboard.scoreThresholdStudy.currentHitRatePct, 1, '%').replace(
+                  '+',
+                  '',
+                )
+              }}
+            </strong>
+            <small>
+              {{ t('assetTechnical.contract.auto.netMove') }}
+              {{ formatSigned(dashboard.scoreThresholdStudy.currentAverageNetMovePct, 3, '%') }}
+            </small>
+          </article>
+          <article>
+            <b>
+              {{ t('assetTechnical.contract.auto.candidateThreshold') }}
+              {{ dashboard.scoreThresholdStudy.candidateThreshold }}
+            </b>
+            <span>
+              {{ dashboard.scoreThresholdStudy.candidateSamples }} /
+              {{ dashboard.scoreThresholdStudy.minimumSamples }}
+            </span>
+            <strong>
+              {{
+                formatSigned(dashboard.scoreThresholdStudy.candidateHitRatePct, 1, '%').replace(
+                  '+',
+                  '',
+                )
+              }}
+            </strong>
+            <small>
+              {{ t('assetTechnical.contract.auto.netMove') }}
+              {{ formatSigned(dashboard.scoreThresholdStudy.candidateAverageNetMovePct, 3, '%') }}
+            </small>
+          </article>
+          <article>
+            <b>{{ t('assetTechnical.contract.auto.hitRateLift') }}</b>
+            <strong :class="pnlClass(dashboard.scoreThresholdStudy.hitRateLiftPct)">
+              {{ formatSigned(dashboard.scoreThresholdStudy.hitRateLiftPct, 1, 'pp') }}
+            </strong>
+            <small>
+              {{ t('assetTechnical.contract.auto.candidateCoverage') }}
+              {{ formatNumber(dashboard.scoreThresholdStudy.candidateCoveragePct, 1) }}%
+            </small>
+          </article>
+        </div>
+      </section>
+
       <section class="signal-and-position">
         <article class="auto-signal">
           <header>
@@ -1120,6 +1192,28 @@ onBeforeUnmount(() => {
   border: 1px solid var(--border);
   border-radius: 7px;
   background: var(--surface-soft);
+}
+.score-threshold-study {
+  margin-top: var(--auto-gap);
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+.score-threshold-study > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.score-threshold-study > header div {
+  display: grid;
+  gap: 4px;
+}
+.score-threshold-study span,
+.score-threshold-study small {
+  color: var(--muted);
+  font-size: 7px;
 }
 .strategy-comparison > header {
   display: flex;

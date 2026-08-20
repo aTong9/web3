@@ -9,6 +9,7 @@ import type {
   BtcAutoRollingHealth,
   BtcAutoStrategyDefinition,
   BtcAutoSignalSnapshot,
+  BtcAutoScoreThresholdStudy,
   BtcAutoStrategyComparison,
   BtcAutoTrade,
   BtcAutoTradingConfig,
@@ -144,6 +145,65 @@ export const evaluateBtcAutoStrategyComparison = (input: {
     hitRateAdvantageUpperBoundPct,
     verdict,
     recommendedEnsembleWeightPct,
+  }
+}
+
+export const evaluateBtcAutoScoreThresholdStudy = (input: {
+  minimumSamples?: number
+  currentThreshold: number
+  candidateThreshold: number
+  currentSamples: number
+  candidateSamples: number
+  currentHitRatePct: number | null
+  candidateHitRatePct: number | null
+  currentAverageMovePct: number | null
+  candidateAverageMovePct: number | null
+  feeRatePct: number
+}): BtcAutoScoreThresholdStudy => {
+  const minimumSamples = input.minimumSamples ?? 30
+  const roundTripCostPct = input.feeRatePct * 2
+  const currentAverageNetMovePct =
+    input.currentAverageMovePct === null
+      ? null
+      : round(input.currentAverageMovePct - roundTripCostPct)
+  const candidateAverageNetMovePct =
+    input.candidateAverageMovePct === null
+      ? null
+      : round(input.candidateAverageMovePct - roundTripCostPct)
+  const candidateCoveragePct = input.currentSamples
+    ? round((input.candidateSamples / input.currentSamples) * 100, 2)
+    : null
+  const hitRateLiftPct =
+    input.currentHitRatePct === null || input.candidateHitRatePct === null
+      ? null
+      : round(input.candidateHitRatePct - input.currentHitRatePct, 2)
+  const enough = input.currentSamples >= minimumSamples && input.candidateSamples >= minimumSamples
+  const verdict: BtcAutoScoreThresholdStudy['verdict'] = !enough
+    ? 'collecting'
+    : (hitRateLiftPct ?? 0) >= 5 &&
+        (candidateAverageNetMovePct ?? Number.NEGATIVE_INFINITY) >
+          (currentAverageNetMovePct ?? 0) &&
+        (candidateCoveragePct ?? 0) >= 30
+      ? 'raise'
+      : (hitRateLiftPct ?? 0) <= 0 ||
+          (candidateAverageNetMovePct ?? 0) <= (currentAverageNetMovePct ?? 0)
+        ? 'keep'
+        : 'mixed'
+  return {
+    horizon: '1h',
+    minimumSamples,
+    currentThreshold: input.currentThreshold,
+    candidateThreshold: input.candidateThreshold,
+    currentSamples: input.currentSamples,
+    candidateSamples: input.candidateSamples,
+    currentHitRatePct: input.currentHitRatePct === null ? null : round(input.currentHitRatePct, 2),
+    candidateHitRatePct:
+      input.candidateHitRatePct === null ? null : round(input.candidateHitRatePct, 2),
+    currentAverageNetMovePct,
+    candidateAverageNetMovePct,
+    candidateCoveragePct,
+    hitRateLiftPct,
+    verdict,
   }
 }
 
