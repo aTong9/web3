@@ -1,7 +1,7 @@
 {
   "name": "vue-web3-nav",
   "productName": "FIRE Finance Workbench",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "聚合市场数据、量化信号、金融资讯与常用资源的个人金融研究工作台",
   "desktopName": "fire-finance-workbench.desktop",
   "author": {
@@ -62,8 +62,29 @@
       "dist/**/*",
       "electron/**/*",
       "package.json",
-      "!node_modules/**/*"
+      "!node_modules/**/*",
+      "node_modules/electron-updater/**/*",
+      "node_modules/builder-util-runtime/**/*",
+      "node_modules/debug/**/*",
+      "node_modules/fs-extra/**/*",
+      "node_modules/js-yaml/**/*",
+      "node_modules/lazy-val/**/*",
+      "node_modules/lodash.escaperegexp/**/*",
+      "node_modules/lodash.isequal/**/*",
+      "node_modules/tiny-typed-emitter/**/*",
+      "node_modules/argparse/**/*",
+      "node_modules/graceful-fs/**/*",
+      "node_modules/jsonfile/**/*",
+      "node_modules/ms/**/*",
+      "node_modules/sax/**/*",
+      "node_modules/semver/**/*",
+      "node_modules/universalify/**/*"
     ],
+    "publish": {
+      "provider": "github",
+      "owner": "aTong9",
+      "repo": "web3"
+    },
     "asar": true,
     "mac": {
       "category": "public.app-category.finance",
@@ -91,18 +112,21 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
     },
-    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}"
+    "artifactName": "FIRE-Finance-Workbench-${version}-${os}-${arch}.${ext}"
   },
   "dependencies": {
     "@types/js-yaml": "^4.0.9",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "echarts": "^6.1.0",
+    "electron-updater": "^6.8.9",
+    "fs-extra": "^10.1.0",
     "html2canvas": "^1.4.1",
     "js-yaml": "^4.3.1",
     "pinia": "^3.0.4",
     "posthog-js": "^1.410.6",
     "rss-parser": "^3.13.0",
+    "semver": "^7.7.4",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4"
   },
