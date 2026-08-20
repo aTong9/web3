@@ -14,6 +14,7 @@ import type {
   BtcAutoStrategyComparison,
   BtcAutoTrade,
   BtcAutoTradingConfig,
+  BtcAutoTemporalValidation,
   ContractChartInterval,
   ContractMarketSnapshot,
   ContractTradeDecision,
@@ -68,6 +69,65 @@ const automaticResearchFamilySize = 5
 const automaticResearchConfidenceLevelPct =
   100 - (100 - automaticResearchFamilyConfidenceLevelPct) / automaticResearchFamilySize
 const automaticResearchOneSidedZScore = 2.054
+const automaticResearchWindowSamples = 96
+const temporalValidationMaximumSamples = 24
+const temporalValidationMinimumSamples = 12
+
+interface BtcAutoTemporalValidationInput {
+  baselineSamples: number
+  candidateSamples: number
+  baselineHitRatePct: number | null
+  candidateHitRatePct: number | null
+  baselineAverageMovePct: number | null
+  candidateAverageMovePct: number | null
+}
+
+const evaluateTemporalValidation = (
+  input: BtcAutoTemporalValidationInput | undefined,
+  feeRatePct: number,
+): BtcAutoTemporalValidation => {
+  const roundTripCostPct = btcAutoEstimatedRoundTripCostPct(feeRatePct)
+  const baselineAverageNetMovePct =
+    input?.baselineAverageMovePct === null || input?.baselineAverageMovePct === undefined
+      ? null
+      : round(input.baselineAverageMovePct - roundTripCostPct)
+  const candidateAverageNetMovePct =
+    input?.candidateAverageMovePct === null || input?.candidateAverageMovePct === undefined
+      ? null
+      : round(input.candidateAverageMovePct - roundTripCostPct)
+  const hitRateLiftPct =
+    input?.baselineHitRatePct === null ||
+    input?.baselineHitRatePct === undefined ||
+    input.candidateHitRatePct === null
+      ? null
+      : round(input.candidateHitRatePct - input.baselineHitRatePct, 2)
+  const baselineSamples = input?.baselineSamples ?? 0
+  const candidateSamples = input?.candidateSamples ?? 0
+  const passed =
+    baselineSamples >= temporalValidationMinimumSamples &&
+    candidateSamples >= temporalValidationMinimumSamples &&
+    (hitRateLiftPct ?? Number.NEGATIVE_INFINITY) > 0 &&
+    (candidateAverageNetMovePct ?? Number.NEGATIVE_INFINITY) > 0 &&
+    (candidateAverageNetMovePct ?? Number.NEGATIVE_INFINITY) > (baselineAverageNetMovePct ?? 0)
+  return {
+    maximumSamples: temporalValidationMaximumSamples,
+    minimumSamples: temporalValidationMinimumSamples,
+    baselineSamples,
+    candidateSamples,
+    baselineHitRatePct:
+      input?.baselineHitRatePct === null || input?.baselineHitRatePct === undefined
+        ? null
+        : round(input.baselineHitRatePct, 2),
+    candidateHitRatePct:
+      input?.candidateHitRatePct === null || input?.candidateHitRatePct === undefined
+        ? null
+        : round(input.candidateHitRatePct, 2),
+    baselineAverageNetMovePct,
+    candidateAverageNetMovePct,
+    hitRateLiftPct,
+    passed,
+  }
+}
 
 const conservativeHitRateLiftLowerBoundPct = (
   baselineHitRatePct: number | null,
@@ -107,9 +167,11 @@ export const evaluateBtcAutoStrategyComparison = (input: {
   ensembleHitRatePct: number | null
   ensembleAverageMovePct: number | null
   feeRatePct: number
+  temporalValidation?: BtcAutoTemporalValidationInput
 }): BtcAutoStrategyComparison => {
   const minimumSamples = input.minimumSamples ?? 48
-  const maximumSamples = 120
+  const maximumSamples = automaticResearchWindowSamples
+  const temporalValidation = evaluateTemporalValidation(input.temporalValidation, input.feeRatePct)
   const confidenceLevelPct = automaticResearchConfidenceLevelPct
   const oneSidedZScore = automaticResearchOneSidedZScore
   const estimatedRoundTripCostPct = btcAutoEstimatedRoundTripCostPct(input.feeRatePct)
@@ -153,7 +215,9 @@ export const evaluateBtcAutoStrategyComparison = (input: {
     : (hitRateAdvantagePct ?? 0) >= 3 &&
         (hitRateAdvantageLowerBoundPct ?? Number.NEGATIVE_INFINITY) > 0 &&
         (ensembleAverageNetMovePct ?? Number.NEGATIVE_INFINITY) > 0 &&
-        (ensembleAverageNetMovePct ?? Number.NEGATIVE_INFINITY) > (baselineAverageNetMovePct ?? 0)
+        (ensembleAverageNetMovePct ?? Number.NEGATIVE_INFINITY) >
+          (baselineAverageNetMovePct ?? 0) &&
+        temporalValidation.passed
       ? 'outperforming'
       : (hitRateAdvantageUpperBoundPct ?? Number.POSITIVE_INFINITY) < 0 &&
           (ensembleAverageNetMovePct ?? 0) <= (baselineAverageNetMovePct ?? 0)
@@ -186,6 +250,7 @@ export const evaluateBtcAutoStrategyComparison = (input: {
     hitRateAdvantageUpperBoundPct,
     verdict,
     recommendedEnsembleWeightPct,
+    temporalValidation,
   }
 }
 
@@ -200,9 +265,11 @@ export const evaluateBtcAutoScoreThresholdStudy = (input: {
   currentAverageMovePct: number | null
   candidateAverageMovePct: number | null
   feeRatePct: number
+  temporalValidation?: BtcAutoTemporalValidationInput
 }): BtcAutoScoreThresholdStudy => {
   const minimumSamples = input.minimumSamples ?? 30
   const confidenceLevelPct = automaticResearchConfidenceLevelPct
+  const temporalValidation = evaluateTemporalValidation(input.temporalValidation, input.feeRatePct)
   const roundTripCostPct = input.feeRatePct * 2
   const currentAverageNetMovePct =
     input.currentAverageMovePct === null
@@ -233,7 +300,8 @@ export const evaluateBtcAutoScoreThresholdStudy = (input: {
         (candidateAverageNetMovePct ?? Number.NEGATIVE_INFINITY) > 0 &&
         (candidateAverageNetMovePct ?? Number.NEGATIVE_INFINITY) >
           (currentAverageNetMovePct ?? 0) &&
-        (candidateCoveragePct ?? 0) >= 30
+        (candidateCoveragePct ?? 0) >= 30 &&
+        temporalValidation.passed
       ? 'raise'
       : (hitRateLiftPct ?? 0) <= 0 ||
           (candidateAverageNetMovePct ?? 0) <= (currentAverageNetMovePct ?? 0)
@@ -256,6 +324,7 @@ export const evaluateBtcAutoScoreThresholdStudy = (input: {
     hitRateLiftPct,
     hitRateLiftLowerBoundPct,
     verdict,
+    temporalValidation,
   }
 }
 
@@ -268,9 +337,11 @@ export const evaluateBtcAutoConsensusStudy = (input: {
   baselineAverageMovePct: number | null
   consensusAverageMovePct: number | null
   feeRatePct: number
+  temporalValidation?: BtcAutoTemporalValidationInput
 }): BtcAutoConsensusStudy => {
   const minimumSamples = input.minimumSamples ?? 30
   const confidenceLevelPct = automaticResearchConfidenceLevelPct
+  const temporalValidation = evaluateTemporalValidation(input.temporalValidation, input.feeRatePct)
   const roundTripCostPct = btcAutoEstimatedRoundTripCostPct(input.feeRatePct)
   const baselineAverageNetMovePct =
     input.baselineAverageMovePct === null
@@ -301,7 +372,8 @@ export const evaluateBtcAutoConsensusStudy = (input: {
         (consensusAverageNetMovePct ?? Number.NEGATIVE_INFINITY) > 0 &&
         (consensusAverageNetMovePct ?? Number.NEGATIVE_INFINITY) >
           (baselineAverageNetMovePct ?? 0) &&
-        (consensusCoveragePct ?? 0) >= 30
+        (consensusCoveragePct ?? 0) >= 30 &&
+        temporalValidation.passed
       ? 'promote'
       : (hitRateLiftPct ?? 0) <= 0 ||
           (consensusAverageNetMovePct ?? 0) <= (baselineAverageNetMovePct ?? 0)
@@ -324,6 +396,7 @@ export const evaluateBtcAutoConsensusStudy = (input: {
     hitRateLiftLowerBoundPct,
     verdict,
     consensusRequired: verdict === 'promote',
+    temporalValidation,
   }
 }
 
@@ -392,10 +465,10 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v21'
+const strategyAlgorithmRevision = 'btc-auto-v22'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 export const btcAutoSignalModelVersion = 'btc-signal-model-v2'
-export const btcAutoEvidencePolicyVersion = 'btc-evidence-v7-familywise-confidence'
+export const btcAutoEvidencePolicyVersion = 'btc-evidence-v8-temporal-validation'
 export const btcAutoPerformanceCohortVersion = 'btc-performance-v2-minute-strategy'
 
 const fnv1a = (value: string) => {

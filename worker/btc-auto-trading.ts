@@ -926,6 +926,13 @@ const strategyComparison = async (
          AND ensemble_forward_1h_pct IS NOT NULL
      ), paired_window AS (
        SELECT * FROM paired ORDER BY observed_at DESC LIMIT 120
+     ), ranked_window AS (
+       SELECT *, ROW_NUMBER() OVER (ORDER BY observed_at DESC) AS validation_rank
+       FROM paired_window
+     ), evaluation_window AS (
+       SELECT * FROM ranked_window WHERE validation_rank > 24
+     ), validation_window AS (
+       SELECT * FROM ranked_window WHERE validation_rank <= 24
      )
      SELECT
        COUNT(*) AS paired_samples,
@@ -938,8 +945,18 @@ const strategyComparison = async (
        SUM(CASE WHEN baseline_forward_1h_pct > ?3 AND ensemble_forward_1h_pct <= ?3
          THEN 1 ELSE 0 END) AS baseline_only_wins,
        SUM(CASE WHEN ensemble_forward_1h_pct > ?3 AND baseline_forward_1h_pct <= ?3
-         THEN 1 ELSE 0 END) AS ensemble_only_wins
-     FROM paired_window`,
+         THEN 1 ELSE 0 END) AS ensemble_only_wins,
+       (SELECT COUNT(*) FROM validation_window) AS validation_baseline_samples,
+       (SELECT COUNT(*) FROM validation_window) AS validation_candidate_samples,
+       (SELECT AVG(CASE WHEN baseline_forward_1h_pct > ?3 THEN 100.0 ELSE 0 END)
+         FROM validation_window) AS validation_baseline_hit_rate,
+       (SELECT AVG(CASE WHEN ensemble_forward_1h_pct > ?3 THEN 100.0 ELSE 0 END)
+         FROM validation_window) AS validation_candidate_hit_rate,
+       (SELECT AVG(baseline_forward_1h_pct) FROM validation_window)
+         AS validation_baseline_average_move,
+       (SELECT AVG(ensemble_forward_1h_pct) FROM validation_window)
+         AS validation_candidate_average_move
+     FROM evaluation_window`,
   )
     .bind(signalModelVersion, regime, estimatedRoundTripCostPct)
     .first<{
@@ -952,6 +969,12 @@ const strategyComparison = async (
       ensemble_average_move: number | null
       baseline_only_wins: number
       ensemble_only_wins: number
+      validation_baseline_samples: number
+      validation_candidate_samples: number
+      validation_baseline_hit_rate: number | null
+      validation_candidate_hit_rate: number | null
+      validation_baseline_average_move: number | null
+      validation_candidate_average_move: number | null
     }>()
   return evaluateBtcAutoStrategyComparison({
     pairedSamples: row?.paired_samples ?? 0,
@@ -964,6 +987,14 @@ const strategyComparison = async (
     ensembleHitRatePct: row?.ensemble_hit_rate ?? null,
     ensembleAverageMovePct: row?.ensemble_average_move ?? null,
     feeRatePct,
+    temporalValidation: {
+      baselineSamples: row?.validation_baseline_samples ?? 0,
+      candidateSamples: row?.validation_candidate_samples ?? 0,
+      baselineHitRatePct: row?.validation_baseline_hit_rate ?? null,
+      candidateHitRatePct: row?.validation_candidate_hit_rate ?? null,
+      baselineAverageMovePct: row?.validation_baseline_average_move ?? null,
+      candidateAverageMovePct: row?.validation_candidate_average_move ?? null,
+    },
   })
 }
 
@@ -995,6 +1026,15 @@ const scoreThresholdStudy = async (
        FROM btc_auto_signal_history
        WHERE signal_model_version = ?1 AND baseline_action IN ('long', 'short')
          AND baseline_forward_1h_pct IS NOT NULL
+     ), sample_pool AS (
+       SELECT * FROM hourly WHERE sample_rank = 1 ORDER BY observed_at DESC LIMIT 120
+     ), ranked_window AS (
+       SELECT *, ROW_NUMBER() OVER (ORDER BY observed_at DESC) AS validation_rank
+       FROM sample_pool
+     ), samples AS (
+       SELECT * FROM ranked_window WHERE validation_rank > 24
+     ), validation_window AS (
+       SELECT * FROM ranked_window WHERE validation_rank <= 24
      )
      SELECT
        SUM(CASE WHEN ABS(baseline_score) >= ?2 THEN 1 ELSE 0 END) AS current_samples,
@@ -1004,8 +1044,23 @@ const scoreThresholdStudy = async (
        SUM(CASE WHEN ABS(baseline_score) >= ?3 THEN 1 ELSE 0 END) AS candidate_samples,
        AVG(CASE WHEN ABS(baseline_score) >= ?3
          THEN CASE WHEN baseline_forward_1h_pct > ?4 THEN 100.0 ELSE 0 END END) AS candidate_hit_rate,
-       AVG(CASE WHEN ABS(baseline_score) >= ?3 THEN baseline_forward_1h_pct END) AS candidate_average_move
-     FROM hourly WHERE sample_rank = 1`,
+       AVG(CASE WHEN ABS(baseline_score) >= ?3 THEN baseline_forward_1h_pct END)
+         AS candidate_average_move,
+       (SELECT SUM(CASE WHEN ABS(baseline_score) >= ?2 THEN 1 ELSE 0 END)
+         FROM validation_window) AS validation_baseline_samples,
+       (SELECT SUM(CASE WHEN ABS(baseline_score) >= ?3 THEN 1 ELSE 0 END)
+         FROM validation_window) AS validation_candidate_samples,
+       (SELECT AVG(CASE WHEN ABS(baseline_score) >= ?2
+         THEN CASE WHEN baseline_forward_1h_pct > ?4 THEN 100.0 ELSE 0 END END)
+         FROM validation_window) AS validation_baseline_hit_rate,
+       (SELECT AVG(CASE WHEN ABS(baseline_score) >= ?3
+         THEN CASE WHEN baseline_forward_1h_pct > ?4 THEN 100.0 ELSE 0 END END)
+         FROM validation_window) AS validation_candidate_hit_rate,
+       (SELECT AVG(CASE WHEN ABS(baseline_score) >= ?2 THEN baseline_forward_1h_pct END)
+         FROM validation_window) AS validation_baseline_average_move,
+       (SELECT AVG(CASE WHEN ABS(baseline_score) >= ?3 THEN baseline_forward_1h_pct END)
+         FROM validation_window) AS validation_candidate_average_move
+     FROM samples`,
   )
     .bind(signalModelVersion, currentThreshold, candidateThreshold, estimatedRoundTripCostPct)
     .first<{
@@ -1015,6 +1070,12 @@ const scoreThresholdStudy = async (
       candidate_samples: number
       candidate_hit_rate: number | null
       candidate_average_move: number | null
+      validation_baseline_samples: number
+      validation_candidate_samples: number
+      validation_baseline_hit_rate: number | null
+      validation_candidate_hit_rate: number | null
+      validation_baseline_average_move: number | null
+      validation_candidate_average_move: number | null
     }>()
   return evaluateBtcAutoScoreThresholdStudy({
     currentThreshold,
@@ -1026,6 +1087,14 @@ const scoreThresholdStudy = async (
     currentAverageMovePct: row?.current_average_move ?? null,
     candidateAverageMovePct: row?.candidate_average_move ?? null,
     feeRatePct,
+    temporalValidation: {
+      baselineSamples: row?.validation_baseline_samples ?? 0,
+      candidateSamples: row?.validation_candidate_samples ?? 0,
+      baselineHitRatePct: row?.validation_baseline_hit_rate ?? null,
+      candidateHitRatePct: row?.validation_candidate_hit_rate ?? null,
+      baselineAverageMovePct: row?.validation_baseline_average_move ?? null,
+      candidateAverageMovePct: row?.validation_candidate_average_move ?? null,
+    },
   })
 }
 
@@ -1044,9 +1113,18 @@ const consensusStudy = async (
          PARTITION BY substr(observed_at, 1, 13) ORDER BY observed_at ASC
        ) AS sample_rank
        FROM eligible
-     ), samples AS (
+     ), samples_all AS (
        SELECT * FROM hourly
        WHERE sample_rank = 1 AND baseline_forward_1h_pct IS NOT NULL
+     ), sample_pool AS (
+       SELECT * FROM samples_all ORDER BY observed_at DESC LIMIT 120
+     ), ranked_window AS (
+       SELECT *, ROW_NUMBER() OVER (ORDER BY observed_at DESC) AS validation_rank
+       FROM sample_pool
+     ), samples AS (
+       SELECT * FROM ranked_window WHERE validation_rank > 24
+     ), validation_window AS (
+       SELECT * FROM ranked_window WHERE validation_rank <= 24
      )
      SELECT
        COUNT(*) AS baseline_samples,
@@ -1056,7 +1134,19 @@ const consensusStudy = async (
        AVG(CASE WHEN ensemble_action = baseline_action
          THEN CASE WHEN baseline_forward_1h_pct > ?2 THEN 100.0 ELSE 0 END END) AS consensus_hit_rate,
        AVG(CASE WHEN ensemble_action = baseline_action
-         THEN baseline_forward_1h_pct END) AS consensus_average_move
+         THEN baseline_forward_1h_pct END) AS consensus_average_move,
+       (SELECT COUNT(*) FROM validation_window) AS validation_baseline_samples,
+       (SELECT SUM(CASE WHEN ensemble_action = baseline_action THEN 1 ELSE 0 END)
+         FROM validation_window) AS validation_candidate_samples,
+       (SELECT AVG(CASE WHEN baseline_forward_1h_pct > ?2 THEN 100.0 ELSE 0 END)
+         FROM validation_window) AS validation_baseline_hit_rate,
+       (SELECT AVG(CASE WHEN ensemble_action = baseline_action
+         THEN CASE WHEN baseline_forward_1h_pct > ?2 THEN 100.0 ELSE 0 END END)
+         FROM validation_window) AS validation_candidate_hit_rate,
+       (SELECT AVG(baseline_forward_1h_pct) FROM validation_window)
+         AS validation_baseline_average_move,
+       (SELECT AVG(CASE WHEN ensemble_action = baseline_action THEN baseline_forward_1h_pct END)
+         FROM validation_window) AS validation_candidate_average_move
      FROM samples`,
   )
     .bind(signalModelVersion, estimatedRoundTripCostPct)
@@ -1067,6 +1157,12 @@ const consensusStudy = async (
       consensus_samples: number
       consensus_hit_rate: number | null
       consensus_average_move: number | null
+      validation_baseline_samples: number
+      validation_candidate_samples: number
+      validation_baseline_hit_rate: number | null
+      validation_candidate_hit_rate: number | null
+      validation_baseline_average_move: number | null
+      validation_candidate_average_move: number | null
     }>()
   return evaluateBtcAutoConsensusStudy({
     baselineSamples: row?.baseline_samples ?? 0,
@@ -1076,6 +1172,14 @@ const consensusStudy = async (
     baselineAverageMovePct: row?.baseline_average_move ?? null,
     consensusAverageMovePct: row?.consensus_average_move ?? null,
     feeRatePct,
+    temporalValidation: {
+      baselineSamples: row?.validation_baseline_samples ?? 0,
+      candidateSamples: row?.validation_candidate_samples ?? 0,
+      baselineHitRatePct: row?.validation_baseline_hit_rate ?? null,
+      candidateHitRatePct: row?.validation_candidate_hit_rate ?? null,
+      baselineAverageMovePct: row?.validation_baseline_average_move ?? null,
+      candidateAverageMovePct: row?.validation_candidate_average_move ?? null,
+    },
   })
 }
 

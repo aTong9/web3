@@ -79,6 +79,16 @@ const signal = (overrides = {}) => ({
   ...overrides,
 })
 
+const passingTemporalValidation = (overrides = {}) => ({
+  baselineSamples: 24,
+  candidateSamples: 18,
+  baselineHitRatePct: 50,
+  candidateHitRatePct: 60,
+  baselineAverageMovePct: 0.2,
+  candidateAverageMovePct: 0.32,
+  ...overrides,
+})
+
 const trade = (overrides = {}) => ({
   id: 'trade-1',
   strategyVersion: 'btc-auto-v4-test',
@@ -259,7 +269,7 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
 
 test('signal model cohort remains stable across execution configuration changes', () => {
   assert.equal(btcAutoSignalModelVersion, 'btc-signal-model-v2')
-  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v7-familywise-confidence')
+  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v8-temporal-validation')
   assert.notEqual(
     btcAutoStrategyVersion(config()),
     btcAutoStrategyVersion(config({ minimumDirectionalScore: 70 })),
@@ -434,14 +444,17 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
     ensembleOnlyWins: 120,
     baselineSamples: 1000,
     ensembleSamples: 1000,
+    temporalValidation: passingTemporalValidation(),
   })
   assert.equal(ahead.verdict, 'outperforming')
   assert.equal(ahead.confidenceLevelPct, 98)
-  assert.equal(ahead.maximumSamples, 120)
+  assert.equal(ahead.maximumSamples, 96)
   assert.equal(ahead.hitRateAdvantagePct, 4)
   assert.ok(ahead.hitRateAdvantageLowerBoundPct > 0)
   assert.equal(ahead.ensembleAverageNetMovePct, 0.08)
   assert.equal(ahead.recommendedEnsembleWeightPct, 35)
+  assert.equal(ahead.temporalValidation.passed, true)
+  assert.equal(ahead.temporalValidation.maximumSamples, 24)
   assert.equal(
     evaluateBtcAutoStrategyComparison({
       ...base,
@@ -450,6 +463,19 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
       ensembleOnlyWins: 120,
       baselineSamples: 1000,
       ensembleSamples: 1000,
+      temporalValidation: passingTemporalValidation({ candidateAverageMovePct: 0.15 }),
+    }).recommendedEnsembleWeightPct,
+    0,
+  )
+  assert.equal(
+    evaluateBtcAutoStrategyComparison({
+      ...base,
+      pairedSamples: 1000,
+      baselineOnlyWins: 80,
+      ensembleOnlyWins: 120,
+      baselineSamples: 1000,
+      ensembleSamples: 1000,
+      temporalValidation: passingTemporalValidation(),
       baselineAverageMovePct: -0.1,
       ensembleAverageMovePct: 0.05,
     }).recommendedEnsembleWeightPct,
@@ -463,6 +489,7 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
       ensembleOnlyWins: 120,
       baselineSamples: 1000,
       ensembleSamples: 1000,
+      temporalValidation: passingTemporalValidation(),
       ensembleAverageMovePct: 0.12,
     }).recommendedEnsembleWeightPct,
     0,
@@ -475,6 +502,7 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
       ensembleOnlyWins: 70,
       baselineSamples: 1000,
       ensembleSamples: 1000,
+      temporalValidation: passingTemporalValidation(),
       ensembleHitRatePct: 45,
       ensembleAverageMovePct: 0.1,
     }).verdict,
@@ -536,12 +564,23 @@ test('score threshold study waits for coverage and requires precision plus net i
     currentAverageMovePct: 0.2,
     candidateAverageMovePct: 0.32,
     feeRatePct: 0.05,
+    temporalValidation: passingTemporalValidation(),
   })
   assert.equal(raise.verdict, 'raise')
   assert.equal(raise.hitRateLiftPct, 10)
   assert.equal(raise.confidenceLevelPct, 98)
   assert.ok(raise.hitRateLiftLowerBoundPct > 0)
   assert.equal(raise.candidateAverageNetMovePct, 0.22)
+  assert.equal(raise.temporalValidation.passed, true)
+
+  assert.notEqual(
+    evaluateBtcAutoScoreThresholdStudy({
+      ...raise,
+      temporalValidation: passingTemporalValidation({ candidateHitRatePct: 45 }),
+      feeRatePct: 0.05,
+    }).verdict,
+    'raise',
+  )
 
   assert.notEqual(
     evaluateBtcAutoScoreThresholdStudy({
@@ -597,6 +636,7 @@ test('consensus filter promotes only with enough precision, net improvement and 
     baselineAverageMovePct: 0.16,
     consensusAverageMovePct: 0.3,
     feeRatePct: 0.05,
+    temporalValidation: passingTemporalValidation({ baselineHitRatePct: 48 }),
   })
   assert.equal(promoted.verdict, 'promote')
   assert.equal(promoted.confidenceLevelPct, 98)
@@ -604,6 +644,7 @@ test('consensus filter promotes only with enough precision, net improvement and 
   assert.ok(promoted.hitRateLiftLowerBoundPct > 0)
   assert.equal(promoted.consensusAverageNetMovePct, 0.2)
   assert.equal(promoted.consensusRequired, true)
+  assert.equal(promoted.temporalValidation.passed, true)
   assert.equal(
     evaluateBtcAutoConsensusStudy({
       ...promoted,
@@ -1007,7 +1048,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       config: config(),
       strategyVersion: 'btc-auto-v4-test',
       signalModelVersion: 'btc-signal-model-v2',
-      evidencePolicyVersion: 'btc-evidence-v7-familywise-confidence',
+      evidencePolicyVersion: 'btc-evidence-v8-temporal-validation',
       performanceCohortVersion: 'btc-performance-v2-minute-strategy',
       strategySnapshots: [
         {
@@ -1050,6 +1091,18 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
         hitRateAdvantageUpperBoundPct: null,
         verdict: 'collecting',
         recommendedEnsembleWeightPct: 0,
+        temporalValidation: {
+          maximumSamples: 24,
+          minimumSamples: 12,
+          baselineSamples: 0,
+          candidateSamples: 0,
+          baselineHitRatePct: null,
+          candidateHitRatePct: null,
+          baselineAverageNetMovePct: null,
+          candidateAverageNetMovePct: null,
+          hitRateLiftPct: null,
+          passed: false,
+        },
       },
       activeStrategyRegime: null,
       strategyComparisonsByRegime: [],
@@ -1069,6 +1122,18 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
         hitRateLiftPct: null,
         hitRateLiftLowerBoundPct: null,
         verdict: 'collecting',
+        temporalValidation: {
+          maximumSamples: 24,
+          minimumSamples: 12,
+          baselineSamples: 0,
+          candidateSamples: 0,
+          baselineHitRatePct: null,
+          candidateHitRatePct: null,
+          baselineAverageNetMovePct: null,
+          candidateAverageNetMovePct: null,
+          hitRateLiftPct: null,
+          passed: false,
+        },
       },
       consensusStudy: {
         horizon: '1h',
@@ -1085,6 +1150,18 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
         hitRateLiftLowerBoundPct: null,
         verdict: 'collecting',
         consensusRequired: false,
+        temporalValidation: {
+          maximumSamples: 24,
+          minimumSamples: 12,
+          baselineSamples: 0,
+          candidateSamples: 0,
+          baselineHitRatePct: null,
+          candidateHitRatePct: null,
+          baselineAverageNetMovePct: null,
+          candidateAverageNetMovePct: null,
+          hitRateLiftPct: null,
+          passed: false,
+        },
       },
       entryGate: {
         reason: 'waitingDirection',

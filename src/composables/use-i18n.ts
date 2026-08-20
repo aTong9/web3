@@ -1085,6 +1085,9 @@ const messages: Record<Locale, DictionaryNode> = {
             '每小时首组双方都有方向的同期信号；超过往返成本才计为命中，候选期望为正且98%校正优势下界大于0',
           evidencePolicyVersion: '证据口径',
           maximumPairedWindow: '每种状态最近配对样本上限',
+          temporalValidation: '最近24个时间顺序复验样本',
+          temporalValidationPassed: '复验通过',
+          temporalValidationWaiting: '未通过，保持影子运行',
           activeStrategyRegime: '当前状态',
           strategyRegime: {
             trending: '趋势市场',
@@ -2978,6 +2981,9 @@ const messages: Record<Locale, DictionaryNode> = {
             'First same-time directional pair per hour; wins must clear costs, expectancy must be positive, and the Bonferroni-adjusted 98% advantage floor must exceed zero',
           evidencePolicyVersion: 'Evidence policy',
           maximumPairedWindow: 'Recent paired-sample cap per regime',
+          temporalValidation: 'Latest 24 chronological validation samples',
+          temporalValidationPassed: 'Validation passed',
+          temporalValidationWaiting: 'Not passed; remains shadow-only',
           activeStrategyRegime: 'Active regime',
           strategyRegime: {
             trending: 'Trending',

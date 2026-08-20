@@ -464,6 +464,21 @@ onBeforeUnmount(() => {
           </div>
           <small>{{ t('assetTechnical.contract.auto.strategyComparisonHint') }}</small>
           <small>
+            {{ t('assetTechnical.contract.auto.temporalValidation') }} ·
+            {{
+              t(
+                dashboard.strategyComparison.temporalValidation.passed
+                  ? 'assetTechnical.contract.auto.temporalValidationPassed'
+                  : 'assetTechnical.contract.auto.temporalValidationWaiting',
+              )
+            }}
+            · {{ dashboard.strategyComparison.temporalValidation.candidateSamples }} /
+            {{ dashboard.strategyComparison.temporalValidation.minimumSamples }} ·
+            {{
+              formatSigned(dashboard.strategyComparison.temporalValidation.hitRateLiftPct, 1, 'pp')
+            }}
+          </small>
+          <small>
             {{ t('assetTechnical.contract.auto.evidencePolicyVersion') }}
             <code>{{ dashboard.evidencePolicyVersion }}</code>
           </small>
@@ -574,6 +589,21 @@ onBeforeUnmount(() => {
             </strong>
           </div>
           <small>{{ t('assetTechnical.contract.auto.scoreThresholdStudyHint') }}</small>
+          <small>
+            {{ t('assetTechnical.contract.auto.temporalValidation') }} ·
+            {{
+              t(
+                dashboard.scoreThresholdStudy.temporalValidation.passed
+                  ? 'assetTechnical.contract.auto.temporalValidationPassed'
+                  : 'assetTechnical.contract.auto.temporalValidationWaiting',
+              )
+            }}
+            · {{ dashboard.scoreThresholdStudy.temporalValidation.candidateSamples }} /
+            {{ dashboard.scoreThresholdStudy.temporalValidation.minimumSamples }} ·
+            {{
+              formatSigned(dashboard.scoreThresholdStudy.temporalValidation.hitRateLiftPct, 1, 'pp')
+            }}
+          </small>
         </header>
         <div class="comparison-grid">
           <article>
@@ -650,6 +680,19 @@ onBeforeUnmount(() => {
             </strong>
           </div>
           <small>{{ t('assetTechnical.contract.auto.consensusStudyHint') }}</small>
+          <small>
+            {{ t('assetTechnical.contract.auto.temporalValidation') }} ·
+            {{
+              t(
+                dashboard.consensusStudy.temporalValidation.passed
+                  ? 'assetTechnical.contract.auto.temporalValidationPassed'
+                  : 'assetTechnical.contract.auto.temporalValidationWaiting',
+              )
+            }}
+            · {{ dashboard.consensusStudy.temporalValidation.candidateSamples }} /
+            {{ dashboard.consensusStudy.temporalValidation.minimumSamples }} ·
+            {{ formatSigned(dashboard.consensusStudy.temporalValidation.hitRateLiftPct, 1, 'pp') }}
+          </small>
         </header>
         <div class="comparison-grid">
           <article>

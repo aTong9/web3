@@ -1440,6 +1440,19 @@ export interface BtcAutoSignalOutcomeSummary {
   averageDirectionalMovePct: number | null
 }
 
+export interface BtcAutoTemporalValidation {
+  maximumSamples: number
+  minimumSamples: number
+  baselineSamples: number
+  candidateSamples: number
+  baselineHitRatePct: number | null
+  candidateHitRatePct: number | null
+  baselineAverageNetMovePct: number | null
+  candidateAverageNetMovePct: number | null
+  hitRateLiftPct: number | null
+  passed: boolean
+}
+
 export interface BtcAutoStrategyComparison {
   horizon: '1h'
   minimumSamples: number
@@ -1462,6 +1475,7 @@ export interface BtcAutoStrategyComparison {
   hitRateAdvantageUpperBoundPct: number | null
   verdict: 'collecting' | 'outperforming' | 'mixed' | 'underperforming'
   recommendedEnsembleWeightPct: number
+  temporalValidation: BtcAutoTemporalValidation
 }
 
 export interface BtcAutoRegimeStrategyComparison extends BtcAutoStrategyComparison {
@@ -1484,6 +1498,7 @@ export interface BtcAutoScoreThresholdStudy {
   hitRateLiftPct: number | null
   hitRateLiftLowerBoundPct: number | null
   verdict: 'collecting' | 'raise' | 'keep' | 'mixed'
+  temporalValidation: BtcAutoTemporalValidation
 }
 
 export interface BtcAutoConsensusStudy {
@@ -1501,6 +1516,7 @@ export interface BtcAutoConsensusStudy {
   hitRateLiftLowerBoundPct: number | null
   verdict: 'collecting' | 'promote' | 'keep' | 'mixed'
   consensusRequired: boolean
+  temporalValidation: BtcAutoTemporalValidation
 }
 
 export interface BtcAutoTradingDashboard {
