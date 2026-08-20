@@ -63,6 +63,12 @@ export const btcAutoEstimatedRoundTripCostPct = (feeRatePct: number) => round(fe
 export const isBtcAutoFeeAdjustedSignalWin = (movePct: number, feeRatePct: number) =>
   movePct > btcAutoEstimatedRoundTripCostPct(feeRatePct)
 
+const automaticResearchFamilyConfidenceLevelPct = 90
+const automaticResearchFamilySize = 5
+const automaticResearchConfidenceLevelPct =
+  100 - (100 - automaticResearchFamilyConfidenceLevelPct) / automaticResearchFamilySize
+const automaticResearchOneSidedZScore = 2.054
+
 const conservativeHitRateLiftLowerBoundPct = (
   baselineHitRatePct: number | null,
   baselineSamples: number,
@@ -83,7 +89,10 @@ const conservativeHitRateLiftLowerBoundPct = (
       (baselineRate * (1 - baselineRate)) / baselineSamples +
         (candidateRate * (1 - candidateRate)) / candidateSamples,
     ) * 100
-  return round(candidateHitRatePct - baselineHitRatePct - 1.282 * standardErrorPct, 2)
+  return round(
+    candidateHitRatePct - baselineHitRatePct - automaticResearchOneSidedZScore * standardErrorPct,
+    2,
+  )
 }
 
 export const evaluateBtcAutoStrategyComparison = (input: {
@@ -101,8 +110,8 @@ export const evaluateBtcAutoStrategyComparison = (input: {
 }): BtcAutoStrategyComparison => {
   const minimumSamples = input.minimumSamples ?? 48
   const maximumSamples = 120
-  const confidenceLevelPct = 80
-  const oneSidedZScore = 1.282
+  const confidenceLevelPct = automaticResearchConfidenceLevelPct
+  const oneSidedZScore = automaticResearchOneSidedZScore
   const estimatedRoundTripCostPct = btcAutoEstimatedRoundTripCostPct(input.feeRatePct)
   const baselineAverageNetMovePct =
     input.baselineAverageMovePct === null
@@ -193,7 +202,7 @@ export const evaluateBtcAutoScoreThresholdStudy = (input: {
   feeRatePct: number
 }): BtcAutoScoreThresholdStudy => {
   const minimumSamples = input.minimumSamples ?? 30
-  const confidenceLevelPct = 80
+  const confidenceLevelPct = automaticResearchConfidenceLevelPct
   const roundTripCostPct = input.feeRatePct * 2
   const currentAverageNetMovePct =
     input.currentAverageMovePct === null
@@ -261,7 +270,7 @@ export const evaluateBtcAutoConsensusStudy = (input: {
   feeRatePct: number
 }): BtcAutoConsensusStudy => {
   const minimumSamples = input.minimumSamples ?? 30
-  const confidenceLevelPct = 80
+  const confidenceLevelPct = automaticResearchConfidenceLevelPct
   const roundTripCostPct = btcAutoEstimatedRoundTripCostPct(input.feeRatePct)
   const baselineAverageNetMovePct =
     input.baselineAverageMovePct === null
@@ -383,10 +392,10 @@ export const selectBtcAutoOutcomePoint = (
   return null
 }
 
-const strategyAlgorithmRevision = 'btc-auto-v20'
+const strategyAlgorithmRevision = 'btc-auto-v21'
 const legacyStrategyAlgorithmRevision = 'btc-auto-v4'
 export const btcAutoSignalModelVersion = 'btc-signal-model-v2'
-export const btcAutoEvidencePolicyVersion = 'btc-evidence-v6-confidence-bound'
+export const btcAutoEvidencePolicyVersion = 'btc-evidence-v7-familywise-confidence'
 export const btcAutoPerformanceCohortVersion = 'btc-performance-v2-minute-strategy'
 
 const fnv1a = (value: string) => {

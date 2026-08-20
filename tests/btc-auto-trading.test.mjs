@@ -259,7 +259,7 @@ test('strategy fingerprint changes only when execution behavior changes', () => 
 
 test('signal model cohort remains stable across execution configuration changes', () => {
   assert.equal(btcAutoSignalModelVersion, 'btc-signal-model-v2')
-  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v6-confidence-bound')
+  assert.equal(btcAutoEvidencePolicyVersion, 'btc-evidence-v7-familywise-confidence')
   assert.notEqual(
     btcAutoStrategyVersion(config()),
     btcAutoStrategyVersion(config({ minimumDirectionalScore: 70 })),
@@ -436,6 +436,7 @@ test('strategy comparison waits for samples and requires hit-rate plus net-move 
     ensembleSamples: 1000,
   })
   assert.equal(ahead.verdict, 'outperforming')
+  assert.equal(ahead.confidenceLevelPct, 98)
   assert.equal(ahead.maximumSamples, 120)
   assert.equal(ahead.hitRateAdvantagePct, 4)
   assert.ok(ahead.hitRateAdvantageLowerBoundPct > 0)
@@ -538,6 +539,7 @@ test('score threshold study waits for coverage and requires precision plus net i
   })
   assert.equal(raise.verdict, 'raise')
   assert.equal(raise.hitRateLiftPct, 10)
+  assert.equal(raise.confidenceLevelPct, 98)
   assert.ok(raise.hitRateLiftLowerBoundPct > 0)
   assert.equal(raise.candidateAverageNetMovePct, 0.22)
 
@@ -597,6 +599,7 @@ test('consensus filter promotes only with enough precision, net improvement and 
     feeRatePct: 0.05,
   })
   assert.equal(promoted.verdict, 'promote')
+  assert.equal(promoted.confidenceLevelPct, 98)
   assert.equal(promoted.consensusCoveragePct, 40)
   assert.ok(promoted.hitRateLiftLowerBoundPct > 0)
   assert.equal(promoted.consensusAverageNetMovePct, 0.2)
@@ -1004,7 +1007,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       config: config(),
       strategyVersion: 'btc-auto-v4-test',
       signalModelVersion: 'btc-signal-model-v2',
-      evidencePolicyVersion: 'btc-evidence-v6-confidence-bound',
+      evidencePolicyVersion: 'btc-evidence-v7-familywise-confidence',
       performanceCohortVersion: 'btc-performance-v2-minute-strategy',
       strategySnapshots: [
         {
@@ -1029,7 +1032,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
         horizon: '1h',
         minimumSamples: 48,
         maximumSamples: 120,
-        confidenceLevelPct: 80,
+        confidenceLevelPct: 98,
         pairedSamples: 0,
         baselineOnlyWins: 0,
         ensembleOnlyWins: 0,
@@ -1053,7 +1056,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       scoreThresholdStudy: {
         horizon: '1h',
         minimumSamples: 30,
-        confidenceLevelPct: 80,
+        confidenceLevelPct: 98,
         currentThreshold: 55,
         candidateThreshold: 70,
         currentSamples: 0,
@@ -1070,7 +1073,7 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       consensusStudy: {
         horizon: '1h',
         minimumSamples: 30,
-        confidenceLevelPct: 80,
+        confidenceLevelPct: 98,
         baselineSamples: 0,
         consensusSamples: 0,
         baselineHitRatePct: null,
