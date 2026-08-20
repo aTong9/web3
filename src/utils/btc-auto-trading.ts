@@ -9,6 +9,7 @@ import type {
   BtcAutoRollingHealth,
   BtcAutoStrategyDefinition,
   BtcAutoSignalSnapshot,
+  BtcAutoStrategyComparison,
   BtcAutoTrade,
   BtcAutoTradingConfig,
   ContractChartInterval,
@@ -54,6 +55,61 @@ export const validateBtcAutoMarketFreshness = (
 
 export const nextBtcAutoScheduledRunAt = (now = new Date()) =>
   new Date((Math.floor(now.getTime() / 300_000) + 1) * 300_000).toISOString()
+
+export const evaluateBtcAutoStrategyComparison = (input: {
+  minimumSamples?: number
+  baselineSamples: number
+  baselineHitRatePct: number | null
+  baselineAverageMovePct: number | null
+  ensembleSamples: number
+  ensembleHitRatePct: number | null
+  ensembleAverageMovePct: number | null
+  feeRatePct: number
+}): BtcAutoStrategyComparison => {
+  const minimumSamples = input.minimumSamples ?? 24
+  const estimatedRoundTripCostPct = round(input.feeRatePct * 2)
+  const baselineAverageNetMovePct =
+    input.baselineAverageMovePct === null
+      ? null
+      : round(input.baselineAverageMovePct - estimatedRoundTripCostPct)
+  const ensembleAverageNetMovePct =
+    input.ensembleAverageMovePct === null
+      ? null
+      : round(input.ensembleAverageMovePct - estimatedRoundTripCostPct)
+  const hitRateAdvantagePct =
+    input.baselineHitRatePct === null || input.ensembleHitRatePct === null
+      ? null
+      : round(input.ensembleHitRatePct - input.baselineHitRatePct, 2)
+  const enough = input.baselineSamples >= minimumSamples && input.ensembleSamples >= minimumSamples
+  const verdict: BtcAutoStrategyComparison['verdict'] = !enough
+    ? 'collecting'
+    : (hitRateAdvantagePct ?? 0) >= 3 &&
+        (ensembleAverageNetMovePct ?? Number.NEGATIVE_INFINITY) > (baselineAverageNetMovePct ?? 0)
+      ? 'outperforming'
+      : (hitRateAdvantagePct ?? 0) < 0 &&
+          (ensembleAverageNetMovePct ?? 0) <= (baselineAverageNetMovePct ?? 0)
+        ? 'underperforming'
+        : 'mixed'
+  return {
+    horizon: '1h',
+    minimumSamples,
+    baselineSamples: input.baselineSamples,
+    baselineHitRatePct:
+      input.baselineHitRatePct === null ? null : round(input.baselineHitRatePct, 2),
+    baselineAverageMovePct:
+      input.baselineAverageMovePct === null ? null : round(input.baselineAverageMovePct),
+    baselineAverageNetMovePct,
+    ensembleSamples: input.ensembleSamples,
+    ensembleHitRatePct:
+      input.ensembleHitRatePct === null ? null : round(input.ensembleHitRatePct, 2),
+    ensembleAverageMovePct:
+      input.ensembleAverageMovePct === null ? null : round(input.ensembleAverageMovePct),
+    ensembleAverageNetMovePct,
+    estimatedRoundTripCostPct,
+    hitRateAdvantagePct,
+    verdict,
+  }
+}
 
 export const buildBtcAutoOrderParameters = (input: {
   kind: 'open' | 'close'

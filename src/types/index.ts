@@ -1213,6 +1213,17 @@ export interface ContractTradeDecision {
   risks: ContractDecisionReason[]
   indicators: ContractIndicatorReading[]
   timeframes: ContractTimeframeReading[]
+  strategyDiagnostics: ContractStrategyDiagnostics | null
+}
+
+export interface ContractStrategyDiagnostics {
+  baselineScore: number
+  baselineAction: ContractTradeAction
+  ensembleVersion: string
+  ensembleRegime: 'trending' | 'ranging' | 'volatile'
+  ensembleScore: number
+  ensembleAction: ContractTradeAction
+  ensembleConfidence: number
 }
 
 export type BtcAutoExecutionMode = 'paper' | 'testnet'
@@ -1412,6 +1423,22 @@ export interface BtcAutoSignalOutcomeSummary {
   averageDirectionalMovePct: number | null
 }
 
+export interface BtcAutoStrategyComparison {
+  horizon: '1h'
+  minimumSamples: number
+  baselineSamples: number
+  baselineHitRatePct: number | null
+  baselineAverageMovePct: number | null
+  baselineAverageNetMovePct: number | null
+  ensembleSamples: number
+  ensembleHitRatePct: number | null
+  ensembleAverageMovePct: number | null
+  ensembleAverageNetMovePct: number | null
+  estimatedRoundTripCostPct: number
+  hitRateAdvantagePct: number | null
+  verdict: 'collecting' | 'outperforming' | 'mixed' | 'underperforming'
+}
+
 export interface BtcAutoTradingDashboard {
   config: BtcAutoTradingConfig
   strategyVersion: string
@@ -1427,6 +1454,7 @@ export interface BtcAutoTradingDashboard {
   signal: BtcAutoSignalSnapshot | null
   signalHistory: BtcAutoSignalHistoryItem[]
   signalOutcomes: BtcAutoSignalOutcomeSummary[]
+  strategyComparison: BtcAutoStrategyComparison
   entryGate: BtcAutoEntryGate
   rollingHealth: BtcAutoRollingHealth
   openTrade: BtcAutoTrade | null

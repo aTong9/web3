@@ -86,6 +86,9 @@ const buildTimeframeReadings = (market: ContractMarketInput): ContractTimeframeR
     }
   })
 
+const actionFromScore = (score: number): ContractTradeAction =>
+  score >= 38 ? 'long' : score <= -38 ? 'short' : Math.abs(score) < 16 ? 'noTrade' : 'wait'
+
 export const buildContractTradeDecision = (market: ContractMarketInput): ContractTradeDecision => {
   const timeframes = buildTimeframeReadings(market)
   if (market.points.length < 80) {
@@ -105,6 +108,7 @@ export const buildContractTradeDecision = (market: ContractMarketInput): Contrac
       risks: [],
       indicators: [],
       timeframes,
+      strategyDiagnostics: null,
     }
   }
 
@@ -348,10 +352,10 @@ export const buildContractTradeDecision = (market: ContractMarketInput): Contrac
     value: `${strategyEnsemble.version} · ${strategyEnsemble.regime} · ${strategyEnsemble.confidence}%`,
   })
 
-  score = round(clamp(score * 0.65 + strategyEnsemble.score * 0.35, -100, 100))
+  const baselineScore = round(clamp(score, -100, 100))
+  score = round(clamp(baselineScore * 0.65 + strategyEnsemble.score * 0.35, -100, 100))
   const absoluteScore = Math.abs(score)
-  let action: ContractTradeAction =
-    score >= 38 ? 'long' : score <= -38 ? 'short' : absoluteScore < 16 ? 'noTrade' : 'wait'
+  let action: ContractTradeAction = actionFromScore(score)
   if (risks.includes('signalsConflict') || risks.includes('lowVolatility')) {
     if (action === 'long' || action === 'short') action = 'wait'
   }
@@ -419,5 +423,14 @@ export const buildContractTradeDecision = (market: ContractMarketInput): Contrac
     risks: unique(risks),
     indicators,
     timeframes,
+    strategyDiagnostics: {
+      baselineScore,
+      baselineAction: actionFromScore(baselineScore),
+      ensembleVersion: strategyEnsemble.version,
+      ensembleRegime: strategyEnsemble.regime,
+      ensembleScore: strategyEnsemble.score,
+      ensembleAction: actionFromScore(strategyEnsemble.score),
+      ensembleConfidence: strategyEnsemble.confidence,
+    },
   }
 }

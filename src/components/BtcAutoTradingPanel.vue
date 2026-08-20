@@ -434,6 +434,75 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
+      <section
+        class="strategy-comparison"
+        :class="`verdict-${dashboard.strategyComparison.verdict}`"
+      >
+        <header>
+          <div>
+            <span>{{ t('assetTechnical.contract.auto.strategyComparison') }}</span>
+            <strong>
+              {{
+                t(
+                  `assetTechnical.contract.auto.strategyVerdict.${dashboard.strategyComparison.verdict}`,
+                )
+              }}
+            </strong>
+          </div>
+          <small>{{ t('assetTechnical.contract.auto.strategyComparisonHint') }}</small>
+        </header>
+        <div class="comparison-grid">
+          <article>
+            <b>{{ t('assetTechnical.contract.auto.baselineStrategy') }}</b>
+            <span>
+              {{ dashboard.strategyComparison.baselineSamples }} /
+              {{ dashboard.strategyComparison.minimumSamples }}
+            </span>
+            <strong>
+              {{
+                formatSigned(dashboard.strategyComparison.baselineHitRatePct, 1, '%').replace(
+                  '+',
+                  '',
+                )
+              }}
+            </strong>
+            <small>
+              {{ t('assetTechnical.contract.auto.netMove') }}
+              {{ formatSigned(dashboard.strategyComparison.baselineAverageNetMovePct, 3, '%') }}
+            </small>
+          </article>
+          <article>
+            <b>{{ t('assetTechnical.contract.auto.ensembleCandidate') }}</b>
+            <span>
+              {{ dashboard.strategyComparison.ensembleSamples }} /
+              {{ dashboard.strategyComparison.minimumSamples }}
+            </span>
+            <strong>
+              {{
+                formatSigned(dashboard.strategyComparison.ensembleHitRatePct, 1, '%').replace(
+                  '+',
+                  '',
+                )
+              }}
+            </strong>
+            <small>
+              {{ t('assetTechnical.contract.auto.netMove') }}
+              {{ formatSigned(dashboard.strategyComparison.ensembleAverageNetMovePct, 3, '%') }}
+            </small>
+          </article>
+          <article>
+            <b>{{ t('assetTechnical.contract.auto.hitRateAdvantage') }}</b>
+            <strong :class="pnlClass(dashboard.strategyComparison.hitRateAdvantagePct)">
+              {{ formatSigned(dashboard.strategyComparison.hitRateAdvantagePct, 1, 'pp') }}
+            </strong>
+            <small>
+              {{ t('assetTechnical.contract.auto.estimatedRoundTripCost') }}
+              {{ formatNumber(dashboard.strategyComparison.estimatedRoundTripCostPct, 3) }}%
+            </small>
+          </article>
+        </div>
+      </section>
+
       <section class="signal-and-position">
         <article class="auto-signal">
           <header>
@@ -997,6 +1066,47 @@ onBeforeUnmount(() => {
   border-radius: 7px;
   background: var(--surface-soft);
 }
+.strategy-comparison {
+  margin-top: var(--auto-gap);
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+.strategy-comparison > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.strategy-comparison > header div {
+  display: grid;
+  gap: 4px;
+}
+.strategy-comparison span,
+.strategy-comparison small {
+  color: var(--muted);
+  font-size: 7px;
+}
+.comparison-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.comparison-grid article {
+  display: grid;
+  gap: 5px;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.verdict-outperforming {
+  border-color: var(--positive);
+}
+.verdict-underperforming {
+  border-color: var(--negative);
+}
 .shadow-validation > header {
   display: flex;
   align-items: flex-start;
@@ -1324,6 +1434,9 @@ th {
     grid-template-columns: 1fr;
   }
   .shadow-grid {
+    grid-template-columns: 1fr;
+  }
+  .comparison-grid {
     grid-template-columns: 1fr;
   }
   .auto-config > header,

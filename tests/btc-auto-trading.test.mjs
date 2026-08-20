@@ -17,6 +17,7 @@ const {
   calculateBtcAutoReconciledResult,
   calculateBtcAutoTradeResult,
   evaluateBtcAutoEntryGate,
+  evaluateBtcAutoStrategyComparison,
   evolveBtcAutoSignal,
   isBtcAutoStrategyDefinition,
   isBtcAutoLegacyStrategyDefinition,
@@ -373,6 +374,51 @@ test('regime ensemble applies mean reversion in a range without lookahead breako
   assert.ok(result.contributions.every((item) => Number.isFinite(item.weightedScore)))
 })
 
+test('strategy comparison waits for samples and requires hit-rate plus net-move advantage', () => {
+  const base = {
+    baselineHitRatePct: 50,
+    baselineAverageMovePct: 0.15,
+    ensembleHitRatePct: 54,
+    ensembleAverageMovePct: 0.18,
+    feeRatePct: 0.05,
+  }
+  assert.equal(
+    evaluateBtcAutoStrategyComparison({
+      ...base,
+      baselineSamples: 23,
+      ensembleSamples: 23,
+    }).verdict,
+    'collecting',
+  )
+  const ahead = evaluateBtcAutoStrategyComparison({
+    ...base,
+    baselineSamples: 24,
+    ensembleSamples: 24,
+  })
+  assert.equal(ahead.verdict, 'outperforming')
+  assert.equal(ahead.hitRateAdvantagePct, 4)
+  assert.equal(ahead.ensembleAverageNetMovePct, 0.08)
+  assert.equal(
+    evaluateBtcAutoStrategyComparison({
+      ...base,
+      baselineSamples: 24,
+      ensembleSamples: 24,
+      ensembleAverageMovePct: 0.12,
+    }).verdict,
+    'mixed',
+  )
+  assert.equal(
+    evaluateBtcAutoStrategyComparison({
+      ...base,
+      baselineSamples: 24,
+      ensembleSamples: 24,
+      ensembleHitRatePct: 45,
+      ensembleAverageMovePct: 0.1,
+    }).verdict,
+    'underperforming',
+  )
+})
+
 test('shadow signal outcomes measure directional price movement without trading costs', () => {
   assert.equal(calculateBtcAutoDirectionalMove('long', 100, 103), 3)
   assert.equal(calculateBtcAutoDirectionalMove('short', 100, 97), 3)
@@ -712,6 +758,21 @@ test('CSV export includes auditable summaries, strategy versions and escaped err
       signal: null,
       signalHistory: [],
       signalOutcomes: [],
+      strategyComparison: {
+        horizon: '1h',
+        minimumSamples: 24,
+        baselineSamples: 0,
+        baselineHitRatePct: null,
+        baselineAverageMovePct: null,
+        baselineAverageNetMovePct: null,
+        ensembleSamples: 0,
+        ensembleHitRatePct: null,
+        ensembleAverageMovePct: null,
+        ensembleAverageNetMovePct: null,
+        estimatedRoundTripCostPct: 0.1,
+        hitRateAdvantagePct: null,
+        verdict: 'collecting',
+      },
       entryGate: {
         reason: 'waitingDirection',
         eligible: false,
