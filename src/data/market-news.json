@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-21T13:00:35.614Z",
+  "updatedAt": "2026-08-21T13:53:59.693Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -37,10 +37,162 @@
   ],
   "articles": [
     {
+      "id": "56f3e9e27ac58bae",
+      "title": "Bitcoin on track for 23% weekly gain as investor optimism floods back",
+      "url": "https://www.cnbc.com/2026/08/21/bitcoin-gain-cryptocurrency-investors-optimistic.html",
+      "publishedAt": "2026-08-21T13:53:19.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "加密"
+      ],
+      "translatedTitle": "随着投资者乐观情绪的回潮，比特币有望实现每周23%的涨幅",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "fbe9984684058565",
+      "title": "U.S. military says it aided passage of 660 million barrels of oil through Strait of Hormuz since May",
+      "url": "https://www.cnbc.com/2026/08/21/strait-hormuz-central-command-centcom-oil-iran-war.html",
+      "publishedAt": "2026-08-21T13:48:11.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "commodities",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "原油"
+      ],
+      "translatedTitle": "美国军方表示，自5月以来，它已帮助6.6亿桶石油通过霍尔木兹海峡",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "c3b956a1ce51b6b1",
+      "title": "Trump admin taps former JPMorgan Chase exec Matt Zames to advise Social Security agency",
+      "url": "https://www.cnbc.com/2026/08/21/jpmorgan-matt-zames-social-security-administration.html",
+      "publishedAt": "2026-08-21T13:46:16.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "特朗普管理员聘请摩根大通前高管马特·扎姆斯（ Matt Zames ）为社会保障机构提供咨询",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "f321cbcfde701723",
+      "title": "Most Americans aren't anti-vaccine. They're uncertain — and that's a growing public health challenge",
+      "url": "https://www.cnbc.com/2026/08/21/why-vaccination-rates-are-falling-in-the-us.html",
+      "publishedAt": "2026-08-21T13:45:26.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "大多数美国人不反对接种疫苗。他们不确定—这是一个日益严峻的公共卫生挑战",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "8f023c5a14c27bd1",
+      "title": "Trump to allow import of 300,000 metric tons of ground beef without tariff",
+      "url": "https://www.cnbc.com/2026/08/21/trump-ground-beef-import-tariff.html",
+      "publishedAt": "2026-08-21T13:37:43.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "high",
+      "impactScore": 4,
+      "affectedAssets": [],
+      "translatedTitle": "特朗普允许进口30万吨免关税碎牛肉",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "ff092e9a095514d5",
+      "title": "U.S., Canada near final trade deal as Trump tariff deadline looms",
+      "url": "https://www.cnbc.com/2026/08/21/trump-canada-tariffs-trade-deal-deadline.html",
+      "publishedAt": "2026-08-21T13:32:50.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "high",
+      "impactScore": 4,
+      "affectedAssets": [],
+      "translatedTitle": "随着特朗普关税截止日期的临近，美国和加拿大即将达成最终贸易协",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "b7904dd7b88e1239",
+      "title": "Gold rebounds as bond jitters, debt fears and weaker dollar revive bullion demand",
+      "url": "https://www.cnbc.com/2026/08/21/gold-prices-us-debt-dollar.html",
+      "publishedAt": "2026-08-21T13:21:19.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "commodities",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "债券",
+        "美元",
+        "黄金"
+      ],
+      "translatedTitle": "随着债券紧张、债务恐慌和美元疲软导致黄金需求复苏，黄金反弹",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "66ba9ac778144b19",
+      "title": "The Los Angeles Lakers sold for $12.5 billion. Here’s what every NBA team is now worth",
+      "url": "https://www.cnbc.com/2026/08/20/heres-how-the-los-angeles-lakers-12point5b-sale-impacts-the-value-of-all-30-nba-teams.html",
+      "publishedAt": "2026-08-21T13:15:27.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "洛杉矶湖人队以125亿美元的价格售出。以下是每支NBA球队现在的价值",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "70462ce8c0d95e63",
+      "title": "Bessent says there's a 'very good chance' U.S. budget deficit under Trump has peaked",
+      "url": "https://www.cnbc.com/2026/08/20/bessent-budget-deficit-trump.html",
+      "publishedAt": "2026-08-21T13:11:41.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "贝森特表示，特朗普领导下的美国预算赤字“很有可能”达到顶峰",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "c4b04875c84a98b8",
       "title": "Wall Street's existential crisis over perpetual futures — the 24/7 security on steroids — just got urgent",
       "url": "https://www.cnbc.com/2026/08/21/wall-streets-existential-crisis-over-perpetual-futures-the-24/7-security-on-steroids-just-got-urgent.html",
-      "publishedAt": "2026-08-21T12:32:32.000Z",
+      "publishedAt": "2026-08-21T13:04:19.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "macro",
@@ -55,18 +207,38 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "ff092e9a095514d5",
-      "title": "U.S., Canada near final trade deal as Trump tariff deadline looms",
-      "url": "https://www.cnbc.com/2026/08/21/trump-canada-tariffs-trade-deal-deadline.html",
-      "publishedAt": "2026-08-21T12:17:29.000Z",
+      "id": "15d7f4a2bfdd72f5",
+      "title": "Here are the top 10 things we're watching in the stock market Friday",
+      "url": "https://www.cnbc.com/2026/08/21/here-are-the-top-10-things-were-watching-in-the-stock-market-friday.html",
+      "publishedAt": "2026-08-21T12:59:36.000Z",
       "source": "CNBC",
       "sourceType": "media",
-      "category": "geopolitics",
+      "category": "equities",
       "language": "English",
-      "impact": "high",
-      "impactScore": 4,
-      "affectedAssets": [],
-      "translatedTitle": "随着特朗普关税截止日期的临近，美国和加拿大即将达成最终贸易协",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "以下是我们周五在股市上关注的十大事项",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "6baf219d2b2fe4b3",
+      "title": "Bessent's efforts in the Treasury market so far haven't worked. Here's what else he can try",
+      "url": "https://www.cnbc.com/2026/08/20/bessents-efforts-in-the-treasury-market-so-far-havent-worked-heres-what-else-he-can-try.html",
+      "publishedAt": "2026-08-21T12:43:04.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "债券"
+      ],
+      "translatedTitle": "到目前为止， Bessent在美国国债市场的努力没有奏效。以下是他可以尝试的其他方法",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -87,44 +259,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "56f3e9e27ac58bae",
-      "title": "Bitcoin on track for 20% weekly gain as investor optimism floods back",
-      "url": "https://www.cnbc.com/2026/08/21/bitcoin-gain-cryptocurrency-investors-optimistic.html",
-      "publishedAt": "2026-08-21T12:07:14.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [
-        "加密"
-      ],
-      "translatedTitle": "随着投资者乐观情绪泛滥，比特币每周有望上涨20%",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "b7904dd7b88e1239",
-      "title": "Gold rebounds as bond jitters, debt fears and weaker dollar revive bullion demand",
-      "url": "https://www.cnbc.com/2026/08/21/gold-prices-us-debt-dollar.html",
-      "publishedAt": "2026-08-21T11:35:46.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "commodities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 3,
-      "affectedAssets": [
-        "债券",
-        "美元",
-        "黄金"
-      ],
-      "translatedTitle": "随着债券紧张、债务恐慌和美元疲软导致黄金需求复苏，黄金反弹",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "5ca7fe91dadeab84",
       "title": "Why some of America's biggest brands are losing ground in China",
       "url": "https://www.cnbc.com/2026/08/21/us-brands-china-competition.html",
@@ -134,27 +268,11 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "A股"
       ],
       "translatedTitle": "为什么美国一些最大的品牌在中国正在失去优势",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "f321cbcfde701723",
-      "title": "Most Americans aren't anti-vaccine. They're uncertain — and that's a growing public health challenge",
-      "url": "https://www.cnbc.com/2026/08/21/why-vaccination-rates-are-falling-in-the-us.html",
-      "publishedAt": "2026-08-21T11:00:01.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "大多数美国人不反对接种疫苗。他们不确定—这是一个日益严峻的公共卫生挑战",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -187,24 +305,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "北约成员国罗马尼亚紧急部署F-16战斗机摧毁欧洲关键天然气项目附近的无人机",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "54d954332cd70cde",
-      "title": "Chinese humanoid robots' biggest obstacle: Humans are still (mostly) better",
-      "url": "https://www.cnbc.com/2026/08/21/chinese-humanoid-robots-face-challenge-of-their-own-capabilities.html",
-      "publishedAt": "2026-08-21T09:30:55.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "A股"
-      ],
-      "translatedTitle": "中国人形机器人最大的障碍：人类仍然（大部分）更好",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -291,22 +391,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "9833a204d10b37fe",
-      "title": "Taiwan's AI-fueled forecast of 11% GDP growth likely not sustainable, economists say",
-      "url": "https://www.cnbc.com/2026/08/21/taiwan-gdp-growth-outlook-tech-forecast.html",
-      "publishedAt": "2026-08-21T03:59:53.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [],
-      "translatedTitle": "经济学家表示，台湾由人工智能推动的11% GDP增长预测可能不可持续",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "ca0bf79c43466517",
       "title": "U.S. bond intervention is like 'paying your mortgage with your credit card,' JPMorgan's Sullivan says",
       "url": "https://www.cnbc.com/2026/08/21/us-bond-intervention-shifting-problem-future-jpmorgan.html",
@@ -321,54 +405,6 @@
         "债券"
       ],
       "translatedTitle": "美国债券干预就像“用信用卡支付抵押贷款” ，摩根大通的沙利文说",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "6cab5d1611e3a2c4",
-      "title": "Japan's historic yen intervention has ‘turbo-charged’ the carry trade",
-      "url": "https://www.cnbc.com/2026/08/20/us-japan-yen-intervention-bank-of-japan-carry-trade.html",
-      "publishedAt": "2026-08-21T02:28:08.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "日本历史性的日元干预“涡轮增压”了套利交易",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "97eccae2c0304ee7",
-      "title": "Japan headline inflation rate hits highest this year as energy prices bite",
-      "url": "https://www.cnbc.com/2026/08/21/japan-inflation-iran-war-energy.html",
-      "publishedAt": "2026-08-21T02:13:18.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 3,
-      "affectedAssets": [],
-      "translatedTitle": "由于能源价格上涨，日本整体通货膨胀率今年达到最高水平",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "79b69b5cf4269c12",
-      "title": "Micron CEO pushes back on memory bear case. 3 key takeaways from Cramer's big interview",
-      "url": "https://www.cnbc.com/2026/08/20/micron-ceo-pushes-back-on-memory-bear-case-3-takeaways-from-cramers-interview.html",
-      "publishedAt": "2026-08-21T01:07:05.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "美光首席执行官推出记忆熊案例。Cramer大访谈的3个关键要点",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -436,22 +472,6 @@
         "美元"
       ],
       "translatedTitle": "随着贝森特进入美联储地盘，沃什面临美联储的独立性测试",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "66ba9ac778144b19",
-      "title": "The Los Angeles Lakers sold for $12.5 billion. Here’s what every NBA team is now worth",
-      "url": "https://www.cnbc.com/2026/08/20/heres-how-the-los-angeles-lakers-12point5b-sale-impacts-the-value-of-all-30-nba-teams.html",
-      "publishedAt": "2026-08-20T20:28:21.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "洛杉矶湖人队以125亿美元的价格售出。以下是每支NBA球队现在的价值",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -534,22 +554,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "加州股份公司告诉CNBC ，解决派拉蒙-WBD诉讼需要“强有力的结构性补救措施”",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "70462ce8c0d95e63",
-      "title": "Bessent says there's a 'very good chance' U.S. budget deficit under Trump has peaked",
-      "url": "https://www.cnbc.com/2026/08/20/bessent-budget-deficit-trump.html",
-      "publishedAt": "2026-08-20T16:23:57.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "贝森特表示，特朗普领导下的美国预算赤字“很有可能”达到顶峰",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
