@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-21T15:16:08.113Z",
+  "updatedAt": "2026-08-21T16:00:10.522Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -36,6 +36,56 @@
     }
   ],
   "articles": [
+    {
+      "id": "8f023c5a14c27bd1",
+      "title": "Trump to allow import of 300,000 metric tons of ground beef without tariff",
+      "url": "https://www.cnbc.com/2026/08/21/trump-ground-beef-import-tariff.html",
+      "publishedAt": "2026-08-21T15:56:37.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "high",
+      "impactScore": 4,
+      "affectedAssets": [],
+      "translatedTitle": "特朗普允许进口30万吨免关税碎牛肉",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "56f3e9e27ac58bae",
+      "title": "Bitcoin on track for 23% weekly gain as investor optimism floods back",
+      "url": "https://www.cnbc.com/2026/08/21/bitcoin-gain-cryptocurrency-investors-optimistic.html",
+      "publishedAt": "2026-08-21T15:49:47.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "加密"
+      ],
+      "translatedTitle": "随着投资者乐观情绪的回潮，比特币有望实现每周23%的涨幅",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "6d6b18fcd4292ab3",
+      "title": "Ken Griffin says Citadel unwound more than 80% of risk tied to Situational Awareness portfolio",
+      "url": "https://www.cnbc.com/2026/08/21/citadel-situational-awareness-ken-griffin.html",
+      "publishedAt": "2026-08-21T15:17:07.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "Ken Griffin表示， Citadel消除了超过80%与情境意识投资组合相关的风险",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "c4b04875c84a98b8",
       "title": "Wall Street's existential crisis over perpetual futures — the 24/7 security on steroids — just got urgent",
@@ -67,38 +117,6 @@
       "impactScore": 1,
       "affectedAssets": [],
       "translatedTitle": "特朗普管理员聘请摩根大通前高管马特·扎姆斯（ Matt Zames ）为社会保障机构提供咨询",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "8f023c5a14c27bd1",
-      "title": "Trump to allow import of 300,000 metric tons of ground beef without tariff",
-      "url": "https://www.cnbc.com/2026/08/21/trump-ground-beef-import-tariff.html",
-      "publishedAt": "2026-08-21T15:08:21.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "geopolitics",
-      "language": "English",
-      "impact": "high",
-      "impactScore": 4,
-      "affectedAssets": [],
-      "translatedTitle": "特朗普允许进口30万吨免关税碎牛肉",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "6d6b18fcd4292ab3",
-      "title": "Ken Griffin says Citadel unwound more than 80% of risk tied to Situational Awareness portfolio",
-      "url": "https://www.cnbc.com/2026/08/21/citadel-situational-awareness-ken-griffin.html",
-      "publishedAt": "2026-08-21T15:08:00.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "Ken Griffin表示， Citadel消除了超过80%与情境意识投资组合相关的风险",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -137,24 +155,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "56f3e9e27ac58bae",
-      "title": "Bitcoin on track for 23% weekly gain as investor optimism floods back",
-      "url": "https://www.cnbc.com/2026/08/21/bitcoin-gain-cryptocurrency-investors-optimistic.html",
-      "publishedAt": "2026-08-21T14:32:08.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [
-        "加密"
-      ],
-      "translatedTitle": "随着投资者乐观情绪的回潮，比特币有望实现每周23%的涨幅",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "9e75fac7de65072e",
       "title": "How one Silicon Valley firm is seizing an opportunity from Premier League soccer's gambling ad clampdown",
       "url": "https://www.cnbc.com/2026/08/21/premier-league-gambling-shirt-sponsors.html",
@@ -164,7 +164,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "一家硅谷公司如何从英超联赛的赌博广告打压中抓住机会",
       "translationStatus": "translated",
@@ -180,7 +180,7 @@
       "category": "commodities",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [
         "原油"
       ],
@@ -198,7 +198,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "报告显示，在美国签证政策收紧的情况下，国际学生入学率下降",
       "translationStatus": "translated",
@@ -214,7 +214,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "大多数美国人不反对接种疫苗。他们不确定—这是一个日益严峻的公共卫生挑战",
       "translationStatus": "translated",
@@ -230,7 +230,7 @@
       "category": "commodities",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [
         "债券",
         "美元",
