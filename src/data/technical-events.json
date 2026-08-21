@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-20T23:45:28.706Z",
+  "updatedAt": "2026-08-21T23:44:31.932Z",
   "methodology": "从只追加的跨资产预测账本按市场和日期选取绝对得分最高的当时多空记录；中性记录不标注，每个市场最多保留120条。",
   "events": [
     {
@@ -115,6 +115,14 @@
       "ruleName": "纯动量趋势方向"
     },
     {
+      "marketId": "sp500",
+      "marketDate": "2026-08-20",
+      "bias": "bullish",
+      "score": 1,
+      "horizonId": "month",
+      "ruleName": "纯动量均衡方向"
+    },
+    {
       "marketId": "nasdaq",
       "marketDate": "2026-07-31",
       "bias": "bullish",
@@ -224,6 +232,14 @@
       "bias": "bullish",
       "score": 1,
       "horizonId": "month",
+      "ruleName": "纯动量趋势方向"
+    },
+    {
+      "marketId": "nasdaq",
+      "marketDate": "2026-08-20",
+      "bias": "bearish",
+      "score": -1,
+      "horizonId": "day",
       "ruleName": "纯动量趋势方向"
     },
     {
@@ -347,6 +363,14 @@
       "ruleName": "纯动量短线方向"
     },
     {
+      "marketId": "shanghai",
+      "marketDate": "2026-08-21",
+      "bias": "bearish",
+      "score": -0.28,
+      "horizonId": "quarter",
+      "ruleName": "纯动量均衡（波动调整）"
+    },
+    {
       "marketId": "hangseng",
       "marketDate": "2026-07-31",
       "bias": "bullish",
@@ -453,6 +477,14 @@
     {
       "marketId": "hangseng",
       "marketDate": "2026-08-20",
+      "bias": "bullish",
+      "score": 1,
+      "horizonId": "day",
+      "ruleName": "纯动量短线方向"
+    },
+    {
+      "marketId": "hangseng",
+      "marketDate": "2026-08-21",
       "bias": "bullish",
       "score": 1,
       "horizonId": "day",
@@ -571,6 +603,14 @@
       "ruleName": "纯动量短线方向"
     },
     {
+      "marketId": "euro50",
+      "marketDate": "2026-08-20",
+      "bias": "bearish",
+      "score": -1,
+      "horizonId": "day",
+      "ruleName": "纯动量短线方向"
+    },
+    {
       "marketId": "nikkei",
       "marketDate": "2026-07-31",
       "bias": "bullish",
@@ -681,6 +721,14 @@
       "score": 1,
       "horizonId": "quarter",
       "ruleName": "纯动量均衡方向"
+    },
+    {
+      "marketId": "nikkei",
+      "marketDate": "2026-08-21",
+      "bias": "bearish",
+      "score": -1,
+      "horizonId": "day",
+      "ruleName": "纯动量趋势方向"
     },
     {
       "marketId": "wti",
@@ -827,6 +875,14 @@
       "ruleName": "纯动量短线方向"
     },
     {
+      "marketId": "gold",
+      "marketDate": "2026-08-20",
+      "bias": "bullish",
+      "score": 1,
+      "horizonId": "day",
+      "ruleName": "纯动量短线方向"
+    },
+    {
       "marketId": "btc",
       "marketDate": "2026-08-01",
       "bias": "bearish",
@@ -939,6 +995,14 @@
       "ruleName": "纯动量均衡方向"
     },
     {
+      "marketId": "btc",
+      "marketDate": "2026-08-20",
+      "bias": "bullish",
+      "score": 1,
+      "horizonId": "day",
+      "ruleName": "纯动量短线方向"
+    },
+    {
       "marketId": "eth",
       "marketDate": "2026-08-01",
       "bias": "bearish",
@@ -1049,6 +1113,14 @@
       "score": 1,
       "horizonId": "day",
       "ruleName": "纯动量趋势方向"
+    },
+    {
+      "marketId": "eth",
+      "marketDate": "2026-08-20",
+      "bias": "bullish",
+      "score": 1,
+      "horizonId": "day",
+      "ruleName": "纯动量趋势方向"
     }
   ],
   "corporateEvents": [
@@ -1113,16 +1185,16 @@
       "surprisePct": null
     },
     {
-      "symbol": "META",
-      "date": "2026-07-29",
-      "type": "earningsReported",
-      "surprisePct": -12.96
-    },
-    {
       "symbol": "TSLA",
       "date": "2026-07-22",
       "type": "earningsReported",
       "surprisePct": -87.5
+    },
+    {
+      "symbol": "META",
+      "date": "2026-07-29",
+      "type": "earningsReported",
+      "surprisePct": -12.96
     }
   ],
   "macroEvents": [
@@ -1703,5 +1775,5 @@
       "sourceUrl": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
     }
   ],
-  "macroUpdatedAt": "2026-08-20T23:45:29.207Z"
+  "macroUpdatedAt": "2026-08-21T23:44:32.558Z"
 }
