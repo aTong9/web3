@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-21T19:31:46.424Z",
+  "updatedAt": "2026-08-21T19:58:58.236Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -36,6 +36,58 @@
     }
   ],
   "articles": [
+    {
+      "id": "6d6b18fcd4292ab3",
+      "title": "Ken Griffin says Citadel unwound more than 80% of risk tied to Situational Awareness portfolio",
+      "url": "https://www.cnbc.com/2026/08/21/citadel-situational-awareness-ken-griffin.html",
+      "publishedAt": "2026-08-21T19:58:36.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "Ken Griffin表示， Citadel消除了超过80%与情境意识投资组合相关的风险",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "56f3e9e27ac58bae",
+      "title": "Bitcoin on track for 23% weekly gain as investor optimism floods back",
+      "url": "https://www.cnbc.com/2026/08/21/bitcoin-gain-cryptocurrency-investors-optimistic.html",
+      "publishedAt": "2026-08-21T19:47:12.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "加密"
+      ],
+      "translatedTitle": "随着投资者乐观情绪的回潮，比特币有望实现每周23%的涨幅",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "3c6c3c2554b3b840",
+      "title": "Tesla recalls 3 million vehicles in China over doorhandle safety, driver monitoring",
+      "url": "https://www.cnbc.com/2026/08/21/tesla-recalls-cars-in-china-over-doorhandle-safety-driver-monitoring.html",
+      "publishedAt": "2026-08-21T19:29:48.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "A股"
+      ],
+      "translatedTitle": "特斯拉通过门把手安全、驾驶员监控在中国召回300万辆汽车",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "f970d2fa94c1e3c3",
       "title": "As GOP warns data centers put Ohio Senate seat at risk, Husted defends energy policy",
@@ -122,22 +174,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "6d6b18fcd4292ab3",
-      "title": "Ken Griffin says Citadel unwound more than 80% of risk tied to Situational Awareness portfolio",
-      "url": "https://www.cnbc.com/2026/08/21/citadel-situational-awareness-ken-griffin.html",
-      "publishedAt": "2026-08-21T18:34:28.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "Ken Griffin表示， Citadel消除了超过80%与情境意识投资组合相关的风险",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "5ca7fe91dadeab84",
       "title": "Why some of America's biggest brands are losing ground in China",
       "url": "https://www.cnbc.com/2026/08/21/us-brands-china-competition.html",
@@ -199,29 +235,11 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [
-        "加密"
-      ],
-      "translatedTitle": "Kalshi交易员认为，比特币反弹可能会在今年结束时接近当前水平",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "56f3e9e27ac58bae",
-      "title": "Bitcoin on track for 23% weekly gain as investor optimism floods back",
-      "url": "https://www.cnbc.com/2026/08/21/bitcoin-gain-cryptocurrency-investors-optimistic.html",
-      "publishedAt": "2026-08-21T16:44:32.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
       "impactScore": 0,
       "affectedAssets": [
         "加密"
       ],
-      "translatedTitle": "随着投资者乐观情绪的回潮，比特币有望实现每周23%的涨幅",
+      "translatedTitle": "Kalshi交易员认为，比特币反弹可能会在今年结束时接近当前水平",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -557,22 +575,6 @@
         "美元"
       ],
       "translatedTitle": "联邦储备委员会宣布批准National Westminster Bank Plc的申请",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "88a73cbacea2141c",
-      "title": "Education Department recalculates student loan forgiveness counts, setting some PSLF borrowers back",
-      "url": "https://www.cnbc.com/2026/08/20/public-service-loan-forgiveness-pslf-payment-counts.html",
-      "publishedAt": "2026-08-20T19:13:04.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "教育部重新计算学生贷款免除计数，使一些PSLF借款人退回",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
