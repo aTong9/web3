@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-21T23:03:36.394Z",
+  "updatedAt": "2026-08-21T23:40:56.462Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -36,6 +36,22 @@
     }
   ],
   "articles": [
+    {
+      "id": "f970d2fa94c1e3c3",
+      "title": "As GOP warns data centers put Ohio Senate seat at risk, Husted defends energy policy",
+      "url": "https://www.cnbc.com/2026/08/21/jon-husted-data-centers-ohio-senate.html",
+      "publishedAt": "2026-08-21T23:12:26.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "由于共和党警告数据中心将俄亥俄州参议院席位置于危险之中， Husted为能源政策辩护",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "8f023c5a14c27bd1",
       "title": "Trump to allow import of 300,000 metric tons of ground beef without tariff",
@@ -77,8 +93,8 @@
       "sourceType": "media",
       "category": "geopolitics",
       "language": "English",
-      "impact": "high",
-      "impactScore": 4,
+      "impact": "medium",
+      "impactScore": 3,
       "affectedAssets": [],
       "translatedTitle": "特朗普表示，随着关税截止日期的临近，美国和加拿大“应该能够”达成贸易协议",
       "translationStatus": "translated",
@@ -150,22 +166,6 @@
         "加密"
       ],
       "translatedTitle": "随着投资者乐观情绪回潮，比特币本周飙升22%",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "f970d2fa94c1e3c3",
-      "title": "As GOP warns data centers put Ohio Senate seat at risk, Husted defends energy policy",
-      "url": "https://www.cnbc.com/2026/08/21/jon-husted-data-centers-ohio-senate.html",
-      "publishedAt": "2026-08-21T20:03:13.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "由于共和党警告数据中心将俄亥俄州参议院席位置于危险之中， Husted为能源政策辩护",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
