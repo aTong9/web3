@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-22T07:00:53.144Z",
+  "updatedAt": "2026-08-22T10:41:57.854Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -36,6 +36,22 @@
     }
   ],
   "articles": [
+    {
+      "id": "dcfaf41c8cebf473",
+      "title": "Ahead of tough new U.S. sanctions, Iran criticizes 'extraterritorial sovereignty'",
+      "url": "https://www.cnbc.com/2026/08/22/iran-criticizes-us-sanctions-extraterritorial-sovereignty.html",
+      "publishedAt": "2026-08-22T10:34:23.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "high",
+      "impactScore": 4,
+      "affectedAssets": [],
+      "translatedTitle": "在美国实施新的严厉制裁之前，伊朗批评“域外主权”",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "289deab331c9f5ba",
       "title": "Six investors reveal the biggest market risks — and one strategy they agree on",
@@ -148,6 +164,24 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "报告显示，在美国签证政策收紧的情况下，国际学生入学率下降",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "40ce795ab6f300f3",
+      "title": "Longer-dated Treasury yields rise as Bessent's bond buyback rally fizzles out",
+      "url": "https://www.cnbc.com/2026/08/21/treasury-yields-bonds-inflation-rates.html",
+      "publishedAt": "2026-08-21T20:05:14.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [
+        "债券"
+      ],
+      "translatedTitle": "随着贝森特债券回购反弹失败，长期国债收益率上升",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -444,22 +478,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "a7d99ec519c27ace",
-      "title": "New York unseats San Francisco as the top market for tech talent, CBRE reports",
-      "url": "https://www.cnbc.com/2026/08/21/new-york-san-francisco-tech-talent-cbre.html",
-      "publishedAt": "2026-08-21T10:36:07.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "世邦魏理仕报道，纽约取代旧金山成为科技人才的顶级市场",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "b96bc827197a4d32",
       "title": "NATO member Romania scrambles F-16 fighter jets to destroy drone near critical European gas project",
       "url": "https://www.cnbc.com/2026/08/21/romania-russia-ukraine-drone-gas-nato.html",
@@ -540,25 +558,6 @@
         "债券"
       ],
       "translatedTitle": "美国债券干预就像“用信用卡支付抵押贷款” ，摩根大通的沙利文说",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "b93e0dc778b0dc70",
-      "title": "Warsh faces Fed independence test as Bessent moves in on central bank's turf",
-      "url": "https://www.cnbc.com/2026/08/20/bessent-warsh-fed-bond-market-treasury-yields.html",
-      "publishedAt": "2026-08-20T21:53:44.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "债券",
-        "美元"
-      ],
-      "translatedTitle": "随着贝森特进入美联储地盘，沃什面临美联储的独立性测试",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
