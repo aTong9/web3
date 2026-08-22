@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-22T20:33:26.601Z",
+  "updatedAt": "2026-08-22T21:01:22.931Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -36,6 +36,22 @@
     }
   ],
   "articles": [
+    {
+      "id": "f85fd4555b0a47d1",
+      "title": "Paramount, California AG office reportedly plan to meet Monday to discuss settling WBD lawsuit",
+      "url": "https://www.cnbc.com/2026/08/22/paramount-california-ag-said-to-plan-meeting-on-settling-wbd-suit-.html",
+      "publishedAt": "2026-08-22T20:34:13.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "据报道，加利福尼亚州派拉蒙公司办公室计划于周一举行会议，讨论解决WBD诉讼",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "e301dffc4ce28559",
       "title": "Nvidia customers reportedly warned about AI-related price hikes",
@@ -78,7 +94,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "特朗普在6月重组了他的投资组合，出售了Meta等公司，并收购了伯克希尔哈撒韦公司",
       "translationStatus": "translated",
@@ -519,22 +535,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "消息人士称， Broadcom债务交易预计将达到700亿美元以上",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "c3b956a1ce51b6b1",
-      "title": "Trump admin taps former JPMorgan Chase exec Matt Zames to advise Social Security agency",
-      "url": "https://www.cnbc.com/2026/08/21/jpmorgan-matt-zames-social-security-administration.html",
-      "publishedAt": "2026-08-21T15:10:31.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "特朗普管理员聘请摩根大通前高管马特·扎姆斯（ Matt Zames ）为社会保障机构提供咨询",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
