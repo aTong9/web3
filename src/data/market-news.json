@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-22T13:34:52.420Z",
+  "updatedAt": "2026-08-22T13:59:46.203Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -36,6 +36,22 @@
     }
   ],
   "articles": [
+    {
+      "id": "357ae2e46256a898",
+      "title": "U.S.-Canada trade talks collapse, ushering in wave of new tariffs",
+      "url": "https://www.cnbc.com/2026/08/22/us-canada-trade-talks-collapse-ushering-in-wave-of-new-tariffs.html",
+      "publishedAt": "2026-08-22T13:57:48.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "high",
+      "impactScore": 4,
+      "affectedAssets": [],
+      "translatedTitle": "美加贸易谈判破裂，引发新关税浪潮",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
     {
       "id": "53201ffbeefd3ad2",
       "title": "The biggest U.S. stocks have done great for you. Experts say not to get greedy",
@@ -146,7 +162,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "最高法院允许特朗普继续建造白宫宴会厅",
       "translationStatus": "translated",
@@ -508,22 +524,6 @@
         "黄金"
       ],
       "translatedTitle": "随着债券紧张、债务恐慌和美元疲软导致黄金需求复苏，黄金反弹",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "b96bc827197a4d32",
-      "title": "NATO member Romania scrambles F-16 fighter jets to destroy drone near critical European gas project",
-      "url": "https://www.cnbc.com/2026/08/21/romania-russia-ukraine-drone-gas-nato.html",
-      "publishedAt": "2026-08-21T10:15:18.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "commodities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "北约成员国罗马尼亚紧急部署F-16战斗机摧毁欧洲关键天然气项目附近的无人机",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
