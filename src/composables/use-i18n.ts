@@ -975,27 +975,30 @@ const messages: Record<Locale, DictionaryNode> = {
           notional: '名义仓位（USDT）',
           leverage: '杠杆倍数',
           feeRate: '单边手续费率（%）',
+          slippageRate: '单边滑点率（%）',
           fundingSettlements: '资金费结算次数',
           accountEquity: '模拟账户资金（USDT）',
           maxRiskPct: '单笔最大风险（%）',
           feeHint:
-            '0.05% 只是可编辑初始假设；真实费率取决于 Maker/Taker、VIP等级、BNB折扣和交易所调整。',
+            '手续费和滑点至少按单边0.05%计入Paper；真实成本取决于订单类型、等级、流动性和市场状态。',
           riskAssumption: '1% 是可编辑的单笔风险预算假设，不是个性化投资建议。',
           marginRequired: '预计占用保证金',
           roundTripFee: '预计往返手续费',
+          roundTripSlippage: '预计往返滑点',
           projectedFunding: '预计资金费（正数为成本）',
           breakEvenMove: '覆盖成本所需涨跌幅',
           stopNetPnl: '止损后预计净损益',
           marginLoss: '占保证金',
           targetNetPnl: '止盈后预计净损益',
-          afterCosts: '已扣手续费与预计资金费',
+          afterCosts: '已扣手续费、滑点与预计资金费',
           riskGate: '交易前风险闸门',
           riskBudget: '单笔风险预算',
           enteredRisk: '当前仓位止损风险',
           riskUtilization: '风险预算占用',
           recommendedNotional: '风险预算建议名义仓位',
           recommendedMargin: '建议占用保证金',
-          riskGateHint: '建议仓位按止损距离、手续费和不利资金费估算，并受账户资金 × 杠杆上限约束。',
+          riskGateHint:
+            '建议仓位按止损距离、手续费、滑点和不利资金费估算，并受账户资金 × 杠杆上限约束。',
           riskStatus: {
             within: '预算内',
             over: '超过预算',
@@ -1003,7 +1006,7 @@ const messages: Record<Locale, DictionaryNode> = {
           },
           levelsUnavailable: '当前方向没有同向交易计划，因此不计算止损和止盈结果。',
           disclaimer:
-            '模拟不包含滑点、盘口冲击、维持保证金阶梯、强平费用、税费和资金费变化；不能作为真实下单回报承诺。',
+            '模拟包含固定滑点假设，但不包含动态盘口冲击、维持保证金阶梯、强平费用、税费和资金费变化；不能作为真实下单回报承诺。',
         },
         auto: {
           eyebrow: 'BTC AUTO TRADER',
@@ -2867,21 +2870,23 @@ const messages: Record<Locale, DictionaryNode> = {
           notional: 'Notional (USDT)',
           leverage: 'Leverage',
           feeRate: 'One-way fee rate (%)',
+          slippageRate: 'One-way slippage rate (%)',
           fundingSettlements: 'Funding settlements',
           accountEquity: 'Paper account equity (USDT)',
           maxRiskPct: 'Max risk per trade (%)',
           feeHint:
-            '0.05% is an editable starting assumption. Actual fees depend on maker/taker role, VIP tier, BNB discounts and exchange changes.',
+            'Paper includes at least 0.05% one-way fees and slippage. Actual costs depend on order type, tier, liquidity and market conditions.',
           riskAssumption:
             '1% is an editable per-trade risk-budget assumption, not personalized investment advice.',
           marginRequired: 'Estimated margin',
           roundTripFee: 'Estimated round-trip fee',
+          roundTripSlippage: 'Estimated round-trip slippage',
           projectedFunding: 'Projected funding (positive is cost)',
           breakEvenMove: 'Move needed to cover costs',
           stopNetPnl: 'Estimated net PnL at stop',
           marginLoss: 'Of margin',
           targetNetPnl: 'Estimated net PnL at target',
-          afterCosts: 'After fees and projected funding',
+          afterCosts: 'After fees, slippage and projected funding',
           riskGate: 'Pre-trade risk gate',
           riskBudget: 'Risk budget per trade',
           enteredRisk: 'Stop risk at entered size',
@@ -2889,7 +2894,7 @@ const messages: Record<Locale, DictionaryNode> = {
           recommendedNotional: 'Risk-sized suggested notional',
           recommendedMargin: 'Suggested margin',
           riskGateHint:
-            'Suggested size uses stop distance, fees and adverse funding, capped by account equity × leverage.',
+            'Suggested size uses stop distance, fees, slippage and adverse funding, capped by account equity × leverage.',
           riskStatus: {
             within: 'Within budget',
             over: 'Over budget',
@@ -2898,7 +2903,7 @@ const messages: Record<Locale, DictionaryNode> = {
           levelsUnavailable:
             'There is no aligned trade plan for this direction, so stop and target outcomes are not calculated.',
           disclaimer:
-            'The simulation excludes slippage, market impact, maintenance-margin tiers, liquidation fees, taxes and funding changes. It is not a promise of live-trading returns.',
+            'The simulation includes fixed slippage but excludes dynamic market impact, maintenance-margin tiers, liquidation fees, taxes and funding changes. It is not a promise of live-trading returns.',
         },
         auto: {
           eyebrow: 'BTC AUTO TRADER',

@@ -40,7 +40,24 @@ import {
   closeBtcAutoTradingPosition,
   runBtcAutoTradingCycle,
   saveBtcAutoTradingConfig,
+  saveTestnetSafetyDrill,
+  testnetExecutionCalibration,
+  testnetExecutionCalibrationEvidence,
 } from './btc-auto-trading'
+import {
+  createTradingEvidenceAuditCheckpoint,
+  loadTradingEvidenceCloudSnapshot,
+  listTradingEvidenceCloudVersions,
+  loadTradingEvidenceCloudVersion,
+  restoreTradingEvidenceCloudVersion,
+  saveTradingEvidenceCloudSnapshot,
+  TradingEvidenceConflictError,
+  TradingEvidenceIntegrityError,
+  TradingEvidenceInputError,
+  TradingEvidenceNotFoundError,
+  verifyExternalTradingEvidenceAuditCheckpoint,
+  verifyTradingEvidenceCloudAudit,
+} from './trading-evidence-sync'
 
 const maximumJsonBytes = 4_000_000
 const maximumRequestBytes = 8_192
@@ -86,6 +103,13 @@ interface ContractPaperTradeRow {
   entered_risk_amount: number
   signal_score: number
   signal_confidence: number
+  strategy_version: string
+  signal_version: string
+  path_id: string
+  market_source: string
+  cost_model_version: string
+  planned_entry_price: number
+  slippage_rate_pct: number
   status: ContractPaperTrade['status']
 }
 
@@ -181,7 +205,7 @@ const responseHeaders = (request: Request, env: Env) => {
   const origin = allowedOrigin(request, env)
   if (origin) {
     headers.set('Access-Control-Allow-Origin', origin)
-    headers.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
+    headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
     headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     headers.set('Access-Control-Max-Age', '86400')
     headers.set('Vary', 'Origin')
@@ -468,9 +492,9 @@ const validateClientId = (value: unknown) => {
   return value
 }
 
-const requestJson = async <T>(request: Request): Promise<T> => {
+const requestJson = async <T>(request: Request, maximumBytes = maximumRequestBytes): Promise<T> => {
   const contentLength = Number(request.headers.get('Content-Length') ?? 0)
-  if (contentLength > maximumRequestBytes) throw new HttpError(413, '请求内容过大')
+  if (contentLength > maximumBytes) throw new HttpError(413, '请求内容过大')
   if (!request.body) throw new HttpError(400, '请求内容为空')
   const reader = request.body.getReader()
   const chunks: Uint8Array[] = []
@@ -479,7 +503,7 @@ const requestJson = async <T>(request: Request): Promise<T> => {
     const { done, value } = await reader.read()
     if (done) break
     size += value.byteLength
-    if (size > maximumRequestBytes) {
+    if (size > maximumBytes) {
       await reader.cancel('Request payload too large')
       throw new HttpError(413, '请求内容过大')
     }
@@ -656,13 +680,21 @@ const toContractPaperTrade = (row: ContractPaperTradeRow): ContractPaperTrade =>
   enteredRiskAmount: row.entered_risk_amount,
   signalScore: row.signal_score,
   signalConfidence: row.signal_confidence,
+  strategyVersion: row.strategy_version,
+  signalVersion: row.signal_version,
+  pathId: row.path_id,
+  marketSource: row.market_source,
+  costModelVersion: row.cost_model_version,
+  plannedEntryPrice: row.planned_entry_price,
+  slippageRatePct: row.slippage_rate_pct,
   status: row.status,
 })
 
 const contractPaperColumns = `id, user_id, symbol, display_name, quote_asset, direction, interval,
   opened_at, closed_at, entry_price, exit_price, stop_loss, take_profit, notional, leverage,
   fee_rate_pct, funding_rate_pct, funding_settlements, risk_budget, entered_risk_amount,
-  signal_score, signal_confidence, status`
+  signal_score, signal_confidence, strategy_version, signal_version, path_id, market_source,
+  cost_model_version, planned_entry_price, slippage_rate_pct, status`
 
 const listContractPaperTrades = async (env: Env, userId: string) => {
   const rows = await env.DB.prepare(
@@ -718,6 +750,18 @@ const parseContractPaperTrade = async (request: Request) => {
     ),
     signalScore: contractNumber(input.signalScore, '信号评分', -100, 100),
     signalConfidence: contractNumber(input.signalConfidence, '信号一致度', 0, 100),
+    strategyVersion: contractText(input.strategyVersion, '策略版本', 120),
+    signalVersion: contractText(input.signalVersion, '信号版本', 120),
+    pathId: contractText(input.pathId, '路径ID', 120),
+    marketSource: contractText(input.marketSource, '行情源', 120),
+    costModelVersion: contractText(input.costModelVersion, '成本模型版本', 120),
+    plannedEntryPrice: contractNumber(
+      input.plannedEntryPrice,
+      '计划入场价',
+      0.00000001,
+      1_000_000_000,
+    ),
+    slippageRatePct: contractNumber(input.slippageRatePct, '滑点率', 0, 5),
   })
   if (!created) throw new HttpError(400, '交易计划方向或价格层级无效')
   if (input.status === 'open') return created
@@ -743,9 +787,11 @@ const createCloudContractPaperTrade = async (request: Request, env: Env, userId:
      (id, user_id, symbol, display_name, quote_asset, direction, interval, opened_at, closed_at,
       entry_price, exit_price, stop_loss, take_profit, notional, leverage, fee_rate_pct,
       funding_rate_pct, funding_settlements, risk_budget, entered_risk_amount, signal_score,
-      signal_confidence, status, updated_at)
+      signal_confidence, strategy_version, signal_version, path_id, market_source,
+      cost_model_version, planned_entry_price, slippage_rate_pct, status, updated_at)
      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15,
-             ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24)`,
+             ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28,
+             ?29, ?30, ?31)`,
   )
     .bind(
       trade.id,
@@ -770,6 +816,13 @@ const createCloudContractPaperTrade = async (request: Request, env: Env, userId:
       trade.enteredRiskAmount,
       trade.signalScore,
       trade.signalConfidence,
+      trade.strategyVersion,
+      trade.signalVersion,
+      trade.pathId,
+      trade.marketSource,
+      trade.costModelVersion,
+      trade.plannedEntryPrice,
+      trade.slippageRatePct,
       trade.status,
       updatedAt,
     )
@@ -1297,6 +1350,29 @@ const handleApi = async (request: Request, env: Env) => {
     await closeBtcAutoTradingPosition(env)
     return json(request, env, await btcAutoTradingDashboard(env))
   }
+  if (url.pathname === '/api/btc-auto-trading/testnet-calibration' && request.method === 'GET') {
+    await authenticate(request, env, 'autoTrade.manage')
+    return json(request, env, await testnetExecutionCalibration(env))
+  }
+  if (
+    url.pathname === '/api/btc-auto-trading/testnet-calibration/evidence' &&
+    request.method === 'GET'
+  ) {
+    await authenticate(request, env, 'autoTrade.manage')
+    return json(request, env, await testnetExecutionCalibrationEvidence(env))
+  }
+  if (url.pathname === '/api/btc-auto-trading/testnet-drills' && request.method === 'POST') {
+    const actor = await authenticate(request, env, 'autoTrade.manage')
+    const input = await requestJson<Record<string, unknown>>(request)
+    if (!input || typeof input !== 'object' || Array.isArray(input)) {
+      throw new HttpError(400, 'Testnet演练记录格式无效')
+    }
+    try {
+      return json(request, env, await saveTestnetSafetyDrill(env, actor.id, input), 201)
+    } catch (error) {
+      throw new HttpError(400, error instanceof Error ? error.message : 'Testnet演练记录无效')
+    }
+  }
   if (url.pathname === '/api/paper' && request.method === 'GET') {
     const actor = await authenticate(request, env, 'paper.manage')
     return json(request, env, { positions: await listPaperPositions(env, actor.id) })
@@ -1326,6 +1402,87 @@ const handleApi = async (request: Request, env: Env) => {
   if (url.pathname === '/api/contract-paper' && request.method === 'GET') {
     const actor = await authenticate(request, env, 'paper.manage')
     return json(request, env, { trades: await listContractPaperTrades(env, actor.id) })
+  }
+  if (url.pathname === '/api/trading-evidence' && request.method === 'GET') {
+    const actor = await authenticate(request, env, 'paper.manage')
+    return json(request, env, await loadTradingEvidenceCloudSnapshot(env, actor.id))
+  }
+  if (url.pathname === '/api/trading-evidence' && request.method === 'PUT') {
+    const actor = await authenticate(request, env, 'paper.manage')
+    const input = await requestJson<{ expectedRevision: unknown; bundle: unknown }>(
+      request,
+      2_100_000,
+    )
+    try {
+      return json(request, env, await saveTradingEvidenceCloudSnapshot(env, actor.id, input))
+    } catch (error) {
+      if (error instanceof TradingEvidenceConflictError) throw new HttpError(409, error.message)
+      if (error instanceof TradingEvidenceInputError) throw new HttpError(400, error.message)
+      throw error
+    }
+  }
+  if (url.pathname === '/api/trading-evidence/history' && request.method === 'GET') {
+    const actor = await authenticate(request, env, 'paper.manage')
+    return json(request, env, { versions: await listTradingEvidenceCloudVersions(env, actor.id) })
+  }
+  if (url.pathname === '/api/trading-evidence/audit' && request.method === 'GET') {
+    const actor = await authenticate(request, env, 'paper.manage')
+    return json(request, env, await verifyTradingEvidenceCloudAudit(env, actor.id))
+  }
+  if (
+    url.pathname === '/api/trading-evidence/audit/checkpoint' &&
+    request.method === 'GET'
+  ) {
+    const actor = await authenticate(request, env, 'paper.manage')
+    return json(request, env, await createTradingEvidenceAuditCheckpoint(env, actor.id))
+  }
+  if (
+    url.pathname === '/api/trading-evidence/audit/checkpoint/verify' &&
+    request.method === 'POST'
+  ) {
+    const actor = await authenticate(request, env, 'paper.manage')
+    const input = await requestJson<{ serialized?: unknown }>(request, 16_384)
+    if (typeof input.serialized !== 'string') {
+      throw new HttpError(400, '外部审计检查点内容无效')
+    }
+    try {
+      return json(
+        request,
+        env,
+        await verifyExternalTradingEvidenceAuditCheckpoint(env, actor.id, input.serialized),
+      )
+    } catch (error) {
+      if (error instanceof TradingEvidenceInputError) throw new HttpError(400, error.message)
+      throw error
+    }
+  }
+  const evidenceHistoryMatch = url.pathname.match(
+    /^\/api\/trading-evidence\/history\/(\d+)(?:\/(restore))?$/,
+  )
+  if (evidenceHistoryMatch && request.method === 'GET' && !evidenceHistoryMatch[2]) {
+    const actor = await authenticate(request, env, 'paper.manage')
+    const revision = Number(evidenceHistoryMatch[1])
+    const snapshot = await loadTradingEvidenceCloudVersion(env, actor.id, revision)
+    if (!snapshot) throw new HttpError(404, '云端交易证据历史版本不存在')
+    return json(request, env, snapshot)
+  }
+  if (evidenceHistoryMatch?.[2] === 'restore' && request.method === 'POST') {
+    const actor = await authenticate(request, env, 'paper.manage')
+    const revision = Number(evidenceHistoryMatch[1])
+    const input = await requestJson<{ expectedRevision: unknown }>(request)
+    try {
+      return json(
+        request,
+        env,
+        await restoreTradingEvidenceCloudVersion(env, actor.id, revision, input.expectedRevision),
+      )
+    } catch (error) {
+      if (error instanceof TradingEvidenceConflictError) throw new HttpError(409, error.message)
+      if (error instanceof TradingEvidenceNotFoundError) throw new HttpError(404, error.message)
+      if (error instanceof TradingEvidenceInputError) throw new HttpError(400, error.message)
+      if (error instanceof TradingEvidenceIntegrityError) throw error
+      throw error
+    }
   }
   if (url.pathname === '/api/contract-paper' && request.method === 'POST') {
     const actor = await authenticate(request, env, 'paper.manage')

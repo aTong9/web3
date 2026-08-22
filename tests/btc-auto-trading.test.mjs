@@ -11,6 +11,7 @@ const {
   btcAutoStrategyDefinition,
   btcAutoLegacyStrategyVersionFromDefinition,
   buildBtcAutoOrderParameters,
+  buildBtcAutoTestnetCommissionUpdates,
   btcAutoStrategyVersionFromDefinition,
   btcAutoMonthStartAt,
   btcAutoPerformanceQueryStartAt,
@@ -36,6 +37,7 @@ const {
 const { buildBtcAutoTradingCsv } = jiti('../src/utils/btc-auto-trading-export.ts')
 const { buildContractStrategyEnsemble } = jiti('../src/utils/contract-strategy-ensemble.ts')
 const { blendContractStrategyScores } = jiti('../src/utils/contract-strategy-weight.ts')
+const { evaluateContractTradePath } = jiti('../src/utils/contract-trade-path.ts')
 
 const config = (overrides = {}) => ({
   enabled: true,
@@ -1051,6 +1053,40 @@ test('reconciled trade result includes actual commission and signed funding inco
   assert.equal(calculateBtcAutoReconciledResult(trade(), 10, -0.08, 0), null)
 })
 
+test('Testnet reconciliation attributes USDT commission to each execution observation', () => {
+  const result = buildBtcAutoTestnetCommissionUpdates([
+    {
+      clientOrderId: 'open-client-1',
+      fills: [
+        { id: 1, commission: '0.02', commissionAsset: 'USDT' },
+        { id: 2, commission: '0.03', commissionAsset: 'USDT' },
+      ],
+    },
+    {
+      clientOrderId: 'close-client-1',
+      fills: [{ id: 3, commission: '0.06', commissionAsset: 'USDT' }],
+    },
+  ])
+
+  assert.deepEqual(result, {
+    totalCommission: 0.11,
+    observations: [
+      { clientOrderId: 'open-client-1', commission: 0.05 },
+      { clientOrderId: 'close-client-1', commission: 0.06 },
+    ],
+  })
+  assert.throws(
+    () =>
+      buildBtcAutoTestnetCommissionUpdates([
+        {
+          clientOrderId: 'open-client-1',
+          fills: [{ id: 1, commission: '0.01', commissionAsset: 'BNB' }],
+        },
+      ]),
+    /佣金不是USDT/,
+  )
+})
+
 test('performance summaries use Asia/Shanghai boundaries and report drawdown', () => {
   const trades = [
     closedTrade('before-day', '2026-08-18T15:59:59.000Z', 50),
@@ -1270,4 +1306,286 @@ test('equity curve groups Shanghai trading dates and preserves intraday drawdown
       drawdownUsdt: 1,
     },
   ])
+})
+
+test('contract trade path uses the stop when one complete candle touches stop and target', () => {
+  const result = evaluateContractTradePath({
+    direction: 'long',
+    entryPrice: 100,
+    stopLoss: 95,
+    takeProfit: 110,
+    notional: 1_000,
+    bars: [
+      {
+        date: '2026-08-22T00:01:00.000Z',
+        open: 100,
+        high: 111,
+        low: 94,
+        close: 105,
+      },
+    ],
+    maximumHoldingMinutes: 60,
+    feeRatePct: 0,
+    slippageRatePct: 0,
+    fundingRatePct: 0,
+    fundingSettlements: 0,
+  })
+
+  assert.deepEqual(result, {
+    status: 'closed',
+    exitReason: 'stopLoss',
+    exitPrice: 95,
+    exitedAt: '2026-08-22T00:01:00.000Z',
+    holdingMinutes: 1,
+    grossPnl: -50,
+    fees: 0,
+    slippage: 0,
+    funding: 0,
+    netPnl: -50,
+    returnPct: -5,
+    maximumAdverseExcursionPct: -6,
+  })
+})
+
+test('contract trade path uses a worse opening price when a long gaps through its stop', () => {
+  const result = evaluateContractTradePath({
+    direction: 'long',
+    entryPrice: 100,
+    stopLoss: 95,
+    takeProfit: 110,
+    notional: 1_000,
+    bars: [
+      {
+        date: '2026-08-22T00:01:00.000Z',
+        open: 90,
+        high: 94,
+        low: 89,
+        close: 92,
+      },
+    ],
+    maximumHoldingMinutes: 60,
+    feeRatePct: 0,
+    slippageRatePct: 0,
+    fundingRatePct: 0,
+    fundingSettlements: 0,
+  })
+
+  assert.equal(result.exitReason, 'stopLoss')
+  assert.equal(result.exitPrice, 90)
+  assert.equal(result.grossPnl, -100)
+  assert.equal(result.maximumAdverseExcursionPct, -11)
+})
+
+test('contract trade path subtracts round-trip fees, slippage and long funding from a target win', () => {
+  const result = evaluateContractTradePath({
+    direction: 'long',
+    entryPrice: 100,
+    stopLoss: 95,
+    takeProfit: 110,
+    notional: 1_000,
+    bars: [
+      {
+        date: '2026-08-22T00:01:00.000Z',
+        open: 100,
+        high: 110,
+        low: 99,
+        close: 109,
+      },
+    ],
+    maximumHoldingMinutes: 60,
+    feeRatePct: 0.05,
+    slippageRatePct: 0.1,
+    fundingRatePct: 0.01,
+    fundingSettlements: 2,
+  })
+
+  assert.equal(result.exitReason, 'takeProfit')
+  assert.equal(result.grossPnl, 100)
+  assert.equal(result.fees, 1)
+  assert.equal(result.slippage, 2)
+  assert.equal(result.funding, 0.2)
+  assert.equal(result.netPnl, 96.8)
+  assert.equal(result.returnPct, 9.68)
+})
+
+test('contract trade path mirrors target returns and positive funding income for a short', () => {
+  const result = evaluateContractTradePath({
+    direction: 'short',
+    entryPrice: 100,
+    stopLoss: 105,
+    takeProfit: 90,
+    notional: 1_000,
+    bars: [
+      {
+        date: '2026-08-22T00:01:00.000Z',
+        open: 100,
+        high: 101,
+        low: 89,
+        close: 91,
+      },
+    ],
+    maximumHoldingMinutes: 60,
+    feeRatePct: 0,
+    slippageRatePct: 0,
+    fundingRatePct: 0.01,
+    fundingSettlements: 2,
+  })
+
+  assert.equal(result.exitReason, 'takeProfit')
+  assert.equal(result.grossPnl, 100)
+  assert.equal(result.funding, -0.2)
+  assert.equal(result.netPnl, 100.2)
+  assert.equal(result.returnPct, 10.02)
+  assert.equal(result.maximumAdverseExcursionPct, -1)
+})
+
+test('contract trade path closes at the final observed close when the holding limit expires', () => {
+  const result = evaluateContractTradePath({
+    direction: 'long',
+    entryPrice: 100,
+    stopLoss: 95,
+    takeProfit: 110,
+    notional: 1_000,
+    bars: [
+      {
+        date: '2026-08-22T00:01:00.000Z',
+        open: 100,
+        high: 103,
+        low: 98,
+        close: 102,
+      },
+      {
+        date: '2026-08-22T00:02:00.000Z',
+        open: 102,
+        high: 105,
+        low: 101,
+        close: 104,
+      },
+      {
+        date: '2026-08-22T00:03:00.000Z',
+        open: 104,
+        high: 111,
+        low: 103,
+        close: 110,
+      },
+    ],
+    maximumHoldingMinutes: 2,
+    feeRatePct: 0,
+    slippageRatePct: 0,
+    fundingRatePct: 0,
+    fundingSettlements: 0,
+  })
+
+  assert.equal(result.exitReason, 'timeStop')
+  assert.equal(result.exitPrice, 104)
+  assert.equal(result.exitedAt, '2026-08-22T00:02:00.000Z')
+  assert.equal(result.holdingMinutes, 2)
+  assert.equal(result.netPnl, 40)
+  assert.equal(result.maximumAdverseExcursionPct, -2)
+})
+
+test('contract trade path rejects invalid risk geometry and non-chronological incomplete bars', () => {
+  const validInput = {
+    direction: 'long',
+    entryPrice: 100,
+    stopLoss: 95,
+    takeProfit: 110,
+    notional: 1_000,
+    bars: [],
+    maximumHoldingMinutes: 60,
+    feeRatePct: 0.05,
+    slippageRatePct: 0.1,
+    fundingRatePct: 0.01,
+    fundingSettlements: 0,
+  }
+
+  assert.throws(
+    () => evaluateContractTradePath({ ...validInput, stopLoss: 101 }),
+    /多头止损必须低于入场价，止盈必须高于入场价/,
+  )
+  assert.throws(
+    () =>
+      evaluateContractTradePath({
+        ...validInput,
+        bars: [
+          { date: '2026-08-22T00:02:00.000Z', open: 100, high: 101, low: 99, close: 100 },
+          { date: '2026-08-22T00:01:00.000Z', open: 100, high: 101, low: 99, close: 100 },
+        ],
+      }),
+    /K线必须按时间严格升序排列/,
+  )
+  assert.throws(
+    () =>
+      evaluateContractTradePath({
+        ...validInput,
+        bars: [{ date: '2026-08-22T00:01:00.000Z', close: 100 }],
+      }),
+    /K线必须包含有效的完整OHLC/,
+  )
+})
+
+test('contract trade path remains unsettled without a complete post-entry candle', () => {
+  assert.deepEqual(
+    evaluateContractTradePath({
+      direction: 'long',
+      entryPrice: 100,
+      stopLoss: 95,
+      takeProfit: 110,
+      notional: 1_000,
+      bars: [],
+      maximumHoldingMinutes: 60,
+      feeRatePct: 0.05,
+      slippageRatePct: 0.1,
+      fundingRatePct: 0.01,
+      fundingSettlements: 0,
+    }),
+    {
+      status: 'open',
+      exitReason: null,
+      exitPrice: null,
+      exitedAt: null,
+      holdingMinutes: 0,
+      grossPnl: null,
+      fees: 0,
+      slippage: 0,
+      funding: 0,
+      netPnl: null,
+      returnPct: null,
+      maximumAdverseExcursionPct: null,
+    },
+  )
+})
+
+test('contract trade path excludes candles after exit from adverse excursion', () => {
+  const result = evaluateContractTradePath({
+    direction: 'long',
+    entryPrice: 100,
+    stopLoss: 95,
+    takeProfit: 110,
+    notional: 1_000,
+    bars: [
+      {
+        date: '2026-08-22T00:01:00.000Z',
+        open: 100,
+        high: 111,
+        low: 99,
+        close: 110,
+      },
+      {
+        date: '2026-08-22T00:02:00.000Z',
+        open: 90,
+        high: 91,
+        low: 80,
+        close: 85,
+      },
+    ],
+    maximumHoldingMinutes: 60,
+    feeRatePct: 0,
+    slippageRatePct: 0,
+    fundingRatePct: 0,
+    fundingSettlements: 0,
+  })
+
+  assert.equal(result.exitReason, 'takeProfit')
+  assert.equal(result.maximumAdverseExcursionPct, -1)
 })

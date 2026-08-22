@@ -5,6 +5,15 @@ import type {
   PaperSignalPosition,
   QuantDashboard,
   QuantOptionCandidate,
+  TestnetDrillType,
+  TestnetExecutionCalibrationEvidenceEnvelope,
+  TestnetExecutionCalibrationReport,
+  TradingEvidenceCloudBundle,
+  TradingEvidenceCloudSnapshot,
+  TradingEvidenceCloudVersion,
+  TradingEvidenceAuditVerification,
+  TradingEvidenceAuditCheckpoint,
+  TradingEvidenceAuditCheckpointVerification,
 } from '@/types'
 
 const defaultApiBase = 'https://web3-quant-api.binson0426.workers.dev'
@@ -123,4 +132,51 @@ export const quantApi = {
     request<BtcAutoTradingDashboard>('/api/btc-auto-trading/run', { method: 'POST' }),
   closeBtcAutoTrading: () =>
     request<BtcAutoTradingDashboard>('/api/btc-auto-trading/close', { method: 'POST' }),
+  testnetExecutionCalibration: () =>
+    request<TestnetExecutionCalibrationReport>('/api/btc-auto-trading/testnet-calibration'),
+  testnetExecutionCalibrationEvidence: () =>
+    request<TestnetExecutionCalibrationEvidenceEnvelope>(
+      '/api/btc-auto-trading/testnet-calibration/evidence',
+    ),
+  saveTestnetSafetyDrill: (input: {
+    type: TestnetDrillType
+    performedAt: string
+    passed: boolean
+    evidence: string
+  }) =>
+    request<TestnetExecutionCalibrationReport>('/api/btc-auto-trading/testnet-drills', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
+  tradingEvidence: () => request<TradingEvidenceCloudSnapshot>('/api/trading-evidence'),
+  saveTradingEvidence: (expectedRevision: number, bundle: TradingEvidenceCloudBundle) =>
+    request<TradingEvidenceCloudSnapshot>('/api/trading-evidence', {
+      method: 'PUT',
+      body: JSON.stringify({ expectedRevision, bundle }),
+    }),
+  tradingEvidenceHistory: async () => {
+    const payload = await request<{ versions: TradingEvidenceCloudVersion[] }>(
+      '/api/trading-evidence/history',
+    )
+    return payload.versions
+  },
+  tradingEvidenceAudit: () =>
+    request<TradingEvidenceAuditVerification>('/api/trading-evidence/audit'),
+  tradingEvidenceAuditCheckpoint: () =>
+    request<TradingEvidenceAuditCheckpoint>('/api/trading-evidence/audit/checkpoint'),
+  verifyTradingEvidenceAuditCheckpoint: (serialized: string) =>
+    request<TradingEvidenceAuditCheckpointVerification>(
+      '/api/trading-evidence/audit/checkpoint/verify',
+      { method: 'POST', body: JSON.stringify({ serialized }) },
+    ),
+  tradingEvidenceVersion: (revision: number) =>
+    request<TradingEvidenceCloudSnapshot>(`/api/trading-evidence/history/${revision}`),
+  restoreTradingEvidenceVersion: (revision: number, expectedRevision: number) =>
+    request<TradingEvidenceCloudSnapshot>(
+      `/api/trading-evidence/history/${revision}/restore`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ expectedRevision }),
+      },
+    ),
 }

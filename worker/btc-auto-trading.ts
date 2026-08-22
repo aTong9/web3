@@ -18,6 +18,12 @@ import type {
   ContractChartInterval,
   ContractMarketSnapshot,
   ContractTradeDecision,
+  TestnetDrillType,
+  TestnetExecutionCalibrationEvidenceEnvelope,
+  TestnetExecutionCalibrationInput,
+  TestnetExecutionCalibrationReport,
+  TestnetExecutionObservation,
+  TestnetSafetyDrill,
 } from '../src/types/index'
 import {
   buildBtcAutoTradingCsv,
@@ -32,6 +38,7 @@ import {
   btcAutoSignalModelVersion,
   btcAutoLegacyStrategyVersionFromDefinition,
   buildBtcAutoOrderParameters,
+  buildBtcAutoTestnetCommissionUpdates,
   btcAutoStrategyVersion,
   btcAutoStrategyDefinition,
   btcAutoStrategyVersionFromDefinition,
@@ -55,12 +62,19 @@ import {
   validateBtcAutoMarketFreshness,
 } from '../src/utils/btc-auto-trading'
 import { buildContractTradeDecision } from '../src/utils/contract-trade-decision'
+import {
+  buildTestnetExecutionCalibrationEvidence,
+  calibrateTestnetExecution,
+  testnetExecutionEvidenceWindowStartAt,
+} from '../src/utils/testnet-execution-calibration'
 
 const symbol = 'BTCUSDT' as const
 const strategyInterval = '5m' as const
 const marketIntervals: ContractChartInterval[] = ['1m', '5m', '15m', '1h', '4h']
 const maximumExchangeJsonBytes = 4_000_000
 const testnetBase = 'https://demo-fapi.binance.com'
+const testnetCostModelVersion = (strategyVersion: string) =>
+  `${strategyVersion}:btc-auto-testnet-cost-v1`
 
 interface BtcAutoConfigRow {
   enabled: number
@@ -224,6 +238,89 @@ interface ExecutionReconciliation {
   fundingFee: number
   netPnl: number
   returnPct: number
+  observationCommissions: Array<{ clientOrderId: string; commission: number }>
+}
+
+interface TestnetObservationRow {
+  id: string
+  trade_id: string
+  idempotency_key: string
+  cost_model_version: string
+  command: TestnetExecutionObservation['command']
+  planned_at: string
+  submitted_at: string
+  acknowledged_at: string | null
+  planned_price: number
+  average_fill_price: number | null
+  planned_quantity: number
+  filled_quantity: number
+  commission: number
+  status: TestnetExecutionObservation['status']
+  reconciled_at: string | null
+}
+
+interface TestnetSafetyDrillRow {
+  type: TestnetDrillType
+  cost_model_version: string
+  performed_at: string
+  passed: number
+  evidence: string
+}
+
+const recordTestnetObservation = async (
+  env: Env,
+  input: {
+    tradeId: string
+    costModelVersion: string
+    command: ExecutionCommand
+    plannedAt: string
+    submittedAt: string
+    acknowledgedAt: string | null
+    plannedPrice: number
+    fill: ExecutionFill | null
+    status: TestnetExecutionObservation['status']
+    error: string | null
+  },
+) => {
+  await env.DB.prepare(
+    `INSERT INTO testnet_execution_observations
+     (id, idempotency_key, trade_id, cost_model_version, command, planned_at, submitted_at, acknowledged_at,
+      planned_price, average_fill_price, planned_quantity, filled_quantity, commission, status,
+      reconciled_at, error)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, 0, ?13, NULL, ?14)`,
+  )
+    .bind(
+      crypto.randomUUID(),
+      input.command.clientOrderId,
+      input.tradeId,
+      input.costModelVersion,
+      input.command.kind,
+      input.plannedAt,
+      input.submittedAt,
+      input.acknowledgedAt,
+      input.plannedPrice,
+      input.fill?.averagePrice ?? null,
+      input.command.quantity,
+      input.fill?.quantity ?? 0,
+      input.status,
+      input.error,
+    )
+    .run()
+}
+
+const reconcileTestnetObservation = async (
+  env: Env,
+  clientOrderId: string,
+  fill: ExecutionFill,
+) => {
+  await env.DB.prepare(
+    `UPDATE testnet_execution_observations
+     SET status = 'reconciled', reconciled_at = ?1, acknowledged_at = COALESCE(acknowledged_at, ?1),
+         average_fill_price = ?2, filled_quantity = ?3
+     WHERE idempotency_key = ?4 AND status IN ('unknown', 'timeout')`,
+  )
+    .bind(new Date().toISOString(), fill.averagePrice, fill.quantity, clientOrderId)
+    .run()
 }
 
 interface MarketReading {
@@ -1347,7 +1444,13 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
     }
   }
   const reconcile = async (row: BtcAutoTradeRow): Promise<ExecutionReconciliation> => {
-    if (!row.open_order_id || !row.close_order_id || !row.closed_at) {
+    if (
+      !row.open_order_id ||
+      !row.close_order_id ||
+      !row.open_client_order_id ||
+      !row.close_client_order_id ||
+      !row.closed_at
+    ) {
       throw new Error('Testnet订单尚未具备完整对账标识')
     }
     interface AccountTrade {
@@ -1365,20 +1468,16 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
       if (!Array.isArray(items) || !items.length) throw new Error(`订单 ${orderId} 暂无成交明细`)
       return items
     }
-    const fills = [
-      ...(await orderTrades(row.open_order_id)),
-      ...(await orderTrades(row.close_order_id)),
-    ]
+    const openFills = await orderTrades(row.open_order_id)
+    const closeFills = await orderTrades(row.close_order_id)
+    const fills = [...openFills, ...closeFills]
     const uniqueFills = [...new Map(fills.map((item) => [String(item.id), item])).values()]
-    if (
-      uniqueFills.some(
-        (item) => item.commissionAsset !== 'USDT' && Number(item.commission ?? 0) !== 0,
-      )
-    ) {
-      throw new Error('Testnet成交佣金不是USDT，暂不自动换算')
-    }
+    const commissionSummary = buildBtcAutoTestnetCommissionUpdates([
+      { clientOrderId: row.open_client_order_id, fills: openFills },
+      { clientOrderId: row.close_client_order_id, fills: closeFills },
+    ])
     const grossPnl = uniqueFills.reduce((sum, item) => sum + Number(item.realizedPnl ?? 0), 0)
-    const fees = uniqueFills.reduce((sum, item) => sum + Math.abs(Number(item.commission ?? 0)), 0)
+    const fees = commissionSummary.totalCommission
     interface IncomeItem {
       tranId?: number
       income?: string
@@ -1417,7 +1516,7 @@ const testnetAdapter = (env: Env): ExecutionAdapter => {
     }
     const result = calculateBtcAutoReconciledResult(toTrade(row), grossPnl, fees, fundingFee)
     if (!result) throw new Error('无法计算Testnet已对账盈亏')
-    return result
+    return { ...result, observationCommissions: commissionSummary.observations }
   }
   return {
     size: async (notionalUsdt, price) => {
@@ -1643,12 +1742,12 @@ const reconcileLatestTestnetPnl = async (env: Env) => {
     }
     const result = await adapter.reconcile!(row)
     const reconciledAt = new Date().toISOString()
-    await env.DB.prepare(
+    const statements = [
+      env.DB.prepare(
       `UPDATE btc_auto_trades SET gross_pnl = ?1, fees = ?2, funding_fee = ?3,
        net_pnl = ?4, return_pct = ?5, pnl_source = 'reconciled', reconciled_at = ?6,
        reconciliation_error = NULL, updated_at = ?6 WHERE id = ?7 AND pnl_source = 'estimated'`,
-    )
-      .bind(
+      ).bind(
         result.grossPnl,
         result.fees,
         result.fundingFee,
@@ -1656,8 +1755,15 @@ const reconcileLatestTestnetPnl = async (env: Env) => {
         result.returnPct,
         reconciledAt,
         row.id,
-      )
-      .run()
+      ),
+      ...result.observationCommissions.map(({ clientOrderId, commission }) =>
+        env.DB.prepare(
+          `UPDATE testnet_execution_observations SET commission = ?1
+           WHERE idempotency_key = ?2`,
+        ).bind(commission, clientOrderId),
+      ),
+    ]
+    await env.DB.batch(statements)
   } catch (error) {
     const message = error instanceof Error ? error.message.slice(0, 300) : 'Testnet对账失败'
     await env.DB.prepare(
@@ -1675,10 +1781,12 @@ const reconcilePendingTrade = async (env: Env, row: BtcAutoTradeRow, adapter: Ex
   try {
     if (row.status === 'opening') {
       const fill = await adapter.query(row.open_client_order_id)
+      await reconcileTestnetObservation(env, row.open_client_order_id, fill)
       if (fill.status === 'FILLED') await markTradeOpen(env, row.id, fill)
     }
     if (row.status === 'closing' && row.close_client_order_id) {
       const fill = await adapter.query(row.close_client_order_id)
+      await reconcileTestnetObservation(env, row.close_client_order_id, fill)
       if (fill.status === 'FILLED') {
         await markTradeClosed(env, row, fill, row.close_reason ?? 'manual')
       }
@@ -1761,21 +1869,53 @@ const openTrade = async (
       now,
     )
     .run()
+  const command: ExecutionCommand = {
+    kind: 'open',
+    direction: signal.action,
+    quantity,
+    leverage: config.leverage,
+    clientOrderId,
+    hedgeMode: config.hedgeModeEnabled,
+  }
+  const submittedAt = new Date().toISOString()
   try {
-    const fill = await adapter.execute(
-      {
-        kind: 'open',
-        direction: signal.action,
-        quantity,
-        leverage: config.leverage,
-        clientOrderId,
-        hedgeMode: config.hedgeModeEnabled,
-      },
-      signal.price,
-    )
+    const fill = await adapter.execute(command, signal.price)
+    if (config.executionMode === 'testnet') {
+      await recordTestnetObservation(env, {
+        tradeId: id,
+        costModelVersion: testnetCostModelVersion(signal.strategyVersion),
+        command,
+        plannedAt: now,
+        submittedAt,
+        acknowledgedAt: new Date().toISOString(),
+        plannedPrice: signal.price,
+        fill,
+        status: fill.status === 'FILLED' ? 'filled' : 'partial',
+        error: null,
+      })
+    }
     await markTradeOpen(env, id, fill)
   } catch (error) {
     const definiteRejection = error instanceof ExchangeRequestError && error.definiteRejection
+    if (config.executionMode === 'testnet') {
+      const message = error instanceof Error ? error.message.slice(0, 300) : '开仓失败'
+      await recordTestnetObservation(env, {
+        tradeId: id,
+        costModelVersion: testnetCostModelVersion(signal.strategyVersion),
+        command,
+        plannedAt: now,
+        submittedAt,
+        acknowledgedAt: null,
+        plannedPrice: signal.price,
+        fill: null,
+        status: definiteRejection
+          ? 'rejected'
+          : /timeout|超时/i.test(message)
+            ? 'timeout'
+            : 'unknown',
+        error: message,
+      })
+    }
     await env.DB.prepare(
       `UPDATE btc_auto_trades SET status = ?1, error = ?2, updated_at = ?3 WHERE id = ?4`,
     )
@@ -1808,21 +1948,53 @@ const closeTrade = async (
     .bind(reason, clientOrderId, now, row.id)
     .run()
   if (!transition.meta.changes) return
+  const command: ExecutionCommand = {
+    kind: 'close',
+    direction: row.direction,
+    quantity: row.quantity,
+    leverage: row.leverage,
+    clientOrderId,
+    hedgeMode,
+  }
+  const submittedAt = new Date().toISOString()
   try {
-    const fill = await adapter.execute(
-      {
-        kind: 'close',
-        direction: row.direction,
-        quantity: row.quantity,
-        leverage: row.leverage,
-        clientOrderId,
-        hedgeMode,
-      },
-      price,
-    )
+    const fill = await adapter.execute(command, price)
+    if (row.execution_mode === 'testnet') {
+      await recordTestnetObservation(env, {
+        tradeId: row.id,
+        costModelVersion: testnetCostModelVersion(row.strategy_version),
+        command,
+        plannedAt: now,
+        submittedAt,
+        acknowledgedAt: new Date().toISOString(),
+        plannedPrice: price,
+        fill,
+        status: fill.status === 'FILLED' ? 'filled' : 'partial',
+        error: null,
+      })
+    }
     await markTradeClosed(env, { ...row, status: 'closing', close_reason: reason }, fill, reason)
   } catch (error) {
     const definiteRejection = error instanceof ExchangeRequestError && error.definiteRejection
+    if (row.execution_mode === 'testnet') {
+      const message = error instanceof Error ? error.message.slice(0, 300) : '平仓失败'
+      await recordTestnetObservation(env, {
+        tradeId: row.id,
+        costModelVersion: testnetCostModelVersion(row.strategy_version),
+        command,
+        plannedAt: now,
+        submittedAt,
+        acknowledgedAt: null,
+        plannedPrice: price,
+        fill: null,
+        status: definiteRejection
+          ? 'rejected'
+          : /timeout|超时/i.test(message)
+            ? 'timeout'
+            : 'unknown',
+        error: message,
+      })
+    }
     await env.DB.prepare(
       `UPDATE btc_auto_trades SET status = ?1,
        close_reason = CASE WHEN ?1 = 'open' THEN NULL ELSE close_reason END,
@@ -2025,6 +2197,113 @@ export const closeBtcAutoTradingPosition = async (env: Env) => {
   } finally {
     await releaseManualLock(env)
   }
+}
+
+const loadTestnetExecutionCalibrationInput = async (
+  env: Env,
+): Promise<TestnetExecutionCalibrationInput> => {
+  const observationWindowStartAt = testnetExecutionEvidenceWindowStartAt()
+  const currentStrategyVersion = btcAutoStrategyVersion(toConfig(await loadConfigRow(env)))
+  const currentCostModelVersion = testnetCostModelVersion(currentStrategyVersion)
+  const [observationRows, drillRows] = await Promise.all([
+    env.DB.prepare(
+      `SELECT id, trade_id, idempotency_key, cost_model_version, command, planned_at, submitted_at, acknowledged_at,
+              planned_price, average_fill_price, planned_quantity, filled_quantity, commission,
+              status, reconciled_at
+       FROM testnet_execution_observations
+       WHERE submitted_at >= ?1 AND cost_model_version = ?2
+       ORDER BY submitted_at DESC LIMIT 500`,
+    )
+      .bind(observationWindowStartAt, currentCostModelVersion)
+      .all<TestnetObservationRow>(),
+    env.DB.prepare(
+      `SELECT type, cost_model_version, performed_at, passed, evidence
+       FROM testnet_safety_drills
+       WHERE cost_model_version = ?1
+       ORDER BY performed_at DESC LIMIT 100`,
+    )
+      .bind(currentCostModelVersion)
+      .all<TestnetSafetyDrillRow>(),
+  ])
+  const observations: TestnetExecutionObservation[] = observationRows.results.map((row) => ({
+    id: row.id,
+    tradeId: row.trade_id,
+    idempotencyKey: row.idempotency_key,
+    costModelVersion: row.cost_model_version,
+    command: row.command,
+    plannedAt: row.planned_at,
+    submittedAt: row.submitted_at,
+    acknowledgedAt: row.acknowledged_at,
+    plannedPrice: row.planned_price,
+    averageFillPrice: row.average_fill_price,
+    plannedQuantity: row.planned_quantity,
+    filledQuantity: row.filled_quantity,
+    commission: row.commission,
+    status: row.status,
+    reconciledAt: row.reconciled_at,
+  }))
+  const drills: TestnetSafetyDrill[] = drillRows.results.map((row) => ({
+    type: row.type,
+    costModelVersion: row.cost_model_version,
+    performedAt: row.performed_at,
+    passed: Boolean(row.passed),
+    evidence: row.evidence,
+  }))
+  return {
+    currentCostModelVersion,
+    observations,
+    drills,
+  }
+}
+
+export const testnetExecutionCalibration = async (
+  env: Env,
+): Promise<TestnetExecutionCalibrationReport> =>
+  calibrateTestnetExecution(await loadTestnetExecutionCalibrationInput(env))
+
+export const testnetExecutionCalibrationEvidence = async (
+  env: Env,
+): Promise<TestnetExecutionCalibrationEvidenceEnvelope> =>
+  buildTestnetExecutionCalibrationEvidence(await loadTestnetExecutionCalibrationInput(env))
+
+export const saveTestnetSafetyDrill = async (
+  env: Env,
+  actorId: string,
+  input: Record<string, unknown>,
+) => {
+  const types = new Set<TestnetDrillType>([
+    'emergencyClose',
+    'disableEntries',
+    'staleMarketCircuitBreaker',
+    'continuousReconciliation',
+  ])
+  if (!types.has(input.type as TestnetDrillType)) throw new Error('Testnet演练类型无效')
+  if (typeof input.passed !== 'boolean') throw new Error('Testnet演练结果无效')
+  if (typeof input.evidence !== 'string' || !input.evidence.trim() || input.evidence.length > 500) {
+    throw new Error('Testnet演练证据必须为1至500个字符')
+  }
+  const performedAt = typeof input.performedAt === 'string' ? input.performedAt : ''
+  if (!Number.isFinite(Date.parse(performedAt)) || Date.parse(performedAt) > Date.now() + 300_000) {
+    throw new Error('Testnet演练时间无效')
+  }
+  const currentStrategyVersion = btcAutoStrategyVersion(toConfig(await loadConfigRow(env)))
+  const currentCostModelVersion = testnetCostModelVersion(currentStrategyVersion)
+  await env.DB.prepare(
+    `INSERT INTO testnet_safety_drills
+     (id, type, cost_model_version, performed_at, passed, evidence, actor_id)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`,
+  )
+    .bind(
+      crypto.randomUUID(),
+      input.type,
+      currentCostModelVersion,
+      new Date(performedAt).toISOString(),
+      input.passed ? 1 : 0,
+      input.evidence.trim(),
+      actorId,
+    )
+    .run()
+  return testnetExecutionCalibration(env)
 }
 
 export const btcAutoTradingDashboard = async (env: Env): Promise<BtcAutoTradingDashboard> => {

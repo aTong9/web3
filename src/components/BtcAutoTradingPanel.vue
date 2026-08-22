@@ -6,20 +6,34 @@ import type {
   BtcAutoTrade,
   BtcAutoTradingConfig,
   BtcAutoTradingDashboard,
+  TestnetDrillType,
+  TestnetExecutionCalibrationEvidenceEnvelope,
+  TestnetExecutionCalibrationReport,
 } from '@/types'
 import DisclosureCard from '@/components/DisclosureCard.vue'
 import EChart from '@/components/EChart.vue'
 import { useI18n } from '@/composables/use-i18n'
 import { quantApi } from '@/utils/quant-api'
+import { assessTestnetExecutionCalibrationEvidenceCurrency } from '@/utils/testnet-execution-calibration'
 
+const emit = defineEmits<{
+  calibration: [evidence: TestnetExecutionCalibrationEvidenceEnvelope]
+}>()
 const { locale, t } = useI18n()
 const dashboard = ref<BtcAutoTradingDashboard | null>(null)
 const loading = ref(true)
 const busy = ref(false)
 const error = ref<string | null>(null)
+const calibrationEvidence = ref<TestnetExecutionCalibrationEvidenceEnvelope | null>(null)
+const calibrationLoading = ref(false)
+const calibrationError = ref<string | null>(null)
 const refreshIntervalMs = 60_000
 let refreshTimer: number | undefined
 const refreshing = ref(false)
+const drillDraft = reactive<{ type: TestnetDrillType; evidence: string }>({
+  type: 'emergencyClose',
+  evidence: '',
+})
 const interactionLocked = computed(() => busy.value || refreshing.value)
 const draft = reactive<BtcAutoTradingConfig>({
   enabled: true,
@@ -53,6 +67,145 @@ const hydrate = (next: BtcAutoTradingDashboard) => {
   Object.assign(draft, next.config)
 }
 
+const calibrationCopy = computed(() =>
+  locale.value === 'zh'
+    ? {
+        eyebrow: 'TESTNET 执行证据',
+        title: '成交校准与安全演练',
+        ready: '可进入 Paper 对比',
+        blocked: '证据尚未达标',
+        observations: '执行样本',
+        uniqueCommands: '唯一执行命令',
+        filledObservations: '有效成交样本',
+        filledOpenObservations: '开仓有效成交',
+        filledCloseObservations: '平仓有效成交',
+        commissionCoverage: '手续费证据覆盖率',
+        completedRoundTrips: '完整往返交易',
+        fillRate: '总成交率',
+        rejectionRate: '命令拒绝率',
+        slippage: 'P95 绝对滑点',
+        submissionLatency: 'P95 提交延迟',
+        latency: 'P95 确认延迟',
+        unresolved: '未完成对账',
+        recovered: '异常恢复',
+        recoveryDependencyRate: '异常恢复依赖率',
+        costModel: '建议成本模型',
+        recommendedFee: '建议单边手续费',
+        feeSamples: '手续费样本',
+        drills: '安全演练',
+        evidence: '演练证据（工单、日志摘要或复盘说明）',
+        submit: '记录通过的演练',
+        saving: '正在记录…',
+        retry: '重新读取',
+        drillNames: {
+          emergencyClose: '紧急平仓',
+          disableEntries: '停止新开仓',
+          staleMarketCircuitBreaker: '陈旧行情熔断',
+          continuousReconciliation: '持续对账恢复',
+        },
+      }
+    : {
+        eyebrow: 'TESTNET EXECUTION EVIDENCE',
+        title: 'Fill calibration and safety drills',
+        ready: 'Ready for Paper comparison',
+        blocked: 'Evidence below threshold',
+        observations: 'Observations',
+        uniqueCommands: 'Unique commands',
+        filledObservations: 'Filled observations',
+        filledOpenObservations: 'Filled opens',
+        filledCloseObservations: 'Filled closes',
+        commissionCoverage: 'Commission evidence coverage',
+        completedRoundTrips: 'Completed round trips',
+        fillRate: 'Aggregate fill rate',
+        rejectionRate: 'Command rejection rate',
+        slippage: 'P95 absolute slippage',
+        submissionLatency: 'P95 submission latency',
+        latency: 'P95 acknowledgement latency',
+        unresolved: 'Unreconciled orders',
+        recovered: 'Recovered unknowns',
+        recoveryDependencyRate: 'Recovery dependency rate',
+        costModel: 'Suggested cost model',
+        recommendedFee: 'Suggested one-way fee',
+        feeSamples: 'Commission samples',
+        drills: 'Safety drills',
+        evidence: 'Drill evidence (ticket, log summary, or review note)',
+        submit: 'Record passed drill',
+        saving: 'Saving…',
+        retry: 'Reload',
+        drillNames: {
+          emergencyClose: 'Emergency close',
+          disableEntries: 'Disable entries',
+          staleMarketCircuitBreaker: 'Stale-market circuit breaker',
+          continuousReconciliation: 'Continuous reconciliation',
+        },
+      },
+)
+
+const calibration = computed<TestnetExecutionCalibrationReport | null>(() => {
+  const evidence = calibrationEvidence.value
+  if (!evidence) return null
+  const currency = assessTestnetExecutionCalibrationEvidenceCurrency(evidence)
+  if (currency.status === 'current') return evidence.report
+  const reason =
+    locale.value === 'zh'
+      ? `Testnet证据当前无效：${currency.reasons.join(', ')}`
+      : `Testnet evidence is not current: ${currency.reasons.join(', ')}`
+  return {
+    ...evidence.report,
+    readyForPaperComparison: false,
+    blockers: [...evidence.report.blockers, reason],
+  }
+})
+
+const drillTypes: TestnetDrillType[] = [
+  'emergencyClose',
+  'disableEntries',
+  'staleMarketCircuitBreaker',
+  'continuousReconciliation',
+]
+
+const unresolvedTestnetOrders = computed(
+  () => (calibration.value?.timedOut ?? 0) + (calibration.value?.unknown ?? 0),
+)
+
+const loadCalibration = async () => {
+  if (calibrationLoading.value) return
+  calibrationLoading.value = true
+  calibrationError.value = null
+  try {
+    const evidence = await quantApi.testnetExecutionCalibrationEvidence()
+    calibrationEvidence.value = evidence
+    emit('calibration', evidence)
+  } catch (loadError) {
+    calibrationError.value =
+      loadError instanceof Error ? loadError.message : 'Testnet calibration unavailable'
+  } finally {
+    calibrationLoading.value = false
+  }
+}
+
+const saveDrill = async () => {
+  const evidence = drillDraft.evidence.trim()
+  if (!evidence || interactionLocked.value) return
+  busy.value = true
+  calibrationError.value = null
+  try {
+    await quantApi.saveTestnetSafetyDrill({
+      type: drillDraft.type,
+      performedAt: new Date().toISOString(),
+      passed: true,
+      evidence,
+    })
+    await loadCalibration()
+    drillDraft.evidence = ''
+  } catch (saveError) {
+    calibrationError.value =
+      saveError instanceof Error ? saveError.message : 'Testnet drill could not be saved'
+  } finally {
+    busy.value = false
+  }
+}
+
 const load = async (silent = false) => {
   if (refreshing.value || (silent && busy.value)) return
   refreshing.value = true
@@ -63,6 +216,7 @@ const load = async (silent = false) => {
   try {
     hydrate(await quantApi.btcAutoTrading())
     error.value = null
+    void loadCalibration()
   } catch (loadError) {
     error.value =
       loadError instanceof Error ? loadError.message : t('assetTechnical.contract.auto.error')
@@ -315,6 +469,132 @@ onBeforeUnmount(() => {
       <p v-if="error || dashboard.lastError" class="panel-message error">
         {{ error || dashboard.lastError }}
       </p>
+
+      <section class="testnet-calibration" :class="{ ready: calibration?.readyForPaperComparison }">
+        <header>
+          <div>
+            <span>{{ calibrationCopy.eyebrow }}</span>
+            <strong>{{ calibrationCopy.title }}</strong>
+          </div>
+          <b v-if="calibration">
+            {{
+              calibration.readyForPaperComparison
+                ? calibrationCopy.ready
+                : calibrationCopy.blocked
+            }}
+          </b>
+          <button v-else type="button" :disabled="calibrationLoading" @click="loadCalibration">
+            {{ calibrationLoading ? calibrationCopy.saving : calibrationCopy.retry }}
+          </button>
+        </header>
+        <p v-if="calibrationError" class="panel-message error">{{ calibrationError }}</p>
+        <template v-if="calibration">
+          <dl class="calibration-metrics">
+            <div>
+              <dt>{{ calibrationCopy.observations }}</dt>
+              <dd>{{ calibration.observations }}</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.uniqueCommands }}</dt>
+              <dd>{{ calibration.uniqueCommands }}</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.filledObservations }}</dt>
+              <dd>{{ calibration.filledObservations }}</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.filledOpenObservations }}</dt>
+              <dd>{{ calibration.filledOpenObservations }}</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.filledCloseObservations }}</dt>
+              <dd>{{ calibration.filledCloseObservations }}</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.commissionCoverage }}</dt>
+              <dd>{{ formatNumber(calibration.commissionObservedFillRatePct, 1) }}%</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.completedRoundTrips }}</dt>
+              <dd>{{ calibration.completedRoundTrips }}</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.fillRate }}</dt>
+              <dd>{{ formatNumber(calibration.aggregateFillRatePct, 1) }}%</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.rejectionRate }}</dt>
+              <dd>{{ formatNumber(calibration.rejectionRatePct, 1) }}%</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.slippage }}</dt>
+              <dd>{{ formatNumber(calibration.p95AbsoluteSlippageBps, 2) }} bps</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.submissionLatency }}</dt>
+              <dd>{{ formatNumber(calibration.p95SubmissionLatencyMs, 0) }} ms</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.latency }}</dt>
+              <dd>{{ formatNumber(calibration.p95AcknowledgementLatencyMs, 0) }} ms</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.unresolved }}</dt>
+              <dd :class="unresolvedTestnetOrders ? 'negative' : 'positive'">
+                {{ unresolvedTestnetOrders }}
+              </dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.recovered }}</dt>
+              <dd>{{ calibration.recoveredUnknown }}</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.recoveryDependencyRate }}</dt>
+              <dd>{{ formatNumber(calibration.recoveryDependencyRatePct, 1) }}%</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.costModel }}</dt>
+              <dd><code>{{ calibration.recommendedCostModel.version }}</code></dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.recommendedFee }}</dt>
+              <dd>{{ formatNumber(calibration.recommendedCostModel.feeRatePct, 4) }}%</dd>
+            </div>
+            <div>
+              <dt>{{ calibrationCopy.feeSamples }}</dt>
+              <dd>{{ calibration.recommendedCostModel.feeSourceObservations }}</dd>
+            </div>
+          </dl>
+          <div class="drill-status">
+            <span>{{ calibrationCopy.drills }}</span>
+            <ol>
+              <li v-for="type in drillTypes" :key="type" :class="{ passed: calibration.drills[type]?.passed }">
+                <i></i>
+                {{ calibrationCopy.drillNames[type] }}
+              </li>
+            </ol>
+          </div>
+          <form class="drill-form" @submit.prevent="saveDrill">
+            <select v-model="drillDraft.type" aria-label="Testnet safety drill">
+              <option v-for="type in drillTypes" :key="type" :value="type">
+                {{ calibrationCopy.drillNames[type] }}
+              </option>
+            </select>
+            <input
+              v-model="drillDraft.evidence"
+              :placeholder="calibrationCopy.evidence"
+              maxlength="500"
+              required
+            />
+            <button type="submit" :disabled="interactionLocked || !drillDraft.evidence.trim()">
+              {{ busy ? calibrationCopy.saving : calibrationCopy.submit }}
+            </button>
+          </form>
+          <ul v-if="calibration.blockers.length" class="calibration-blockers">
+            <li v-for="blocker in calibration.blockers" :key="blocker">{{ blocker }}</li>
+          </ul>
+        </template>
+      </section>
 
       <section class="entry-gate" :class="dashboard.entryGate.eligible ? 'ready' : 'blocked'">
         <div>
@@ -1255,6 +1535,120 @@ onBeforeUnmount(() => {
   border-radius: 7px;
   background: var(--surface-soft);
 }
+.testnet-calibration {
+  margin-top: var(--auto-gap);
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--warning) 55%, var(--border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--warning) 5%, var(--surface));
+}
+.testnet-calibration.ready {
+  border-color: color-mix(in srgb, var(--positive) 55%, var(--border));
+  background: color-mix(in srgb, var(--positive) 5%, var(--surface));
+}
+.testnet-calibration > header,
+.testnet-calibration > header div {
+  display: flex;
+  gap: 8px;
+}
+.testnet-calibration > header {
+  align-items: center;
+  justify-content: space-between;
+}
+.testnet-calibration > header div {
+  flex-direction: column;
+  gap: 3px;
+}
+.testnet-calibration > header span,
+.drill-status > span {
+  color: var(--muted);
+  font-size: 7px;
+}
+.testnet-calibration > header strong,
+.testnet-calibration > header b {
+  font-size: 9px;
+}
+.testnet-calibration > header b {
+  color: var(--warning);
+}
+.testnet-calibration.ready > header b {
+  color: var(--positive);
+}
+.testnet-calibration button,
+.testnet-calibration input,
+.testnet-calibration select {
+  min-height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.testnet-calibration button {
+  padding: 7px 10px;
+  cursor: pointer;
+}
+.testnet-calibration button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+.calibration-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0 0;
+}
+.calibration-metrics div {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+.drill-status {
+  margin-top: 12px;
+}
+.drill-status ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 7px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.drill-status li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 7px;
+}
+.drill-status i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--warning);
+}
+.drill-status li.passed i {
+  background: var(--positive);
+}
+.drill-form {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.7fr) minmax(220px, 2fr) auto;
+  gap: 7px;
+  margin-top: 10px;
+}
+.drill-form input,
+.drill-form select {
+  min-width: 0;
+  padding: 7px 8px;
+}
+.calibration-blockers {
+  display: grid;
+  gap: 4px;
+  margin: 10px 0 0;
+  padding-left: 16px;
+  color: var(--muted);
+  font-size: 7px;
+}
 .entry-gate.ready {
   border-left-color: var(--positive);
 }
@@ -1715,7 +2109,8 @@ th {
 }
 @media (max-width: 900px) {
   .performance-grid,
-  .config-fields {
+  .config-fields,
+  .calibration-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -1733,6 +2128,14 @@ th {
   }
   .regime-comparison-grid {
     grid-template-columns: 1fr;
+  }
+  .testnet-calibration > header,
+  .drill-form {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+  .testnet-calibration > header {
+    flex-direction: column;
   }
   .auto-config > header,
   .auto-config > footer {

@@ -1062,6 +1062,566 @@ export interface AssetPricePoint {
   volume?: number
 }
 
+export type ContractTradePathExitReason = 'stopLoss' | 'takeProfit' | 'timeStop'
+
+export interface ContractTradePathInput {
+  direction: ContractPositionDirection
+  entryPrice: number
+  stopLoss: number
+  takeProfit: number
+  notional: number
+  bars: AssetPricePoint[]
+  maximumHoldingMinutes: number
+  feeRatePct: number
+  slippageRatePct: number
+  fundingRatePct: number
+  fundingSettlements: number
+}
+
+export interface ContractTradePathResult {
+  status: 'open' | 'closed'
+  exitReason: ContractTradePathExitReason | null
+  exitPrice: number | null
+  exitedAt: string | null
+  holdingMinutes: number
+  grossPnl: number | null
+  fees: number
+  slippage: number
+  funding: number
+  netPnl: number | null
+  returnPct: number | null
+  maximumAdverseExcursionPct: number | null
+}
+
+export type ContractBacktestRegime = 'trending' | 'ranging' | 'volatile'
+export type ContractBacktestSegment = 'training' | 'validation' | 'holdout'
+export type ContractBacktestBaseline = 'strategy' | 'hold' | 'simpleTrend' | 'random'
+
+export interface ContractBacktestCostModel {
+  version: string
+  feeRatePct: number
+  slippageRatePct: number
+  fundingRatePct: number
+  fundingSettlements: number
+}
+
+export interface ContractBacktestOpportunity {
+  id: string
+  symbol: string
+  decisionAt: string
+  evidenceEndAt: string
+  regime: ContractBacktestRegime
+  action: 'long' | 'short' | 'wait' | 'noTrade' | 'insufficient'
+  entryPrice: number
+  stopLoss: number | null
+  takeProfit: number | null
+  notional: number
+  maximumHoldingMinutes: number
+  bars: AssetPricePoint[]
+  baselineDirections: {
+    hold: ContractPositionDirection
+    simpleTrend: ContractPositionDirection
+    random: ContractPositionDirection
+  }
+}
+
+export interface ContractBacktestMetrics {
+  opportunities: number
+  trades: number
+  wins: number
+  losses: number
+  coveragePct: number
+  winRatePct: number | null
+  averageNetReturnPct: number | null
+  profitFactor: number | null
+  maximumDrawdownPct: number
+  maximumConsecutiveLosses: number
+  status: 'insufficient' | 'negative' | 'watch' | 'supported'
+}
+
+export interface ContractBacktestSegmentResult {
+  segment: ContractBacktestSegment
+  startAt: string | null
+  endAt: string | null
+  metrics: ContractBacktestMetrics
+  byRegime: Record<ContractBacktestRegime, ContractBacktestMetrics>
+  baselines: Record<Exclude<ContractBacktestBaseline, 'strategy'>, ContractBacktestMetrics>
+}
+
+export interface ContractStrategyBacktestInput {
+  strategyVersion: string
+  signalModelVersion: string
+  generatedAt: string
+  minimumSamples: number
+  trainingPct: number
+  validationPct: number
+  costModel: ContractBacktestCostModel
+  opportunities: ContractBacktestOpportunity[]
+}
+
+export interface ContractHistoricalDecisionFrame {
+  id: string
+  decisionAt: string
+  evidenceEndAt: string
+  market: ContractMarketSnapshot
+  futureBars: AssetPricePoint[]
+}
+
+export interface ContractBacktestOpportunityBuildInput {
+  frames: ContractHistoricalDecisionFrame[]
+  notional: number
+  maximumHoldingMinutes: number
+  ensembleWeight: number
+}
+
+export interface ContractStrategyBacktestReport {
+  strategyVersion: string
+  signalModelVersion: string
+  generatedAt: string
+  costModel: ContractBacktestCostModel
+  minimumSamples: number
+  split: {
+    trainingPct: number
+    validationPct: number
+    holdoutPct: number
+  }
+  segments: Record<ContractBacktestSegment, ContractBacktestSegmentResult>
+  inputDigest: string
+}
+
+export interface ContractBacktestEvidenceEnvelope {
+  schemaVersion: 1
+  input: ContractStrategyBacktestInput
+  report: ContractStrategyBacktestReport
+}
+
+export type TradingEvaluationPeriod = 'week' | 'month'
+
+export interface ContractPaperBacktestReference {
+  strategyVersion: string
+  period: TradingEvaluationPeriod
+  startAt: string
+  endAt: string
+  averageNetReturnPct: number
+  winRatePct: number
+  maximumDrawdownPct: number
+}
+
+export interface ContractPaperObservation {
+  id: string
+  strategyVersion: string
+  signalVersion: string | null
+  pathId: string | null
+  marketSource: string | null
+  costModelVersion: string | null
+  feeRatePct?: number
+  slippageRatePct?: number
+  plannedAt: string
+  closedAt: string
+  plannedEntryPrice: number
+  paperEntryPrice: number
+  netReturnPct: number
+}
+
+export interface ContractPaperDataGap {
+  startAt: string
+  endAt: string
+  reason: string
+}
+
+export interface ContractPaperDriftInput {
+  minimumSamples: number
+  maximumExpectedReturnDegradationPct: number
+  maximumWinRateDegradationPct: number
+  maximumDrawdownIncreasePct: number
+  cycleToleranceMinutes: number
+  references: ContractPaperBacktestReference[]
+  paperTrades: ContractPaperObservation[]
+  expectedCycleAts: string[]
+  observedCycleAts: string[]
+  dataGaps: ContractPaperDataGap[]
+}
+
+export interface ContractPaperDriftCohort {
+  strategyVersion: string
+  period: TradingEvaluationPeriod
+  startAt: string
+  endAt: string
+  samples: number
+  explainableSamples: number
+  paperAverageNetReturnPct: number | null
+  paperWinRatePct: number | null
+  paperMaximumDrawdownPct: number
+  returnDeltaPct: number | null
+  winRateDeltaPct: number | null
+  drawdownDeltaPct: number
+  status: 'insufficient' | 'stable' | 'watch' | 'degraded'
+}
+
+export interface ContractPaperAuditEvent {
+  type: 'missingTrace' | 'missedCycle' | 'dataGap' | 'strategySwitch'
+  at: string
+  detail: string
+  tradeId: string | null
+}
+
+export interface ContractPaperDriftReport {
+  cohorts: ContractPaperDriftCohort[]
+  auditEvents: ContractPaperAuditEvent[]
+  strategyVersions: string[]
+}
+
+export interface ContractPaperDriftEvidenceEnvelope {
+  input: ContractPaperDriftInput
+  report: ContractPaperDriftReport
+}
+
+export interface ContractPaperMonitoringSession {
+  id: string
+  symbol: string
+  interval: ContractChartInterval
+  intervalMinutes: number
+  startedAt: string
+  lastSeenAt: string
+  endedAt: string | null
+}
+
+export interface ContractPaperCycleObservation {
+  id: string
+  sessionId: string
+  observedAt: string
+  cycleAt: string
+  evidenceEndAt: string
+  strategyVersion: string
+  signalVersion: string
+  marketSource: string
+}
+
+export interface ContractPaperFeedGap {
+  id: string
+  sessionId: string
+  startAt: string
+  endAt: string | null
+  reason: string
+}
+
+export interface ContractPaperTelemetry {
+  schemaVersion: 1
+  sessions: ContractPaperMonitoringSession[]
+  cycles: ContractPaperCycleObservation[]
+  gaps: ContractPaperFeedGap[]
+}
+
+export interface ContractPaperTelemetryEvidence {
+  expectedCycleAts: string[]
+  observedCycleAts: string[]
+  dataGaps: ContractPaperDataGap[]
+}
+
+export type TestnetExecutionStatus =
+  | 'filled'
+  | 'partial'
+  | 'rejected'
+  | 'timeout'
+  | 'unknown'
+  | 'reconciled'
+export type TestnetDrillType =
+  | 'emergencyClose'
+  | 'disableEntries'
+  | 'staleMarketCircuitBreaker'
+  | 'continuousReconciliation'
+
+export interface TestnetExecutionObservation {
+  id: string
+  tradeId: string
+  idempotencyKey: string
+  costModelVersion: string
+  command: 'open' | 'close'
+  plannedAt: string
+  submittedAt: string
+  acknowledgedAt: string | null
+  plannedPrice: number
+  averageFillPrice: number | null
+  plannedQuantity: number
+  filledQuantity: number
+  commission: number
+  status: TestnetExecutionStatus
+  reconciledAt: string | null
+}
+
+export interface TestnetSafetyDrill {
+  type: TestnetDrillType
+  costModelVersion: string
+  performedAt: string
+  passed: boolean
+  evidence: string
+}
+
+export interface TestnetExecutionCalibrationInput {
+  currentCostModelVersion: string
+  observations: TestnetExecutionObservation[]
+  drills: TestnetSafetyDrill[]
+}
+
+export interface TestnetExecutionCalibrationReport {
+  observations: number
+  filledObservations: number
+  filledOpenObservations: number
+  filledCloseObservations: number
+  commissionObservedFillRatePct: number | null
+  completedRoundTrips: number
+  invalidRoundTripTradeIds: string[]
+  invalidRoundTripQuantityTradeIds: string[]
+  uniqueCommands: number
+  duplicateIdempotencyKeys: string[]
+  idempotencyConflicts: string[]
+  averageSignedSlippageBps: number | null
+  p95AbsoluteSlippageBps: number | null
+  p95SubmissionLatencyMs: number | null
+  averageAcknowledgementLatencyMs: number | null
+  p95AcknowledgementLatencyMs: number | null
+  aggregateFillRatePct: number | null
+  rejected: number
+  rejectionRatePct: number | null
+  timedOut: number
+  unknown: number
+  recoveredUnknown: number
+  recoveryDependencyRatePct: number | null
+  reconciliationRecoveryPct: number | null
+  recommendedCostModel: {
+    version: string
+    feeRatePct: number | null
+    slippageRatePct: number | null
+    sourceObservations: number
+    feeSourceObservations: number
+  }
+  drills: Record<TestnetDrillType, TestnetSafetyDrill | null>
+  readyForPaperComparison: boolean
+  blockers: string[]
+}
+
+export interface TestnetExecutionCalibrationEvidenceEnvelope {
+  schemaVersion: 1
+  input: TestnetExecutionCalibrationInput
+  report: TestnetExecutionCalibrationReport
+}
+
+export interface LiveTradingReadinessInput {
+  thresholds: {
+    minimumHoldoutSamples: number
+    minimumHoldoutDays: number
+    maximumHoldoutDrawdownPct: number
+    minimumPaperSamples: number
+    maximumPaperReturnDegradationPct: number
+    minimumTestnetFilledObservations: number
+  }
+  backtest: {
+    holdoutStatus: ContractBacktestMetrics['status']
+    holdoutSamples: number
+    holdoutDays: number
+    averageNetReturnPct: number | null
+    maximumDrawdownPct: number
+  }
+  paper: {
+    status: ContractPaperDriftCohort['status']
+    samples: number
+    returnDeltaPct: number | null
+  }
+  testnet: {
+    readyForPaperComparison: boolean
+    observations: number
+    filledObservations: number
+    unresolvedOrders: number
+  }
+  accountControls: {
+    isolatedAccount: boolean
+    withdrawalsDisabled: boolean
+    ipAllowlist: boolean
+    leastPrivilegeKey: boolean
+  }
+  riskControls: {
+    perTradeLimit: boolean
+    dailyLossLimit: boolean
+    directionalExposureLimit: boolean
+    portfolioExposureLimit: boolean
+    humanKillSwitch: boolean
+    anomalyCircuitBreaker: boolean
+    idempotentOrders: boolean
+    continuousReconciliation: boolean
+  }
+  eligibility: {
+    jurisdictionConfirmed: boolean
+    accountEligible: boolean
+    productEligible: boolean
+  }
+}
+
+export interface LiveTradingReadinessReport {
+  evidenceLevel: 'research' | 'paper' | 'testnet' | 'reviewEligible'
+  decision: 'notReady' | 'eligibleForHumanReview'
+  liveTradingAuthorized: false
+  passed: string[]
+  blockers: string[]
+  prohibitions: string[]
+}
+
+export type TradingReviewChecklistCategory = 'accountControls' | 'riskControls' | 'eligibility'
+export type TradingReviewChecklistKey =
+  | keyof LiveTradingReadinessInput['accountControls']
+  | keyof LiveTradingReadinessInput['riskControls']
+  | keyof LiveTradingReadinessInput['eligibility']
+
+export interface TradingReviewAttestation {
+  category: TradingReviewChecklistCategory
+  key: TradingReviewChecklistKey
+  confirmed: boolean
+  evidence: string
+  confirmedAt: string | null
+}
+
+export type TradingReviewAttestationDraft = Omit<TradingReviewAttestation, 'confirmedAt'>
+
+export interface TradingReviewChecklist {
+  schemaVersion: 1
+  validityDays: number
+  updatedAt: string
+  attestations: TradingReviewAttestation[]
+}
+
+export interface TradingReviewChecklistEvaluation {
+  accountControls: LiveTradingReadinessInput['accountControls']
+  riskControls: LiveTradingReadinessInput['riskControls']
+  eligibility: LiveTradingReadinessInput['eligibility']
+  validCount: number
+  totalCount: number
+  expiredKeys: TradingReviewChecklistKey[]
+  missingEvidenceKeys: TradingReviewChecklistKey[]
+}
+
+export interface TradingReviewPackageCloudAudit {
+  checkpoint: TradingEvidenceAuditCheckpoint
+  verification: TradingEvidenceAuditCheckpointVerification
+  verifiedAt: string
+  verificationScope: 'server-response-not-signature'
+}
+
+export interface TradingReviewPackage {
+  schemaVersion: 1 | 2 | 3
+  generatedAt: string
+  authorization: 'human-review-only'
+  evidence: {
+    backtest: ContractBacktestEvidenceEnvelope | null
+    paperDrift: ContractPaperDriftEvidenceEnvelope | null
+    testnet:
+      | TestnetExecutionCalibrationReport
+      | TestnetExecutionCalibrationEvidenceEnvelope
+      | null
+    reviewChecklist: TradingReviewChecklist
+    reviewChecklistEvaluation: TradingReviewChecklistEvaluation
+  }
+  readinessInput: LiveTradingReadinessInput
+  readinessReport: LiveTradingReadinessReport
+  cloudAudit?: TradingReviewPackageCloudAudit | null
+  contentDigest: string
+}
+
+export interface TradingEvidenceCloudBundle {
+  schemaVersion: 1
+  backtest: ContractBacktestEvidenceEnvelope | null
+  paperTelemetry: ContractPaperTelemetry
+  reviewChecklist: TradingReviewChecklist
+}
+
+export interface TradingEvidenceCloudSnapshot {
+  bundle: TradingEvidenceCloudBundle | null
+  revision: number
+  contentDigest: string | null
+  updatedAt: string | null
+}
+
+export interface TradingEvidenceCloudVersion {
+  revision: number
+  contentDigest: string
+  createdAt: string
+}
+
+export interface TradingEvidenceAuditDigestInput {
+  userId: string
+  revision: number
+  contentDigest: string
+  previousAuditDigest: string | null
+  createdAt: string
+}
+
+export interface TradingEvidenceAuditEntry extends TradingEvidenceAuditDigestInput {
+  id: string
+  auditDigest: string | null
+}
+
+export interface TradingEvidenceAuditHead {
+  revision: number
+  contentDigest: string
+  auditDigest: string | null
+}
+
+export type TradingEvidenceAuditStatus = 'empty' | 'valid' | 'partial' | 'broken'
+
+export interface TradingEvidenceAuditVerification {
+  status: TradingEvidenceAuditStatus
+  chainIntact: boolean
+  fullyVerifiable: boolean
+  totalEntries: number
+  verifiedEntries: number
+  legacyEntries: number
+  firstRevision: number | null
+  lastRevision: number | null
+  headAuditDigest: string | null
+  issues: string[]
+}
+
+export interface TradingEvidenceAuditCheckpointInput {
+  generatedAt: string
+  revision: number
+  contentDigest: string
+  auditDigest: string
+  totalEntries: number
+  chainStatus: 'valid' | 'partial'
+}
+
+export interface TradingEvidenceAuditCheckpoint extends TradingEvidenceAuditCheckpointInput {
+  schemaVersion: 1
+  kind: 'trading-evidence-audit-checkpoint'
+  notice: 'external-checkpoint-not-signature'
+  checkpointDigest: string
+}
+
+export interface TradingEvidenceAuditCheckpointVerification {
+  valid: boolean
+  checkpointRevision: number
+  currentRevision: number
+  isCurrentHead: boolean
+  message: string
+}
+
+export interface TradingEvidenceBundleDiff {
+  identical: boolean
+  backtest: {
+    localStrategyVersion: string | null
+    cloudStrategyVersion: string | null
+    changed: boolean
+  }
+  paperTelemetry: {
+    sessionDelta: number
+    cycleDelta: number
+    gapDelta: number
+  }
+  reviewChecklist: {
+    changedKeys: TradingReviewChecklistKey[]
+    localConfirmed: number
+    cloudConfirmed: number
+  }
+}
+
 export type ContractChartInterval = '1m' | '3m' | '5m' | '15m' | '30m' | '1h' | '4h'
 export type ContractInstrumentCategory =
   | 'crypto'
@@ -1566,6 +2126,7 @@ export interface ContractPositionSimulationInput {
   notional: number
   leverage: number
   feeRatePct: number
+  slippageRatePct: number
   fundingRatePct: number | null
   fundingSettlements: number
   accountEquity: number
@@ -1575,6 +2136,7 @@ export interface ContractPositionSimulationInput {
 export interface ContractPositionSimulation {
   marginRequired: number | null
   roundTripFee: number | null
+  roundTripSlippage: number | null
   projectedFunding: number | null
   breakEvenMovePct: number | null
   stopGrossPnl: number | null
@@ -1612,6 +2174,13 @@ export interface ContractPaperTradeCreateInput {
   enteredRiskAmount: number
   signalScore: number
   signalConfidence: number
+  strategyVersion: string
+  signalVersion: string
+  pathId: string
+  marketSource: string
+  costModelVersion: string
+  plannedEntryPrice: number
+  slippageRatePct: number
 }
 
 export interface ContractPaperTrade extends ContractPaperTradeCreateInput {

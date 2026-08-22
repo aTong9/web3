@@ -6,7 +6,7 @@ import type {
   TechnicalIndicatorConfig,
   TechnicalSignalStatus,
 } from '@/types'
-import { defaultTechnicalIndicatorConfig } from '@/utils/technical-config-default'
+import { defaultTechnicalIndicatorConfig } from './technical-config-default'
 
 const round = (value: number, digits = 2) => Number(value.toFixed(digits))
 const clamp = (value: number, minimum: number, maximum: number) =>

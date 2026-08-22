@@ -7,8 +7,8 @@ import type {
   ContractTradeDecision,
   ContractDecisionReason,
 } from '@/types'
-import { analyzeTechnicalSignals } from '@/utils/technical-analysis'
-import { buildContractStrategyEnsemble } from '@/utils/contract-strategy-ensemble'
+import { analyzeTechnicalSignals } from './technical-analysis'
+import { buildContractStrategyEnsemble } from './contract-strategy-ensemble'
 import { blendContractStrategyScores } from './contract-strategy-weight'
 
 type ContractMarketInput = Readonly<Omit<ContractMarketSnapshot, 'points' | 'timeframes'>> & {

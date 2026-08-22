@@ -1,21 +1,54 @@
 <script setup lang="ts">
 import type { EChartsCoreOption } from 'echarts/core'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type {
   ContractChartInterval,
+  ContractBacktestEvidenceEnvelope,
   ContractInstrumentCategory,
+  ContractPaperDriftReport,
+  ContractPaperDriftInput,
+  ContractPaperTelemetry,
   ContractPaperTrade,
   ContractPositionDirection,
+  ContractStrategyBacktestReport,
   ContractTradeAction,
+  LiveTradingReadinessInput,
+  TestnetExecutionCalibrationEvidenceEnvelope,
+  TradingReviewAttestationDraft,
+  TradingReviewChecklist,
+  TradingEvidenceCloudBundle,
+  TradingEvidenceCloudSnapshot,
+  TradingEvidenceCloudVersion,
+  TradingEvidenceAuditVerification,
+  TradingEvidenceAuditCheckpoint,
+  TradingEvidenceAuditCheckpointVerification,
 } from '@/types'
 import BtcAutoTradingPanel from '@/components/BtcAutoTradingPanel.vue'
 import ContractPaperJournal from '@/components/ContractPaperJournal.vue'
 import DisclosureCard from '@/components/DisclosureCard.vue'
 import EChart from '@/components/EChart.vue'
+import TradingReadinessPanel from '@/components/TradingReadinessPanel.vue'
+import TradingReviewChecklistPanel from '@/components/TradingReviewChecklist.vue'
+import TradingEvidenceCloudPanel from '@/components/TradingEvidenceCloudPanel.vue'
 import { useAuth } from '@/composables/use-auth'
 import { useBinanceContractMarket } from '@/composables/use-binance-contract-market'
 import { useI18n } from '@/composables/use-i18n'
-import { createContractPaperTrade } from '@/utils/contract-paper-journal'
+import {
+  contractPaperTradeToObservation,
+  createContractPaperTrade,
+} from '@/utils/contract-paper-journal'
+import {
+  analyzeContractPaperDrift,
+  contractPaperDriftReviewPolicy,
+} from '@/utils/contract-paper-drift'
+import {
+  buildContractPaperTelemetryEvidence,
+  createContractPaperTelemetry,
+  finishContractPaperMonitoringSession,
+  observeContractPaperMonitoring,
+  parseContractPaperTelemetry,
+  startContractPaperMonitoringSession,
+} from '@/utils/contract-paper-telemetry'
 import type {
   ContractPaperJournalCommand,
   ContractPaperJournalStore,
@@ -26,9 +59,37 @@ import {
   createLocalContractPaperJournalStore,
   synchronizeContractPaperJournal,
 } from '@/utils/contract-paper-store'
-import { simulateContractPosition } from '@/utils/contract-position-simulation'
+import {
+  buildContractPaperCostAssumptions,
+  simulateContractPosition,
+} from '@/utils/contract-position-simulation'
+import { assertContractBacktestReviewCostPolicy } from '@/utils/contract-strategy-backtest'
 import { buildContractTradeDecision } from '@/utils/contract-trade-decision'
+import {
+  assessLiveTradingReadiness,
+  liveTradingReadinessThresholds,
+} from '@/utils/live-trading-readiness'
+import { quantApi } from '@/utils/quant-api'
+import { compareTradingEvidenceBundles } from '@/utils/trading-evidence-diff'
+import { parseTradingEvidenceAuditCheckpoint } from '@/utils/trading-evidence-checkpoint'
+import {
+  buildCurrentPaperBacktestReferences,
+  parseContractBacktestEvidenceEnvelope,
+} from '@/utils/trading-evidence'
+import {
+  assessTradingReviewPackageCurrency,
+  buildTradingReviewPackage,
+  parseTradingReviewPackage,
+  reverifyTradingReviewPackageCloudAudit,
+} from '@/utils/trading-review-package'
+import {
+  applyTradingReviewChecklistDraft,
+  createTradingReviewChecklist,
+  evaluateTradingReviewChecklist,
+  parseTradingReviewChecklist,
+} from '@/utils/trading-review-checklist'
 import { simpleMovingAverage } from '@/utils/technical-analysis'
+import { assessTestnetExecutionCalibrationEvidenceCurrency } from '@/utils/testnet-execution-calibration'
 import { useTheme } from '@/utils/use-theme'
 
 const intervals: ContractChartInterval[] = ['1m', '3m', '5m', '15m', '30m', '1h', '4h']
@@ -53,13 +114,47 @@ const positionDirection = ref<ContractPositionDirection>('long')
 const positionNotional = ref(1_000)
 const positionLeverage = ref(3)
 const positionFeeRatePct = ref(0.05)
+const positionSlippageRatePct = ref(0.05)
 const positionFundingSettlements = ref(3)
 const positionAccountEquity = ref(10_000)
 const positionMaxRiskPct = ref(1)
 const paperTrades = ref<ContractPaperTrade[]>([])
 const paperStorageKey = 'market-desk-contract-paper-trades-v1'
+const backtestEvidenceStorageKey = 'market-desk-contract-backtest-evidence-v1'
+const reviewChecklistStorageKey = 'market-desk-trading-review-checklist-v1'
+const paperTelemetryStorageKey = 'market-desk-contract-paper-telemetry-v1'
 const paperSyncStatus = ref<ContractPaperSyncStatus>('loading')
 const paperBusy = ref(false)
+const testnetCalibrationEvidence = ref<TestnetExecutionCalibrationEvidenceEnvelope | null>(null)
+const testnetCalibration = computed(() => {
+  const evidence = testnetCalibrationEvidence.value
+  if (!evidence) return null
+  const currency = assessTestnetExecutionCalibrationEvidenceCurrency(evidence)
+  return currency.status === 'current'
+    ? evidence.report
+    : { ...evidence.report, readyForPaperComparison: false }
+})
+const backtestEvidence = ref<ContractStrategyBacktestReport | null>(null)
+const backtestEvidenceEnvelope = ref<ContractBacktestEvidenceEnvelope | null>(null)
+const backtestEvidenceError = ref<string | null>(null)
+const reviewPackageVerification = ref<{
+  status: 'verified' | 'local-only' | 'stale' | 'invalid'
+  message: string
+} | null>(null)
+const reviewChecklist = ref<TradingReviewChecklist>(createTradingReviewChecklist())
+const paperTelemetry = ref<ContractPaperTelemetry>(createContractPaperTelemetry())
+const cloudEvidenceSnapshot = ref<TradingEvidenceCloudSnapshot | null>(null)
+const cloudEvidenceBusy = ref(false)
+const cloudEvidenceError = ref<string | null>(null)
+const cloudEvidenceVersions = ref<TradingEvidenceCloudVersion[]>([])
+const cloudEvidencePreview = ref<TradingEvidenceCloudSnapshot | null>(null)
+const cloudEvidenceAudit = ref<TradingEvidenceAuditVerification | null>(null)
+const cloudEvidenceCheckpointVerification = ref<TradingEvidenceAuditCheckpointVerification | null>(
+  null,
+)
+const cloudEvidenceCheckpoint = ref<TradingEvidenceAuditCheckpoint | null>(null)
+const cloudEvidenceCheckpointVerifiedAt = ref<string | null>(null)
+let monitoringSessionId: string | null = null
 const localPaperJournalStore = createLocalContractPaperJournalStore(paperStorageKey)
 let activePaperJournalStore: ContractPaperJournalStore = localPaperJournalStore
 const { can, restore: restoreAuth } = useAuth()
@@ -67,6 +162,513 @@ const { locale, t } = useI18n()
 const { theme } = useTheme()
 const { snapshot, catalog, loadCatalog, connect, reconnect } = useBinanceContractMarket()
 const decision = computed(() => buildContractTradeDecision(snapshot.value))
+const paperCostAssumptions = computed(() =>
+  buildContractPaperCostAssumptions(
+    positionFeeRatePct.value,
+    positionSlippageRatePct.value,
+  ),
+)
+const latestMarketPointAt = computed(
+  () => snapshot.value.points[snapshot.value.points.length - 1]?.date ?? null,
+)
+const paperDriftInput = computed<ContractPaperDriftInput | null>(() => {
+  if (!backtestEvidence.value) return null
+  const references = buildCurrentPaperBacktestReferences(backtestEvidence.value)
+  if (!references.length) return null
+  const telemetryEvidence = buildContractPaperTelemetryEvidence(paperTelemetry.value, new Date(), {
+    startAt: references.reduce(
+      (earliest, reference) =>
+        Date.parse(reference.startAt) < Date.parse(earliest) ? reference.startAt : earliest,
+      references[0]!.startAt,
+    ),
+    endAt: references.reduce(
+      (latest, reference) =>
+        Date.parse(reference.endAt) > Date.parse(latest) ? reference.endAt : latest,
+      references[0]!.endAt,
+    ),
+  })
+  return {
+    ...contractPaperDriftReviewPolicy,
+    references,
+    paperTrades: paperTrades.value.flatMap((trade) => {
+      const observation = contractPaperTradeToObservation(trade)
+      return observation ? [observation] : []
+    }),
+    expectedCycleAts: telemetryEvidence.expectedCycleAts,
+    observedCycleAts: telemetryEvidence.observedCycleAts,
+    dataGaps: telemetryEvidence.dataGaps,
+  }
+})
+const paperDrift = computed<ContractPaperDriftReport | null>(() =>
+  paperDriftInput.value ? analyzeContractPaperDrift(paperDriftInput.value) : null,
+)
+const currentPaperCohort = computed(
+  () => paperDrift.value?.cohorts.find((cohort) => cohort.period === 'month') ?? null,
+)
+const reviewChecklistEvaluation = computed(() =>
+  evaluateTradingReviewChecklist(reviewChecklist.value),
+)
+const holdoutDays = computed(() => {
+  const holdout = backtestEvidence.value?.segments.holdout
+  if (!holdout?.startAt || !holdout.endAt) return 0
+  return Math.max(1, Math.ceil((Date.parse(holdout.endAt) - Date.parse(holdout.startAt)) / 86_400_000))
+})
+const tradingReadinessInput = computed<LiveTradingReadinessInput>(() => ({
+  thresholds: { ...liveTradingReadinessThresholds },
+  backtest: {
+    holdoutStatus: backtestEvidence.value?.segments.holdout.metrics.status ?? 'insufficient',
+    holdoutSamples: backtestEvidence.value?.segments.holdout.metrics.trades ?? 0,
+    holdoutDays: holdoutDays.value,
+    averageNetReturnPct:
+      backtestEvidence.value?.segments.holdout.metrics.averageNetReturnPct ?? null,
+    maximumDrawdownPct:
+      backtestEvidence.value?.segments.holdout.metrics.maximumDrawdownPct ?? 0,
+  },
+  paper: {
+    status: currentPaperCohort.value?.status ?? 'insufficient',
+    samples: currentPaperCohort.value?.samples ?? 0,
+    returnDeltaPct: currentPaperCohort.value?.returnDeltaPct ?? null,
+  },
+  testnet: {
+    readyForPaperComparison: testnetCalibration.value?.readyForPaperComparison ?? false,
+    observations: testnetCalibration.value?.observations ?? 0,
+    filledObservations: testnetCalibration.value?.filledObservations ?? 0,
+    unresolvedOrders:
+      (testnetCalibration.value?.timedOut ?? 0) + (testnetCalibration.value?.unknown ?? 0),
+  },
+  accountControls: reviewChecklistEvaluation.value.accountControls,
+  riskControls: reviewChecklistEvaluation.value.riskControls,
+  eligibility: reviewChecklistEvaluation.value.eligibility,
+}))
+const tradingReadiness = computed(() => assessLiveTradingReadiness(tradingReadinessInput.value))
+
+const restoreBacktestEvidence = () => {
+  if (typeof window === 'undefined') return
+  const serialized = window.localStorage.getItem(backtestEvidenceStorageKey)
+  if (!serialized) return
+  try {
+    const envelope = parseContractBacktestEvidenceEnvelope(serialized)
+    assertContractBacktestReviewCostPolicy(envelope.input)
+    backtestEvidenceEnvelope.value = envelope
+    backtestEvidence.value = envelope.report
+  } catch (error) {
+    window.localStorage.removeItem(backtestEvidenceStorageKey)
+    backtestEvidenceError.value = error instanceof Error ? error.message : '回测证据无法读取'
+  }
+}
+
+const importBacktestEvidence = async (file: File) => {
+  backtestEvidenceError.value = null
+  try {
+    const serialized = await file.text()
+    const envelope = parseContractBacktestEvidenceEnvelope(serialized)
+    assertContractBacktestReviewCostPolicy(envelope.input)
+    window.localStorage.setItem(backtestEvidenceStorageKey, serialized)
+    backtestEvidenceEnvelope.value = envelope
+    backtestEvidence.value = envelope.report
+  } catch (error) {
+    backtestEvidenceError.value = error instanceof Error ? error.message : '回测证据导入失败'
+  }
+}
+
+const removeBacktestEvidence = () => {
+  window.localStorage.removeItem(backtestEvidenceStorageKey)
+  backtestEvidenceEnvelope.value = null
+  backtestEvidence.value = null
+  backtestEvidenceError.value = null
+}
+
+const restoreReviewChecklist = () => {
+  if (typeof window === 'undefined') return
+  const serialized = window.localStorage.getItem(reviewChecklistStorageKey)
+  if (!serialized) return
+  try {
+    reviewChecklist.value = parseTradingReviewChecklist(serialized)
+  } catch (error) {
+    window.localStorage.removeItem(reviewChecklistStorageKey)
+    console.warn('Trading review checklist could not be restored:', error)
+  }
+}
+
+const persistPaperTelemetry = () => {
+  window.localStorage.setItem(paperTelemetryStorageKey, JSON.stringify(paperTelemetry.value))
+}
+
+const restorePaperTelemetry = () => {
+  if (typeof window === 'undefined') return
+  paperTelemetry.value = parseContractPaperTelemetry(
+    window.localStorage.getItem(paperTelemetryStorageKey) ?? '',
+  )
+}
+
+const startMonitoringSession = () => {
+  const startedAt = new Date().toISOString()
+  monitoringSessionId = window.crypto.randomUUID()
+  paperTelemetry.value = startContractPaperMonitoringSession(paperTelemetry.value, {
+    id: monitoringSessionId,
+    symbol: selectedSymbol.value,
+    interval: selectedInterval.value,
+    startedAt,
+  })
+  persistPaperTelemetry()
+}
+
+const finishMonitoringSession = () => {
+  if (!monitoringSessionId) return
+  paperTelemetry.value = finishContractPaperMonitoringSession(
+    paperTelemetry.value,
+    monitoringSessionId,
+    new Date().toISOString(),
+  )
+  monitoringSessionId = null
+  persistPaperTelemetry()
+}
+
+const observeMonitoringCycle = (mode: 'observed' | 'gap' | 'heartbeat', reason?: string) => {
+  if (!monitoringSessionId) return
+  const observedAt = new Date().toISOString()
+  paperTelemetry.value = observeContractPaperMonitoring(paperTelemetry.value, {
+    id: window.crypto.randomUUID(),
+    sessionId: monitoringSessionId,
+    observedAt,
+    mode,
+    evidenceEndAt: latestMarketPointAt.value ?? snapshot.value.updatedAt,
+    strategyVersion: `contract-minute-v1-w${decision.value.strategyDiagnostics?.appliedEnsembleWeightPct ?? 0}`,
+    signalVersion: decision.value.strategyDiagnostics?.ensembleVersion ?? 'baseline-v1',
+    marketSource: 'binance-futures-public',
+    reason,
+  })
+  persistPaperTelemetry()
+}
+
+const saveReviewChecklist = (draft: TradingReviewAttestationDraft[]) => {
+  const updated = applyTradingReviewChecklistDraft(reviewChecklist.value, draft)
+  window.localStorage.setItem(reviewChecklistStorageKey, JSON.stringify(updated))
+  reviewChecklist.value = updated
+}
+
+const exportReviewChecklist = () => {
+  const blob = new Blob([JSON.stringify(reviewChecklist.value, null, 2)], {
+    type: 'application/json',
+  })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = `trading-review-checklist-${new Date().toISOString().slice(0, 10)}.json`
+  document.body.append(anchor)
+  anchor.click()
+  anchor.remove()
+  window.setTimeout(() => URL.revokeObjectURL(url), 0)
+}
+
+const currentCloudEvidenceBundle = (): TradingEvidenceCloudBundle => ({
+  schemaVersion: 1,
+  backtest: backtestEvidenceEnvelope.value,
+  paperTelemetry: paperTelemetry.value,
+  reviewChecklist: reviewChecklist.value,
+})
+const cloudEvidenceDiff = computed(() => {
+  const target = cloudEvidencePreview.value?.bundle ?? cloudEvidenceSnapshot.value?.bundle
+  return target ? compareTradingEvidenceBundles(currentCloudEvidenceBundle(), target) : null
+})
+const cloudEvidenceMutationBlocked = computed(
+  () =>
+    Boolean(cloudEvidenceSnapshot.value?.bundle) &&
+    (!cloudEvidenceAudit.value || cloudEvidenceAudit.value.status === 'broken'),
+)
+
+const rejectBlockedCloudEvidenceMutation = () => {
+  if (!cloudEvidenceMutationBlocked.value) return false
+  cloudEvidenceError.value =
+    locale.value === 'zh'
+      ? '云端同步审计状态缺失或异常，已拒绝修改；请重新读取并排查审计链。'
+      : 'Cloud audit status is missing or broken. Mutation was refused; reload and investigate the audit chain.'
+  return true
+}
+
+const refreshCloudEvidenceMetadata = async () => {
+  const [versions, audit] = await Promise.all([
+    quantApi.tradingEvidenceHistory(),
+    quantApi.tradingEvidenceAudit(),
+  ])
+  cloudEvidenceVersions.value = versions
+  cloudEvidenceAudit.value = audit
+}
+
+const loadCloudEvidence = async () => {
+  if (cloudEvidenceBusy.value) return
+  cloudEvidenceBusy.value = true
+  cloudEvidenceError.value = null
+  try {
+    const [snapshot, versions, audit] = await Promise.all([
+      quantApi.tradingEvidence(),
+      quantApi.tradingEvidenceHistory(),
+      quantApi.tradingEvidenceAudit(),
+    ])
+    cloudEvidenceSnapshot.value = snapshot
+    cloudEvidenceVersions.value = versions
+    cloudEvidenceAudit.value = audit
+    cloudEvidencePreview.value = null
+  } catch (error) {
+    cloudEvidenceError.value = error instanceof Error ? error.message : '云端交易证据读取失败'
+  } finally {
+    cloudEvidenceBusy.value = false
+  }
+}
+
+const uploadCloudEvidence = async () => {
+  if (cloudEvidenceBusy.value || rejectBlockedCloudEvidenceMutation()) return
+  cloudEvidenceBusy.value = true
+  cloudEvidenceError.value = null
+  try {
+    cloudEvidenceSnapshot.value = await quantApi.saveTradingEvidence(
+      cloudEvidenceSnapshot.value?.revision ?? 0,
+      currentCloudEvidenceBundle(),
+    )
+    await refreshCloudEvidenceMetadata()
+    cloudEvidencePreview.value = null
+  } catch (error) {
+    cloudEvidenceError.value = error instanceof Error ? error.message : '云端交易证据保存失败'
+  } finally {
+    cloudEvidenceBusy.value = false
+  }
+}
+
+const previewCloudEvidenceVersion = async (revision: number) => {
+  if (cloudEvidenceBusy.value) return
+  cloudEvidenceBusy.value = true
+  cloudEvidenceError.value = null
+  try {
+    cloudEvidencePreview.value = await quantApi.tradingEvidenceVersion(revision)
+  } catch (error) {
+    cloudEvidenceError.value = error instanceof Error ? error.message : '云端历史版本读取失败'
+  } finally {
+    cloudEvidenceBusy.value = false
+  }
+}
+
+const restoreCloudEvidenceVersion = async (revision: number) => {
+  if (
+    cloudEvidenceBusy.value ||
+    !cloudEvidenceSnapshot.value ||
+    rejectBlockedCloudEvidenceMutation()
+  ) {
+    return
+  }
+  const confirmation =
+    locale.value === 'zh'
+      ? `恢复云端修订版 ${revision} 会创建一个新的云端修订版，不会立即覆盖本地证据。继续吗？`
+      : `Restoring cloud revision ${revision} creates a new cloud revision and does not immediately replace local evidence. Continue?`
+  if (!window.confirm(confirmation)) return
+  cloudEvidenceBusy.value = true
+  cloudEvidenceError.value = null
+  try {
+    cloudEvidenceSnapshot.value = await quantApi.restoreTradingEvidenceVersion(
+      revision,
+      cloudEvidenceSnapshot.value.revision,
+    )
+    await refreshCloudEvidenceMetadata()
+    cloudEvidencePreview.value = null
+  } catch (error) {
+    cloudEvidenceError.value = error instanceof Error ? error.message : '云端历史版本恢复失败'
+  } finally {
+    cloudEvidenceBusy.value = false
+  }
+}
+
+const adoptCloudEvidence = () => {
+  if (rejectBlockedCloudEvidenceMutation()) return
+  const bundle = cloudEvidenceSnapshot.value?.bundle
+  if (!bundle) return
+  const confirmation =
+    locale.value === 'zh'
+      ? '采用云端证据会覆盖当前设备的回测、Paper遥测和人工核验。继续吗？'
+      : 'Adopting cloud evidence will replace this device’s backtest, Paper telemetry, and human attestations. Continue?'
+  if (!window.confirm(confirmation)) {
+    return
+  }
+  finishMonitoringSession()
+  backtestEvidenceEnvelope.value = bundle.backtest
+  backtestEvidence.value = bundle.backtest?.report ?? null
+  if (bundle.backtest) {
+    window.localStorage.setItem(backtestEvidenceStorageKey, JSON.stringify(bundle.backtest))
+  } else {
+    window.localStorage.removeItem(backtestEvidenceStorageKey)
+  }
+  paperTelemetry.value = bundle.paperTelemetry
+  persistPaperTelemetry()
+  reviewChecklist.value = bundle.reviewChecklist
+  window.localStorage.setItem(reviewChecklistStorageKey, JSON.stringify(bundle.reviewChecklist))
+  startMonitoringSession()
+}
+
+const exportCloudEvidenceAuditCheckpoint = async () => {
+  if (cloudEvidenceBusy.value || rejectBlockedCloudEvidenceMutation()) return
+  cloudEvidenceBusy.value = true
+  cloudEvidenceError.value = null
+  try {
+    const checkpoint = await quantApi.tradingEvidenceAuditCheckpoint()
+    const blob = new Blob([JSON.stringify(checkpoint, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = `trading-evidence-audit-v${checkpoint.revision}-${checkpoint.generatedAt.slice(0, 10)}.json`
+    document.body.append(anchor)
+    anchor.click()
+    anchor.remove()
+    window.setTimeout(() => URL.revokeObjectURL(url), 0)
+  } catch (error) {
+    cloudEvidenceError.value = error instanceof Error ? error.message : '外部审计检查点导出失败'
+  } finally {
+    cloudEvidenceBusy.value = false
+  }
+}
+
+const verifyCloudEvidenceAuditCheckpoint = async (file: File) => {
+  if (cloudEvidenceBusy.value) return
+  cloudEvidenceBusy.value = true
+  cloudEvidenceError.value = null
+  try {
+    const serialized = await file.text()
+    const checkpoint = await parseTradingEvidenceAuditCheckpoint(serialized)
+    const verification = await quantApi.verifyTradingEvidenceAuditCheckpoint(serialized)
+    cloudEvidenceCheckpointVerification.value = verification
+    cloudEvidenceCheckpoint.value = verification.valid ? checkpoint : null
+    cloudEvidenceCheckpointVerifiedAt.value = verification.valid ? new Date().toISOString() : null
+  } catch (error) {
+    cloudEvidenceCheckpointVerification.value = null
+    cloudEvidenceCheckpoint.value = null
+    cloudEvidenceCheckpointVerifiedAt.value = null
+    cloudEvidenceError.value = error instanceof Error ? error.message : '外部审计检查点验证失败'
+  } finally {
+    cloudEvidenceBusy.value = false
+  }
+}
+
+const exportTradingReviewPackage = async () => {
+  const generatedAt = new Date().toISOString()
+  const checklistEvaluation = evaluateTradingReviewChecklist(
+    reviewChecklist.value,
+    new Date(generatedAt),
+  )
+  const readinessInput: LiveTradingReadinessInput = {
+    ...tradingReadinessInput.value,
+    accountControls: checklistEvaluation.accountControls,
+    riskControls: checklistEvaluation.riskControls,
+    eligibility: checklistEvaluation.eligibility,
+  }
+  const reviewPackage = await buildTradingReviewPackage({
+    generatedAt,
+    backtest: backtestEvidenceEnvelope.value,
+    paperDrift:
+      paperDriftInput.value && paperDrift.value
+        ? { input: paperDriftInput.value, report: paperDrift.value }
+        : null,
+    testnet: testnetCalibrationEvidence.value,
+    reviewChecklist: reviewChecklist.value,
+    readinessInput,
+    readinessReport: assessLiveTradingReadiness(readinessInput),
+    cloudAudit:
+      cloudEvidenceCheckpoint.value &&
+      cloudEvidenceCheckpointVerification.value?.valid &&
+      cloudEvidenceCheckpointVerifiedAt.value
+        ? {
+            checkpoint: cloudEvidenceCheckpoint.value,
+            verification: cloudEvidenceCheckpointVerification.value,
+            verifiedAt: cloudEvidenceCheckpointVerifiedAt.value,
+          }
+        : null,
+  })
+  const blob = new Blob([JSON.stringify(reviewPackage, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = `trading-review-package-${generatedAt.slice(0, 10)}.json`
+  document.body.append(anchor)
+  anchor.click()
+  anchor.remove()
+  window.setTimeout(() => URL.revokeObjectURL(url), 0)
+}
+
+const verifyTradingReviewPackage = async (file: File) => {
+  try {
+    const reviewPackage = await parseTradingReviewPackage(await file.text())
+    const packageSummary = `${reviewPackage.generatedAt} · ${reviewPackage.contentDigest}`
+    const currency = assessTradingReviewPackageCurrency(reviewPackage)
+    const reasonLabels =
+      locale.value === 'zh'
+        ? {
+            'package-age-exceeded': '包龄超过30天',
+            'attestations-expired': '人工核验已过期',
+            'attestations-not-current': '人工核验当前重算已变化',
+            'generated-in-future': '生成时间超出时钟容差',
+            'legacy-testnet-not-recomputable': '旧版Testnet汇总无法重算',
+            'paper-period-outdated': 'Paper评审周期已切换',
+            'testnet-observations-stale': 'Testnet执行观测超过30天',
+            'testnet-drills-stale': 'Testnet安全演练超过30天',
+            'testnet-observations-in-future': 'Testnet观测时间超出时钟容差',
+            'testnet-drills-in-future': 'Testnet演练时间超出时钟容差',
+          }
+        : {
+            'package-age-exceeded': 'package age exceeds 30 days',
+            'attestations-expired': 'attestations expired',
+            'attestations-not-current': 'current attestation result changed',
+            'generated-in-future': 'generated time exceeds clock tolerance',
+            'legacy-testnet-not-recomputable': 'legacy Testnet summary cannot be recalculated',
+            'paper-period-outdated': 'Paper review period has changed',
+            'testnet-observations-stale': 'Testnet observations exceed 30 days',
+            'testnet-drills-stale': 'Testnet safety drills exceed 30 days',
+            'testnet-observations-in-future': 'Testnet observation time exceeds clock tolerance',
+            'testnet-drills-in-future': 'Testnet drill time exceeds clock tolerance',
+          }
+    const currencyMessage =
+      currency.status === 'stale'
+        ? `当前时点评估不可作为当前证据：${currency.reasons
+            .map((reason) => reasonLabels[reason])
+            .join(', ')}${
+            currency.expiredKeys.length > 0
+              ? ` · 过期核验 ${currency.expiredKeys.join(', ')}`
+              : ''
+          }`
+        : null
+    if (!reviewPackage.cloudAudit) {
+      reviewPackageVerification.value = {
+        status: currencyMessage ? 'stale' : 'local-only',
+        message: `${packageSummary} · ${
+          currencyMessage ?? '包内一致，未包含云端审计锚点'
+        }`,
+      }
+      return
+    }
+    try {
+      const reverification = await reverifyTradingReviewPackageCloudAudit(
+        reviewPackage,
+        quantApi.verifyTradingEvidenceAuditCheckpoint,
+      )
+      reviewPackageVerification.value = {
+        status:
+          reverification.status !== 'verified'
+            ? 'invalid'
+            : currencyMessage
+              ? 'stale'
+              : 'verified',
+        message: `${packageSummary} · 云端审计锚点 v${reviewPackage.cloudAudit.checkpoint.revision} · ${reverification.message}${currencyMessage ? ` · ${currencyMessage}` : ''}`,
+      }
+    } catch (error) {
+      reviewPackageVerification.value = {
+        status: currencyMessage ? 'stale' : 'local-only',
+        message: `${packageSummary} · 包内一致，但云端复验不可用：${
+          error instanceof Error ? error.message : '未知错误'
+        }${currencyMessage ? ` · ${currencyMessage}` : ''}`,
+      }
+    }
+  } catch (error) {
+    reviewPackageVerification.value = {
+      status: 'invalid',
+      message: error instanceof Error ? error.message : '综合评审包验证失败',
+    }
+  }
+}
 const decisionDirection = computed<ContractPositionDirection | null>(() =>
   decision.value.action === 'long' || decision.value.action === 'short'
     ? decision.value.action
@@ -82,7 +684,8 @@ const positionSimulation = computed(() => {
     takeProfit: usesDecisionLevels ? decision.value.takeProfit : null,
     notional: positionNotional.value,
     leverage: positionLeverage.value,
-    feeRatePct: positionFeeRatePct.value,
+    feeRatePct: paperCostAssumptions.value.feeRatePct,
+    slippageRatePct: paperCostAssumptions.value.slippageRatePct,
     fundingRatePct: snapshot.value.fundingRatePct,
     fundingSettlements: positionFundingSettlements.value,
     accountEquity: positionAccountEquity.value,
@@ -246,8 +849,9 @@ const recordPaperTrade = () => {
     enteredRiskAmount === null
   )
     return
+  const id = window.crypto.randomUUID()
   const trade = createContractPaperTrade({
-    id: window.crypto.randomUUID(),
+    id,
     symbol: selectedSymbol.value,
     displayName: instrument.displayName,
     quoteAsset: snapshot.value.quoteAsset,
@@ -259,13 +863,20 @@ const recordPaperTrade = () => {
     takeProfit,
     notional: positionNotional.value,
     leverage: positionLeverage.value,
-    feeRatePct: positionFeeRatePct.value,
+    feeRatePct: paperCostAssumptions.value.feeRatePct,
     fundingRatePct: snapshot.value.fundingRatePct ?? 0,
     fundingSettlements: positionFundingSettlements.value,
     riskBudget,
     enteredRiskAmount,
     signalScore: decision.value.score,
     signalConfidence: decision.value.confidence,
+    strategyVersion: `contract-minute-v1-w${decision.value.strategyDiagnostics?.appliedEnsembleWeightPct ?? 0}`,
+    signalVersion: decision.value.strategyDiagnostics?.ensembleVersion ?? 'baseline-v1',
+    pathId: id,
+    marketSource: 'binance-futures-public',
+    costModelVersion: paperCostAssumptions.value.version,
+    plannedEntryPrice: entryPrice,
+    slippageRatePct: paperCostAssumptions.value.slippageRatePct,
   })
   if (trade) void executePaperJournalCommand({ type: 'add', trade })
 }
@@ -441,7 +1052,11 @@ const chartOption = computed<EChartsCoreOption>(() => {
   }
 })
 
-watch([selectedSymbol, selectedInterval], ([symbol, interval]) => {
+watch([selectedSymbol, selectedInterval], ([symbol, interval], previous) => {
+  if (previous) {
+    finishMonitoringSession()
+    startMonitoringSession()
+  }
   void connect(symbol, interval)
 })
 watch(selectedSymbol, (symbol) => window.localStorage.setItem(symbolStorageKey, symbol))
@@ -451,8 +1066,31 @@ watch(
     if (action === 'long' || action === 'short') positionDirection.value = action
   },
 )
+watch(
+  () => latestMarketPointAt.value,
+  (latestPoint, previousPoint) => {
+    if (latestPoint && latestPoint !== previousPoint && snapshot.value.status === 'live') {
+      observeMonitoringCycle('observed')
+    }
+  },
+)
+watch(
+  () => snapshot.value.status,
+  (status, previousStatus) => {
+    if (status === previousStatus) return
+    if (status === 'restricted' || status === 'error') {
+      observeMonitoringCycle('gap', snapshot.value.errorCode ?? status)
+    } else if (status === 'live') {
+      observeMonitoringCycle('heartbeat')
+    }
+  },
+)
 
 onMounted(async () => {
+  restoreBacktestEvidence()
+  restoreReviewChecklist()
+  restorePaperTelemetry()
+  startMonitoringSession()
   try {
     paperTrades.value = await localPaperJournalStore.load()
     paperSyncStatus.value = 'local'
@@ -469,6 +1107,7 @@ onMounted(async () => {
       activePaperJournalStore = cloudContractPaperJournalStore
       paperSyncStatus.value = 'cloud'
       await localPaperJournalStore.replace(paperTrades.value)
+      void loadCloudEvidence()
     }
   } catch (error) {
     activePaperJournalStore = localPaperJournalStore
@@ -484,6 +1123,8 @@ onMounted(async () => {
         'BTCUSDT'
   })
 })
+
+onBeforeUnmount(() => finishMonitoringSession())
 </script>
 
 <template>
@@ -800,7 +1441,17 @@ onMounted(async () => {
                   <input
                     v-model.number="positionFeeRatePct"
                     type="number"
-                    min="0"
+                    min="0.05"
+                    max="5"
+                    step="0.001"
+                  />
+                </label>
+                <label>
+                  <span>{{ t('assetTechnical.contract.simulator.slippageRate') }}</span>
+                  <input
+                    v-model.number="positionSlippageRatePct"
+                    type="number"
+                    min="0.05"
                     max="5"
                     step="0.001"
                   />
@@ -843,6 +1494,10 @@ onMounted(async () => {
                 <div>
                   <dt>{{ t('assetTechnical.contract.simulator.roundTripFee') }}</dt>
                   <dd>{{ formatMoney(positionSimulation.roundTripFee) }}</dd>
+                </div>
+                <div>
+                  <dt>{{ t('assetTechnical.contract.simulator.roundTripSlippage') }}</dt>
+                  <dd>{{ formatMoney(positionSimulation.roundTripSlippage) }}</dd>
                 </div>
                 <div>
                   <dt>{{ t('assetTechnical.contract.simulator.projectedFunding') }}</dt>
@@ -996,7 +1651,49 @@ onMounted(async () => {
       </aside>
     </div>
 
-    <BtcAutoTradingPanel v-if="can('autoTrade.manage')" />
+    <TradingReadinessPanel
+      :report="tradingReadiness"
+      :backtest="backtestEvidence"
+      :paper-drift="paperDrift"
+      :testnet="testnetCalibration"
+      :import-error="backtestEvidenceError"
+      :package-verification="reviewPackageVerification"
+      @import-backtest="importBacktestEvidence"
+      @remove-backtest="removeBacktestEvidence"
+      @export-review-package="exportTradingReviewPackage"
+      @verify-review-package="verifyTradingReviewPackage"
+    />
+
+    <TradingReviewChecklistPanel
+      :checklist="reviewChecklist"
+      :evaluation="reviewChecklistEvaluation"
+      @save="saveReviewChecklist"
+      @export="exportReviewChecklist"
+    />
+
+    <TradingEvidenceCloudPanel
+      v-if="can('paper.manage')"
+      :snapshot="cloudEvidenceSnapshot"
+      :busy="cloudEvidenceBusy"
+      :error="cloudEvidenceError"
+      :versions="cloudEvidenceVersions"
+      :audit="cloudEvidenceAudit"
+      :checkpoint-verification="cloudEvidenceCheckpointVerification"
+      :preview="cloudEvidencePreview"
+      :diff="cloudEvidenceDiff"
+      @refresh="loadCloudEvidence"
+      @upload="uploadCloudEvidence"
+      @adopt="adoptCloudEvidence"
+      @preview="previewCloudEvidenceVersion"
+      @restore="restoreCloudEvidenceVersion"
+      @export-checkpoint="exportCloudEvidenceAuditCheckpoint"
+      @verify-checkpoint="verifyCloudEvidenceAuditCheckpoint"
+    />
+
+    <BtcAutoTradingPanel
+      v-if="can('autoTrade.manage')"
+      @calibration="testnetCalibrationEvidence = $event"
+    />
 
     <ContractPaperJournal
       :trades="paperTrades"

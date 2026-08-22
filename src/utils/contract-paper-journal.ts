@@ -3,6 +3,7 @@ import type {
   ContractPaperTrade,
   ContractPaperTradeCreateInput,
   ContractPaperTradeEvaluation,
+  ContractPaperObservation,
 } from '@/types'
 
 const finitePositive = (value: number) => Number.isFinite(value) && value > 0
@@ -34,6 +35,13 @@ const validCreateInput = (input: ContractPaperTradeCreateInput) => {
     finitePositive(input.enteredRiskAmount) &&
     Number.isFinite(input.signalScore) &&
     Number.isFinite(input.signalConfidence) &&
+    input.strategyVersion.trim() &&
+    input.signalVersion.trim() &&
+    input.pathId.trim() &&
+    input.marketSource.trim() &&
+    input.costModelVersion.trim() &&
+    finitePositive(input.plannedEntryPrice) &&
+    finiteNonNegative(input.slippageRatePct) &&
     Number.isFinite(new Date(input.openedAt).getTime()),
   )
 }
@@ -90,9 +98,10 @@ export const evaluateContractPaperTrade = (
   const underlyingMove = referencePrice / trade.entryPrice - 1
   const grossPnl = trade.notional * underlyingMove * directionMultiplier
   const roundTripFee = trade.notional * (trade.feeRatePct / 100) * 2
+  const roundTripSlippage = trade.notional * (trade.slippageRatePct / 100) * 2
   const projectedFunding =
     trade.notional * (trade.fundingRatePct / 100) * trade.fundingSettlements * directionMultiplier
-  const estimatedCosts = roundTripFee + projectedFunding
+  const estimatedCosts = roundTripFee + roundTripSlippage + projectedFunding
   const netPnl = grossPnl - estimatedCosts
   const margin = trade.notional / trade.leverage
   return {
@@ -120,6 +129,29 @@ export const summarizeContractPaperTrades = (
     closed: closedEvaluations.length,
     wins,
     winRatePct: closedEvaluations.length ? (wins / closedEvaluations.length) * 100 : null,
+  }
+}
+
+export const contractPaperTradeToObservation = (
+  trade: ContractPaperTrade,
+): ContractPaperObservation | null => {
+  if (trade.status !== 'closed') return null
+  const evaluation = evaluateContractPaperTrade(trade, null)
+  if (!evaluation || trade.closedAt === null) return null
+  return {
+    id: trade.id,
+    strategyVersion: trade.strategyVersion,
+    signalVersion: trade.signalVersion,
+    pathId: trade.pathId,
+    marketSource: trade.marketSource,
+    costModelVersion: trade.costModelVersion,
+    feeRatePct: trade.feeRatePct,
+    slippageRatePct: trade.slippageRatePct,
+    plannedAt: trade.openedAt,
+    closedAt: trade.closedAt,
+    plannedEntryPrice: trade.plannedEntryPrice,
+    paperEntryPrice: trade.entryPrice,
+    netReturnPct: Number(((evaluation.netPnl / trade.notional) * 100).toFixed(8)),
   }
 }
 
@@ -167,7 +199,21 @@ export const restoreContractPaperTrades = (serialized: string | null): ContractP
   try {
     const parsed: unknown = JSON.parse(serialized)
     if (!Array.isArray(parsed)) return []
-    return mergeContractPaperTrades([], parsed.filter(isPaperTrade))
+    const normalized = parsed.map((value) => {
+      if (!value || typeof value !== 'object') return value
+      const trade = value as Partial<ContractPaperTrade>
+      return {
+        ...trade,
+        strategyVersion: trade.strategyVersion ?? 'contract-minute-legacy',
+        signalVersion: trade.signalVersion ?? 'legacy-unknown',
+        pathId: trade.pathId ?? trade.id ?? 'legacy-unknown',
+        marketSource: trade.marketSource ?? 'legacy-unknown',
+        costModelVersion: trade.costModelVersion ?? 'contract-cost-legacy',
+        plannedEntryPrice: trade.plannedEntryPrice ?? trade.entryPrice,
+        slippageRatePct: trade.slippageRatePct ?? 0,
+      }
+    })
+    return mergeContractPaperTrades([], normalized.filter(isPaperTrade))
   } catch {
     return []
   }

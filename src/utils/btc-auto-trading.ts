@@ -1050,6 +1050,39 @@ export const calculateBtcAutoReconciledResult = (
   }
 }
 
+export const buildBtcAutoTestnetCommissionUpdates = (
+  orders: Array<{
+    clientOrderId: string
+    fills: Array<{
+      id?: number
+      commission?: string
+      commissionAsset?: string
+    }>
+  }>,
+) => {
+  const seenFillIds = new Set<string>()
+  const observations = orders.map((order) => {
+    if (!order.clientOrderId.trim()) throw new Error('Testnet佣金缺少客户端订单ID')
+    let commission = 0
+    order.fills.forEach((fill, index) => {
+      const fillId = fill.id === undefined ? `${order.clientOrderId}-${index}` : String(fill.id)
+      if (seenFillIds.has(fillId)) return
+      seenFillIds.add(fillId)
+      const value = Number(fill.commission ?? 0)
+      if (!Number.isFinite(value)) throw new Error('Testnet佣金包含无效数值')
+      if (fill.commissionAsset !== 'USDT' && value !== 0) {
+        throw new Error('Testnet成交佣金不是USDT，暂不自动换算')
+      }
+      commission += Math.abs(value)
+    })
+    return { clientOrderId: order.clientOrderId, commission: round(commission) }
+  })
+  return {
+    totalCommission: round(observations.reduce((sum, item) => sum + item.commission, 0)),
+    observations,
+  }
+}
+
 const shanghaiDateParts = (value: Date) => {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Shanghai',

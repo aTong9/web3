@@ -25,7 +25,7 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "test": "npm run test:trading",
-    "test:trading": "node --test tests/btc-auto-trading.test.mjs",
+    "test:trading": "node --test tests/*.test.mjs",
     "lint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
     "update:funds": "node scripts/update-us-funds.mjs",

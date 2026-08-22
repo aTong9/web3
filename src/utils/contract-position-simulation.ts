@@ -1,6 +1,22 @@
 import type { ContractPositionSimulation, ContractPositionSimulationInput } from '@/types'
 
 const finitePositive = (value: number) => Number.isFinite(value) && value > 0
+const minimumPaperCostRatePct = 0.05
+export const buildContractPaperCostAssumptions = (
+  feeRatePct: number,
+  slippageRatePct: number,
+) => {
+  const fee = Math.max(minimumPaperCostRatePct, Number.isFinite(feeRatePct) ? feeRatePct : 0)
+  const slippage = Math.max(
+    minimumPaperCostRatePct,
+    Number.isFinite(slippageRatePct) ? slippageRatePct : 0,
+  )
+  return {
+    feeRatePct: fee,
+    slippageRatePct: slippage,
+    version: `contract-cost-v2-fee-${fee.toFixed(4)}-slippage-${slippage.toFixed(4)}`,
+  }
+}
 const unavailableRisk = {
   riskBudget: null,
   enteredRiskAmount: null,
@@ -33,6 +49,7 @@ export const simulateContractPosition = (
     return {
       marginRequired: null,
       roundTripFee: null,
+      roundTripSlippage: null,
       projectedFunding: null,
       breakEvenMovePct: null,
       stopGrossPnl: null,
@@ -45,18 +62,21 @@ export const simulateContractPosition = (
   }
 
   const feeRatePct = Math.max(0, input.feeRatePct)
+  const slippageRatePct = Math.max(0, input.slippageRatePct)
   const fundingSettlements = Math.max(0, Math.floor(input.fundingSettlements))
   const fundingRatePct = input.fundingRatePct ?? 0
   const directionMultiplier = input.direction === 'long' ? 1 : -1
   const marginRequired = input.notional / input.leverage
   const roundTripFee = input.notional * (feeRatePct / 100) * 2
+  const roundTripSlippage = input.notional * (slippageRatePct / 100) * 2
   // 正资金费率时多头支付空头，负资金费率时方向相反。
   const projectedFunding =
     input.notional * (fundingRatePct / 100) * fundingSettlements * directionMultiplier
-  const breakEvenMovePct = ((roundTripFee + projectedFunding) / input.notional) * 100
+  const breakEvenMovePct =
+    ((roundTripFee + roundTripSlippage + projectedFunding) / input.notional) * 100
   const stopGrossPnl = pnlAtPrice(entryPrice, input.stopLoss, input.notional, input.direction)
   const targetGrossPnl = pnlAtPrice(entryPrice, input.takeProfit, input.notional, input.direction)
-  const friction = roundTripFee + projectedFunding
+  const friction = roundTripFee + roundTripSlippage + projectedFunding
   const stopNetPnl = stopGrossPnl === null ? null : stopGrossPnl - friction
   const targetNetPnl = targetGrossPnl === null ? null : targetGrossPnl - friction
   const stopLossMarginPct =
@@ -67,7 +87,7 @@ export const simulateContractPosition = (
   const hasAdverseStop = stopGrossPnl !== null && stopGrossPnl < 0
   const riskBudget = hasRiskInputs ? input.accountEquity * (input.maxRiskPct / 100) : null
   // 预计资金费为收益时不抵扣风险预算，以免放大建议仓位。
-  const adverseFriction = roundTripFee + Math.max(projectedFunding, 0)
+  const adverseFriction = roundTripFee + roundTripSlippage + Math.max(projectedFunding, 0)
   const enteredRiskAmount = hasAdverseStop
     ? Math.abs(stopGrossPnl) + adverseFriction
     : null
@@ -96,6 +116,7 @@ export const simulateContractPosition = (
   return {
     marginRequired,
     roundTripFee,
+    roundTripSlippage,
     projectedFunding,
     breakEvenMovePct,
     stopGrossPnl,
