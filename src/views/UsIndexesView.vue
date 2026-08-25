@@ -25,7 +25,7 @@ import {
 type PageSection = 'compare' | 'history' | 'holdings' | 'performance' | 'leaders' | 'dca' | 'methodology'
 type TimelineFilter = '全部' | UsIndexMilestoneKind
 
-const activeSection = ref<PageSection>('compare')
+const activeSection = ref<PageSection>('performance')
 const activeIndex = ref<UsIndexId>('qqq')
 const timelineFilter = ref<TimelineFilter>('全部')
 const dcaProduct = ref<'qqq' | 'spy' | 'gld' | 'btc'>('qqq')
@@ -110,14 +110,34 @@ const performanceOption = computed<EChartsCoreOption>(() => ({
     data: series.values,
   })),
 }))
+const assetCards = computed(() => {
+  const meta = {
+    QQQ: { id: 'qqq' as const, label: 'QQQ', role: '科技成长', fee: '0.18%', tone: 'purple' },
+    SPY: { id: 'spy' as const, label: 'SPY', role: '美国大盘', fee: '0.0945%', tone: 'blue' },
+    GLD: { id: 'gld' as const, label: 'GLD', role: '黄金防守', fee: '0.40%', tone: 'gold' },
+    'BTC-USD': {
+      id: 'btc' as const,
+      label: 'BTC',
+      role: '另类资产',
+      fee: '无统一费率',
+      tone: 'orange',
+    },
+  }
+  return performance.value.series.map((series) => ({
+    ...meta[series.id as keyof typeof meta],
+    returnPct: Number((series.values[series.values.length - 1]! - 100).toFixed(1)),
+  }))
+})
 
-const sections: Array<{ id: PageSection; label: string }> = [
-  { id: 'compare', label: '核心对比' },
-  { id: 'history', label: '历史转折' },
-  { id: 'holdings', label: '成分拆解' },
+const primarySections: Array<{ id: PageSection; label: string }> = [
   { id: 'performance', label: '四资产收益' },
-  { id: 'leaders', label: '每期龙头' },
-  { id: 'dca', label: '定投计算器' },
+  { id: 'dca', label: '定投试算' },
+  { id: 'compare', label: '资产差异' },
+]
+const researchSections: Array<{ id: PageSection; label: string }> = [
+  { id: 'holdings', label: '持仓拆解' },
+  { id: 'leaders', label: '龙头跟踪' },
+  { id: 'history', label: '历史转折' },
   { id: 'methodology', label: '规则与口径' },
 ]
 const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '方法调整']
@@ -127,32 +147,33 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   <main class="us-index-page">
     <header class="hero">
       <div>
-        <p class="eyebrow">US CORE EQUITY BENCHMARKS</p>
-        <h1>QQQ <i>vs</i> S&amp;P 500</h1>
+        <p class="eyebrow">CORE ASSET RESEARCH WORKBENCH</p>
+        <h1>四类核心资产研究台</h1>
         <p class="lead">
-          一个是追踪 Nasdaq-100 的可交易
-          ETF，一个是美国大盘股指数。看似都由巨头主导，选择规则、行业结构与产品成本却完全不同。
+          用同一套历史口径比较科技成长、美国大盘、黄金与比特币，并立即试算自己的定投方案。
         </p>
       </div>
-      <div class="hero-stats">
-        <article>
-          <small>QQQ 前十大</small><strong>46.9%</strong><span>2026-03-31 · ICB</span>
-        </article>
-        <article>
-          <small>S&amp;P 500 前十大</small><strong>37.6%</strong><span>2026-07-31 · GICS</span>
-        </article>
+      <div class="hero-status">
+        <span>数据状态</span><b>● 已更新</b><small>{{ usIndexResearch.generatedAt.slice(0, 10) }}</small>
       </div>
     </header>
 
-    <nav class="section-nav" aria-label="美国核心指数研究章节">
+    <section class="asset-strip" aria-label="四资产区间速览">
       <button
-        v-for="section in sections"
-        :key="section.id"
-        :class="{ active: activeSection === section.id }"
-        @click="activeSection = section.id"
+        v-for="asset in assetCards"
+        :key="asset.id"
+        :class="['asset-card', asset.tone, { active: dcaProduct === asset.id }]"
+        @click="dcaProduct = asset.id"
       >
-        {{ section.label }}
+        <span><i></i>{{ asset.role }}</span>
+        <div><strong>{{ asset.label }}</strong><b :class="{ negative: asset.returnPct < 0 }">{{ asset.returnPct >= 0 ? '+' : '' }}{{ asset.returnPct }}%</b></div>
+        <small>{{ performanceStartDate }} 至今 · 费率 {{ asset.fee }}</small>
       </button>
+    </section>
+
+    <nav class="section-nav" aria-label="美国核心指数研究章节">
+      <div><small>主要任务</small><button v-for="section in primarySections" :key="section.id" :class="{ active: activeSection === section.id }" @click="activeSection = section.id">{{ section.label }}</button></div>
+      <div><small>深入研究</small><button v-for="section in researchSections" :key="section.id" :class="{ active: activeSection === section.id }" @click="activeSection = section.id">{{ section.label }}</button></div>
     </nav>
 
     <section v-if="activeSection === 'compare'" class="section-stack">
@@ -428,9 +449,25 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
         <button @click="performanceStartDate = '2020-01-01'">2020 至今</button>
         <button @click="performanceStartDate = '2024-01-01'">近年</button>
       </div>
-      <section class="panel performance-panel">
-        <EChart :option="performanceOption" label="QQQ、标普500、黄金和比特币归一化收益率图" />
-      </section>
+      <div class="decision-grid">
+        <section class="panel performance-panel">
+          <EChart :option="performanceOption" label="QQQ、标普500、黄金和比特币归一化收益率图" />
+        </section>
+        <aside class="panel quick-calc">
+          <div><small>QUICK DCA</small><h2>快速定投试算</h2></div>
+          <div class="asset-pills">
+            <button v-for="asset in assetCards" :key="asset.id" :class="{ active: dcaProduct === asset.id }" @click="dcaProduct = asset.id">{{ asset.label }}</button>
+          </div>
+          <label>每月投入（USD）<input v-model.number="dcaAmount" type="number" min="1" /></label>
+          <label>开始日期<input v-model="dcaStartDate" type="date" /></label>
+          <div v-if="dcaResult" class="quick-result">
+            <small>历史模拟期末资产</small><strong>${{ dcaResult.endingValue.toLocaleString() }}</strong>
+            <span :class="{ positive: dcaResult.gain >= 0 }">投入 ${{ dcaResult.totalContributed.toLocaleString() }} · {{ dcaResult.totalReturnPct >= 0 ? '+' : '' }}{{ dcaResult.totalReturnPct }}%</span>
+          </div>
+          <button class="detail-action" @click="activeSection = 'dca'">打开完整计算器 →</button>
+          <p>历史模拟，不是收益承诺。税、佣金、价差和汇率未计。</p>
+        </aside>
+      </div>
       <article class="definition-note">
         <b>比较口径</b>
         <p>图中 120 表示相对共同起点累计上涨 20%。ETF 采用复权价格近似含分红总回报；比特币没有现金分红。每项资产取各自然月最后一个有效报价，避免把 BTC 周末波动与 ETF 休市旧价格当作同步变化。</p>
@@ -569,8 +606,8 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   color: var(--ink);
 }
 .hero {
-  min-height: 285px;
-  padding: clamp(30px, 5vw, 58px);
+  min-height: 118px;
+  padding: 26px 30px;
   border: 1px solid var(--border);
   border-radius: 18px;
   background:
@@ -578,9 +615,9 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
     linear-gradient(135deg, #101c30, #172942 55%, #243650);
   color: #f5f8fc;
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.75fr);
-  gap: 42px;
-  align-items: end;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 28px;
+  align-items: center;
   overflow: hidden;
 }
 .eyebrow,
@@ -593,9 +630,9 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   letter-spacing: 0.16em;
 }
 .hero h1 {
-  margin: 12px 0;
+  margin: 8px 0;
   font:
-    700 clamp(42px, 6vw, 72px)/1 Georgia,
+    700 clamp(28px, 4vw, 44px)/1.1 Georgia,
     serif;
 }
 .hero h1 i {
@@ -610,38 +647,93 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   font-size: 14px;
   line-height: 1.9;
 }
-.hero-stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+.hero-status {
+  min-width: 130px;
+  padding-left: 24px;
+  border-left: 1px solid rgb(255 255 255 / 16%);
 }
-.hero-stats article {
-  padding: 20px;
-  border: 1px solid rgb(255 255 255 / 14%);
-  border-radius: 12px;
-  background: rgb(7 17 31 / 36%);
-}
-.hero-stats small,
-.hero-stats span {
+.hero-status span,
+.hero-status small {
   display: block;
   color: rgb(255 255 255 / 56%);
   font-size: 9px;
 }
-.hero-stats strong {
+.hero-status b {
   display: block;
-  margin: 9px 0 6px;
-  font:
-    700 34px Georgia,
-    serif;
+  margin: 7px 0;
+  color: #76d4a4;
+  font-size: 12px;
+}
+.asset-strip {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.asset-card {
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--surface);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+.asset-card.active {
+  border-color: var(--asset-color);
+  box-shadow: inset 0 0 0 1px var(--asset-color);
+}
+.asset-card.purple { --asset-color: #7357d8; }
+.asset-card.blue { --asset-color: #3b82b8; }
+.asset-card.gold { --asset-color: #d29b35; }
+.asset-card.orange { --asset-color: #d76b41; }
+.asset-card > span,
+.asset-card small {
+  color: var(--muted);
+  font-size: 8px;
+}
+.asset-card i {
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--asset-color);
+  display: inline-block;
+}
+.asset-card div {
+  margin: 8px 0 5px;
+  display: flex;
+  justify-content: space-between;
+}
+.asset-card strong { font-size: 16px; }
+.asset-card b { color: #26865c; font-size: 12px; }
+.asset-card b.negative { color: #b05050; }
+.section-nav {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.section-nav > div {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+.section-nav > div > small {
+  margin: 0 7px;
+  color: var(--muted);
+  font-size: 8px;
 }
 .section-nav {
-  margin: 18px 0 30px;
+  margin: 14px 0 30px;
   padding: 5px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
-  display: inline-flex;
-  gap: 3px;
 }
 .section-nav button,
 .index-switch button,
@@ -1235,6 +1327,36 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   height: 470px;
   padding: 16px;
 }
+.decision-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 16px;
+}
+.quick-calc { display: grid; align-content: start; gap: 15px; }
+.quick-calc h2 { margin: 4px 0 0; font-size: 18px; }
+.quick-calc > div > small,
+.quick-result small { color: var(--muted); font-size: 8px; letter-spacing: 0.1em; }
+.asset-pills { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.asset-pills button,
+.detail-action {
+  min-height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  cursor: pointer;
+}
+.asset-pills button.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.quick-calc label { color: var(--muted); font-size: 9px; }
+.quick-calc input { width: 100%; margin-top: 6px; padding: 10px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface-soft); color: var(--ink); box-sizing: border-box; }
+.quick-result { padding: 16px; border-radius: 10px; background: linear-gradient(135deg, var(--accent-soft), var(--surface-soft)); }
+.quick-result strong,
+.quick-result span { display: block; }
+.quick-result strong { margin: 8px 0; font: 700 28px Georgia, serif; }
+.quick-result span { color: #b05050; font-size: 9px; }
+.quick-result span.positive { color: #26865c; }
+.detail-action { background: var(--accent); color: white; border-color: var(--accent); }
+.quick-calc > p { margin: 0; color: var(--muted); font-size: 8px; line-height: 1.6; }
 @media (max-width: 1000px) {
   .hero {
     grid-template-columns: 1fr;
@@ -1244,6 +1366,7 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   .calculator-layout {
     grid-template-columns: 1fr;
   }
+  .decision-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 720px) {
   .us-index-page {
@@ -1252,7 +1375,7 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   .hero {
     padding: 28px 22px;
   }
-  .hero-stats,
+  .asset-strip,
   .profile-grid,
   .concentration-grid,
   .method-grid {
@@ -1269,7 +1392,12 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   .section-nav {
     width: 100%;
     overflow-x: auto;
+    display: block;
   }
+  .section-nav > div { width: max-content; }
+  .section-nav > div + div { margin-top: 4px; }
+  .asset-strip { grid-template-columns: repeat(4, minmax(150px, 1fr)); overflow-x: auto; padding-bottom: 4px; }
+  .hero-status { padding: 14px 0 0; border-top: 1px solid rgb(255 255 255 / 16%); border-left: 0; }
   .section-nav button {
     flex: 0 0 auto;
   }
