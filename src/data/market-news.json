@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-25T01:26:56.852Z",
+  "updatedAt": "2026-08-25T02:43:11.374Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -37,6 +37,26 @@
   ],
   "articles": [
     {
+      "id": "ff2c1f76ef46cbc2",
+      "title": "Gold hits over three-month high on dollar weakness, Treasury bond buyback plans",
+      "url": "https://www.cnbc.com/2026/08/25/gold-hits-over-three-month-high-on-dollar-weakness-treasury-bond-buyback-plans.html",
+      "publishedAt": "2026-08-25T02:28:00.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "commodities",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "债券",
+        "美元",
+        "黄金"
+      ],
+      "translatedTitle": "由于美元疲软，金价触及三个月高位，美国国债回购计划",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "7d7035090ad7045e",
       "title": "Paramount CEO David Ellison is at the final hurdle before buying WBD. So far, he can't clear it",
       "url": "https://www.cnbc.com/2026/08/24/paramount-ceo-david-ellison-wbd-acquisition-final-hurdle.html",
@@ -46,7 +66,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "派拉蒙首席执行官大卫·埃里森（ David Ellison ）在收购WBD之前处于最后的障碍。到目前为止，他无法清除它",
       "translationStatus": "translated",
@@ -62,7 +82,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "Main Street Sports起诉康卡斯特Charter公司支付少付许可费",
       "translationStatus": "translated",
@@ -77,8 +97,8 @@
       "sourceType": "media",
       "category": "geopolitics",
       "language": "English",
-      "impact": "high",
-      "impactScore": 4,
+      "impact": "medium",
+      "impactScore": 3,
       "affectedAssets": [],
       "translatedTitle": "特朗普表示，随着贸易战升级，美国将把加拿大汽车关税提高到50%",
       "translationStatus": "translated",
@@ -470,22 +490,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "UPS将向国际、医疗保健和供应链业务投资20 $十亿",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "2218a3297e7bcc76",
-      "title": "Alibaba plunges after announcing $10.2 billion share placement to fund AI push",
-      "url": "https://www.cnbc.com/2026/08/24/alibaba-share-placement-drop-ai-hong-kong.html",
-      "publishedAt": "2026-08-24T08:21:17.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "阿里巴巴在宣布102亿美元的股票配售以资助AI推动后暴跌",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
