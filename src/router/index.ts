@@ -106,6 +106,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/norway-sovereign-fund',
+      name: 'norway-sovereign-fund',
+      component: () => import('../views/NorwaySovereignFundView.vue'),
+      meta: {
+        titleKey: 'ui.routes.norwayFund.title',
+        descriptionKey: 'ui.routes.norwayFund.description',
+      },
+    },
+    {
       path: '/a-share',
       name: 'a-share',
       component: () => import('../views/AShareView.vue'),
