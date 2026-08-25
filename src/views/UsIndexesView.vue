@@ -2055,6 +2055,9 @@ onMounted(loadResearchDataset)
 .dca-comparison-panel .positive {
   color: #26865c;
 }
+.dca-ledger-panel table {
+  min-width: 680px;
+}
 .comparison-warning {
   margin: 0 0 14px;
   color: #b36a2e;

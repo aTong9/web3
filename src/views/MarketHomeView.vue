@@ -13,9 +13,7 @@ import { marketAssetQuoteSymbols, useMarketQuotes } from '@/composables/use-mark
 const dataset = marketHomeData as MarketHomeDataset
 const crossAssetDataset = crossAssetData as CrossAssetDataset
 const posterOpen = ref(false)
-const DailyMarketPoster = defineAsyncComponent(
-  () => import('@/components/DailyMarketPoster.vue'),
-)
+const DailyMarketPoster = defineAsyncComponent(() => import('@/components/DailyMarketPoster.vue'))
 const markets = computed(() => dataset.marketBrief.markets)
 const leadMarket = computed(() => markets.value[0])
 const { t } = useI18n()
@@ -67,9 +65,7 @@ const validationText = (
   const lift =
     horizon.validation.liftPct === null
       ? '—'
-      : (horizon.validation.liftPct > 0 ? '+' : '') +
-        horizon.validation.liftPct.toFixed(1) +
-        '%'
+      : (horizon.validation.liftPct > 0 ? '+' : '') + horizon.validation.liftPct.toFixed(1) + '%'
   return t('marketHome.validation.watch', {
     samples: horizon.validation.samples,
     lift,
@@ -79,7 +75,12 @@ const validationText = (
 
 <template>
   <main class="market-home">
-    <ResearchPageHeader :eyebrow="t('marketHome.badge')" :title="t('marketHome.heading')" :description="t('marketHome.hint')">
+    <ResearchPageHeader
+      :eyebrow="t('marketHome.badge')"
+      :title="t('marketHome.heading')"
+      :description="t('marketHome.hint')"
+      status-width="wide"
+    >
       <template #meta>
         <DataUpdateStatus
           :updated-at="dataset.updatedAt"
@@ -88,38 +89,49 @@ const validationText = (
           quality="complete"
         />
       </template>
-      <template #status><section v-if="leadMarket" class="market-pulse" :aria-label="t('marketHome.pulse.baseline')">
-        <div class="pulse-heading">
-          <span>{{ t('marketHome.pulse.baseline') }}</span>
-          <strong>{{ leadMarket.name }}</strong>
-          <b :class="{ up: (marketMove(leadMarket) ?? 0) >= 0, down: (marketMove(leadMarket) ?? 0) < 0 }">
-            {{ formatMove(marketMove(leadMarket)) }}
-          </b>
-          <small class="latest-price">
-            {{ t('crossAsset.latestValue') }} {{ formatMarketValue(leadMarket.id) }}
-          </small>
-          <MarketQuoteStatus
-            :quote="marketQuote(leadMarket.id)"
-            :loading="quoteLoading"
-            :error="quoteError"
-            show-time
-          />
-        </div>
-        <div class="pulse-track" aria-hidden="true">
-          <i
-            v-for="horizon in leadMarket.horizonOutlooks"
-            :key="horizon.id"
-            :class="horizon.direction"
-          ></i>
-        </div>
-        <div class="pulse-horizons">
-          <span v-for="horizon in leadMarket.horizonOutlooks" :key="horizon.id">
-            <small>{{ horizon.label.replace('未来', '') }}</small>
-            <strong :class="horizon.direction">{{ directionName(horizon.direction) }}</strong>
-            <em>{{ historicalRangeText(horizon) }}</em>
-          </span>
-        </div>
-      </section></template>
+      <template #status
+        ><section
+          v-if="leadMarket"
+          class="market-pulse"
+          :aria-label="t('marketHome.pulse.baseline')"
+        >
+          <div class="pulse-heading">
+            <span>{{ t('marketHome.pulse.baseline') }}</span>
+            <strong>{{ leadMarket.name }}</strong>
+            <b
+              :class="{
+                up: (marketMove(leadMarket) ?? 0) >= 0,
+                down: (marketMove(leadMarket) ?? 0) < 0,
+              }"
+            >
+              {{ formatMove(marketMove(leadMarket)) }}
+            </b>
+            <small class="latest-price">
+              {{ t('crossAsset.latestValue') }} {{ formatMarketValue(leadMarket.id) }}
+            </small>
+            <MarketQuoteStatus
+              :quote="marketQuote(leadMarket.id)"
+              :loading="quoteLoading"
+              :error="quoteError"
+              show-time
+            />
+          </div>
+          <div class="pulse-track" aria-hidden="true">
+            <i
+              v-for="horizon in leadMarket.horizonOutlooks"
+              :key="horizon.id"
+              :class="horizon.direction"
+            ></i>
+          </div>
+          <div class="pulse-horizons">
+            <span v-for="horizon in leadMarket.horizonOutlooks" :key="horizon.id">
+              <small>{{ horizon.label.replace('未来', '') }}</small>
+              <strong :class="horizon.direction">{{ directionName(horizon.direction) }}</strong>
+              <em>{{ historicalRangeText(horizon) }}</em>
+            </span>
+          </div>
+        </section></template
+      >
     </ResearchPageHeader>
 
     <section class="global-factors">
@@ -262,10 +274,33 @@ const validationText = (
   justify-content: space-between;
   gap: 24px;
 }
-.poster-launcher small { color: var(--accent); font-size: 9px; font-weight: 800; letter-spacing: 0.14em; }
-.poster-launcher h2 { margin: 6px 0; font: 500 24px Georgia, 'Songti SC', serif; }
-.poster-launcher p { margin: 0; color: var(--muted); font-size: 12px; }
-.poster-launcher button { padding: 0 18px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: white; cursor: pointer; white-space: nowrap; }
+.poster-launcher small {
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+.poster-launcher h2 {
+  margin: 6px 0;
+  font:
+    500 24px Georgia,
+    'Songti SC',
+    serif;
+}
+.poster-launcher p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.poster-launcher button {
+  padding: 0 18px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  white-space: nowrap;
+}
 .home-heading {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
@@ -281,7 +316,10 @@ const validationText = (
 }
 .home-heading h1 {
   margin: 0;
-  font: 500 clamp(34px, 4vw, 52px) Georgia, 'Songti SC', serif;
+  font:
+    500 clamp(34px, 4vw, 52px) Georgia,
+    'Songti SC',
+    serif;
   letter-spacing: -0.035em;
   text-wrap: balance;
 }
@@ -318,7 +356,10 @@ const validationText = (
   letter-spacing: 0.08em;
 }
 .pulse-heading strong {
-  font: 500 22px Georgia, 'Songti SC', serif;
+  font:
+    500 22px Georgia,
+    'Songti SC',
+    serif;
 }
 .pulse-heading b {
   font-size: 22px;
@@ -517,6 +558,16 @@ const validationText = (
   .pulse-heading strong,
   .pulse-heading b {
     font-size: 18px;
+  }
+  .pulse-horizons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 10px;
+  }
+  .pulse-horizons span {
+    min-width: 0;
+  }
+  .pulse-horizons em {
+    overflow-wrap: anywhere;
   }
   .horizons {
     grid-template-columns: 1fr;
