@@ -1,0 +1,996 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import {
+  qqqProfile,
+  qqqSectors,
+  qqqTopHoldings,
+  sp500Profile,
+  sp500Sectors,
+  sp500TopHoldings,
+  usIndexMilestones,
+  usIndexSources,
+  type UsIndexId,
+  type UsIndexMilestoneKind,
+} from '@/data/us-indexes'
+import { calculateHoldingConcentration, compareIndexProfiles } from '@/utils/us-indexes'
+
+type PageSection = 'compare' | 'history' | 'holdings' | 'methodology'
+type TimelineFilter = '全部' | UsIndexMilestoneKind
+
+const activeSection = ref<PageSection>('compare')
+const activeIndex = ref<UsIndexId>('qqq')
+const timelineFilter = ref<TimelineFilter>('全部')
+const qqqConcentration = computed(() => calculateHoldingConcentration(qqqTopHoldings))
+const comparison = computed(() => compareIndexProfiles(qqqProfile, sp500Profile))
+const visibleMilestones = computed(() =>
+  usIndexMilestones.filter(
+    (item) =>
+      (item.indexId === activeIndex.value || item.indexId === 'both') &&
+      (timelineFilter.value === '全部' || item.kind === timelineFilter.value),
+  ),
+)
+const activeProfile = computed(() => (activeIndex.value === 'qqq' ? qqqProfile : sp500Profile))
+const activeHoldings = computed(() =>
+  activeIndex.value === 'qqq' ? qqqTopHoldings : sp500TopHoldings,
+)
+const activeSectors = computed(() => (activeIndex.value === 'qqq' ? qqqSectors : sp500Sectors))
+
+const sections: Array<{ id: PageSection; label: string }> = [
+  { id: 'compare', label: '核心对比' },
+  { id: 'history', label: '历史转折' },
+  { id: 'holdings', label: '成分拆解' },
+  { id: 'methodology', label: '规则与口径' },
+]
+const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '方法调整']
+</script>
+
+<template>
+  <main class="us-index-page">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">US CORE EQUITY BENCHMARKS</p>
+        <h1>QQQ <i>vs</i> S&amp;P 500</h1>
+        <p class="lead">
+          一个是追踪 Nasdaq-100 的可交易
+          ETF，一个是美国大盘股指数。看似都由巨头主导，选择规则、行业结构与产品成本却完全不同。
+        </p>
+      </div>
+      <div class="hero-stats">
+        <article>
+          <small>QQQ 前十大</small><strong>46.9%</strong><span>2026-03-31 · ICB</span>
+        </article>
+        <article>
+          <small>S&amp;P 500 前十大</small><strong>37.6%</strong><span>2026-07-31 · GICS</span>
+        </article>
+      </div>
+    </header>
+
+    <nav class="section-nav" aria-label="美国核心指数研究章节">
+      <button
+        v-for="section in sections"
+        :key="section.id"
+        :class="{ active: activeSection === section.id }"
+        @click="activeSection = section.id"
+      >
+        {{ section.label }}
+      </button>
+    </nav>
+
+    <section v-if="activeSection === 'compare'" class="section-stack">
+      <article class="definition-note">
+        <b>先分清对象</b>
+        <p>
+          <strong>QQQ</strong> 是 ETF，有 0.18% 总费率、NAV、市场价格和跟踪误差；<strong
+            >S&amp;P 500</strong
+          >
+          是指数，本身不能直接买入，也没有基金费率。具体跟踪产品各自收费。
+        </p>
+      </article>
+
+      <div class="profile-grid">
+        <article class="profile qqq-card">
+          <div class="profile-title"><span>ETF · QQQ</span><b>纳斯达克大型非金融公司</b></div>
+          <h2>Invesco QQQ</h2>
+          <p>被动追踪 Nasdaq-100，但基金实际回报还会受到费用、现金、申赎和交易摩擦影响。</p>
+          <dl>
+            <div>
+              <dt>成立</dt>
+              <dd>{{ qqqProfile.inceptionDate }}</dd>
+            </div>
+            <div>
+              <dt>总费率</dt>
+              <dd>{{ qqqProfile.expenseRatioPct }}%</dd>
+            </div>
+            <div>
+              <dt>目标公司数</dt>
+              <dd>{{ qqqProfile.constituentCount }}</dd>
+            </div>
+            <div>
+              <dt>最大证券</dt>
+              <dd>{{ qqqProfile.largestWeightPct }}%</dd>
+            </div>
+          </dl>
+          <a :href="usIndexSources.qqqHome" target="_blank" rel="noopener noreferrer"
+            >Invesco 官方资料 ↗</a
+          >
+        </article>
+        <article class="profile sp-card">
+          <div class="profile-title"><span>INDEX · SPX</span><b>美国大盘股市场代理</b></div>
+          <h2>S&amp;P 500</h2>
+          <p>
+            由委员会从合资格美国公司中选择，并按自由流通市值加权；不是机械选取市值最大的 500 家。
+          </p>
+          <dl>
+            <div>
+              <dt>正式发布</dt>
+              <dd>{{ sp500Profile.inceptionDate }}</dd>
+            </div>
+            <div>
+              <dt>指数费率</dt>
+              <dd>不适用</dd>
+            </div>
+            <div>
+              <dt>目标公司数</dt>
+              <dd>{{ sp500Profile.constituentCount }}</dd>
+            </div>
+            <div>
+              <dt>最大证券</dt>
+              <dd>{{ sp500Profile.largestWeightPct }}%</dd>
+            </div>
+          </dl>
+          <a :href="usIndexSources.sp500" target="_blank" rel="noopener noreferrer"
+            >S&amp;P DJI 官方资料 ↗</a
+          >
+        </article>
+      </div>
+
+      <section class="panel concentration-panel">
+        <div class="panel-heading">
+          <div>
+            <small>CONCENTRATION</small>
+            <h2>巨头集中度</h2>
+          </div>
+          <span>不同快照，仅比较结构</span>
+        </div>
+        <div class="concentration-grid">
+          <article>
+            <div><b>QQQ / Nasdaq-100</b><strong>46.9%</strong></div>
+            <i><span style="width: 46.9%"></span></i>
+            <p>前十大 · 2026-03-31</p>
+          </article>
+          <article>
+            <div><b>S&amp;P 500</b><strong>37.6%</strong></div>
+            <i><span style="width: 37.6%"></span></i>
+            <p>前十大 · 2026-07-31</p>
+          </article>
+        </div>
+        <p class="callout">
+          QQQ 的前十大集中度高约
+          <b>{{ comparison.concentrationDifferencePctPoints.toFixed(1) }} 个百分点</b
+          >，科技行业权重高约
+          <b>{{ comparison.technologyDifferencePctPoints.toFixed(1) }} 个百分点</b>。由于日期及
+          ICB/GICS 分类不同，这里只用于结构判断，不是严格的同日归因。
+        </p>
+      </section>
+
+      <section class="panel matrix-panel">
+        <div class="panel-heading">
+          <div>
+            <small>INDEX BLUEPRINT</small>
+            <h2>规则决定暴露</h2>
+          </div>
+        </div>
+        <div class="comparison-table">
+          <div class="head"><span>维度</span><b>QQQ / Nasdaq-100</b><b>S&amp;P 500</b></div>
+          <div>
+            <span>选择入口</span>
+            <p>{{ qqqProfile.selection }}</p>
+            <p>{{ sp500Profile.selection }}</p>
+          </div>
+          <div>
+            <span>权重</span>
+            <p>{{ qqqProfile.weighting }}</p>
+            <p>{{ sp500Profile.weighting }}</p>
+          </div>
+          <div>
+            <span>调整</span>
+            <p>{{ qqqProfile.review }}</p>
+            <p>{{ sp500Profile.review }}</p>
+          </div>
+          <div>
+            <span>行业分类</span>
+            <p>{{ qqqProfile.sectorSystem }}</p>
+            <p>{{ sp500Profile.sectorSystem }}</p>
+          </div>
+          <div>
+            <span>主要偏向</span>
+            <p>科技与可选消费；排除金融公司</p>
+            <p>覆盖 11 个 GICS 行业，仍由大型科技公司主导</p>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section v-else-if="activeSection === 'history'" class="section-stack">
+      <div class="section-intro">
+        <div>
+          <small>TIMELINE</small>
+          <h2>指数与产品的关键转折</h2>
+        </div>
+        <p>切换对象后只保留对应历史；“共同事件”会同时显示。</p>
+      </div>
+      <div class="control-row">
+        <div class="index-switch">
+          <button :class="{ active: activeIndex === 'qqq' }" @click="activeIndex = 'qqq'">
+            QQQ / Nasdaq-100</button
+          ><button :class="{ active: activeIndex === 'sp500' }" @click="activeIndex = 'sp500'">
+            S&amp;P 500
+          </button>
+        </div>
+        <div class="filter-row">
+          <button
+            v-for="filter in filters"
+            :key="filter"
+            :class="{ active: timelineFilter === filter }"
+            @click="timelineFilter = filter"
+          >
+            {{ filter }}
+          </button>
+        </div>
+      </div>
+      <div class="timeline">
+        <article
+          v-for="item in visibleMilestones"
+          :key="`${item.year}-${item.title}`"
+          :class="{ turning: item.isTurningPoint }"
+        >
+          <div class="year">
+            <strong>{{ item.year }}</strong
+            ><span>{{ item.kind }}</span>
+          </div>
+          <div>
+            <div class="event-title">
+              <h3>{{ item.title }}</h3>
+              <b v-if="item.isTurningPoint">关键转折</b>
+            </div>
+            <p>{{ item.summary }}</p>
+            <div class="impact"><small>长期影响</small>{{ item.impact }}</div>
+            <a :href="item.sourceUrl" target="_blank" rel="noopener noreferrer">官方依据 ↗</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section v-else-if="activeSection === 'holdings'" class="section-stack">
+      <div class="section-intro">
+        <div>
+          <small>CONSTITUENTS</small>
+          <h2>成分与行业拆解</h2>
+        </div>
+        <p>证券行不等于公司数：Alphabet A/C 等多股权类别需要分别显示、合并理解风险。</p>
+      </div>
+      <div class="index-switch large">
+        <button :class="{ active: activeIndex === 'qqq' }" @click="activeIndex = 'qqq'">
+          QQQ / Nasdaq-100</button
+        ><button :class="{ active: activeIndex === 'sp500' }" @click="activeIndex = 'sp500'">
+          S&amp;P 500
+        </button>
+      </div>
+      <div class="snapshot-banner">
+        <div>
+          <small>当前对象</small><strong>{{ activeProfile.name }}</strong>
+        </div>
+        <div>
+          <small>持仓截点</small><strong>{{ activeProfile.holdingsAsOfDate }}</strong>
+        </div>
+        <div>
+          <small>前十大合计</small><strong>{{ activeProfile.top10WeightPct }}%</strong>
+        </div>
+        <div>
+          <small>分类体系</small><strong>{{ activeProfile.sectorSystem }}</strong>
+        </div>
+      </div>
+      <div class="holdings-layout">
+        <section class="panel sector-panel">
+          <div class="panel-heading">
+            <div>
+              <small>SECTORS</small>
+              <h2>行业权重</h2>
+            </div>
+            <span>{{ activeProfile.sectorSystem }}</span>
+          </div>
+          <div class="sector-bars">
+            <div v-for="sector in activeSectors" :key="sector[0]">
+              <span>{{ sector[0] }}</span
+              ><i><b :style="{ width: `${sector[1]}%` }"></b></i><strong>{{ sector[1] }}%</strong>
+            </div>
+          </div>
+        </section>
+        <section class="panel holdings-panel">
+          <div class="panel-heading">
+            <div>
+              <small>TOP 10</small>
+              <h2>前十大证券</h2>
+            </div>
+            <span>{{ activeProfile.holdingsAsOfDate }}</span>
+          </div>
+          <div class="holding-list">
+            <article v-for="holding in activeHoldings" :key="holding.rank">
+              <em>{{ holding.rank }}</em>
+              <div>
+                <strong>{{ holding.name }}</strong
+                ><small>{{ holding.ticker }} · {{ holding.sector }}</small>
+              </div>
+              <b>{{
+                holding.weightPct === null ? '未逐只公开' : `${holding.weightPct.toFixed(1)}%`
+              }}</b>
+            </article>
+          </div>
+          <p v-if="activeIndex === 'qqq'" class="note">
+            公开的逐只权重四舍五入后合计
+            {{ qqqConcentration.topWeightPct.toFixed(1) }}%，官方集中度为 46.9%。
+          </p>
+          <p v-else class="note">
+            S&amp;P DJI 同一公开表提供排名和前十大总权重
+            37.6%，但未逐只给出权重；本模块不使用第三方数据补齐。
+          </p>
+        </section>
+      </div>
+    </section>
+
+    <section v-else class="section-stack methodology">
+      <div class="section-intro">
+        <div>
+          <small>READ BEFORE USE</small>
+          <h2>构建规则与研究边界</h2>
+        </div>
+        <p>指数名称、ETF 产品、价格指数和总回报指数是不同对象。</p>
+      </div>
+      <div class="method-grid">
+        <article>
+          <b>01</b>
+          <div>
+            <h3>QQQ 不等于 Nasdaq-100</h3>
+            <p>QQQ 持有证券并在交易所交易；0.18% 费率、NAV、价差和跟踪误差属于 ETF，不属于指数。</p>
+          </div>
+        </article>
+        <article>
+          <b>02</b>
+          <div>
+            <h3>S&amp;P 500 不是基金</h3>
+            <p>SPX 是指数，本身不能直接买入。SPY、VOO、IVV 等跟踪产品有各自费用和交易特征。</p>
+          </div>
+        </article>
+        <article>
+          <b>03</b>
+          <div>
+            <h3>“100”与“500”不是固定证券行数</h3>
+            <p>多股权类别和 Fast Entry 可令证券行数高于目标公司数；同一公司风险应合并观察。</p>
+          </div>
+        </article>
+        <article>
+          <b>04</b>
+          <div>
+            <h3>行业数据不能机械比较</h3>
+            <p>
+              Nasdaq-100 使用 ICB，S&amp;P 500 使用 GICS；本页快照日期也不同，只能说明结构差异。
+            </p>
+          </div>
+        </article>
+        <article>
+          <b>05</b>
+          <div>
+            <h3>权重变化不等于主动交易</h3>
+            <p>
+              市值加权指数会随价格、股份、公司行动和重构变化，不能把权重上升直接描述成“基金经理加仓”。
+            </p>
+          </div>
+        </article>
+        <article>
+          <b>06</b>
+          <div>
+            <h3>回报口径必须一致</h3>
+            <p>价格指数不包含股息再投资，总回报指数包含股息；历史回报也不构成未来收益承诺。</p>
+          </div>
+        </article>
+      </div>
+      <article class="sources-panel">
+        <h2>官方资料</h2>
+        <a :href="usIndexSources.qqqHome" target="_blank" rel="noopener noreferrer">Invesco QQQ ↗</a
+        ><a :href="usIndexSources.nasdaqMethodology" target="_blank" rel="noopener noreferrer"
+          >Nasdaq-100 方法 ↗</a
+        ><a :href="usIndexSources.nasdaqSnapshot" target="_blank" rel="noopener noreferrer"
+          >Nasdaq 官方快照 ↗</a
+        ><a :href="usIndexSources.sp500" target="_blank" rel="noopener noreferrer">S&amp;P 500 ↗</a
+        ><a :href="usIndexSources.sp500Methodology" target="_blank" rel="noopener noreferrer"
+          >S&amp;P 美国指数方法 ↗</a
+        >
+      </article>
+    </section>
+  </main>
+</template>
+
+<style scoped>
+.us-index-page {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 32px clamp(18px, 4vw, 56px) 72px;
+  color: var(--ink);
+}
+.hero {
+  min-height: 285px;
+  padding: clamp(30px, 5vw, 58px);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 86% 18%, rgb(80 126 198 / 30%), transparent 28%),
+    linear-gradient(135deg, #101c30, #172942 55%, #243650);
+  color: #f5f8fc;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.75fr);
+  gap: 42px;
+  align-items: end;
+  overflow: hidden;
+}
+.eyebrow,
+.panel-heading small,
+.section-intro small {
+  margin: 0;
+  color: #92b7e9;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+.hero h1 {
+  margin: 12px 0;
+  font:
+    700 clamp(42px, 6vw, 72px)/1 Georgia,
+    serif;
+}
+.hero h1 i {
+  color: #87aee1;
+  font-size: 0.36em;
+  font-weight: 400;
+}
+.lead {
+  max-width: 760px;
+  margin: 0;
+  color: rgb(255 255 255 / 72%);
+  font-size: 14px;
+  line-height: 1.9;
+}
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.hero-stats article {
+  padding: 20px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 12px;
+  background: rgb(7 17 31 / 36%);
+}
+.hero-stats small,
+.hero-stats span {
+  display: block;
+  color: rgb(255 255 255 / 56%);
+  font-size: 9px;
+}
+.hero-stats strong {
+  display: block;
+  margin: 9px 0 6px;
+  font:
+    700 34px Georgia,
+    serif;
+}
+.section-nav {
+  margin: 18px 0 30px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  display: inline-flex;
+  gap: 3px;
+}
+.section-nav button,
+.index-switch button,
+.filter-row button {
+  border: 0;
+  border-radius: 7px;
+  padding: 9px 14px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+}
+.section-nav button.active,
+.index-switch button.active,
+.filter-row button.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+}
+.section-stack {
+  display: grid;
+  gap: 22px;
+}
+.definition-note {
+  padding: 20px 24px;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 18px;
+}
+.definition-note b {
+  color: var(--accent);
+  font-size: 11px;
+}
+.definition-note p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.profile {
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  position: relative;
+  overflow: hidden;
+}
+.profile::after {
+  content: '';
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  position: absolute;
+  right: -45px;
+  top: -45px;
+  background: var(--accent-soft);
+}
+.profile-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+.profile-title span {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.profile-title b {
+  color: var(--muted);
+  font-size: 9px;
+}
+.profile h2 {
+  margin: 22px 0 8px;
+  font:
+    700 30px Georgia,
+    serif;
+}
+.profile > p {
+  min-height: 48px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+.profile dl {
+  margin: 22px 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.profile dl div {
+  padding: 13px;
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+.profile dt,
+.profile dd {
+  margin: 0;
+}
+.profile dt {
+  color: var(--muted);
+  font-size: 8px;
+}
+.profile dd {
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.profile a,
+.timeline a,
+.sources-panel a {
+  color: var(--accent);
+  font-size: 9px;
+}
+.panel {
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  min-width: 0;
+}
+.panel-heading {
+  margin-bottom: 22px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: end;
+}
+.panel-heading h2,
+.section-intro h2 {
+  margin: 5px 0 0;
+  font-size: 19px;
+}
+.panel-heading > span {
+  color: var(--muted);
+  font-size: 9px;
+}
+.concentration-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+.concentration-grid article > div {
+  display: flex;
+  justify-content: space-between;
+}
+.concentration-grid b {
+  font-size: 11px;
+}
+.concentration-grid strong {
+  font:
+    700 24px Georgia,
+    serif;
+}
+.concentration-grid i {
+  height: 10px;
+  margin: 12px 0 8px;
+  border-radius: 8px;
+  background: var(--surface-soft);
+  display: block;
+  overflow: hidden;
+}
+.concentration-grid i span {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), #73a4df);
+}
+.concentration-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 9px;
+}
+.callout {
+  margin: 24px 0 0;
+  padding: 16px 18px;
+  border-radius: 8px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.8;
+}
+.callout b {
+  color: var(--ink);
+}
+.comparison-table {
+  display: grid;
+}
+.comparison-table > div {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 130px repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+.comparison-table .head {
+  color: var(--muted);
+  font-size: 9px;
+}
+.comparison-table span {
+  font-size: 10px;
+  font-weight: 700;
+}
+.comparison-table p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+.section-intro {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  align-items: end;
+}
+.section-intro > p {
+  max-width: 570px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+.control-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.index-switch,
+.filter-row {
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  display: inline-flex;
+  gap: 3px;
+}
+.index-switch.large {
+  justify-self: start;
+}
+.timeline {
+  display: grid;
+  gap: 10px;
+}
+.timeline article {
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 24px;
+}
+.timeline article.turning {
+  border-left: 3px solid var(--accent);
+}
+.year strong {
+  display: block;
+  font:
+    700 23px Georgia,
+    serif;
+}
+.year span {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 7px;
+  border-radius: 4px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 8px;
+}
+.event-title {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.event-title h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.event-title b {
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 8px;
+}
+.timeline p {
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+.impact {
+  margin: 12px 0;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.impact small {
+  margin-right: 10px;
+  color: var(--accent);
+  font-weight: 700;
+}
+.snapshot-banner {
+  padding: 18px 22px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--accent-soft), var(--surface));
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+.snapshot-banner small,
+.snapshot-banner strong {
+  display: block;
+}
+.snapshot-banner small {
+  color: var(--muted);
+  font-size: 8px;
+}
+.snapshot-banner strong {
+  margin-top: 5px;
+  font-size: 12px;
+}
+.holdings-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: 22px;
+}
+.sector-bars {
+  display: grid;
+  gap: 10px;
+}
+.sector-bars > div {
+  display: grid;
+  grid-template-columns: 105px 1fr 42px;
+  gap: 10px;
+  align-items: center;
+  font-size: 10px;
+}
+.sector-bars i {
+  height: 6px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+  overflow: hidden;
+}
+.sector-bars i b {
+  height: 100%;
+  display: block;
+  background: var(--accent);
+}
+.sector-bars strong {
+  text-align: right;
+}
+.holding-list {
+  display: grid;
+}
+.holding-list article {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 26px 1fr 82px;
+  gap: 10px;
+  align-items: center;
+}
+.holding-list em {
+  color: var(--muted);
+  font:
+    italic 12px Georgia,
+    serif;
+}
+.holding-list strong,
+.holding-list small {
+  display: block;
+}
+.holding-list strong {
+  font-size: 11px;
+}
+.holding-list small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 8px;
+}
+.holding-list > article > b {
+  text-align: right;
+  font-size: 10px;
+}
+.note {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.7;
+}
+.method-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.method-grid article {
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  display: flex;
+  gap: 18px;
+}
+.method-grid article > b {
+  color: var(--accent);
+  font:
+    700 24px Georgia,
+    serif;
+}
+.method-grid h3 {
+  margin: 2px 0 8px;
+  font-size: 13px;
+}
+.method-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.8;
+}
+.sources-panel {
+  padding: 24px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 22px;
+  align-items: center;
+}
+.sources-panel h2 {
+  width: 100%;
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+@media (max-width: 1000px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+  .profile-grid,
+  .holdings-layout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 720px) {
+  .us-index-page {
+    padding: 16px 13px 50px;
+  }
+  .hero {
+    padding: 28px 22px;
+  }
+  .hero-stats,
+  .profile-grid,
+  .concentration-grid,
+  .method-grid {
+    grid-template-columns: 1fr;
+  }
+  .section-nav {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .section-nav button {
+    flex: 0 0 auto;
+  }
+  .definition-note {
+    grid-template-columns: 1fr;
+  }
+  .section-intro {
+    display: block;
+  }
+  .section-intro > p {
+    margin-top: 10px;
+  }
+  .comparison-table {
+    overflow-x: auto;
+  }
+  .comparison-table > div {
+    min-width: 650px;
+  }
+  .snapshot-banner {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .timeline article {
+    grid-template-columns: 76px 1fr;
+    gap: 12px;
+  }
+  .event-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .sector-bars > div {
+    grid-template-columns: 90px 1fr 38px;
+  }
+}
+</style>

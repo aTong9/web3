@@ -115,6 +115,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/us-indexes',
+      name: 'us-indexes',
+      component: () => import('../views/UsIndexesView.vue'),
+      meta: {
+        titleKey: 'ui.routes.usIndexes.title',
+        descriptionKey: 'ui.routes.usIndexes.description',
+      },
+    },
+    {
       path: '/a-share',
       name: 'a-share',
       component: () => import('../views/AShareView.vue'),
