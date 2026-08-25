@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import usIndexResearch from '@/data/us-index-research.json'
 import {
   qqqProfile,
   qqqSectors,
@@ -12,14 +13,23 @@ import {
   type UsIndexId,
   type UsIndexMilestoneKind,
 } from '@/data/us-indexes'
-import { calculateHoldingConcentration, compareIndexProfiles } from '@/utils/us-indexes'
+import { calculateHoldingConcentration, compareIndexProfiles, simulateIndexDca } from '@/utils/us-indexes'
 
-type PageSection = 'compare' | 'history' | 'holdings' | 'methodology'
+type PageSection = 'compare' | 'history' | 'holdings' | 'leaders' | 'dca' | 'methodology'
 type TimelineFilter = '全部' | UsIndexMilestoneKind
 
 const activeSection = ref<PageSection>('compare')
 const activeIndex = ref<UsIndexId>('qqq')
 const timelineFilter = ref<TimelineFilter>('全部')
+const dcaProduct = ref<'qqq' | 'spy'>('qqq')
+const dcaStartDate = ref('2020-01-01')
+const initialPriceSeries = usIndexResearch.marketSeries[0]?.prices ?? []
+const dcaEndDate = ref(initialPriceSeries[initialPriceSeries.length - 1]?.date ?? '2026-08-24')
+const dcaAmount = ref(500)
+const dcaDay = ref(1)
+const dcaExecution = ref<'next-trading-day' | 'previous-trading-day'>('next-trading-day')
+const dcaPrice = ref<'open' | 'close'>('close')
+const dcaReinvest = ref(true)
 const qqqConcentration = computed(() => calculateHoldingConcentration(qqqTopHoldings))
 const comparison = computed(() => compareIndexProfiles(qqqProfile, sp500Profile))
 const visibleMilestones = computed(() =>
@@ -34,11 +44,39 @@ const activeHoldings = computed(() =>
   activeIndex.value === 'qqq' ? qqqTopHoldings : sp500TopHoldings,
 )
 const activeSectors = computed(() => (activeIndex.value === 'qqq' ? qqqSectors : sp500Sectors))
+const selectedResearchProduct = computed(() =>
+  usIndexResearch.products.find((product) => product.id === dcaProduct.value),
+)
+const selectedMarketSeries = computed(() =>
+  usIndexResearch.marketSeries.find((series) => series.symbol === selectedResearchProduct.value?.ticker),
+)
+const dcaResult = computed(() => {
+  try {
+    if (!selectedResearchProduct.value || !selectedMarketSeries.value) return null
+    return simulateIndexDca({
+      symbol: selectedResearchProduct.value.ticker,
+      startDate: dcaStartDate.value,
+      endDate: dcaEndDate.value,
+      contributionAmount: dcaAmount.value,
+      frequency: 'monthly',
+      dayOfMonth: dcaDay.value,
+      executionRule: dcaExecution.value,
+      purchasePrice: dcaPrice.value,
+      reinvestDividends: dcaReinvest.value,
+      annualExpenseRatioPct: selectedResearchProduct.value.feePct,
+      prices: selectedMarketSeries.value.prices,
+    })
+  } catch {
+    return null
+  }
+})
 
 const sections: Array<{ id: PageSection; label: string }> = [
   { id: 'compare', label: '核心对比' },
   { id: 'history', label: '历史转折' },
   { id: 'holdings', label: '成分拆解' },
+  { id: 'leaders', label: '每期龙头' },
+  { id: 'dca', label: '定投计算器' },
   { id: 'methodology', label: '规则与口径' },
 ]
 const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '方法调整']
@@ -336,6 +374,58 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
           </p>
         </section>
       </div>
+    </section>
+
+    <section v-else-if="activeSection === 'leaders'" class="section-stack">
+      <div class="section-intro">
+        <div><small>LEADER FOLLOWING</small><h2>每期重仓龙头跟踪</h2></div>
+        <p>默认比较 Top 5 等权组合与对应 ETF 总回报；名单只使用当期已发布并归档的官方快照。</p>
+      </div>
+      <article class="panel pending-panel">
+        <span>PROSPECTIVE TRACKING</span>
+        <h2>尚不足以判断“跟买龙头”是否跑赢指数</h2>
+        <p>
+          当前已建立自动归档入口，但可复演的历史快照为
+          <b>{{ usIndexResearch.leaderSnapshots.length }}</b> 期。至少需要两个连续快照才能形成一个完整持有期；
+          系统不会用今天的成分名单回填过去，以避免前视偏差和幸存者偏差。
+        </p>
+        <div class="research-rules">
+          <b>未来每期输出</b><span>Top 1 / 3 / 5 / 10</span><span>等权 / 官方权重</span
+          ><span>月末 / 季末</span><span>含息总回报</span><span>超额收益与胜出期比例</span>
+        </div>
+      </article>
+      <article class="definition-note">
+        <b>判定规则</b>
+        <p>快照公开后的下一共同交易日成交，持有到下一期；龙头与 QQQ/SPY 使用相同现金流、成交价和分红规则。数据不完整的周期标记不可用，不给出方向性结论。</p>
+      </article>
+    </section>
+
+    <section v-else-if="activeSection === 'dca'" class="section-stack">
+      <div class="section-intro">
+        <div><small>DOLLAR-COST AVERAGING</small><h2>QQQ / SPY 定投计算器</h2></div>
+        <p>标普500使用可交易的 SPY 作为代理；计算基于实际 ETF 原始价格、现金分红与拆股事件。</p>
+      </div>
+      <div class="calculator-layout">
+        <form class="panel calculator-form" @submit.prevent>
+          <label>产品<select v-model="dcaProduct"><option value="qqq">QQQ · Nasdaq-100</option><option value="spy">SPY · S&amp;P 500</option></select></label>
+          <label>开始日期<input v-model="dcaStartDate" type="date" /></label>
+          <label>结束日期<input v-model="dcaEndDate" type="date" /></label>
+          <label>每月投入（USD）<input v-model.number="dcaAmount" type="number" min="1" step="1" /></label>
+          <label>每月日期<input v-model.number="dcaDay" type="number" min="1" max="31" /></label>
+          <label>非交易日<select v-model="dcaExecution"><option value="next-trading-day">顺延下一交易日</option><option value="previous-trading-day">前移上一交易日</option></select></label>
+          <label>成交价<select v-model="dcaPrice"><option value="close">收盘价</option><option value="open">开盘价</option></select></label>
+          <label class="check"><input v-model="dcaReinvest" type="checkbox" /> 分红再投资</label>
+        </form>
+        <section class="panel results-panel">
+          <template v-if="dcaResult">
+            <div class="result-hero"><small>期末资产</small><strong>${{ dcaResult.endingValue.toLocaleString() }}</strong><span :class="{ positive: dcaResult.gain >= 0 }">{{ dcaResult.gain >= 0 ? '+' : '' }}${{ dcaResult.gain.toLocaleString() }} · {{ dcaResult.totalReturnPct }}%</span></div>
+            <dl><div><dt>总投入</dt><dd>${{ dcaResult.totalContributed.toLocaleString() }}</dd></div><div><dt>执行次数</dt><dd>{{ dcaResult.purchases.length }}</dd></div><div><dt>累计份额</dt><dd>{{ dcaResult.shares }}</dd></div><div><dt>{{ dcaReinvest ? '再投资分红' : '现金分红' }}</dt><dd>${{ (dcaReinvest ? dcaResult.reinvestedDividends : dcaResult.cashDividends).toLocaleString() }}</dd></div><div><dt>年费率</dt><dd>{{ dcaResult.annualExpenseRatioPct }}%</dd></div><div><dt>估算已内含费用</dt><dd>≈ ${{ dcaResult.estimatedEmbeddedExpense.toLocaleString() }}</dd></div></dl>
+          </template>
+          <p v-else class="invalid-result">所选日期或金额无法计算，请检查输入范围。</p>
+        </section>
+      </div>
+      <article class="definition-note"><b>费用口径</b><p>QQQ/SPY 的真实价格已经反映基金日常管理费，结果不会再次扣除。估算费用只用于理解成本量级；税、佣金、汇率、买卖价差和滑点暂未计入。</p></article>
+      <p class="data-stamp">行情更新：{{ usIndexResearch.generatedAt.slice(0, 10) }} · 数据源 Yahoo Finance（非官方）· 自动任务失败时保留上一份有效快照</p>
     </section>
 
     <section v-else class="section-stack methodology">
@@ -934,12 +1024,133 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   margin: 0 0 4px;
   font-size: 15px;
 }
+.pending-panel span,
+.data-stamp {
+  color: var(--muted);
+  font-size: 9px;
+}
+.pending-panel h2 {
+  margin: 10px 0;
+  font-size: 22px;
+}
+.pending-panel p {
+  max-width: 820px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+}
+.research-rules {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.research-rules b,
+.research-rules span {
+  padding: 7px 10px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+  font-size: 9px;
+}
+.research-rules b {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.calculator-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.72fr) minmax(0, 1.28fr);
+  gap: 22px;
+}
+.calculator-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.calculator-form label {
+  color: var(--muted);
+  font-size: 9px;
+}
+.calculator-form input,
+.calculator-form select {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  box-sizing: border-box;
+}
+.calculator-form .check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.calculator-form .check input {
+  width: auto;
+  margin: 0;
+}
+.result-hero {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.result-hero small,
+.result-hero strong,
+.result-hero span {
+  display: block;
+}
+.result-hero small {
+  color: var(--muted);
+  font-size: 9px;
+}
+.result-hero strong {
+  margin: 8px 0;
+  font: 700 36px Georgia, serif;
+}
+.result-hero span {
+  color: #b05050;
+  font-size: 11px;
+}
+.result-hero span.positive {
+  color: #26865c;
+}
+.results-panel dl {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.results-panel dl div {
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+.results-panel dt,
+.results-panel dd {
+  margin: 0;
+}
+.results-panel dt {
+  color: var(--muted);
+  font-size: 8px;
+}
+.results-panel dd {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.invalid-result {
+  color: var(--muted);
+  font-size: 11px;
+}
+.data-stamp {
+  margin: -8px 0 0;
+}
 @media (max-width: 1000px) {
   .hero {
     grid-template-columns: 1fr;
   }
   .profile-grid,
-  .holdings-layout {
+  .holdings-layout,
+  .calculator-layout {
     grid-template-columns: 1fr;
   }
 }
@@ -954,6 +1165,10 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   .profile-grid,
   .concentration-grid,
   .method-grid {
+    grid-template-columns: 1fr;
+  }
+  .calculator-form,
+  .results-panel dl {
     grid-template-columns: 1fr;
   }
   .section-nav {
