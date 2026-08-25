@@ -11,6 +11,8 @@ const yahooFinance = new YahooFinance({ queue: { concurrency: 2, interval: 300 }
 const products = [
   { id: 'qqq', ticker: 'QQQ', index: 'Nasdaq-100', inception: '1999-03-10', feePct: 0.18 },
   { id: 'spy', ticker: 'SPY', index: 'S&P 500', inception: '1993-01-29', feePct: 0.0945 },
+  { id: 'gld', ticker: 'GLD', index: 'LBMA Gold Price PM', inception: '2004-11-18', feePct: 0.4 },
+  { id: 'btc', ticker: 'BTC-USD', index: 'Bitcoin spot reference', inception: '2014-09-17', feePct: 0 },
 ]
 
 const isoDate = (value) => new Date(value).toISOString().slice(0, 10)

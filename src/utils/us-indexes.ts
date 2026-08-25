@@ -40,6 +40,11 @@ export interface LeaderPeriodInput {
   benchmarkTotalReturnPct: number
 }
 
+export interface PerformanceSeriesInput {
+  id: string
+  points: Array<{ date: string; close: number }>
+}
+
 export const calculateHoldingConcentration = <T extends WeightedHolding>(
   holdings: T[],
   limit = 10,
@@ -69,6 +74,68 @@ export const compareIndexProfiles = (
   constituentCountDifference: left.constituentCount - right.constituentCount,
   sameProductType: left.productType === right.productType,
 })
+
+export const normalizePerformanceSeries = (
+  inputs: PerformanceSeriesInput[],
+  startDate: string,
+  endDate: string,
+  sampling: 'daily' | 'monthly' = 'daily',
+) => {
+  if (!validDate(startDate) || !validDate(endDate) || startDate > endDate || !inputs.length) {
+    throw new Error('收益率图参数无效')
+  }
+  const cleaned = inputs.map((input) => ({
+    id: input.id,
+    points: input.points
+      .filter(
+        (point) =>
+          validDate(point.date) &&
+          point.date >= startDate &&
+          point.date <= endDate &&
+          Number.isFinite(point.close) &&
+          point.close > 0,
+      )
+      .sort((left, right) => left.date.localeCompare(right.date)),
+  }))
+  if (cleaned.some((input) => !input.points.length)) throw new Error('收益率图区间缺少行情')
+  if (sampling === 'monthly') {
+    const monthly = cleaned.map((input) => {
+      const points = new Map<string, { date: string; close: number }>()
+      input.points.forEach((point) => points.set(point.date.slice(0, 7), point))
+      return { id: input.id, points }
+    })
+    const months = [...monthly[0]!.points.keys()].filter((month) =>
+      monthly.every((input) => input.points.has(month)),
+    )
+    if (!months.length) throw new Error('收益率图区间没有共同月份')
+    return {
+      dates: months,
+      series: monthly.map((input) => {
+        const base = input.points.get(months[0]!)!.close
+        return {
+          id: input.id,
+          values: months.map((month) => round((input.points.get(month)!.close / base) * 100)),
+        }
+      }),
+    }
+  }
+  const dates = [...new Set(cleaned.flatMap((input) => input.points.map((point) => point.date)))].sort()
+  return {
+    dates,
+    series: cleaned.map((input) => {
+      const byDate = new Map(input.points.map((point) => [point.date, point.close]))
+      const base = input.points[0]!.close
+      let latest = base
+      return {
+        id: input.id,
+        values: dates.map((date) => {
+          latest = byDate.get(date) ?? latest
+          return round((latest / base) * 100)
+        }),
+      }
+    }),
+  }
+}
 
 const round = (value: number, digits = 2) => Number(value.toFixed(digits))
 

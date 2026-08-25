@@ -9,6 +9,7 @@ const {
   calculateHoldingConcentration,
   compareIndexProfiles,
   compareLeaderPeriods,
+  normalizePerformanceSeries,
   simulateIndexDca,
 } = jiti('../src/utils/us-indexes.ts')
 
@@ -139,4 +140,19 @@ test('定投支持前移交易日、开盘价和拆股且拆股本身不制造�
   assert.equal(result.shares, 4)
   assert.equal(result.endingValue, 200)
   assert.equal(result.totalReturnPct, 0)
+})
+
+test('四资产收益曲线从共同起点归一到100并在休市日延续上一收盘值', () => {
+  const result = normalizePerformanceSeries(
+    [
+      { id: 'ETF', points: [{ date: '2026-01-02', close: 10 }, { date: '2026-01-05', close: 11 }] },
+      { id: 'BTC', points: [{ date: '2026-01-02', close: 20 }, { date: '2026-01-03', close: 22 }, { date: '2026-01-05', close: 18 }] },
+    ],
+    '2026-01-02',
+    '2026-01-05',
+  )
+
+  assert.deepEqual(result.dates, ['2026-01-02', '2026-01-03', '2026-01-05'])
+  assert.deepEqual(result.series[0], { id: 'ETF', values: [100, 100, 110] })
+  assert.deepEqual(result.series[1], { id: 'BTC', values: [100, 110, 90] })
 })

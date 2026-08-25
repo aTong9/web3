@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import type { EChartsCoreOption } from 'echarts/core'
 import { computed, ref } from 'vue'
+import EChart from '@/components/EChart.vue'
 import usIndexResearch from '@/data/us-index-research.json'
 import {
   qqqProfile,
@@ -13,15 +15,20 @@ import {
   type UsIndexId,
   type UsIndexMilestoneKind,
 } from '@/data/us-indexes'
-import { calculateHoldingConcentration, compareIndexProfiles, simulateIndexDca } from '@/utils/us-indexes'
+import {
+  calculateHoldingConcentration,
+  compareIndexProfiles,
+  normalizePerformanceSeries,
+  simulateIndexDca,
+} from '@/utils/us-indexes'
 
-type PageSection = 'compare' | 'history' | 'holdings' | 'leaders' | 'dca' | 'methodology'
+type PageSection = 'compare' | 'history' | 'holdings' | 'performance' | 'leaders' | 'dca' | 'methodology'
 type TimelineFilter = '全部' | UsIndexMilestoneKind
 
 const activeSection = ref<PageSection>('compare')
 const activeIndex = ref<UsIndexId>('qqq')
 const timelineFilter = ref<TimelineFilter>('全部')
-const dcaProduct = ref<'qqq' | 'spy'>('qqq')
+const dcaProduct = ref<'qqq' | 'spy' | 'gld' | 'btc'>('qqq')
 const dcaStartDate = ref('2020-01-01')
 const initialPriceSeries = usIndexResearch.marketSeries[0]?.prices ?? []
 const dcaEndDate = ref(initialPriceSeries[initialPriceSeries.length - 1]?.date ?? '2026-08-24')
@@ -30,6 +37,8 @@ const dcaDay = ref(1)
 const dcaExecution = ref<'next-trading-day' | 'previous-trading-day'>('next-trading-day')
 const dcaPrice = ref<'open' | 'close'>('close')
 const dcaReinvest = ref(true)
+const performanceStartDate = ref('2020-01-01')
+const performanceEndDate = ref(initialPriceSeries[initialPriceSeries.length - 1]?.date ?? '2026-08-24')
 const qqqConcentration = computed(() => calculateHoldingConcentration(qqqTopHoldings))
 const comparison = computed(() => compareIndexProfiles(qqqProfile, sp500Profile))
 const visibleMilestones = computed(() =>
@@ -70,11 +79,43 @@ const dcaResult = computed(() => {
     return null
   }
 })
+const performance = computed(() =>
+  normalizePerformanceSeries(
+    usIndexResearch.marketSeries.map((series) => ({
+      id: series.symbol,
+      points: series.prices.map((point) => ({
+        date: point.date,
+        close: point.adjClose ?? point.close,
+      })),
+    })),
+    performanceStartDate.value,
+    performanceEndDate.value,
+    'monthly',
+  ),
+)
+const performanceOption = computed<EChartsCoreOption>(() => ({
+  animation: false,
+  color: ['#7357d8', '#3b82b8', '#d29b35', '#d76b41'],
+  tooltip: { trigger: 'axis', valueFormatter: (value: unknown) => `${Number(value).toFixed(1)}` },
+  legend: { top: 0, textStyle: { color: '#7c8798' } },
+  grid: { left: 54, right: 24, top: 48, bottom: 58 },
+  xAxis: { type: 'category', data: performance.value.dates, axisLabel: { hideOverlap: true } },
+  yAxis: { type: 'value', name: '起点 = 100', scale: true },
+  dataZoom: [{ type: 'inside' }, { type: 'slider', height: 18, bottom: 12 }],
+  series: performance.value.series.map((series) => ({
+    name: series.id === 'SPY' ? 'S&P 500（SPY）' : series.id === 'GLD' ? '黄金（GLD）' : series.id === 'BTC-USD' ? '比特币' : 'QQQ',
+    type: 'line',
+    showSymbol: false,
+    sampling: 'lttb',
+    data: series.values,
+  })),
+}))
 
 const sections: Array<{ id: PageSection; label: string }> = [
   { id: 'compare', label: '核心对比' },
   { id: 'history', label: '历史转折' },
   { id: 'holdings', label: '成分拆解' },
+  { id: 'performance', label: '四资产收益' },
   { id: 'leaders', label: '每期龙头' },
   { id: 'dca', label: '定投计算器' },
   { id: 'methodology', label: '规则与口径' },
@@ -376,6 +417,26 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
       </div>
     </section>
 
+    <section v-else-if="activeSection === 'performance'" class="section-stack">
+      <div class="section-intro">
+        <div><small>NORMALIZED RETURN</small><h2>四类核心资产收益对比</h2></div>
+        <p>QQQ、SPY、GLD 使用复权收盘价，比特币使用美元现货参考价；按自然月末取样并统一为 100。</p>
+      </div>
+      <div class="performance-controls">
+        <label>开始日期<input v-model="performanceStartDate" type="date" min="2014-09-17" /></label>
+        <label>结束日期<input v-model="performanceEndDate" type="date" /></label>
+        <button @click="performanceStartDate = '2020-01-01'">2020 至今</button>
+        <button @click="performanceStartDate = '2024-01-01'">近年</button>
+      </div>
+      <section class="panel performance-panel">
+        <EChart :option="performanceOption" label="QQQ、标普500、黄金和比特币归一化收益率图" />
+      </section>
+      <article class="definition-note">
+        <b>比较口径</b>
+        <p>图中 120 表示相对共同起点累计上涨 20%。ETF 采用复权价格近似含分红总回报；比特币没有现金分红。每项资产取各自然月最后一个有效报价，避免把 BTC 周末波动与 ETF 休市旧价格当作同步变化。</p>
+      </article>
+    </section>
+
     <section v-else-if="activeSection === 'leaders'" class="section-stack">
       <div class="section-intro">
         <div><small>LEADER FOLLOWING</small><h2>每期重仓龙头跟踪</h2></div>
@@ -402,12 +463,12 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
 
     <section v-else-if="activeSection === 'dca'" class="section-stack">
       <div class="section-intro">
-        <div><small>DOLLAR-COST AVERAGING</small><h2>QQQ / SPY 定投计算器</h2></div>
-        <p>标普500使用可交易的 SPY 作为代理；计算基于实际 ETF 原始价格、现金分红与拆股事件。</p>
+        <div><small>DOLLAR-COST AVERAGING</small><h2>四资产定投计算器</h2></div>
+        <p>标普500和黄金分别使用 SPY、GLD 代理，比特币使用 BTC-USD 参考现货；ETF 计算包含现金分红与拆股事件。</p>
       </div>
       <div class="calculator-layout">
         <form class="panel calculator-form" @submit.prevent>
-          <label>产品<select v-model="dcaProduct"><option value="qqq">QQQ · Nasdaq-100</option><option value="spy">SPY · S&amp;P 500</option></select></label>
+          <label>产品<select v-model="dcaProduct"><option value="qqq">QQQ · Nasdaq-100</option><option value="spy">SPY · S&amp;P 500</option><option value="gld">GLD · 黄金</option><option value="btc">BTC-USD · 比特币</option></select></label>
           <label>开始日期<input v-model="dcaStartDate" type="date" /></label>
           <label>结束日期<input v-model="dcaEndDate" type="date" /></label>
           <label>每月投入（USD）<input v-model.number="dcaAmount" type="number" min="1" step="1" /></label>
@@ -424,7 +485,7 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
           <p v-else class="invalid-result">所选日期或金额无法计算，请检查输入范围。</p>
         </section>
       </div>
-      <article class="definition-note"><b>费用口径</b><p>QQQ/SPY 的真实价格已经反映基金日常管理费，结果不会再次扣除。估算费用只用于理解成本量级；税、佣金、汇率、买卖价差和滑点暂未计入。</p></article>
+      <article class="definition-note"><b>费用口径</b><p>QQQ、SPY 和 GLD 的真实价格已经反映基金日常费用，结果不会再次扣除；BTC-USD 不是基金，年费率记为 0。估算费用只用于理解成本量级；税、佣金、托管费、汇率、买卖价差和滑点暂未计入。</p></article>
       <p class="data-stamp">行情更新：{{ usIndexResearch.generatedAt.slice(0, 10) }} · 数据源 Yahoo Finance（非官方）· 自动任务失败时保留上一份有效快照</p>
     </section>
 
@@ -1144,6 +1205,36 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
 .data-stamp {
   margin: -8px 0 0;
 }
+.performance-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+}
+.performance-controls label {
+  color: var(--muted);
+  font-size: 9px;
+}
+.performance-controls input,
+.performance-controls button {
+  margin-top: 5px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.performance-controls label input {
+  display: block;
+}
+.performance-controls button {
+  cursor: pointer;
+  color: var(--accent);
+}
+.performance-panel {
+  height: 470px;
+  padding: 16px;
+}
 @media (max-width: 1000px) {
   .hero {
     grid-template-columns: 1fr;
@@ -1170,6 +1261,10 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   .calculator-form,
   .results-panel dl {
     grid-template-columns: 1fr;
+  }
+  .performance-panel {
+    height: 390px;
+    padding: 8px;
   }
   .section-nav {
     width: 100%;

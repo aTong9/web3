@@ -22,7 +22,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --ignore-scripts
-      - name: Refresh QQQ and SPY prices, dividends and splits
+      - name: Refresh QQQ, SPY, GLD and Bitcoin market histories
         run: npm run update:us-indexes
       - name: Validate research calculations
         run: npm run test:trading
