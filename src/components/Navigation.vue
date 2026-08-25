@@ -52,6 +52,12 @@ const selectTerm = (term: NavTerm | null) => {
   activeTerm.value = term?.term ?? ACTIVE_ALL_TERM
 }
 
+const resetFilters = () => {
+  query.value = ''
+  activeTerm.value = ACTIVE_ALL_TERM
+  favoritesOnly.value = false
+}
+
 const getHost = (url: string) => {
   try {
     return new URL(url).hostname.replace(/^www\./, '')
@@ -80,22 +86,24 @@ watch(
 
 <template>
   <section class="workspace">
-    <aside class="sidebar">
+    <nav class="sidebar" :aria-label="t('ui.navigation.resourceView')">
       <div class="sidebar-heading">
         <span>{{ t('ui.navigation.resourceView') }}</span>
         <small>{{ t('ui.navigation.allSites', { count: linkCount }) }}</small>
       </div>
 
-        <button
-          :class="{ active: activeTerm === ACTIVE_ALL_TERM }"
-          @click="selectTerm(null)"
-        >
-          <span>{{ t('ui.navigation.allResources') }}</span><em>{{ linkCount }}</em>
-        </button>
+      <button
+        :class="{ active: activeTerm === ACTIVE_ALL_TERM }"
+        :aria-pressed="activeTerm === ACTIVE_ALL_TERM"
+        @click="selectTerm(null)"
+      >
+        <span>{{ t('ui.navigation.allResources') }}</span><em>{{ linkCount }}</em>
+      </button>
       <button
         v-for="term in terms"
         :key="term.term"
         :class="{ active: activeTerm === term.term }"
+        :aria-pressed="activeTerm === term.term"
         @click="selectTerm(term)"
       >
         <span>{{ term.term }}</span
@@ -106,7 +114,7 @@ watch(
         <strong>{{ t('ui.navigation.tipTitle') }}</strong>
         <p>{{ t('ui.navigation.tipText') }}</p>
       </div>
-    </aside>
+    </nav>
 
     <div class="content">
       <div class="toolbar">
@@ -125,7 +133,7 @@ watch(
         </button>
       </div>
 
-      <div class="result-meta">
+      <div class="result-meta" role="status" aria-live="polite">
         <span>{{ activeTerm === ACTIVE_ALL_TERM ? t('ui.navigation.all') : activeTerm }}</span>
         <span>{{ t('ui.navigation.resultCount', { count: resultCount }) }}</span>
       </div>
@@ -163,6 +171,7 @@ watch(
       <div v-else class="empty-state">
         <strong>{{ t('ui.navigation.noMatch') }}</strong>
         <p>{{ t('ui.navigation.noMatchTips') }}</p>
+        <button type="button" @click="resetFilters">清除筛选</button>
       </div>
     </div>
   </section>
@@ -424,13 +433,25 @@ watch(
   color: var(--ink);
 }
 
+.empty-state button {
+  min-height: var(--control-height);
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+
 @media (max-width: 760px) {
   .workspace {
     display: block;
+    min-height: 0;
   }
 
   .sidebar {
-    padding: 14px 18px;
+    margin: 0 calc(var(--page-gutter) * -1);
+    padding: 10px var(--page-gutter);
     border-right: 0;
     border-bottom: 1px solid var(--border);
     display: flex;
@@ -450,7 +471,7 @@ watch(
   }
 
   .content {
-    padding-top: 20px;
+    padding: 20px 0 0;
   }
 
   .toolbar {
@@ -459,7 +480,7 @@ watch(
   }
 
   .favorite-filter {
-    height: 40px;
+    min-height: var(--control-height);
   }
 
   .link-row > a {

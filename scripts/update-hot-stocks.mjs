@@ -1,6 +1,7 @@
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { writeJsonAtomic } from './lib/write-json-atomic.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const outputPath = resolve(root, 'src/data/hot-stocks.json')
@@ -152,5 +153,5 @@ const output = {
     us: resolveMarket(usResult, 'us'),
   },
 }
-await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`)
+await writeJsonAtomic(outputPath, output)
 process.stdout.write(`wrote A-share ${output.markets.aShare.daily.length}/${output.markets.aShare.weekly.length}, US ${output.markets.us.daily.length}/${output.markets.us.weekly.length}\n`)

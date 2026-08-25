@@ -8,6 +8,7 @@ import type {
   UserRole,
 } from '@/types'
 import PermissionGate from '@/components/PermissionGate.vue'
+import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
 import { adminApi } from '@/utils/admin-api'
 import { useI18n } from '@/composables/use-i18n'
 import {
@@ -129,11 +130,12 @@ onMounted(load)
 </script>
 <template>
   <main class="admin-page">
-    <header>
-      <span>{{ t('admin.badge') }}</span>
-      <h1>{{ t('admin.title') }}</h1>
-      <p>{{ t('admin.intro') }}</p>
-    </header>
+    <ResearchPageHeader
+      :eyebrow="t('admin.badge')"
+      :title="t('admin.title')"
+      :description="t('admin.intro')"
+      variant="plain"
+    />
     <p v-if="message" class="notice">{{ message }}</p>
     <PermissionGate permission="users.manage">
       <section class="card">
@@ -309,9 +311,9 @@ onMounted(load)
 </template>
 <style scoped>
 .admin-page {
-  max-width: 1100px;
+  max-width: var(--content-standard);
   margin: auto;
-  padding: clamp(24px, 4vw, 48px);
+  padding: var(--space-section) var(--page-gutter) 80px;
 }
 header span {
   color: var(--accent);

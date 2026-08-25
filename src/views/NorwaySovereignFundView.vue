@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import AsyncDataState from '@/components/AsyncDataState.vue'
+import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
+import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
+import TaskTabs from '@/components/research/TaskTabs.vue'
 import {
-  norwayFundAssetAllocation,
-  norwayFundEquityRegions,
-  norwayFundEquitySectors,
-  norwayFundFixedIncome,
   norwayFundMilestones,
   norwayFundSources,
-  norwayFundSummary,
-  norwayFundTopHoldings,
   type NorwayFundMilestoneKind,
+  type NorwayFundSnapshot,
 } from '@/data/norway-sovereign-fund'
 import { buildAllocationBreakdown, getTurningPoints } from '@/utils/norway-sovereign-fund'
 
@@ -18,7 +17,19 @@ type TimelineFilter = '全部' | '仅转折点' | NorwayFundMilestoneKind
 
 const activeSection = ref<PageSection>('overview')
 const timelineFilter = ref<TimelineFilter>('仅转折点')
-const allocation = computed(() => buildAllocationBreakdown(norwayFundAssetAllocation))
+const snapshot = ref<NorwayFundSnapshot | null>(null)
+const snapshotLoading = ref(true)
+const snapshotError = ref(false)
+const norwayFundSummary = computed(() => snapshot.value?.summary)
+const equityRegionsReported = computed(
+  () => snapshot.value?.availability.equityRegions === 'reported',
+)
+const norwayFundAssetAllocation = computed(() => snapshot.value?.assetAllocation ?? [])
+const norwayFundEquityRegions = computed(() => snapshot.value?.equityRegions ?? [])
+const norwayFundEquitySectors = computed(() => snapshot.value?.equitySectors ?? [])
+const norwayFundFixedIncome = computed(() => snapshot.value?.fixedIncome ?? [])
+const norwayFundTopHoldings = computed(() => snapshot.value?.topHoldings ?? [])
+const allocation = computed(() => buildAllocationBreakdown(norwayFundAssetAllocation.value))
 const turningPoints = computed(() => getTurningPoints(norwayFundMilestones))
 const visibleMilestones = computed(() => {
   if (timelineFilter.value === '全部') return norwayFundMilestones
@@ -43,57 +54,90 @@ const timelineFilters: TimelineFilter[] = [
 ]
 
 const formatNok = (value: number) => `${value.toLocaleString('zh-CN')} 十亿 NOK`
-const formatSigned = (value: number, suffix = '%') =>
-  `${value > 0 ? '+' : ''}${value.toFixed(1)}${suffix}`
+const formatSigned = (value: number, suffix = '%', digits = 1) =>
+  `${value > 0 ? '+' : ''}${value.toFixed(digits)}${suffix}`
+const setSection = (section: string) => {
+  activeSection.value = section as PageSection
+}
+const loadSnapshot = async () => {
+  snapshotLoading.value = true
+  snapshotError.value = false
+  try {
+    const module = await import('@/data/norway-fund-snapshot.json')
+    snapshot.value = module.default as NorwayFundSnapshot
+  } catch (error) {
+    snapshotError.value = true
+    console.warn('Norway sovereign-fund snapshot failed to load:', error)
+  } finally {
+    snapshotLoading.value = false
+  }
+}
+onMounted(loadSnapshot)
 </script>
 
 <template>
   <main class="norway-fund-page">
-    <header class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">GOVERNMENT PENSION FUND GLOBAL · GPFG</p>
-        <h1>挪威主权基金</h1>
-        <p class="lead">
-          它的核心不是某一只明星股票，而是把资源收入、财政纪律、全球分散和跨世代治理组合成一套长期制度。
-        </p>
+    <ResearchPageHeader
+      eyebrow="GOVERNMENT PENSION FUND GLOBAL · GPFG"
+      title="挪威主权基金"
+      description="把资源收入、财政纪律、全球分散和跨世代治理组合成一套长期制度。"
+    >
+      <template #meta>
         <div class="hero-meta">
-          <span>数据截至 {{ norwayFundSummary.asOfDate }}</span>
-          <span>官方发布 {{ norwayFundSummary.publishedDate }}</span>
-          <a :href="norwayFundSources.halfYear" target="_blank" rel="noopener noreferrer">
-            NBIM 半年报 ↗
+          <span>数据截至 {{ norwayFundSummary?.asOfDate ?? '—' }}</span>
+          <span>官方发布 {{ norwayFundSummary?.publishedDate ?? '—' }}</span>
+          <a :href="snapshot?.sources.report ?? norwayFundSources.halfYear" target="_blank" rel="noopener noreferrer">
+            NBIM 最新报告 ↗
           </a>
         </div>
-      </div>
-      <div class="hero-value">
+      </template>
+      <template #status><div class="hero-value">
         <small>基金价值</small>
-        <strong>22.683</strong>
+        <strong>{{ norwayFundSummary ? (norwayFundSummary.valueBillionNok / 1000).toFixed(3) : '—' }}</strong>
         <span>万亿挪威克朗</span>
-        <p>2026 上半年回报 {{ formatSigned(norwayFundSummary.halfYearReturnPct) }}</p>
-      </div>
-    </header>
+        <p>{{ norwayFundSummary?.periodLabel ?? '最新报告期' }}回报 {{ formatSigned(norwayFundSummary?.periodReturnPct ?? 0) }}</p>
+      </div></template>
+    </ResearchPageHeader>
 
-    <nav class="section-nav" aria-label="挪威主权基金研究章节">
-      <button
-        v-for="section in sections"
-        :key="section.id"
-        :class="{ active: activeSection === section.id }"
-        @click="activeSection = section.id"
-      >
-        {{ section.label }}
-      </button>
-    </nav>
+    <AsyncDataState
+      :loading="snapshotLoading"
+      :error="snapshotError"
+      loading-label="正在载入 NBIM 官方基金快照…"
+      error-message="挪威主权基金快照暂时无法载入；页面不会用不完整数据生成持仓结论。"
+      retry-label="重新载入"
+      @retry="loadSnapshot"
+    />
+
+    <template v-if="snapshot">
+      <DataUpdateStatus
+        class="snapshot-status"
+        :updated-at="snapshot.updatedAt"
+        schedule="norwayFund"
+        :as-of-date="snapshot.summary.asOfDate"
+        source-label="NBIM 官方报告与持仓接口"
+        :source-url="snapshot.sources.report"
+        quality="complete"
+      />
+
+    <TaskTabs
+      class="section-nav"
+      :model-value="activeSection"
+      :items="sections"
+      label="挪威主权基金研究章节"
+      @update:model-value="setSection"
+    />
 
     <section v-if="activeSection === 'overview'" class="section-stack">
       <div class="metric-grid">
         <article>
-          <small>投资回报</small><strong>+1,753</strong><span>十亿 NOK · +9.4%</span>
+          <small>投资回报</small><strong>{{ formatSigned(norwayFundSummary?.periodReturnBillionNok ?? 0, '', 0) }}</strong><span>十亿 NOK · {{ formatSigned(norwayFundSummary?.periodReturnPct ?? 0) }}</span>
         </article>
         <article>
-          <small>相对基准</small><strong>+0.22</strong><span>个百分点 · 约 +45 十亿</span>
+          <small>相对基准</small><strong>{{ formatSigned(norwayFundSummary?.relativeReturnPctPoints ?? 0, '', 2) }}</strong><span>个百分点</span>
         </article>
-        <article><small>扣除成本后净流入</small><strong>+89</strong><span>十亿 NOK</span></article>
+        <article><small>扣除成本后净流入</small><strong>{{ formatSigned(norwayFundSummary?.netInflowBillionNok ?? 0, '', 0) }}</strong><span>十亿 NOK</span></article>
         <article class="negative">
-          <small>NOK 汇率换算</small><strong>-427</strong><span>十亿 NOK · 不是投资亏损</span>
+          <small>NOK 汇率换算</small><strong>{{ formatSigned(norwayFundSummary?.currencyEffectBillionNok ?? 0, '', 0) }}</strong><span>十亿 NOK · 不是投资亏损</span>
         </article>
       </div>
 
@@ -101,7 +145,7 @@ const formatSigned = (value: number, suffix = '%') =>
         <span>核心判断</span>
         <p>
           70% 战略股票比例决定了基金以股票风险为主。最新实际股票占比为
-          72.08%，股票内部又显著集中于美国与科技行业；非上市资产规模较小，但估值不确定性更高。
+          {{ norwayFundAssetAllocation.find((item) => item.id === 'equity')?.weightPct.toFixed(1) }}%，股票内部又显著集中于北美与科技行业；非上市资产规模较小，但估值不确定性更高。
         </p>
       </article>
 
@@ -122,7 +166,7 @@ const formatSigned = (value: number, suffix = '%') =>
             <div class="bar"><i :style="{ width: `${item.weightPct}%` }"></i></div>
             <div class="allocation-meta">
               <span>{{ formatNok(item.valueBillionNok) }}</span>
-              <span>半年回报 {{ formatSigned(item.returnPct) }}</span>
+              <span>本期回报 {{ formatSigned(item.returnPct) }}</span>
             </div>
           </article>
         </div>
@@ -204,7 +248,7 @@ const formatSigned = (value: number, suffix = '%') =>
     <section v-else-if="activeSection === 'holdings'" class="section-stack">
       <div class="section-intro">
         <div>
-          <small>SNAPSHOT · 2026-06-30</small>
+          <small>SNAPSHOT · {{ norwayFundSummary?.asOfDate }}</small>
           <h2>持仓不是一张“抄作业”清单</h2>
         </div>
         <p>以下均为期末市值快照。权重变化可能来自交易、价格、汇率、指数调整和公司行动。</p>
@@ -220,10 +264,10 @@ const formatSigned = (value: number, suffix = '%') =>
             <span>占股票组合</span>
           </div>
           <div class="mini-bars">
-            <div v-for="sector in norwayFundEquitySectors" :key="sector[0]">
-              <span>{{ sector[0] }}</span
-              ><i><b :style="{ width: `${sector[1] * 2.8}%` }"></b></i
-              ><strong>{{ sector[1] }}%</strong>
+            <div v-for="sector in norwayFundEquitySectors" :key="sector.label">
+              <span>{{ sector.label }}</span
+              ><i><b :style="{ width: `${sector.weightPct * 2.8}%` }"></b></i
+              ><strong>{{ sector.weightPct }}%</strong>
             </div>
           </div>
         </section>
@@ -235,13 +279,17 @@ const formatSigned = (value: number, suffix = '%') =>
             </div>
             <span>分类口径独立</span>
           </div>
-          <div class="region-grid">
-            <article v-for="region in norwayFundEquityRegions" :key="region[0]">
-              <strong>{{ region[1] }}%</strong><span>{{ region[0] }}</span>
+          <div v-if="equityRegionsReported" class="region-grid">
+            <article v-for="region in norwayFundEquityRegions" :key="region.label">
+              <strong>{{ region.weightPct }}%</strong><span>{{ region.label }}</span>
             </article>
           </div>
-          <p class="note">
-            国家口径中，美国股票暴露约 52.9%；地域表可能因现金与衍生品不合计为 100%。
+          <p v-if="equityRegionsReported" class="note">
+            地域表与国家表采用不同分类口径，并可能因现金与衍生品不合计为 100%。
+          </p>
+          <p v-else class="note">
+            本期官方报告未发布与半年报一致的四区域收益表，因此不展示推算数据；国家与全量持仓仍以
+            NBIM 官方持仓接口为准。
           </p>
         </section>
       </div>
@@ -283,7 +331,9 @@ const formatSigned = (value: number, suffix = '%') =>
           </table>
         </div>
         <p class="note">
-          期末市值排名不代表主动买入金额或“最看好”排序；前十中 8 家按 NBIM 口径归为科技。
+          期末市值排名不代表主动买入金额或“最看好”排序；前十中
+          {{ norwayFundTopHoldings.filter((item) => item.sector === '科技').length }} 家按 NBIM
+          口径归为科技。
         </p>
       </section>
 
@@ -297,15 +347,13 @@ const formatSigned = (value: number, suffix = '%') =>
             <span>占固收组合</span>
           </div>
           <div class="breakdown-rows">
-            <div v-for="item in norwayFundFixedIncome" :key="item[0]">
-              <span>{{ item[0] }}</span
-              ><strong>{{ item[1] }}%</strong><small>半年回报 {{ formatSigned(item[2]) }}</small>
+            <div v-for="item in norwayFundFixedIncome" :key="item.label">
+              <span>{{ item.label }}</span
+              ><strong>{{ item.weightPct }}%</strong
+              ><small>本期回报 {{ formatSigned(item.returnPct) }}</small>
             </div>
           </div>
-          <p class="note">
-            主要币种：美元 54.2%、欧元 27.2%、日元 5.1%、英镑 4.6%、加元
-            3.9%。分类含交叉口径，不保证简单加总为 100%。
-          </p>
+          <p class="note">分类可能包含现金和衍生工具调整，不保证简单加总为 100%。</p>
         </section>
         <section class="panel">
           <div class="panel-heading">
@@ -313,13 +361,45 @@ const formatSigned = (value: number, suffix = '%') =>
               <small>PRIVATE MARKETS</small>
               <h2>非上市资产</h2>
             </div>
-            <span>约占基金 2.1%</span>
+            <span>
+              约占基金
+              {{
+                (
+                  (norwayFundAssetAllocation.find((item) => item.id === 'real-estate')
+                    ?.weightPct ?? 0) +
+                  (norwayFundAssetAllocation.find((item) => item.id === 'renewable')
+                    ?.weightPct ?? 0)
+                ).toFixed(1)
+              }}%
+            </span>
           </div>
           <ul class="insight-list">
-            <li><b>房地产：</b>美国 45.2%、英国 23.4%、法国 16.7%，半年回报 3.0%。</li>
-            <li><b>可再生基础设施：</b>104.4 十亿 NOK，半年回报 -0.2%。</li>
-            <li><b>Level 3：</b>全基金约 457.3 十亿 NOK，依赖不可观察估值输入。</li>
-            <li><b>敏感性：</b>官方替代情景下，非上市房地产估值约 -6.4% 至 +7.0%。</li>
+            <li>
+              <b>房地产：</b>本期回报
+              {{
+                formatSigned(
+                  norwayFundAssetAllocation.find((item) => item.id === 'real-estate')
+                    ?.returnPct ?? 0,
+                )
+              }}。
+            </li>
+            <li>
+              <b>可再生基础设施：</b
+              >{{
+                formatNok(
+                  norwayFundAssetAllocation.find((item) => item.id === 'renewable')
+                    ?.valueBillionNok ?? 0,
+                )
+              }}，本期回报
+              {{
+                formatSigned(
+                  norwayFundAssetAllocation.find((item) => item.id === 'renewable')
+                    ?.returnPct ?? 0,
+                )
+              }}。
+            </li>
+            <li><b>Level 3：</b>非上市资产依赖不可观察估值输入，不等同于即时可成交价格。</li>
+            <li><b>敏感性：</b>估值会随折现率、资本化率和可比交易假设变化。</li>
           </ul>
         </section>
       </div>
@@ -338,7 +418,10 @@ const formatSigned = (value: number, suffix = '%') =>
           <b>01</b>
           <div>
             <h3>不是实时持仓</h3>
-            <p>最新快照截至 2026-06-30，于 2026-08-12 发布。所有榜单必须保留数据日期和发布日期。</p>
+            <p>
+              最新快照截至 {{ norwayFundSummary?.asOfDate }}，于
+              {{ norwayFundSummary?.publishedDate }} 发布。所有榜单必须保留数据日期和发布日期。
+            </p>
           </div>
         </article>
         <article>
@@ -346,8 +429,8 @@ const formatSigned = (value: number, suffix = '%') =>
           <div>
             <h3>规模不等于投资收益</h3>
             <p>
-              NOK 规模同时受到投资回报、国家净流入/提取和汇率换算影响。2026 上半年汇率影响为 -427
-              十亿 NOK。
+              NOK 规模同时受到投资回报、国家净流入/提取和汇率换算影响。{{ norwayFundSummary?.periodLabel }}汇率影响为
+              {{ norwayFundSummary?.currencyEffectBillionNok }} 十亿 NOK。
             </p>
           </div>
         </article>
@@ -393,8 +476,8 @@ const formatSigned = (value: number, suffix = '%') =>
       </div>
       <article class="sources-panel">
         <h2>官方来源</h2>
-        <a :href="norwayFundSources.halfYear" target="_blank" rel="noopener noreferrer"
-          >NBIM 2026 半年报 ↗</a
+        <a :href="snapshot.sources.report" target="_blank" rel="noopener noreferrer"
+          >NBIM 最新官方报告 ↗</a
         >
         <a :href="norwayFundSources.history" target="_blank" rel="noopener noreferrer"
           >NBIM 基金历史时间线 ↗</a
@@ -407,14 +490,15 @@ const formatSigned = (value: number, suffix = '%') =>
         >
       </article>
     </section>
+    </template>
   </main>
 </template>
 
 <style scoped>
 .norway-fund-page {
-  max-width: 1440px;
+  max-width: var(--content-workbench);
   margin: 0 auto;
-  padding: 32px clamp(18px, 4vw, 56px) 72px;
+  padding: 32px var(--page-gutter) 72px;
   color: var(--ink);
 }
 .hero {
@@ -501,6 +585,9 @@ const formatSigned = (value: number, suffix = '%') =>
   margin: 20px 0 0;
   color: #b9eadc;
   font-size: 12px;
+}
+.snapshot-status {
+  margin: -10px 0 18px auto;
 }
 .section-nav {
   margin: 18px 0 30px;

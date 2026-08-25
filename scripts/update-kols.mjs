@@ -1,8 +1,9 @@
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { load } from 'js-yaml'
 import Parser from 'rss-parser'
+import { writeJsonAtomic } from './lib/write-json-atomic.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const configPath = resolve(root, 'src/data/kols.yml')
@@ -231,5 +232,5 @@ const output = {
   kols,
 }
 
-await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`)
+await writeJsonAtomic(outputPath, output)
 process.stdout.write(`wrote ${kols.length} KOLs\n`)

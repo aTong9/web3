@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import EChart from '@/components/EChart.vue'
+import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
 import crossAssetData from '@/data/cross-asset.json'
 import marketNewsData from '@/data/market-news.json'
 import type {
@@ -333,19 +334,24 @@ const performanceOption = computed(() => ({
 
 <template>
   <main class="dashboard-page">
-    <header class="page-heading">
-      <div>
-        <p>{{ t('crossAsset.description') }}</p>
-        <h1>{{ t('crossAsset.title') }}</h1>
-        <span>{{ t('crossAsset.summaryLabel') }}</span>
-      </div>
-      <div class="heading-status">
-        <DataUpdateStatus :updated-at="dataset.updatedAt" schedule="crossAsset" />
+    <ResearchPageHeader
+      :eyebrow="t('crossAsset.description')"
+      :title="t('crossAsset.title')"
+      :description="t('crossAsset.summaryLabel')"
+    >
+      <template #status><div class="heading-status">
+        <DataUpdateStatus
+          :updated-at="dataset.updatedAt"
+          schedule="crossAsset"
+          source-label="FRED 等公开数据源"
+          :source-url="dataset.sourceUrl"
+          quality="complete"
+        />
         <a :href="dataset.sourceUrl" target="_blank" rel="noopener noreferrer">
           {{ t('crossAsset.sourceLabel') }}
         </a>
-      </div>
-    </header>
+      </div></template>
+    </ResearchPageHeader>
 
     <section class="chains-section top-chains">
       <header class="section-heading">
@@ -902,9 +908,9 @@ const performanceOption = computed(() => ({
 
 <style scoped>
 .dashboard-page {
-  max-width: 1320px;
+  max-width: var(--content-wide);
   margin: 0 auto;
-  padding: 40px clamp(20px, 3.5vw, 52px) 80px;
+  padding: 32px var(--page-gutter) 80px;
 }
 .page-heading {
   display: flex;

@@ -30,7 +30,33 @@ export interface IndexDcaInput {
   purchasePrice?: 'open' | 'close'
   reinvestDividends: boolean
   annualExpenseRatioPct: number
+  purchaseFeePct?: number
+  purchaseFeeFixed?: number
+  dividendTaxPct?: number
+  liquidationFeePct?: number
+  annualCustodyFeePct?: number
   prices: IndexDcaPricePoint[]
+}
+
+export interface IndexDcaComparisonInput {
+  startDate: string
+  endDate: string
+  contributionAmount: number
+  dayOfMonth: number
+  executionRule: IndexDcaInput['executionRule']
+  purchasePrice?: IndexDcaInput['purchasePrice']
+  reinvestDividends: boolean
+  purchaseFeePct?: number
+  purchaseFeeFixed?: number
+  dividendTaxPct?: number
+  liquidationFeePct?: number
+  annualCustodyFeePct?: number
+  products: Array<{
+    id: string
+    symbol: string
+    annualExpenseRatioPct: number
+    prices: IndexDcaPricePoint[]
+  }>
 }
 
 export interface LeaderPeriodInput {
@@ -119,7 +145,9 @@ export const normalizePerformanceSeries = (
       }),
     }
   }
-  const dates = [...new Set(cleaned.flatMap((input) => input.points.map((point) => point.date)))].sort()
+  const dates = [
+    ...new Set(cleaned.flatMap((input) => input.points.map((point) => point.date))),
+  ].sort()
   return {
     dates,
     series: cleaned.map((input) => {
@@ -137,9 +165,57 @@ export const normalizePerformanceSeries = (
   }
 }
 
-const round = (value: number, digits = 2) => Number(value.toFixed(digits))
+const round = (value: number, digits = 2) => {
+  const rounded = Number(value.toFixed(digits))
+  return Object.is(rounded, -0) ? 0 : rounded
+}
 
 const validDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value)
+
+const annualizedMoneyWeightedReturn = (
+  cashFlows: Array<{ date: string; amount: number }>,
+): number | null => {
+  if (cashFlows.length < 2) return null
+  const ordered = [...cashFlows].sort((left, right) => left.date.localeCompare(right.date))
+  const start = Date.parse(`${ordered[0]!.date}T00:00:00Z`)
+  const end = Date.parse(`${ordered[ordered.length - 1]!.date}T00:00:00Z`)
+  if (
+    end <= start ||
+    !ordered.some((flow) => flow.amount < 0) ||
+    !ordered.some((flow) => flow.amount > 0)
+  )
+    return null
+  const npv = (rate: number) =>
+    ordered.reduce(
+      (total, flow) =>
+        total +
+        flow.amount /
+          (1 + rate) ** ((Date.parse(`${flow.date}T00:00:00Z`) - start) / 31_557_600_000),
+      0,
+    )
+  let low = -0.9999
+  let high = 1
+  let lowValue = npv(low)
+  let highValue = npv(high)
+  while (lowValue * highValue > 0 && high < 1_000_000) {
+    high *= 2
+    highValue = npv(high)
+  }
+  if (!Number.isFinite(lowValue) || !Number.isFinite(highValue) || lowValue * highValue > 0)
+    return null
+  for (let iteration = 0; iteration < 120; iteration += 1) {
+    const middle = (low + high) / 2
+    const middleValue = npv(middle)
+    if (Math.abs(middleValue) < 1e-8) return middle
+    if (lowValue * middleValue <= 0) {
+      high = middle
+    } else {
+      low = middle
+      lowValue = middleValue
+    }
+  }
+  return (low + high) / 2
+}
 
 const monthlySchedules = (startDate: string, endDate: string, dayOfMonth: number) => {
   const start = new Date(`${startDate}T00:00:00Z`)
@@ -148,7 +224,10 @@ const monthlySchedules = (startDate: string, endDate: string, dayOfMonth: number
   let year = start.getUTCFullYear()
   let month = start.getUTCMonth()
 
-  while (year < end.getUTCFullYear() || (year === end.getUTCFullYear() && month <= end.getUTCMonth())) {
+  while (
+    year < end.getUTCFullYear() ||
+    (year === end.getUTCFullYear() && month <= end.getUTCMonth())
+  ) {
     const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
     const date = new Date(Date.UTC(year, month, Math.min(dayOfMonth, lastDay)))
     const isoDate = date.toISOString().slice(0, 10)
@@ -164,6 +243,11 @@ const monthlySchedules = (startDate: string, endDate: string, dayOfMonth: number
 }
 
 export const simulateIndexDca = (input: IndexDcaInput) => {
+  const purchaseFeePct = input.purchaseFeePct ?? 0
+  const purchaseFeeFixed = input.purchaseFeeFixed ?? 0
+  const dividendTaxPct = input.dividendTaxPct ?? 0
+  const liquidationFeePct = input.liquidationFeePct ?? 0
+  const annualCustodyFeePct = input.annualCustodyFeePct ?? 0
   if (
     !validDate(input.startDate) ||
     !validDate(input.endDate) ||
@@ -174,7 +258,23 @@ export const simulateIndexDca = (input: IndexDcaInput) => {
     input.dayOfMonth < 1 ||
     input.dayOfMonth > 31 ||
     !Number.isFinite(input.annualExpenseRatioPct) ||
-    input.annualExpenseRatioPct < 0
+    input.annualExpenseRatioPct < 0 ||
+    !Number.isFinite(purchaseFeePct) ||
+    purchaseFeePct < 0 ||
+    purchaseFeePct >= 100 ||
+    !Number.isFinite(purchaseFeeFixed) ||
+    purchaseFeeFixed < 0 ||
+    purchaseFeeFixed + input.contributionAmount * (purchaseFeePct / 100) >=
+      input.contributionAmount ||
+    !Number.isFinite(dividendTaxPct) ||
+    dividendTaxPct < 0 ||
+    dividendTaxPct > 100 ||
+    !Number.isFinite(liquidationFeePct) ||
+    liquidationFeePct < 0 ||
+    liquidationFeePct >= 100 ||
+    !Number.isFinite(annualCustodyFeePct) ||
+    annualCustodyFeePct < 0 ||
+    annualCustodyFeePct >= 100
   ) {
     throw new Error('定投参数无效')
   }
@@ -207,30 +307,63 @@ export const simulateIndexDca = (input: IndexDcaInput) => {
   let shares = 0
   let cashDividends = 0
   let reinvestedDividends = 0
+  let grossDividends = 0
+  let dividendTaxes = 0
   let totalContributed = 0
-  const purchases: Array<{ date: string; amount: number; price: number; shares: number }> = []
+  let totalPurchaseFees = 0
+  let totalCustodyFees = 0
+  let totalInvested = 0
+  let previousPriceDate: string | null = null
+  const purchases: Array<{
+    date: string
+    amount: number
+    investedAmount: number
+    transactionFee: number
+    price: number
+    shares: number
+  }> = []
 
   for (const point of prices) {
     if ((point.splitRatio ?? 1) > 0) shares *= point.splitRatio ?? 1
+    if (previousPriceDate && shares > 0 && annualCustodyFeePct > 0) {
+      const elapsedDays =
+        (Date.parse(`${point.date}T00:00:00Z`) - Date.parse(`${previousPriceDate}T00:00:00Z`)) /
+        86_400_000
+      const remainingFactor = (1 - annualCustodyFeePct / 100) ** (elapsedDays / 365.2425)
+      const feeShares = shares * (1 - remainingFactor)
+      shares -= feeShares
+      totalCustodyFees += feeShares * point.close
+    }
+    previousPriceDate = point.date
     const purchasePrice = input.purchasePrice === 'open' ? (point.open ?? point.close) : point.close
-    const dividend = shares * (point.dividendPerShare ?? 0)
-    if (dividend > 0) {
+    const grossDividend = shares * (point.dividendPerShare ?? 0)
+    if (grossDividend > 0) {
+      const dividendTax = grossDividend * (dividendTaxPct / 100)
+      const netDividend = grossDividend - dividendTax
+      grossDividends += grossDividend
+      dividendTaxes += dividendTax
       if (input.reinvestDividends) {
-        shares += dividend / purchasePrice
-        reinvestedDividends += dividend
+        shares += netDividend / purchasePrice
+        reinvestedDividends += netDividend
       } else {
-        cashDividends += dividend
+        cashDividends += netDividend
       }
     }
 
     const purchaseCount = purchasesByDate.get(point.date) ?? 0
     for (let index = 0; index < purchaseCount; index += 1) {
-      const purchasedShares = input.contributionAmount / purchasePrice
+      const transactionFee = input.contributionAmount * (purchaseFeePct / 100) + purchaseFeeFixed
+      const investedAmount = input.contributionAmount - transactionFee
+      const purchasedShares = investedAmount / purchasePrice
       shares += purchasedShares
       totalContributed += input.contributionAmount
+      totalInvested += investedAmount
+      totalPurchaseFees += transactionFee
       purchases.push({
         date: point.date,
         amount: input.contributionAmount,
+        investedAmount,
+        transactionFee,
         price: purchasePrice,
         shares: purchasedShares,
       })
@@ -238,7 +371,9 @@ export const simulateIndexDca = (input: IndexDcaInput) => {
   }
 
   const finalPrice = prices[prices.length - 1]?.close ?? 0
-  const endingValue = shares * finalPrice + cashDividends
+  const endingMarketValue = shares * finalPrice
+  const estimatedLiquidationFee = endingMarketValue * (liquidationFeePct / 100)
+  const endingValue = endingMarketValue - estimatedLiquidationFee + cashDividends
   const elapsedDays = Math.max(
     0,
     (Date.parse(`${prices[prices.length - 1]?.date}T00:00:00Z`) -
@@ -246,24 +381,123 @@ export const simulateIndexDca = (input: IndexDcaInput) => {
       86_400_000,
   )
   const estimatedEmbeddedExpense =
-    totalContributed * 0.5 * (input.annualExpenseRatioPct / 100) * (elapsedDays / 365.25)
+    totalInvested * 0.5 * (input.annualExpenseRatioPct / 100) * (elapsedDays / 365.25)
+  const moneyWeightedReturn = annualizedMoneyWeightedReturn([
+    ...purchases.map((purchase) => ({ date: purchase.date, amount: -purchase.amount })),
+    { date: prices[prices.length - 1]!.date, amount: endingValue },
+  ])
 
   return {
     symbol: input.symbol,
     purchases,
     shares: round(shares, 8),
     totalContributed: round(totalContributed),
+    totalInvested: round(totalInvested),
+    totalPurchaseFees: round(totalPurchaseFees),
+    totalCustodyFees: round(totalCustodyFees),
+    grossDividends: round(grossDividends),
+    dividendTaxes: round(dividendTaxes),
+    netDividends: round(grossDividends - dividendTaxes),
     cashDividends: round(cashDividends),
     reinvestedDividends: round(reinvestedDividends),
+    endingMarketValue: round(endingMarketValue),
+    estimatedLiquidationFee: round(estimatedLiquidationFee),
     endingValue: round(endingValue),
     gain: round(endingValue - totalContributed),
     totalReturnPct: totalContributed
       ? round(((endingValue - totalContributed) / totalContributed) * 100)
       : 0,
+    annualizedMoneyWeightedReturnPct:
+      moneyWeightedReturn === null ? null : round(moneyWeightedReturn * 100),
     annualExpenseRatioPct: input.annualExpenseRatioPct,
+    purchaseFeePct,
+    purchaseFeeFixed,
+    dividendTaxPct,
+    liquidationFeePct,
+    annualCustodyFeePct,
     estimatedEmbeddedExpense: round(estimatedEmbeddedExpense),
     expenseTreatment: 'embedded-in-market-price' as const,
   }
+}
+
+export const compareIndexDcaPlans = (input: IndexDcaComparisonInput) => {
+  if (!input.products.length) throw new Error('定投对照缺少产品')
+  const availableRanges = input.products.map((product) => {
+    const dates = product.prices
+      .filter((point) => validDate(point.date) && Number.isFinite(point.close) && point.close > 0)
+      .map((point) => point.date)
+      .sort()
+    if (!dates.length) throw new Error(`${product.symbol}缺少有效行情`)
+    return { first: dates[0]!, last: dates[dates.length - 1]! }
+  })
+  const startDates = [input.startDate, ...availableRanges.map((range) => range.first)].sort()
+  const commonStartDate = startDates[startDates.length - 1]!
+  const commonEndDate = [input.endDate, ...availableRanges.map((range) => range.last)].sort()[0]!
+  if (commonStartDate > commonEndDate) throw new Error('四资产没有共同定投区间')
+
+  const results = input.products.map((product) => ({
+    id: product.id,
+    result: simulateIndexDca({
+      symbol: product.symbol,
+      startDate: commonStartDate,
+      endDate: commonEndDate,
+      contributionAmount: input.contributionAmount,
+      frequency: 'monthly',
+      dayOfMonth: input.dayOfMonth,
+      executionRule: input.executionRule,
+      purchasePrice: input.purchasePrice,
+      reinvestDividends: input.reinvestDividends,
+      annualExpenseRatioPct: product.annualExpenseRatioPct,
+      purchaseFeePct: input.purchaseFeePct,
+      purchaseFeeFixed: input.purchaseFeeFixed,
+      dividendTaxPct: input.dividendTaxPct,
+      liquidationFeePct: input.liquidationFeePct,
+      annualCustodyFeePct: input.annualCustodyFeePct,
+      prices: product.prices,
+    }),
+  }))
+  const contributionTotals = new Set(results.map(({ result }) => result.totalContributed))
+
+  return {
+    commonStartDate,
+    commonEndDate,
+    comparableCashFlows: contributionTotals.size === 1,
+    results: [...results].sort((left, right) => right.result.endingValue - left.result.endingValue),
+  }
+}
+
+const csvCell = (value: string | number) => {
+  const text = String(value)
+  return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text
+}
+
+export const buildIndexDcaCsv = (result: ReturnType<typeof simulateIndexDca>) => {
+  const summary = [
+    ['symbol', result.symbol],
+    ['total_contributed', result.totalContributed],
+    ['ending_value', result.endingValue],
+    ['total_return_pct', result.totalReturnPct],
+    ['annualized_money_weighted_return_pct', result.annualizedMoneyWeightedReturnPct ?? ''],
+    ['total_purchase_fees', result.totalPurchaseFees],
+    ['total_custody_fees', result.totalCustodyFees],
+    ['dividend_taxes', result.dividendTaxes],
+    ['estimated_liquidation_fee', result.estimatedLiquidationFee],
+  ]
+  const rows: Array<Array<string | number>> = [
+    ['metric', 'value'],
+    ...summary,
+    [],
+    ['purchase_date', 'contribution', 'invested_amount', 'transaction_fee', 'price', 'shares'],
+    ...result.purchases.map((purchase) => [
+      purchase.date,
+      purchase.amount,
+      purchase.investedAmount,
+      purchase.transactionFee,
+      purchase.price,
+      purchase.shares,
+    ]),
+  ]
+  return `\uFEFF${rows.map((row) => row.map(csvCell).join(',')).join('\n')}\n`
 }
 
 export const compareLeaderPeriods = (inputs: LeaderPeriodInput[]) => {
@@ -275,9 +509,7 @@ export const compareLeaderPeriods = (inputs: LeaderPeriodInput[]) => {
       !validDate(input.endDate) ||
       input.snapshotDate >= input.endDate ||
       !input.leaders.length ||
-      input.leaders.some(
-        (leader) => !leader.ticker || !Number.isFinite(leader.totalReturnPct),
-      ) ||
+      input.leaders.some((leader) => !leader.ticker || !Number.isFinite(leader.totalReturnPct)) ||
       !Number.isFinite(input.benchmarkTotalReturnPct)
     ) {
       throw new Error('龙头对照周期无效')

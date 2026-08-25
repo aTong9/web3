@@ -1,17 +1,28 @@
-export type DataScheduleId = 'crossAsset' | 'aShare' | 'hotStocks' | 'funds' | 'news' | 'kols'
+export type DataScheduleId =
+  | 'crossAsset'
+  | 'aShare'
+  | 'hotStocks'
+  | 'funds'
+  | 'news'
+  | 'kols'
+  | 'usIndexes'
+  | 'norwayFund'
 
 interface ScheduleSlot {
   hour: number
   minute: number
   weekdaysOnly?: boolean
+  weekdays?: number[]
 }
 
 const schedules: Record<DataScheduleId, ScheduleSlot[]> = {
-  crossAsset: [{ hour: 7, minute: 20, weekdaysOnly: true }],
+  // GitHub cron runs Monday-Friday at 23:20 UTC, which is Tuesday-Saturday in China.
+  crossAsset: [{ hour: 7, minute: 20, weekdays: [2, 3, 4, 5, 6] }],
   aShare: [{ hour: 18, minute: 30 }],
   hotStocks: [
-    { hour: 6, minute: 30, weekdaysOnly: true },
-    { hour: 18, minute: 20, weekdaysOnly: true },
+    // 22:30 UTC Monday-Friday becomes 06:30 Tuesday-Saturday in China.
+    { hour: 6, minute: 30, weekdays: [2, 3, 4, 5, 6] },
+    { hour: 18, minute: 20, weekdays: [1, 2, 3, 4, 5] },
   ],
   funds: [{ hour: 9, minute: 15 }],
   news: Array.from({ length: 96 }, (_, index) => ({
@@ -19,6 +30,9 @@ const schedules: Record<DataScheduleId, ScheduleSlot[]> = {
     minute: (index % 4) * 15,
   })),
   kols: [2, 8, 14, 20].map((hour) => ({ hour, minute: 15 })),
+  // US close data is archived at 02:30 UTC Tuesday-Saturday.
+  usIndexes: [{ hour: 10, minute: 30, weekdays: [2, 3, 4, 5, 6] }],
+  norwayFund: [{ hour: 11, minute: 15, weekdays: [1] }],
 }
 
 const chinaParts = (value: Date) => {
@@ -40,6 +54,7 @@ export const nextScheduledUpdate = (schedule: DataScheduleId, after: Date) => {
     const weekday = calendar.getUTCDay()
     for (const slot of schedules[schedule]) {
       if (slot.weekdaysOnly && (weekday === 0 || weekday === 6)) continue
+      if (slot.weekdays && !slot.weekdays.includes(weekday)) continue
       const timestamp = chinaTimestamp(
         calendar.getUTCFullYear(),
         calendar.getUTCMonth(),
@@ -64,6 +79,7 @@ export const getDataScheduleState = (
     : nextScheduledUpdate(schedule, updated)
   return {
     updated: Number.isNaN(updated.getTime()) ? null : updated,
+    expected: nextAfterUpdate,
     next: nextScheduledUpdate(schedule, now),
     pending: !nextAfterUpdate || now.getTime() > nextAfterUpdate.getTime() + 10 * 60 * 1000,
   }

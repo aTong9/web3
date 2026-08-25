@@ -1,6 +1,7 @@
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { writeJsonAtomic } from './lib/write-json-atomic.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const megaCapsPath = resolve(root, 'src/data/us-megacaps.json')
@@ -130,7 +131,7 @@ const main = async () => {
     ],
     assets,
   }
-  await writeFile(outputPath, `${JSON.stringify(dataset, null, 2)}\n`)
+  await writeJsonAtomic(outputPath, dataset)
   console.log(`Wrote ${assets.length} US stock assets to ${outputPath}`)
 }
 

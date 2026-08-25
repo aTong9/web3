@@ -1,0 +1,39 @@
+name: Update Norway sovereign fund
+
+on:
+  schedule:
+    - cron: '15 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: market-data-writes
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Refresh official NBIM report and holdings snapshot
+        run: npm run update:norway-fund
+      - name: Validate report structure and holdings consistency
+        run: npm run validate:data:norway-fund
+      - name: Commit changed snapshot
+        run: |
+          if git diff --quiet -- src/data/norway-fund-snapshot.json; then
+            echo "No Norway-fund data changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/norway-fund-snapshot.json
+          git commit -m "chore: update Norway sovereign fund snapshot"
+          git push

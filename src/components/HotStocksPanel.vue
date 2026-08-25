@@ -56,7 +56,13 @@ const formatActivity = (value: number | null) => {
             {{ t('hotStocks.periodWeekly') }}
           </button>
         </div>
-        <DataUpdateStatus :updated-at="dataset.updatedAt" schedule="hotStocks" />
+        <DataUpdateStatus
+          :updated-at="dataset.updatedAt"
+          schedule="hotStocks"
+          :source-label="marketData.source"
+          :source-url="marketData.sourceUrl"
+          :quality="marketData.status === 'ok' ? 'complete' : 'partial'"
+        />
       </div>
     </header>
     <p v-if="marketData.status !== 'ok'" class="status-message">

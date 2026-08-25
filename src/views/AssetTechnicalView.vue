@@ -5,6 +5,7 @@ import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import ContractTradingWorkspace from '@/components/ContractTradingWorkspace.vue'
 import DisclosureCard from '@/components/DisclosureCard.vue'
 import EChart from '@/components/EChart.vue'
+import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
 import { useAuth } from '@/composables/use-auth'
 import { useI18n } from '@/composables/use-i18n'
 import crossAssetData from '@/data/cross-asset.json'
@@ -128,7 +129,7 @@ const fallbackAsset = baseAssetCandidates[0] as TechnicalChartAsset
 const selectedId = ref(
   baseAssetCandidates.find((asset) => asset.id === 'sp500')?.id ?? fallbackAsset.id,
 )
-const workspaceMode = ref<WorkspaceMode>('contract')
+const workspaceMode = ref<WorkspaceMode>('research')
 const compareId = ref('')
 const comparisonMode = ref<ComparisonMode>('normalized')
 const search = ref('')
@@ -1398,18 +1399,19 @@ onBeforeUnmount(() => {
 
 <template>
   <main class="technical-page">
-    <header class="page-heading">
-      <div>
-        <p>{{ t('assetTechnical.badge') }}</p>
-        <h1>{{ t('assetTechnical.title') }}</h1>
-        <span>{{ t('assetTechnical.intro') }}</span>
+    <ResearchPageHeader
+      :eyebrow="t('assetTechnical.badge')"
+      :title="t('assetTechnical.title')"
+      :description="t('assetTechnical.intro')"
+    >
+      <template #meta>
         <DataUpdateStatus
           v-if="workspaceMode === 'research'"
           :updated-at="dataset.updatedAt"
           schedule="crossAsset"
         />
-      </div>
-      <section v-if="workspaceMode === 'research'" class="headline-signal" :class="analysis.status">
+      </template>
+      <template #status><section v-if="workspaceMode === 'research'" class="headline-signal" :class="analysis.status">
         <span>{{ t('assetTechnical.currentState') }}</span>
         <strong>{{ statusLabel(analysis.status) }}</strong>
         <b>{{ analysis.score > 0 ? '+' : '' }}{{ analysis.score }}</b>
@@ -1420,12 +1422,13 @@ onBeforeUnmount(() => {
         <strong>{{ t('assetTechnical.contract.publicFeed') }}</strong>
         <b>{{ t('assetTechnical.contract.free') }}</b>
         <small>{{ t('assetTechnical.contract.noKeyRequired') }}</small>
-      </section>
-    </header>
+      </section></template>
+    </ResearchPageHeader>
 
     <nav class="workspace-mode-switch" :aria-label="t('assetTechnical.workspaceMode')">
       <button
         :class="{ active: workspaceMode === 'research' }"
+        :aria-pressed="workspaceMode === 'research'"
         @click="workspaceMode = 'research'"
       >
         <span>{{ t('assetTechnical.researchMode') }}</span>
@@ -1433,6 +1436,7 @@ onBeforeUnmount(() => {
       </button>
       <button
         :class="{ active: workspaceMode === 'contract' }"
+        :aria-pressed="workspaceMode === 'contract'"
         @click="workspaceMode = 'contract'"
       >
         <span>{{ t('assetTechnical.contractMode') }}</span>
@@ -1440,14 +1444,22 @@ onBeforeUnmount(() => {
       </button>
     </nav>
 
-    <section class="chain-player" aria-live="polite">
+    <section v-if="workspaceMode === 'research'" class="chain-player" aria-live="polite">
       <div class="chain-meta">
         <span>{{ t('assetTechnical.chainPulse') }}</span>
         <div class="chain-filters" role="group" :aria-label="t('assetTechnical.chainFilter')">
-          <button :class="{ active: chainFilter === 'related' }" @click="chainFilter = 'related'">
+          <button
+            :class="{ active: chainFilter === 'related' }"
+            :aria-pressed="chainFilter === 'related'"
+            @click="chainFilter = 'related'"
+          >
             {{ t('assetTechnical.related') }}
           </button>
-          <button :class="{ active: chainFilter === 'strong' }" @click="chainFilter = 'strong'">
+          <button
+            :class="{ active: chainFilter === 'strong' }"
+            :aria-pressed="chainFilter === 'strong'"
+            @click="chainFilter = 'strong'"
+          >
             {{ t('assetTechnical.highImpact') }}
           </button>
         </div>
@@ -2298,9 +2310,9 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .technical-page {
-  max-width: 1380px;
+  max-width: var(--content-workbench);
   margin: auto;
-  padding: 40px clamp(20px, 3.5vw, 52px) 80px;
+  padding: 32px var(--page-gutter) 80px;
 }
 .page-heading {
   display: grid;

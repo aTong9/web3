@@ -1,6 +1,7 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { writeJsonAtomic } from './lib/write-json-atomic.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const outputPath = resolve(root, 'src/data/us-funds.json')
@@ -215,6 +216,5 @@ const output = {
   funds: results,
 }
 
-await mkdir(dirname(outputPath), { recursive: true })
-await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`)
+await writeJsonAtomic(outputPath, output)
 process.stdout.write(`wrote ${results.length} funds to ${outputPath}\n`)

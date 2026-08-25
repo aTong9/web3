@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import type { EChartsCoreOption } from 'echarts/core'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import EChart from '@/components/EChart.vue'
-import usIndexResearch from '@/data/us-index-research.json'
+import AsyncDataState from '@/components/AsyncDataState.vue'
+import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
+import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
+import { useI18n } from '@/composables/use-i18n'
 import {
   qqqProfile,
   qqqSectors,
@@ -16,31 +19,227 @@ import {
   type UsIndexMilestoneKind,
 } from '@/data/us-indexes'
 import {
-  calculateHoldingConcentration,
+  buildIndexDcaCsv,
+  compareIndexDcaPlans,
   compareIndexProfiles,
   normalizePerformanceSeries,
   simulateIndexDca,
 } from '@/utils/us-indexes'
 
-type PageSection = 'compare' | 'history' | 'holdings' | 'performance' | 'leaders' | 'dca' | 'methodology'
+type PageSection =
+  | 'compare'
+  | 'history'
+  | 'holdings'
+  | 'performance'
+  | 'leaders'
+  | 'dca'
+  | 'methodology'
 type TimelineFilter = '全部' | UsIndexMilestoneKind
+interface LeaderSnapshotIndex {
+  id: UsIndexId
+  benchmarkTicker: 'QQQ' | 'SPY'
+  holdingsAsOfDate: string
+  sourceUrl: string
+  sectorAsOfDate: string
+  sectorSourceUrl: string
+  sectorSystem: string
+  sectors: Array<{ name: string; weightPct: number }>
+  leaders: Array<{ rank: number; ticker: string; name: string; weightPct: number }>
+}
+interface LeaderSnapshot {
+  period: string
+  capturedAt: string
+  status: 'archived'
+  methodology: string
+  indexes: LeaderSnapshotIndex[]
+}
+interface LeaderComparisonStrategy {
+  size: 1 | 3 | 5 | 10
+  weighting: 'equal' | 'official'
+  leaderTickers: string[]
+  grossReturnPct: number
+  netReturnPct: number
+  benchmarkNetReturnPct: number
+  excessReturnPctPoints: number
+  outperformed: boolean
+}
+interface LeaderComparison {
+  fromPeriod: string
+  toPeriod: string
+  status: 'complete'
+  roundTripCostPct: number
+  indexes: Array<{
+    id: UsIndexId
+    benchmarkTicker: 'QQQ' | 'SPY'
+    startDate: string
+    endDate: string
+    strategies: LeaderComparisonStrategy[]
+  }>
+}
+interface UsIndexResearchDataset {
+  schemaVersion: number
+  datasetVersion: string
+  generatedAt: string
+  status: 'complete' | 'partial'
+  source: {
+    marketData: string
+    officialStructure: string
+    note: string
+  }
+  products: Array<{
+    id: 'qqq' | 'spy' | 'gld' | 'btc'
+    ticker: string
+    index: string
+    inception: string
+    feePct: number
+  }>
+  productProfiles: Array<{
+    id: 'qqq' | 'spy' | 'gld'
+    ticker: 'QQQ' | 'SPY' | 'GLD'
+    name: string
+    benchmark: string
+    inceptionDate: string
+    expenseRatioPct: number
+    totalNetAssetsUsd: number
+    netAssetsAsOfDate: string
+    holdingsCount?: number
+    holdingsCountAsOfDate?: string
+    sourceAsOfDate: string
+    sourceUrl: string
+    sourceLabel: string
+    goldHoldingsTonnes?: number
+    goldOuncesPerShare?: number
+    goldHoldingsAsOfDate?: string
+    holdingsSourceUrl?: string
+  }>
+  monthlySeries: Array<{
+    symbol: string
+    currency: string
+    prices: Array<{
+      date: string
+      open?: number
+      close: number
+      adjClose?: number
+      splitRatio?: number
+      dividendPerShare?: number
+    }>
+  }>
+  leaderSnapshots: LeaderSnapshot[]
+  leaderComparisons: LeaderComparison[]
+}
+interface UsIndexDailyDataset {
+  schemaVersion: 1
+  datasetVersion: string
+  generatedAt: string
+  status: 'complete'
+  marketSeries: UsIndexResearchDataset['monthlySeries']
+}
+
+const usIndexResearch = ref<UsIndexResearchDataset>({
+  schemaVersion: 0,
+  datasetVersion: '',
+  generatedAt: '',
+  status: 'partial',
+  source: { marketData: '', officialStructure: '', note: '' },
+  products: [],
+  productProfiles: [],
+  monthlySeries: [],
+  leaderSnapshots: [],
+  leaderComparisons: [],
+})
+const researchLoading = ref(true)
+const researchError = ref(false)
+const dailyResearch = ref<UsIndexDailyDataset | null>(null)
+const dailyLoading = ref(false)
+const dailyError = ref(false)
+const { t } = useI18n()
+const latestMarketDate = computed(() => {
+  const dates = usIndexResearch.value.monthlySeries
+    .map((series) => series.prices[series.prices.length - 1]?.date)
+    .filter((date): date is string => Boolean(date))
+  return dates.length ? [...dates].sort()[0] : undefined
+})
 
 const activeSection = ref<PageSection>('performance')
 const activeIndex = ref<UsIndexId>('qqq')
 const timelineFilter = ref<TimelineFilter>('全部')
 const dcaProduct = ref<'qqq' | 'spy' | 'gld' | 'btc'>('qqq')
 const dcaStartDate = ref('2020-01-01')
-const initialPriceSeries = usIndexResearch.marketSeries[0]?.prices ?? []
-const dcaEndDate = ref(initialPriceSeries[initialPriceSeries.length - 1]?.date ?? '2026-08-24')
+const dcaEndDate = ref('2026-08-24')
 const dcaAmount = ref(500)
 const dcaDay = ref(1)
 const dcaExecution = ref<'next-trading-day' | 'previous-trading-day'>('next-trading-day')
 const dcaPrice = ref<'open' | 'close'>('close')
 const dcaReinvest = ref(true)
+const dcaPurchaseFeePct = ref(0)
+const dcaPurchaseFeeFixed = ref(0)
+const dcaDividendTaxPct = ref(0)
+const dcaLiquidationFeePct = ref(0)
+const dcaAnnualCustodyFeePct = ref(0)
 const performanceStartDate = ref('2020-01-01')
-const performanceEndDate = ref(initialPriceSeries[initialPriceSeries.length - 1]?.date ?? '2026-08-24')
-const qqqConcentration = computed(() => calculateHoldingConcentration(qqqTopHoldings))
-const comparison = computed(() => compareIndexProfiles(qqqProfile, sp500Profile))
+const performanceEndDate = ref('2026-08-24')
+const latestArchiveFor = (id: UsIndexId) => {
+  const snapshots = usIndexResearch.value.leaderSnapshots
+  return snapshots[snapshots.length - 1]?.indexes.find((index) => index.id === id)
+}
+const qqqCurrentArchive = computed(() => latestArchiveFor('qqq'))
+const sp500CurrentArchive = computed(() => latestArchiveFor('sp500'))
+const qqqOfficialProfile = computed(() =>
+  usIndexResearch.value.productProfiles.find((profile) => profile.id === 'qqq'),
+)
+const spyOfficialProfile = computed(() =>
+  usIndexResearch.value.productProfiles.find((profile) => profile.id === 'spy'),
+)
+const gldOfficialProfile = computed(() =>
+  usIndexResearch.value.productProfiles.find((profile) => profile.id === 'gld'),
+)
+const formatFundAssets = (value?: number) =>
+  value
+    ? `$${new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(value / 1_000_000_000)}B`
+    : '—'
+const top10Weight = (archive: LeaderSnapshotIndex | undefined, fallback: number) =>
+  archive
+    ? Number(archive.leaders.reduce((total, holding) => total + holding.weightPct, 0).toFixed(2))
+    : fallback
+const technologyWeight = (
+  archive: LeaderSnapshotIndex | undefined,
+  fallback: number,
+  names: string[],
+) => archive?.sectors.find((sector) => names.includes(sector.name))?.weightPct ?? fallback
+const comparison = computed(() =>
+  compareIndexProfiles(
+    {
+      ...qqqProfile,
+      top10WeightPct: top10Weight(qqqCurrentArchive.value, qqqProfile.top10WeightPct),
+      technologyWeightPct: technologyWeight(
+        qqqCurrentArchive.value,
+        qqqProfile.technologyWeightPct,
+        ['Technology', 'Information Technology'],
+      ),
+    },
+    {
+      ...sp500Profile,
+      top10WeightPct: top10Weight(sp500CurrentArchive.value, sp500Profile.top10WeightPct),
+      technologyWeightPct: technologyWeight(
+        sp500CurrentArchive.value,
+        sp500Profile.technologyWeightPct,
+        ['Information Technology', 'Technology'],
+      ),
+    },
+  ),
+)
+const qqqTop10CurrentPct = computed(() =>
+  top10Weight(qqqCurrentArchive.value, qqqProfile.top10WeightPct),
+)
+const sp500Top10CurrentPct = computed(() =>
+  top10Weight(sp500CurrentArchive.value, sp500Profile.top10WeightPct),
+)
+const qqqLargestCurrentPct = computed(
+  () => qqqCurrentArchive.value?.leaders[0]?.weightPct ?? qqqProfile.largestWeightPct,
+)
+const sp500LargestCurrentPct = computed(
+  () => sp500CurrentArchive.value?.leaders[0]?.weightPct ?? sp500Profile.largestWeightPct,
+)
 const visibleMilestones = computed(() =>
   usIndexMilestones.filter(
     (item) =>
@@ -50,14 +249,94 @@ const visibleMilestones = computed(() =>
 )
 const activeProfile = computed(() => (activeIndex.value === 'qqq' ? qqqProfile : sp500Profile))
 const activeHoldings = computed(() =>
-  activeIndex.value === 'qqq' ? qqqTopHoldings : sp500TopHoldings,
+  activeLeaderArchive.value
+    ? activeLeaderArchive.value.leaders.map((holding) => ({
+        ...holding,
+        sector: '官方持仓未附行业',
+      }))
+    : activeIndex.value === 'qqq'
+      ? qqqTopHoldings
+      : sp500TopHoldings,
 )
-const activeSectors = computed(() => (activeIndex.value === 'qqq' ? qqqSectors : sp500Sectors))
+const activeHoldingsAsOfDate = computed(
+  () => activeLeaderArchive.value?.holdingsAsOfDate ?? activeProfile.value.holdingsAsOfDate,
+)
+const activeTop10WeightPct = computed(() =>
+  activeLeaderArchive.value
+    ? Number(
+        activeLeaderArchive.value.leaders
+          .reduce((total, holding) => total + holding.weightPct, 0)
+          .toFixed(2),
+      )
+    : activeProfile.value.top10WeightPct,
+)
+const activeSectors = computed<ReadonlyArray<readonly [string, number]>>(() =>
+  activeLeaderArchive.value?.sectors.length
+    ? activeLeaderArchive.value.sectors.map((sector) => [sector.name, sector.weightPct] as const)
+    : activeIndex.value === 'qqq'
+      ? qqqSectors
+      : sp500Sectors,
+)
+const activeSectorAsOfDate = computed(
+  () => activeLeaderArchive.value?.sectorAsOfDate ?? activeProfile.value.holdingsAsOfDate,
+)
+const activeSectorSystem = computed(
+  () => activeLeaderArchive.value?.sectorSystem ?? activeProfile.value.sectorSystem,
+)
+const latestLeaderSnapshot = computed(
+  () => usIndexResearch.value.leaderSnapshots[usIndexResearch.value.leaderSnapshots.length - 1],
+)
+const activeLeaderArchive = computed(() =>
+  activeIndex.value === 'qqq' ? qqqCurrentArchive.value : sp500CurrentArchive.value,
+)
+const activeLeaderEvidence = computed(() =>
+  usIndexResearch.value.leaderComparisons.flatMap((comparison) => {
+    const index = comparison.indexes.find((item) => item.id === activeIndex.value)
+    const strategy = index?.strategies.find((item) => item.size === 5 && item.weighting === 'equal')
+    return index && strategy
+      ? [{ fromPeriod: comparison.fromPeriod, toPeriod: comparison.toPeriod, ...index, strategy }]
+      : []
+  }),
+)
+const activeLeaderSummary = computed(() => {
+  const periods = activeLeaderEvidence.value
+  if (!periods.length) return null
+  const leaderGrowth = periods.reduce(
+    (growth, period) => growth * (1 + period.strategy.netReturnPct / 100),
+    1,
+  )
+  const benchmarkGrowth = periods.reduce(
+    (growth, period) => growth * (1 + period.strategy.benchmarkNetReturnPct / 100),
+    1,
+  )
+  const wins = periods.filter((period) => period.strategy.outperformed).length
+  return {
+    periods: periods.length,
+    wins,
+    winRatePct: Number(((wins / periods.length) * 100).toFixed(1)),
+    leaderReturnPct: Number(((leaderGrowth - 1) * 100).toFixed(2)),
+    benchmarkReturnPct: Number(((benchmarkGrowth - 1) * 100).toFixed(2)),
+    excessReturnPctPoints: Number(((leaderGrowth - benchmarkGrowth) * 100).toFixed(2)),
+  }
+})
 const selectedResearchProduct = computed(() =>
-  usIndexResearch.products.find((product) => product.id === dcaProduct.value),
+  usIndexResearch.value.products.find((product) => product.id === dcaProduct.value),
+)
+const isZeroFrictionBtc = computed(
+  () =>
+    dcaProduct.value === 'btc' &&
+    dcaPurchaseFeePct.value === 0 &&
+    dcaPurchaseFeeFixed.value === 0 &&
+    dcaLiquidationFeePct.value === 0 &&
+    dcaAnnualCustodyFeePct.value === 0,
 )
 const selectedMarketSeries = computed(() =>
-  usIndexResearch.marketSeries.find((series) => series.symbol === selectedResearchProduct.value?.ticker),
+  dailyResearch.value?.marketSeries.find(
+    (series) => series.symbol === selectedResearchProduct.value?.ticker,
+  ),
+)
+const dailyReady = computed(
+  () => dailyResearch.value?.datasetVersion === usIndexResearch.value.datasetVersion,
 )
 const dcaResult = computed(() => {
   try {
@@ -73,25 +352,76 @@ const dcaResult = computed(() => {
       purchasePrice: dcaPrice.value,
       reinvestDividends: dcaReinvest.value,
       annualExpenseRatioPct: selectedResearchProduct.value.feePct,
+      purchaseFeePct: dcaPurchaseFeePct.value,
+      purchaseFeeFixed: dcaPurchaseFeeFixed.value,
+      dividendTaxPct: dcaDividendTaxPct.value,
+      liquidationFeePct: dcaLiquidationFeePct.value,
+      annualCustodyFeePct: dcaAnnualCustodyFeePct.value,
       prices: selectedMarketSeries.value.prices,
     })
   } catch {
     return null
   }
 })
-const performance = computed(() =>
-  normalizePerformanceSeries(
-    usIndexResearch.marketSeries.map((series) => ({
-      id: series.symbol,
-      points: series.prices.map((point) => ({
-        date: point.date,
-        close: point.adjClose ?? point.close,
+const dcaComparison = computed(() => {
+  try {
+    if (!dailyReady.value || !dailyResearch.value) return null
+    return compareIndexDcaPlans({
+      startDate: dcaStartDate.value,
+      endDate: dcaEndDate.value,
+      contributionAmount: dcaAmount.value,
+      dayOfMonth: dcaDay.value,
+      executionRule: dcaExecution.value,
+      purchasePrice: dcaPrice.value,
+      reinvestDividends: dcaReinvest.value,
+      purchaseFeePct: dcaPurchaseFeePct.value,
+      purchaseFeeFixed: dcaPurchaseFeeFixed.value,
+      dividendTaxPct: dcaDividendTaxPct.value,
+      liquidationFeePct: dcaLiquidationFeePct.value,
+      annualCustodyFeePct: dcaAnnualCustodyFeePct.value,
+      products: usIndexResearch.value.products.map((product) => ({
+        id: product.id,
+        symbol: product.ticker,
+        annualExpenseRatioPct: product.feePct,
+        prices:
+          dailyResearch.value!.marketSeries.find((series) => series.symbol === product.ticker)
+            ?.prices ?? [],
       })),
-    })),
-    performanceStartDate.value,
-    performanceEndDate.value,
-    'monthly',
-  ),
+    })
+  } catch {
+    return null
+  }
+})
+const recentDcaPurchases = computed(() => dcaResult.value?.purchases.slice(-12).reverse() ?? [])
+const downloadDcaCsv = () => {
+  if (!dcaResult.value) return
+  const blob = new Blob([buildIndexDcaCsv(dcaResult.value)], {
+    type: 'text/csv;charset=utf-8',
+  })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `${dcaResult.value.symbol.toLowerCase()}-dca-${dcaStartDate.value}-${dcaEndDate.value}.csv`
+  link.click()
+  URL.revokeObjectURL(url)
+}
+const dcaAssetLabel = (id: string) =>
+  ({ qqq: 'QQQ', spy: 'SPY', gld: '黄金 GLD', btc: '比特币' })[id] ?? id
+const performance = computed(() =>
+  usIndexResearch.value.monthlySeries.length
+    ? normalizePerformanceSeries(
+        usIndexResearch.value.monthlySeries.map((series) => ({
+          id: series.symbol,
+          points: series.prices.map((point) => ({
+            date: point.date,
+            close: point.adjClose ?? point.close,
+          })),
+        })),
+        performanceStartDate.value,
+        performanceEndDate.value,
+        'monthly',
+      )
+    : { dates: [], series: [] },
 )
 const performanceOption = computed<EChartsCoreOption>(() => ({
   animation: false,
@@ -103,7 +433,14 @@ const performanceOption = computed<EChartsCoreOption>(() => ({
   yAxis: { type: 'value', name: '起点 = 100', scale: true },
   dataZoom: [{ type: 'inside' }, { type: 'slider', height: 18, bottom: 12 }],
   series: performance.value.series.map((series) => ({
-    name: series.id === 'SPY' ? 'S&P 500（SPY）' : series.id === 'GLD' ? '黄金（GLD）' : series.id === 'BTC-USD' ? '比特币' : 'QQQ',
+    name:
+      series.id === 'SPY'
+        ? 'S&P 500（SPY）'
+        : series.id === 'GLD'
+          ? '黄金（GLD）'
+          : series.id === 'BTC-USD'
+            ? '比特币'
+            : 'QQQ',
     type: 'line',
     showSymbol: false,
     sampling: 'lttb',
@@ -112,21 +449,25 @@ const performanceOption = computed<EChartsCoreOption>(() => ({
 }))
 const assetCards = computed(() => {
   const meta = {
-    QQQ: { id: 'qqq' as const, label: 'QQQ', role: '科技成长', fee: '0.18%', tone: 'purple' },
-    SPY: { id: 'spy' as const, label: 'SPY', role: '美国大盘', fee: '0.0945%', tone: 'blue' },
-    GLD: { id: 'gld' as const, label: 'GLD', role: '黄金防守', fee: '0.40%', tone: 'gold' },
+    QQQ: { id: 'qqq' as const, label: 'QQQ', role: '科技成长', tone: 'purple' },
+    SPY: { id: 'spy' as const, label: 'SPY', role: '美国大盘', tone: 'blue' },
+    GLD: { id: 'gld' as const, label: 'GLD', role: '黄金防守', tone: 'gold' },
     'BTC-USD': {
       id: 'btc' as const,
       label: 'BTC',
       role: '另类资产',
-      fee: '无统一费率',
       tone: 'orange',
     },
   }
-  return performance.value.series.map((series) => ({
-    ...meta[series.id as keyof typeof meta],
-    returnPct: Number((series.values[series.values.length - 1]! - 100).toFixed(1)),
-  }))
+  return performance.value.series.map((series) => {
+    const card = meta[series.id as keyof typeof meta]
+    const product = usIndexResearch.value.products.find((item) => item.id === card.id)
+    return {
+      ...card,
+      fee: card.id === 'btc' ? '成本需自填' : `${product?.feePct ?? '—'}%`,
+      returnPct: Number((series.values[series.values.length - 1]! - 100).toFixed(1)),
+    }
+  })
 })
 
 const primarySections: Array<{ id: PageSection; label: string }> = [
@@ -141,49 +482,131 @@ const researchSections: Array<{ id: PageSection; label: string }> = [
   { id: 'methodology', label: '规则与口径' },
 ]
 const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '方法调整']
+
+const loadResearchDataset = async () => {
+  researchLoading.value = true
+  researchError.value = false
+  try {
+    const module = await import('@/data/us-index-research.json')
+    usIndexResearch.value = module.default as UsIndexResearchDataset
+    const prices = usIndexResearch.value.monthlySeries[0]?.prices ?? []
+    const latestDate = prices[prices.length - 1]?.date
+    if (latestDate) {
+      dcaEndDate.value = latestDate
+      performanceEndDate.value = latestDate
+    }
+  } catch (error) {
+    researchError.value = true
+    console.warn('Core asset research data failed to load:', error)
+  } finally {
+    researchLoading.value = false
+  }
+}
+const loadDailyDataset = async () => {
+  if (!usIndexResearch.value.datasetVersion || dailyLoading.value || dailyReady.value) return
+  dailyLoading.value = true
+  dailyError.value = false
+  try {
+    const module = await import('@/data/us-index-daily.json')
+    const dataset = module.default as UsIndexDailyDataset
+    if (dataset.datasetVersion !== usIndexResearch.value.datasetVersion)
+      throw new Error('US index overview and daily dataset versions do not match')
+    dailyResearch.value = dataset
+  } catch (error) {
+    dailyError.value = true
+    console.warn('US index daily data failed to load:', error)
+  } finally {
+    dailyLoading.value = false
+  }
+}
+watch([activeSection, () => usIndexResearch.value.datasetVersion], ([section, version]) => {
+  if (section === 'dca' && version) void loadDailyDataset()
+})
+onMounted(loadResearchDataset)
 </script>
 
 <template>
   <main class="us-index-page">
-    <header class="hero">
-      <div>
-        <p class="eyebrow">CORE ASSET RESEARCH WORKBENCH</p>
-        <h1>四类核心资产研究台</h1>
-        <p class="lead">
-          用同一套历史口径比较科技成长、美国大盘、黄金与比特币，并立即试算自己的定投方案。
-        </p>
-      </div>
-      <div class="hero-status">
-        <span>数据状态</span><b>● 已更新</b><small>{{ usIndexResearch.generatedAt.slice(0, 10) }}</small>
-      </div>
-    </header>
+    <ResearchPageHeader
+      eyebrow="CORE ASSET RESEARCH WORKBENCH"
+      title="四类核心资产研究台"
+      description="用同一套历史口径比较科技成长、美国大盘、黄金与比特币，并立即试算自己的定投方案。"
+    >
+      <template v-if="usIndexResearch.generatedAt" #status>
+        <DataUpdateStatus
+          :updated-at="usIndexResearch.generatedAt"
+          schedule="usIndexes"
+          :as-of-date="latestMarketDate"
+          :source-label="usIndexResearch.source.marketData"
+          :quality="usIndexResearch.status"
+        />
+      </template>
+    </ResearchPageHeader>
+
+    <AsyncDataState
+      :loading="researchLoading"
+      :error="researchError"
+      loading-label="正在载入四资产历史数据…"
+      error-message="四资产历史数据暂时无法载入；当前页面不会使用不完整数据生成收益结论。"
+      :retry-label="t('ui.app.retry')"
+      @retry="loadResearchDataset"
+    />
 
     <section class="asset-strip" aria-label="四资产区间速览">
       <button
         v-for="asset in assetCards"
         :key="asset.id"
         :class="['asset-card', asset.tone, { active: dcaProduct === asset.id }]"
+        :aria-pressed="dcaProduct === asset.id"
         @click="dcaProduct = asset.id"
       >
         <span><i></i>{{ asset.role }}</span>
-        <div><strong>{{ asset.label }}</strong><b :class="{ negative: asset.returnPct < 0 }">{{ asset.returnPct >= 0 ? '+' : '' }}{{ asset.returnPct }}%</b></div>
+        <div>
+          <strong>{{ asset.label }}</strong
+          ><b :class="{ negative: asset.returnPct < 0 }"
+            >{{ asset.returnPct >= 0 ? '+' : '' }}{{ asset.returnPct }}%</b
+          >
+        </div>
         <small>{{ performanceStartDate }} 至今 · 费率 {{ asset.fee }}</small>
       </button>
     </section>
 
     <nav class="section-nav" aria-label="美国核心指数研究章节">
-      <div><small>主要任务</small><button v-for="section in primarySections" :key="section.id" :class="{ active: activeSection === section.id }" @click="activeSection = section.id">{{ section.label }}</button></div>
-      <div><small>深入研究</small><button v-for="section in researchSections" :key="section.id" :class="{ active: activeSection === section.id }" @click="activeSection = section.id">{{ section.label }}</button></div>
+      <div>
+        <small>主要任务</small
+        ><button
+          v-for="section in primarySections"
+          :key="section.id"
+          :class="{ active: activeSection === section.id }"
+          :aria-pressed="activeSection === section.id"
+          @click="activeSection = section.id"
+        >
+          {{ section.label }}
+        </button>
+      </div>
+      <div>
+        <small>深入研究</small
+        ><button
+          v-for="section in researchSections"
+          :key="section.id"
+          :class="{ active: activeSection === section.id }"
+          :aria-pressed="activeSection === section.id"
+          @click="activeSection = section.id"
+        >
+          {{ section.label }}
+        </button>
+      </div>
     </nav>
 
     <section v-if="activeSection === 'compare'" class="section-stack">
       <article class="definition-note">
         <b>先分清对象</b>
         <p>
-          <strong>QQQ</strong> 是 ETF，有 0.18% 总费率、NAV、市场价格和跟踪误差；<strong
-            >S&amp;P 500</strong
-          >
-          是指数，本身不能直接买入，也没有基金费率。具体跟踪产品各自收费。
+          <strong>QQQ</strong> 是 ETF，有
+          {{ qqqOfficialProfile?.expenseRatioPct ?? qqqProfile.expenseRatioPct }}%
+          总费率、NAV、市场价格和跟踪误差；<strong>S&amp;P 500</strong>
+          是指数，本身不能直接买入，也没有基金费率；本站定投与收益比较使用官方数据中的 SPY
+          作为可交易代理，其当前毛费率为 {{ spyOfficialProfile?.expenseRatioPct ?? '—' }}%。
         </p>
       </article>
 
@@ -195,28 +618,41 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
           <dl>
             <div>
               <dt>成立</dt>
-              <dd>{{ qqqProfile.inceptionDate }}</dd>
+              <dd>{{ qqqOfficialProfile?.inceptionDate ?? qqqProfile.inceptionDate }}</dd>
             </div>
             <div>
               <dt>总费率</dt>
-              <dd>{{ qqqProfile.expenseRatioPct }}%</dd>
+              <dd>{{ qqqOfficialProfile?.expenseRatioPct ?? qqqProfile.expenseRatioPct }}%</dd>
             </div>
             <div>
-              <dt>目标公司数</dt>
-              <dd>{{ qqqProfile.constituentCount }}</dd>
+              <dt>ETF 持仓证券</dt>
+              <dd>{{ qqqOfficialProfile?.holdingsCount ?? '—' }}</dd>
+            </div>
+            <div>
+              <dt>ETF 净资产</dt>
+              <dd>{{ formatFundAssets(qqqOfficialProfile?.totalNetAssetsUsd) }}</dd>
             </div>
             <div>
               <dt>最大证券</dt>
-              <dd>{{ qqqProfile.largestWeightPct }}%</dd>
+              <dd>{{ qqqLargestCurrentPct.toFixed(2) }}%</dd>
+            </div>
+            <div>
+              <dt>产品概况截至</dt>
+              <dd>{{ qqqOfficialProfile?.sourceAsOfDate ?? '—' }}</dd>
             </div>
           </dl>
-          <a :href="usIndexSources.qqqHome" target="_blank" rel="noopener noreferrer"
+          <a
+            :href="qqqOfficialProfile?.sourceUrl ?? usIndexSources.qqqHome"
+            target="_blank"
+            rel="noopener noreferrer"
             >Invesco 官方资料 ↗</a
           >
         </article>
         <article class="profile sp-card">
-          <div class="profile-title"><span>INDEX · SPX</span><b>美国大盘股市场代理</b></div>
-          <h2>S&amp;P 500</h2>
+          <div class="profile-title">
+            <span>INDEX + ETF PROXY</span><b>指数研究 · SPY 执行代理</b>
+          </div>
+          <h2>S&amp;P 500 / SPY</h2>
           <p>
             由委员会从合资格美国公司中选择，并按自由流通市值加权；不是机械选取市值最大的 500 家。
           </p>
@@ -226,20 +662,31 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
               <dd>{{ sp500Profile.inceptionDate }}</dd>
             </div>
             <div>
-              <dt>指数费率</dt>
-              <dd>不适用</dd>
+              <dt>SPY 成立</dt>
+              <dd>{{ spyOfficialProfile?.inceptionDate ?? '—' }}</dd>
             </div>
             <div>
-              <dt>目标公司数</dt>
-              <dd>{{ sp500Profile.constituentCount }}</dd>
+              <dt>SPY 毛费率</dt>
+              <dd>{{ spyOfficialProfile?.expenseRatioPct ?? '—' }}%</dd>
+            </div>
+            <div>
+              <dt>SPY 持仓证券</dt>
+              <dd>{{ spyOfficialProfile?.holdingsCount ?? '—' }}</dd>
+            </div>
+            <div>
+              <dt>SPY 管理规模</dt>
+              <dd>{{ formatFundAssets(spyOfficialProfile?.totalNetAssetsUsd) }}</dd>
             </div>
             <div>
               <dt>最大证券</dt>
-              <dd>{{ sp500Profile.largestWeightPct }}%</dd>
+              <dd>{{ sp500LargestCurrentPct.toFixed(2) }}%</dd>
             </div>
           </dl>
-          <a :href="usIndexSources.sp500" target="_blank" rel="noopener noreferrer"
-            >S&amp;P DJI 官方资料 ↗</a
+          <a
+            :href="spyOfficialProfile?.sourceUrl ?? usIndexSources.sp500"
+            target="_blank"
+            rel="noopener noreferrer"
+            >State Street SPY 官方资料 ↗</a
           >
         </article>
       </div>
@@ -250,18 +697,24 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
             <small>CONCENTRATION</small>
             <h2>巨头集中度</h2>
           </div>
-          <span>不同快照，仅比较结构</span>
+          <span>官方自动快照</span>
         </div>
         <div class="concentration-grid">
           <article>
-            <div><b>QQQ / Nasdaq-100</b><strong>46.9%</strong></div>
-            <i><span style="width: 46.9%"></span></i>
-            <p>前十大 · 2026-03-31</p>
+            <div>
+              <b>QQQ / Nasdaq-100</b><strong>{{ qqqTop10CurrentPct }}%</strong>
+            </div>
+            <i><span :style="{ width: `${qqqTop10CurrentPct}%` }"></span></i>
+            <p>前十大 · {{ qqqCurrentArchive?.holdingsAsOfDate ?? qqqProfile.holdingsAsOfDate }}</p>
           </article>
           <article>
-            <div><b>S&amp;P 500</b><strong>37.6%</strong></div>
-            <i><span style="width: 37.6%"></span></i>
-            <p>前十大 · 2026-07-31</p>
+            <div>
+              <b>S&amp;P 500</b><strong>{{ sp500Top10CurrentPct }}%</strong>
+            </div>
+            <i><span :style="{ width: `${sp500Top10CurrentPct}%` }"></span></i>
+            <p>
+              前十大 · {{ sp500CurrentArchive?.holdingsAsOfDate ?? sp500Profile.holdingsAsOfDate }}
+            </p>
           </article>
         </div>
         <p class="callout">
@@ -269,7 +722,7 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
           <b>{{ comparison.concentrationDifferencePctPoints.toFixed(1) }} 个百分点</b
           >，科技行业权重高约
           <b>{{ comparison.technologyDifferencePctPoints.toFixed(1) }} 个百分点</b>。由于日期及
-          ICB/GICS 分类不同，这里只用于结构判断，不是严格的同日归因。
+          产品分类/GICS 口径不同，这里只用于结构判断，不是严格的同日归因。
         </p>
       </section>
 
@@ -321,9 +774,17 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
       </div>
       <div class="control-row">
         <div class="index-switch">
-          <button :class="{ active: activeIndex === 'qqq' }" @click="activeIndex = 'qqq'">
+          <button
+            :class="{ active: activeIndex === 'qqq' }"
+            :aria-pressed="activeIndex === 'qqq'"
+            @click="activeIndex = 'qqq'"
+          >
             QQQ / Nasdaq-100</button
-          ><button :class="{ active: activeIndex === 'sp500' }" @click="activeIndex = 'sp500'">
+          ><button
+            :class="{ active: activeIndex === 'sp500' }"
+            :aria-pressed="activeIndex === 'sp500'"
+            @click="activeIndex = 'sp500'"
+          >
             S&amp;P 500
           </button>
         </div>
@@ -332,6 +793,7 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
             v-for="filter in filters"
             :key="filter"
             :class="{ active: timelineFilter === filter }"
+            :aria-pressed="timelineFilter === filter"
             @click="timelineFilter = filter"
           >
             {{ filter }}
@@ -370,9 +832,17 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
         <p>证券行不等于公司数：Alphabet A/C 等多股权类别需要分别显示、合并理解风险。</p>
       </div>
       <div class="index-switch large">
-        <button :class="{ active: activeIndex === 'qqq' }" @click="activeIndex = 'qqq'">
+        <button
+          :class="{ active: activeIndex === 'qqq' }"
+          :aria-pressed="activeIndex === 'qqq'"
+          @click="activeIndex = 'qqq'"
+        >
           QQQ / Nasdaq-100</button
-        ><button :class="{ active: activeIndex === 'sp500' }" @click="activeIndex = 'sp500'">
+        ><button
+          :class="{ active: activeIndex === 'sp500' }"
+          :aria-pressed="activeIndex === 'sp500'"
+          @click="activeIndex = 'sp500'"
+        >
           S&amp;P 500
         </button>
       </div>
@@ -381,13 +851,13 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
           <small>当前对象</small><strong>{{ activeProfile.name }}</strong>
         </div>
         <div>
-          <small>持仓截点</small><strong>{{ activeProfile.holdingsAsOfDate }}</strong>
+          <small>持仓截点</small><strong>{{ activeHoldingsAsOfDate }}</strong>
         </div>
         <div>
-          <small>前十大合计</small><strong>{{ activeProfile.top10WeightPct }}%</strong>
+          <small>前十大合计</small><strong>{{ activeTop10WeightPct }}%</strong>
         </div>
         <div>
-          <small>分类体系</small><strong>{{ activeProfile.sectorSystem }}</strong>
+          <small>行业数据截至</small><strong>{{ activeSectorAsOfDate }}</strong>
         </div>
       </div>
       <div class="holdings-layout">
@@ -397,7 +867,14 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
               <small>SECTORS</small>
               <h2>行业权重</h2>
             </div>
-            <span>{{ activeProfile.sectorSystem }}</span>
+            <a
+              v-if="activeLeaderArchive"
+              :href="activeLeaderArchive.sectorSourceUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              >{{ activeSectorSystem }} ↗</a
+            >
+            <span v-else>{{ activeSectorSystem }}</span>
           </div>
           <div class="sector-bars">
             <div v-for="sector in activeSectors" :key="sector[0]">
@@ -412,7 +889,7 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
               <small>TOP 10</small>
               <h2>前十大证券</h2>
             </div>
-            <span>{{ activeProfile.holdingsAsOfDate }}</span>
+            <span>{{ activeHoldingsAsOfDate }}</span>
           </div>
           <div class="holding-list">
             <article v-for="holding in activeHoldings" :key="holding.rank">
@@ -426,21 +903,20 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
               }}</b>
             </article>
           </div>
-          <p v-if="activeIndex === 'qqq'" class="note">
-            公开的逐只权重四舍五入后合计
-            {{ qqqConcentration.topWeightPct.toFixed(1) }}%，官方集中度为 46.9%。
+          <p v-if="activeLeaderArchive" class="note">
+            当前名单与权重来自自动锁定的官方基金持仓快照；行业标签未包含在该归档源中，因此不使用旧分类回填。
           </p>
-          <p v-else class="note">
-            S&amp;P DJI 同一公开表提供排名和前十大总权重
-            37.6%，但未逐只给出权重；本模块不使用第三方数据补齐。
-          </p>
+          <p v-else class="note">自动归档不可用时才显示内置参考快照，并明确保留其原始截止日期。</p>
         </section>
       </div>
     </section>
 
     <section v-else-if="activeSection === 'performance'" class="section-stack">
       <div class="section-intro">
-        <div><small>NORMALIZED RETURN</small><h2>四类核心资产收益对比</h2></div>
+        <div>
+          <small>NORMALIZED RETURN</small>
+          <h2>四类核心资产收益对比</h2>
+        </div>
         <p>QQQ、SPY、GLD 使用复权收盘价，比特币使用美元现货参考价；按自然月末取样并统一为 100。</p>
       </div>
       <div class="performance-controls">
@@ -454,38 +930,215 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
           <EChart :option="performanceOption" label="QQQ、标普500、黄金和比特币归一化收益率图" />
         </section>
         <aside class="panel quick-calc">
-          <div><small>QUICK DCA</small><h2>快速定投试算</h2></div>
+          <div>
+            <small>QUICK DCA</small>
+            <h2>快速定投试算</h2>
+          </div>
           <div class="asset-pills">
-            <button v-for="asset in assetCards" :key="asset.id" :class="{ active: dcaProduct === asset.id }" @click="dcaProduct = asset.id">{{ asset.label }}</button>
+            <button
+              v-for="asset in assetCards"
+              :key="asset.id"
+              :class="{ active: dcaProduct === asset.id }"
+              :aria-pressed="dcaProduct === asset.id"
+              @click="dcaProduct = asset.id"
+            >
+              {{ asset.label }}
+            </button>
           </div>
           <label>每月投入（USD）<input v-model.number="dcaAmount" type="number" min="1" /></label>
           <label>开始日期<input v-model="dcaStartDate" type="date" /></label>
           <div v-if="dcaResult" class="quick-result">
-            <small>历史模拟期末资产</small><strong>${{ dcaResult.endingValue.toLocaleString() }}</strong>
-            <span :class="{ positive: dcaResult.gain >= 0 }">投入 ${{ dcaResult.totalContributed.toLocaleString() }} · {{ dcaResult.totalReturnPct >= 0 ? '+' : '' }}{{ dcaResult.totalReturnPct }}%</span>
+            <small>历史模拟期末资产</small
+            ><strong>${{ dcaResult.endingValue.toLocaleString() }}</strong>
+            <span :class="{ positive: dcaResult.gain >= 0 }"
+              >投入 ${{ dcaResult.totalContributed.toLocaleString() }} ·
+              {{ dcaResult.totalReturnPct >= 0 ? '+' : '' }}{{ dcaResult.totalReturnPct }}%</span
+            >
           </div>
           <button class="detail-action" @click="activeSection = 'dca'">打开完整计算器 →</button>
-          <p>历史模拟，不是收益承诺。税、佣金、价差和汇率未计。</p>
+          <p>完整计算器打开后按需加载日线；交易费、平台费和股息税设置会同步应用。</p>
         </aside>
       </div>
       <article class="definition-note">
         <b>比较口径</b>
-        <p>图中 120 表示相对共同起点累计上涨 20%。ETF 采用复权价格近似含分红总回报；比特币没有现金分红。每项资产取各自然月最后一个有效报价，避免把 BTC 周末波动与 ETF 休市旧价格当作同步变化。</p>
+        <p>
+          图中 120 表示相对共同起点累计上涨 20%。ETF
+          采用复权价格近似含分红总回报；比特币没有现金分红。每项资产取各自然月最后一个有效报价，避免把
+          BTC 周末波动与 ETF 休市旧价格当作同步变化。
+        </p>
       </article>
     </section>
 
     <section v-else-if="activeSection === 'leaders'" class="section-stack">
       <div class="section-intro">
-        <div><small>LEADER FOLLOWING</small><h2>每期重仓龙头跟踪</h2></div>
+        <div>
+          <small>LEADER FOLLOWING</small>
+          <h2>每期重仓龙头跟踪</h2>
+        </div>
         <p>默认比较 Top 5 等权组合与对应 ETF 总回报；名单只使用当期已发布并归档的官方快照。</p>
       </div>
+      <template v-if="activeLeaderArchive && latestLeaderSnapshot">
+        <div class="index-switch large">
+          <button
+            :class="{ active: activeIndex === 'qqq' }"
+            :aria-pressed="activeIndex === 'qqq'"
+            @click="activeIndex = 'qqq'"
+          >
+            QQQ 官方持仓
+          </button>
+          <button
+            :class="{ active: activeIndex === 'sp500' }"
+            :aria-pressed="activeIndex === 'sp500'"
+            @click="activeIndex = 'sp500'"
+          >
+            SPY 官方持仓
+          </button>
+        </div>
+        <div class="snapshot-banner leader-snapshot-banner">
+          <div>
+            <small>归档月份</small><strong>{{ latestLeaderSnapshot.period }}</strong>
+          </div>
+          <div>
+            <small>官方持仓截至</small><strong>{{ activeLeaderArchive.holdingsAsOfDate }}</strong>
+          </div>
+          <div>
+            <small>前五合计权重</small
+            ><strong
+              >{{
+                activeLeaderArchive.leaders
+                  .slice(0, 5)
+                  .reduce((sum, leader) => sum + leader.weightPct, 0)
+                  .toFixed(2)
+              }}%</strong
+            >
+          </div>
+          <div><small>归档状态</small><strong>已锁定</strong></div>
+        </div>
+        <section class="panel table-panel leader-archive-table">
+          <div class="panel-heading">
+            <div>
+              <small>PROSPECTIVE ARCHIVE</small>
+              <h2>当期前十大重仓</h2>
+            </div>
+            <a :href="activeLeaderArchive.sourceUrl" target="_blank" rel="noopener noreferrer"
+              >官方持仓源 ↗</a
+            >
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>代码</th>
+                  <th>公司</th>
+                  <th class="number">当期权重</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="leader in activeLeaderArchive.leaders" :key="leader.ticker">
+                  <td>{{ leader.rank }}</td>
+                  <td>
+                    <strong>{{ leader.ticker }}</strong>
+                  </td>
+                  <td>{{ leader.name }}</td>
+                  <td class="number">{{ leader.weightPct.toFixed(2) }}%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </template>
+      <template v-if="activeLeaderSummary">
+        <div class="metric-grid leader-evidence-metrics">
+          <article>
+            <small>完整持有期</small><strong>{{ activeLeaderSummary.periods }}</strong
+            ><span>Top 5 等权</span>
+          </article>
+          <article>
+            <small>跑赢期数</small><strong>{{ activeLeaderSummary.wins }}</strong
+            ><span>胜率 {{ activeLeaderSummary.winRatePct }}%</span>
+          </article>
+          <article>
+            <small>龙头组合累计</small
+            ><strong
+              >{{ activeLeaderSummary.leaderReturnPct >= 0 ? '+' : ''
+              }}{{ activeLeaderSummary.leaderReturnPct }}%</strong
+            ><span>扣除往返成本</span>
+          </article>
+          <article>
+            <small>{{ activeIndex === 'qqq' ? 'QQQ' : 'SPY' }} 累计</small
+            ><strong
+              >{{ activeLeaderSummary.benchmarkReturnPct >= 0 ? '+' : ''
+              }}{{ activeLeaderSummary.benchmarkReturnPct }}%</strong
+            ><span
+              >超额 {{ activeLeaderSummary.excessReturnPctPoints >= 0 ? '+' : ''
+              }}{{ activeLeaderSummary.excessReturnPctPoints }} 个百分点</span
+            >
+          </article>
+        </div>
+        <section class="panel table-panel leader-archive-table">
+          <div class="panel-heading">
+            <div>
+              <small>CLOSED PERIODS</small>
+              <h2>逐期对照</h2>
+            </div>
+            <span>Top 5 等权 · 含息复权</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>归档期</th>
+                  <th>实际持有区间</th>
+                  <th>龙头组合</th>
+                  <th class="number">龙头净回报</th>
+                  <th class="number">指数净回报</th>
+                  <th class="number">超额</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="period in activeLeaderEvidence"
+                  :key="`${period.fromPeriod}-${period.toPeriod}`"
+                >
+                  <td>{{ period.fromPeriod }} → {{ period.toPeriod }}</td>
+                  <td>{{ period.startDate }} → {{ period.endDate }}</td>
+                  <td>{{ period.strategy.leaderTickers.join(' · ') }}</td>
+                  <td class="number">
+                    {{ period.strategy.netReturnPct >= 0 ? '+' : ''
+                    }}{{ period.strategy.netReturnPct }}%
+                  </td>
+                  <td class="number">
+                    {{ period.strategy.benchmarkNetReturnPct >= 0 ? '+' : ''
+                    }}{{ period.strategy.benchmarkNetReturnPct }}%
+                  </td>
+                  <td class="number">
+                    {{ period.strategy.excessReturnPctPoints >= 0 ? '+' : ''
+                    }}{{ period.strategy.excessReturnPctPoints }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </template>
       <article class="panel pending-panel">
         <span>PROSPECTIVE TRACKING</span>
-        <h2>尚不足以判断“跟买龙头”是否跑赢指数</h2>
+        <h2>
+          {{
+            activeLeaderSummary
+              ? '已有初步逐期结果，样本仍不足以下长期结论'
+              : usIndexResearch.leaderSnapshots.length
+                ? '归档已启动，尚不足以判断是否跑赢'
+                : '尚不足以判断“跟买龙头”是否跑赢指数'
+          }}
+        </h2>
         <p>
-          当前已建立自动归档入口，但可复演的历史快照为
-          <b>{{ usIndexResearch.leaderSnapshots.length }}</b> 期。至少需要两个连续快照才能形成一个完整持有期；
-          系统不会用今天的成分名单回填过去，以避免前视偏差和幸存者偏差。
+          当前可复演的官方月度快照为
+          <b>{{ usIndexResearch.leaderSnapshots.length }}</b>
+          期。至少需要两个连续快照才能形成一个完整持有期；
+          系统不会用今天的成分名单回填过去，以避免前视偏差和幸存者偏差。少于 12
+          个完整月度持有期时只展示观察结果，不输出“长期跑赢”结论。
         </p>
         <div class="research-rules">
           <b>未来每期输出</b><span>Top 1 / 3 / 5 / 10</span><span>等权 / 官方权重</span
@@ -494,36 +1147,315 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
       </article>
       <article class="definition-note">
         <b>判定规则</b>
-        <p>快照公开后的下一共同交易日成交，持有到下一期；龙头与 QQQ/SPY 使用相同现金流、成交价和分红规则。数据不完整的周期标记不可用，不给出方向性结论。</p>
+        <p>
+          每月首次成功抓取的官方持仓会立即锁定；从归档后的下一共同收盘价持有至下期归档前的最后共同收盘价。龙头与
+          QQQ/SPY 均使用复权收盘价，并统一扣除 0.20%
+          往返成本假设。任一证券缺少共同交易区间时整期不可用，不用局部样本补齐。
+        </p>
       </article>
     </section>
 
     <section v-else-if="activeSection === 'dca'" class="section-stack">
       <div class="section-intro">
-        <div><small>DOLLAR-COST AVERAGING</small><h2>四资产定投计算器</h2></div>
-        <p>标普500和黄金分别使用 SPY、GLD 代理，比特币使用 BTC-USD 参考现货；ETF 计算包含现金分红与拆股事件。</p>
+        <div>
+          <small>DOLLAR-COST AVERAGING</small>
+          <h2>四资产定投计算器</h2>
+        </div>
+        <p>
+          标普500和黄金分别使用 SPY、GLD 代理，比特币使用 BTC-USD 参考现货；ETF
+          计算包含现金分红与拆股事件。
+        </p>
       </div>
-      <div class="calculator-layout">
+      <AsyncDataState
+        :loading="dailyLoading"
+        :error="dailyError"
+        loading-label="正在按需载入完整日线数据…"
+        error-message="完整日线数据暂时无法载入；为避免版本混用，计算器不会使用旧数据生成结果。"
+        :retry-label="t('ui.app.retry')"
+        @retry="loadDailyDataset"
+      />
+      <div v-if="dailyReady" class="calculator-layout">
         <form class="panel calculator-form" @submit.prevent>
-          <label>产品<select v-model="dcaProduct"><option value="qqq">QQQ · Nasdaq-100</option><option value="spy">SPY · S&amp;P 500</option><option value="gld">GLD · 黄金</option><option value="btc">BTC-USD · 比特币</option></select></label>
+          <label
+            >产品<select v-model="dcaProduct">
+              <option value="qqq">QQQ · Nasdaq-100</option>
+              <option value="spy">SPY · S&amp;P 500</option>
+              <option value="gld">GLD · 黄金</option>
+              <option value="btc">BTC-USD · 比特币</option>
+            </select></label
+          >
+          <article v-if="dcaProduct === 'gld' && gldOfficialProfile" class="product-cost-note">
+            <b>GLD 官方产品快照</b>
+            <span>
+              毛费率 {{ gldOfficialProfile.expenseRatioPct }}% · 净资产
+              {{ formatFundAssets(gldOfficialProfile.totalNetAssetsUsd) }} · 实物黄金
+              {{ gldOfficialProfile.goldHoldingsTonnes?.toLocaleString() }} 吨
+            </span>
+            <small>黄金持仓截至 {{ gldOfficialProfile.goldHoldingsAsOfDate }}</small>
+          </article>
+          <article v-else-if="dcaProduct === 'btc'" class="product-cost-note btc-cost-note">
+            <b>BTC-USD 是现货参考价格，不是零成本产品</b>
+            <span>请按实际平台填写买卖交易费、价差/滑点代理及年化托管或平台费。</span>
+            <small>链上转账费、汇率成本和税务仍需另行评估。</small>
+          </article>
           <label>开始日期<input v-model="dcaStartDate" type="date" /></label>
           <label>结束日期<input v-model="dcaEndDate" type="date" /></label>
-          <label>每月投入（USD）<input v-model.number="dcaAmount" type="number" min="1" step="1" /></label>
+          <label
+            >每月投入（USD）<input v-model.number="dcaAmount" type="number" min="1" step="1"
+          /></label>
           <label>每月日期<input v-model.number="dcaDay" type="number" min="1" max="31" /></label>
-          <label>非交易日<select v-model="dcaExecution"><option value="next-trading-day">顺延下一交易日</option><option value="previous-trading-day">前移上一交易日</option></select></label>
-          <label>成交价<select v-model="dcaPrice"><option value="close">收盘价</option><option value="open">开盘价</option></select></label>
+          <label
+            >非交易日<select v-model="dcaExecution">
+              <option value="next-trading-day">顺延下一交易日</option>
+              <option value="previous-trading-day">前移上一交易日</option>
+            </select></label
+          >
+          <label
+            >成交价<select v-model="dcaPrice">
+              <option value="close">收盘价</option>
+              <option value="open">开盘价</option>
+            </select></label
+          >
           <label class="check"><input v-model="dcaReinvest" type="checkbox" /> 分红再投资</label>
+          <div class="form-divider"><b>个人成本假设</b><span>按自己的券商和税务情况填写</span></div>
+          <label
+            >每次买入费率（%）<input
+              v-model.number="dcaPurchaseFeePct"
+              type="number"
+              min="0"
+              max="99"
+              step="0.01"
+          /></label>
+          <label
+            >每次固定费用（USD）<input
+              v-model.number="dcaPurchaseFeeFixed"
+              type="number"
+              min="0"
+              :max="Math.max(0, dcaAmount - 0.01)"
+              step="0.01"
+          /></label>
+          <label
+            >额外年化托管/平台费（%）<input
+              v-model.number="dcaAnnualCustodyFeePct"
+              type="number"
+              min="0"
+              max="99"
+              step="0.01"
+          /></label>
+          <label
+            >现金股息税率（%）<input
+              v-model.number="dcaDividendTaxPct"
+              type="number"
+              min="0"
+              max="100"
+              step="0.1"
+          /></label>
+          <label
+            >期末卖出费率（%）<input
+              v-model.number="dcaLiquidationFeePct"
+              type="number"
+              min="0"
+              max="99"
+              step="0.01"
+          /></label>
+          <p v-if="isZeroFrictionBtc" class="zero-friction-warning">
+            当前 BTC 为零摩擦情景，只适合观察价格路径；这不代表真实买卖与托管成本为零。
+          </p>
         </form>
         <section class="panel results-panel">
           <template v-if="dcaResult">
-            <div class="result-hero"><small>期末资产</small><strong>${{ dcaResult.endingValue.toLocaleString() }}</strong><span :class="{ positive: dcaResult.gain >= 0 }">{{ dcaResult.gain >= 0 ? '+' : '' }}${{ dcaResult.gain.toLocaleString() }} · {{ dcaResult.totalReturnPct }}%</span></div>
-            <dl><div><dt>总投入</dt><dd>${{ dcaResult.totalContributed.toLocaleString() }}</dd></div><div><dt>执行次数</dt><dd>{{ dcaResult.purchases.length }}</dd></div><div><dt>累计份额</dt><dd>{{ dcaResult.shares }}</dd></div><div><dt>{{ dcaReinvest ? '再投资分红' : '现金分红' }}</dt><dd>${{ (dcaReinvest ? dcaResult.reinvestedDividends : dcaResult.cashDividends).toLocaleString() }}</dd></div><div><dt>年费率</dt><dd>{{ dcaResult.annualExpenseRatioPct }}%</dd></div><div><dt>估算已内含费用</dt><dd>≈ ${{ dcaResult.estimatedEmbeddedExpense.toLocaleString() }}</dd></div></dl>
+            <div class="result-hero">
+              <small>{{ dcaLiquidationFeePct > 0 ? '预估清仓后资产' : '期末资产' }}</small
+              ><strong>${{ dcaResult.endingValue.toLocaleString() }}</strong
+              ><span :class="{ positive: dcaResult.gain >= 0 }"
+                >{{ dcaResult.gain >= 0 ? '+' : '' }}${{ dcaResult.gain.toLocaleString() }} ·
+                {{ dcaResult.totalReturnPct }}%</span
+              >
+            </div>
+            <dl>
+              <div>
+                <dt>总投入</dt>
+                <dd>${{ dcaResult.totalContributed.toLocaleString() }}</dd>
+              </div>
+              <div>
+                <dt>实际买入金额</dt>
+                <dd>${{ dcaResult.totalInvested.toLocaleString() }}</dd>
+              </div>
+              <div>
+                <dt>资金加权年化</dt>
+                <dd>
+                  {{
+                    dcaResult.annualizedMoneyWeightedReturnPct === null
+                      ? '—'
+                      : `${dcaResult.annualizedMoneyWeightedReturnPct}%`
+                  }}
+                </dd>
+              </div>
+              <div>
+                <dt>执行次数</dt>
+                <dd>{{ dcaResult.purchases.length }}</dd>
+              </div>
+              <div>
+                <dt>累计份额</dt>
+                <dd>{{ dcaResult.shares }}</dd>
+              </div>
+              <div>
+                <dt>买入交易费</dt>
+                <dd>${{ dcaResult.totalPurchaseFees.toLocaleString() }}</dd>
+              </div>
+              <div>
+                <dt>托管/平台费</dt>
+                <dd>${{ dcaResult.totalCustodyFees.toLocaleString() }}</dd>
+              </div>
+              <div>
+                <dt>税前分红</dt>
+                <dd>${{ dcaResult.grossDividends.toLocaleString() }}</dd>
+              </div>
+              <div>
+                <dt>股息税</dt>
+                <dd>${{ dcaResult.dividendTaxes.toLocaleString() }}</dd>
+              </div>
+              <div>
+                <dt>{{ dcaReinvest ? '税后再投资分红' : '税后现金分红' }}</dt>
+                <dd>
+                  ${{
+                    (dcaReinvest
+                      ? dcaResult.reinvestedDividends
+                      : dcaResult.cashDividends
+                    ).toLocaleString()
+                  }}
+                </dd>
+              </div>
+              <div>
+                <dt>预估卖出费</dt>
+                <dd>${{ dcaResult.estimatedLiquidationFee.toLocaleString() }}</dd>
+              </div>
+              <div>
+                <dt>产品年费率</dt>
+                <dd>{{ dcaResult.annualExpenseRatioPct }}%</dd>
+              </div>
+              <div>
+                <dt>估算已内含费用</dt>
+                <dd>≈ ${{ dcaResult.estimatedEmbeddedExpense.toLocaleString() }}</dd>
+              </div>
+            </dl>
           </template>
           <p v-else class="invalid-result">所选日期或金额无法计算，请检查输入范围。</p>
         </section>
       </div>
-      <article class="definition-note"><b>费用口径</b><p>QQQ、SPY 和 GLD 的真实价格已经反映基金日常费用，结果不会再次扣除；BTC-USD 不是基金，年费率记为 0。估算费用只用于理解成本量级；税、佣金、托管费、汇率、买卖价差和滑点暂未计入。</p></article>
-      <p class="data-stamp">行情更新：{{ usIndexResearch.generatedAt.slice(0, 10) }} · 数据源 Yahoo Finance（非官方）· 自动任务失败时保留上一份有效快照</p>
+      <section v-if="dcaComparison" class="panel table-panel dca-comparison-panel">
+        <div class="panel-heading">
+          <div>
+            <small>SAME CASH-FLOW COMPARISON</small>
+            <h2>同一方案的四资产结果</h2>
+          </div>
+          <span>{{ dcaComparison.commonStartDate }} → {{ dcaComparison.commonEndDate }}</span>
+        </div>
+        <p v-if="!dcaComparison.comparableCashFlows" class="comparison-warning">
+          因交易日差异，各资产实际执行期数不同，本表不进行优劣排名。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>资产</th>
+                <th class="number">投入</th>
+                <th class="number">期末资产</th>
+                <th class="number">总回报</th>
+                <th class="number">资金加权年化</th>
+                <th class="number">额外费用与税</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in dcaComparison.results" :key="item.id">
+                <td>
+                  <strong>{{ dcaAssetLabel(item.id) }}</strong>
+                </td>
+                <td class="number">${{ item.result.totalContributed.toLocaleString() }}</td>
+                <td class="number">${{ item.result.endingValue.toLocaleString() }}</td>
+                <td class="number" :class="{ positive: item.result.totalReturnPct >= 0 }">
+                  {{ item.result.totalReturnPct >= 0 ? '+' : '' }}{{ item.result.totalReturnPct }}%
+                </td>
+                <td class="number">
+                  {{
+                    item.result.annualizedMoneyWeightedReturnPct === null
+                      ? '—'
+                      : `${item.result.annualizedMoneyWeightedReturnPct}%`
+                  }}
+                </td>
+                <td class="number">
+                  ${{
+                    (
+                      item.result.totalPurchaseFees +
+                      item.result.totalCustodyFees +
+                      item.result.dividendTaxes +
+                      item.result.estimatedLiquidationFee
+                    ).toLocaleString()
+                  }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">
+          为避免成立日期偏差，四项都从共同可用日线起点开始；个人费用参数保持一致，产品自身费率已反映在历史价格中，不重复扣除。
+        </p>
+      </section>
+      <section v-if="dcaResult" class="panel table-panel dca-ledger-panel">
+        <div class="panel-heading">
+          <div>
+            <small>EXECUTION LEDGER</small>
+            <h2>逐笔定投明细</h2>
+          </div>
+          <button type="button" class="ledger-download" @click="downloadDcaCsv">
+            下载完整 CSV
+          </button>
+        </div>
+        <p class="note">
+          页面展示最近 {{ recentDcaPurchases.length }} 笔，共 {{ dcaResult.purchases.length }}
+          笔；CSV 包含完整汇总、实际成交日、投入、费用、成交价格和份额。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>实际成交日</th>
+                <th class="number">当期投入</th>
+                <th class="number">实际买入</th>
+                <th class="number">交易费</th>
+                <th class="number">成交价</th>
+                <th class="number">买入份额</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(purchase, index) in recentDcaPurchases"
+                :key="`${purchase.date}-${index}`"
+              >
+                <td>{{ purchase.date }}</td>
+                <td class="number">${{ purchase.amount.toLocaleString() }}</td>
+                <td class="number">${{ purchase.investedAmount.toLocaleString() }}</td>
+                <td class="number">${{ purchase.transactionFee.toLocaleString() }}</td>
+                <td class="number">${{ purchase.price.toLocaleString() }}</td>
+                <td class="number">{{ purchase.shares.toFixed(6) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <article class="definition-note">
+        <b>费用与收益口径</b>
+        <p>
+          每月投入被视为包含买入费用的总预算，交易费先扣除，余额才购买份额；分红先扣除用户填写的税率，再进入现金或再投资。期末卖出费仅作为清仓情景扣除。“总收益率”是期末盈亏除以累计投入，“资金加权年化”则考虑每笔投入的实际日期。QQQ、SPY
+          和 GLD
+          的历史价格已经反映基金日常费用，因此产品费率不会重复扣除；“估算已内含费用”只用于理解成本量级。“额外年化托管/平台费”会按实际持有天数持续扣减份额，适用于交易所、托管人或投顾另收的费用。BTC-USD
+          没有基金费率，不能据此理解为零成本；买卖价差与滑点可保守并入交易费率。汇率、链上转账费和个人资本利得税仍未计入。
+        </p>
+      </article>
+      <p class="data-stamp">
+        行情更新：{{ usIndexResearch.generatedAt.slice(0, 10) }} · 数据源 Yahoo Finance（非官方）·
+        自动任务失败时保留上一份有效快照
+      </p>
     </section>
 
     <section v-else class="section-stack methodology">
@@ -600,9 +1532,9 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
 
 <style scoped>
 .us-index-page {
-  max-width: 1440px;
+  max-width: var(--content-workbench);
   margin: 0 auto;
-  padding: 32px clamp(18px, 4vw, 56px) 72px;
+  padding: 32px var(--page-gutter) 72px;
   color: var(--ink);
 }
 .hero {
@@ -683,10 +1615,18 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   border-color: var(--asset-color);
   box-shadow: inset 0 0 0 1px var(--asset-color);
 }
-.asset-card.purple { --asset-color: #7357d8; }
-.asset-card.blue { --asset-color: #3b82b8; }
-.asset-card.gold { --asset-color: #d29b35; }
-.asset-card.orange { --asset-color: #d76b41; }
+.asset-card.purple {
+  --asset-color: #7357d8;
+}
+.asset-card.blue {
+  --asset-color: #3b82b8;
+}
+.asset-card.gold {
+  --asset-color: #d29b35;
+}
+.asset-card.orange {
+  --asset-color: #d76b41;
+}
 .asset-card > span,
 .asset-card small {
   color: var(--muted);
@@ -705,9 +1645,16 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   display: flex;
   justify-content: space-between;
 }
-.asset-card strong { font-size: 16px; }
-.asset-card b { color: #26865c; font-size: 12px; }
-.asset-card b.negative { color: #b05050; }
+.asset-card strong {
+  font-size: 16px;
+}
+.asset-card b {
+  color: #26865c;
+  font-size: 12px;
+}
+.asset-card b.negative {
+  color: #b05050;
+}
 .section-nav {
   width: 100%;
   box-sizing: border-box;
@@ -1065,6 +2012,64 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   margin-top: 5px;
   font-size: 12px;
 }
+.leader-archive-table,
+.dca-comparison-panel,
+.dca-ledger-panel {
+  overflow: hidden;
+}
+.leader-archive-table .table-wrap,
+.dca-comparison-panel .table-wrap,
+.dca-ledger-panel .table-wrap {
+  overflow-x: auto;
+}
+.leader-archive-table table,
+.dca-comparison-panel table,
+.dca-ledger-panel table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+}
+.leader-archive-table th,
+.leader-archive-table td,
+.dca-comparison-panel th,
+.dca-comparison-panel td,
+.dca-ledger-panel th,
+.dca-ledger-panel td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.leader-archive-table th,
+.dca-comparison-panel th,
+.dca-ledger-panel th {
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 600;
+}
+.leader-archive-table .number,
+.dca-comparison-panel .number,
+.dca-ledger-panel .number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.dca-comparison-panel .positive {
+  color: #26865c;
+}
+.comparison-warning {
+  margin: 0 0 14px;
+  color: #b36a2e;
+  font-size: 9px;
+}
+.ledger-download {
+  padding: 8px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 7px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
 .holdings-layout {
   display: grid;
   grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
@@ -1243,6 +2248,62 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   width: auto;
   margin: 0;
 }
+.form-divider {
+  grid-column: 1 / -1;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.form-divider b,
+.form-divider span {
+  display: block;
+}
+.form-divider b {
+  color: var(--ink);
+  font-size: 11px;
+}
+.form-divider span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 8px;
+}
+.product-cost-note,
+.zero-friction-warning {
+  grid-column: 1 / -1;
+}
+.product-cost-note {
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+  border-radius: 8px;
+  background: var(--accent-soft);
+}
+.product-cost-note b,
+.product-cost-note span,
+.product-cost-note small {
+  display: block;
+}
+.product-cost-note b {
+  color: var(--accent);
+  font-size: 10px;
+}
+.product-cost-note span {
+  margin-top: 5px;
+  font-size: 9px;
+  line-height: 1.6;
+}
+.product-cost-note small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 8px;
+}
+.zero-friction-warning {
+  margin: 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--warning, #d29b35);
+  background: color-mix(in srgb, #d29b35 10%, transparent);
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.6;
+}
 .result-hero {
   padding-bottom: 20px;
   border-bottom: 1px solid var(--border);
@@ -1258,7 +2319,9 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
 }
 .result-hero strong {
   margin: 8px 0;
-  font: 700 36px Georgia, serif;
+  font:
+    700 36px Georgia,
+    serif;
 }
 .result-hero span {
   color: #b05050;
@@ -1332,11 +2395,26 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   grid-template-columns: minmax(0, 1fr) 310px;
   gap: 16px;
 }
-.quick-calc { display: grid; align-content: start; gap: 15px; }
-.quick-calc h2 { margin: 4px 0 0; font-size: 18px; }
+.quick-calc {
+  display: grid;
+  align-content: start;
+  gap: 15px;
+}
+.quick-calc h2 {
+  margin: 4px 0 0;
+  font-size: 18px;
+}
 .quick-calc > div > small,
-.quick-result small { color: var(--muted); font-size: 8px; letter-spacing: 0.1em; }
-.asset-pills { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.quick-result small {
+  color: var(--muted);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+}
+.asset-pills {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
 .asset-pills button,
 .detail-action {
   min-height: 36px;
@@ -1346,17 +2424,59 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   color: var(--muted);
   cursor: pointer;
 }
-.asset-pills button.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
-.quick-calc label { color: var(--muted); font-size: 9px; }
-.quick-calc input { width: 100%; margin-top: 6px; padding: 10px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface-soft); color: var(--ink); box-sizing: border-box; }
-.quick-result { padding: 16px; border-radius: 10px; background: linear-gradient(135deg, var(--accent-soft), var(--surface-soft)); }
+.asset-pills button.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+}
+.quick-calc label {
+  color: var(--muted);
+  font-size: 9px;
+}
+.quick-calc input {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  box-sizing: border-box;
+}
+.quick-result {
+  padding: 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent-soft), var(--surface-soft));
+}
 .quick-result strong,
-.quick-result span { display: block; }
-.quick-result strong { margin: 8px 0; font: 700 28px Georgia, serif; }
-.quick-result span { color: #b05050; font-size: 9px; }
-.quick-result span.positive { color: #26865c; }
-.detail-action { background: var(--accent); color: white; border-color: var(--accent); }
-.quick-calc > p { margin: 0; color: var(--muted); font-size: 8px; line-height: 1.6; }
+.quick-result span {
+  display: block;
+}
+.quick-result strong {
+  margin: 8px 0;
+  font:
+    700 28px Georgia,
+    serif;
+}
+.quick-result span {
+  color: #b05050;
+  font-size: 9px;
+}
+.quick-result span.positive {
+  color: #26865c;
+}
+.detail-action {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+.quick-calc > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.6;
+}
 @media (max-width: 1000px) {
   .hero {
     grid-template-columns: 1fr;
@@ -1366,7 +2486,9 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
   .calculator-layout {
     grid-template-columns: 1fr;
   }
-  .decision-grid { grid-template-columns: 1fr; }
+  .decision-grid {
+    grid-template-columns: 1fr;
+  }
 }
 @media (max-width: 720px) {
   .us-index-page {
@@ -1394,10 +2516,22 @@ const filters: TimelineFilter[] = ['全部', '发布', '产品化', '危机', '�
     overflow-x: auto;
     display: block;
   }
-  .section-nav > div { width: max-content; }
-  .section-nav > div + div { margin-top: 4px; }
-  .asset-strip { grid-template-columns: repeat(4, minmax(150px, 1fr)); overflow-x: auto; padding-bottom: 4px; }
-  .hero-status { padding: 14px 0 0; border-top: 1px solid rgb(255 255 255 / 16%); border-left: 0; }
+  .section-nav > div {
+    width: max-content;
+  }
+  .section-nav > div + div {
+    margin-top: 4px;
+  }
+  .asset-strip {
+    grid-template-columns: repeat(4, minmax(150px, 1fr));
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .hero-status {
+    padding: 14px 0 0;
+    border-top: 1px solid rgb(255 255 255 / 16%);
+    border-left: 0;
+  }
   .section-nav button {
     flex: 0 0 auto;
   }

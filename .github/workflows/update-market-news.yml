@@ -24,6 +24,8 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Fetch latest global market news
         run: npm run update:news
+      - name: Validate market news
+        run: npm run validate:data:news
       - name: Commit changed data
         run: |
           if git diff --quiet -- src/data/market-news.json; then

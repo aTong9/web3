@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
+import { useRoute } from 'vue-router'
 import AppSidebar from '@/components/AppSidebar.vue'
 import AppTopbar from '@/components/AppTopbar.vue'
 import AnalyticsConsent from '@/components/AnalyticsConsent.vue'
@@ -10,6 +11,8 @@ import { useI18n } from '@/composables/use-i18n'
 import { useTheme } from '@/utils/use-theme'
 
 const mobileMenuOpen = ref(false)
+const routeFrame = ref<HTMLElement | null>(null)
+const route = useRoute()
 const { t } = useI18n()
 useTheme()
 const { restore } = useAuth()
@@ -18,16 +21,36 @@ onMounted(async () => {
   await restore()
   await start()
 })
+watch(
+  () => route.fullPath,
+  async () => {
+    mobileMenuOpen.value = false
+    await nextTick()
+    routeFrame.value?.focus()
+  },
+)
+watch(mobileMenuOpen, (open) => {
+  document.body.style.overflow = open ? 'hidden' : ''
+})
+const closeMenuOnEscape = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') mobileMenuOpen.value = false
+}
+onMounted(() => window.addEventListener('keydown', closeMenuOnEscape))
+onUnmounted(() => {
+  window.removeEventListener('keydown', closeMenuOnEscape)
+  document.body.style.overflow = ''
+})
 </script>
 
 <template>
   <div class="app-shell">
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
     <AppSidebar :mobile-open="mobileMenuOpen" @close="mobileMenuOpen = false" />
     <div class="workspace">
       <AppTopbar @open-menu="mobileMenuOpen = true" />
       <RouterView v-slot="{ Component }">
         <Suspense :timeout="0">
-          <div class="route-frame">
+          <div id="main-content" ref="routeFrame" class="route-frame" tabindex="-1">
             <component :is="Component" />
           </div>
           <template #fallback>
@@ -56,6 +79,7 @@ onMounted(async () => {
 }
 .route-frame {
   min-width: 0;
+  min-height: calc(100vh - 58px);
 }
 .route-loading {
   min-height: calc(100vh - 70px);

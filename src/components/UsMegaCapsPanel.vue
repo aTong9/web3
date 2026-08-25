@@ -142,7 +142,13 @@ const signalSummary = computed(() => ({
     </div>
 
     <footer>
-      <DataUpdateStatus :updated-at="dataset.updatedAt" schedule="hotStocks" />
+      <DataUpdateStatus
+        :updated-at="dataset.updatedAt"
+        schedule="hotStocks"
+        :source-label="dataset.sources[0]?.name"
+        :source-url="dataset.sources[0]?.url"
+        :quality="dataset.status === 'ok' ? 'complete' : 'partial'"
+      />
       <span>
         <a
           v-for="source in dataset.sources"

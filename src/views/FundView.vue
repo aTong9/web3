@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
+import AsyncDataState from '@/components/AsyncDataState.vue'
+import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
 import FundResearchWorkbench from '@/components/FundResearchWorkbench.vue'
-import fundData from '@/data/us-funds.json'
 import type { FundVenue, UsFund, UsFundDataset } from '@/types'
 import HotStocksPanel from '@/components/HotStocksPanel.vue'
 import UsMegaCapsPanel from '@/components/UsMegaCapsPanel.vue'
@@ -12,14 +13,16 @@ import type { FundResearchItem } from '@/utils/fund-research'
 type SortKey = 'scale' | 'fee' | 'premium' | 'firstYearCost'
 const ALL_INDEX = 'all'
 
-const dataset = fundData as UsFundDataset
+const dataset = ref<UsFundDataset>({ updatedAt: '', source: '', funds: [] })
+const dataLoading = ref(true)
+const dataError = ref(false)
 const activeVenue = ref<FundVenue>('exchange')
 const activeIndex = ref(ALL_INDEX)
 const sortKey = ref<SortKey>('scale')
 const brokerageFeePct = ref(0.03)
 const { t } = useI18n()
 
-const indices = computed(() => [...new Set(dataset.funds.map((fund) => fund.index))])
+const indices = computed(() => [...new Set(dataset.value.funds.map((fund) => fund.index))])
 
 const totalFee = (fund: UsFund) =>
   (fund.managementFeePct ?? 0) + (fund.custodianFeePct ?? 0) + (fund.serviceFeePct ?? 0)
@@ -32,7 +35,7 @@ const entryCost = (fund: UsFund) =>
 const firstYearCost = (fund: UsFund) => totalFee(fund) + entryCost(fund)
 
 const visibleFunds = computed(() =>
-  dataset.funds
+  dataset.value.funds
     .filter(
       (fund) =>
         fund.venue === activeVenue.value &&
@@ -48,7 +51,7 @@ const visibleFunds = computed(() =>
 )
 
 const researchFunds = computed<FundResearchItem[]>(() =>
-  dataset.funds.map((fund) => ({
+  dataset.value.funds.map((fund) => ({
     code: fund.code,
     name: fund.name,
     group: `${fund.index} · ${t(`funds.venue.${fund.venue}`)}`,
@@ -85,21 +88,45 @@ const limitChanged = (fund: UsFund) => {
     latest?.recurringInvestmentOpen !== previous?.recurringInvestmentOpen
   )
 }
+
+const loadDataset = async () => {
+  dataLoading.value = true
+  dataError.value = false
+  try {
+    const module = await import('@/data/us-funds.json')
+    dataset.value = module.default as UsFundDataset
+  } catch (error) {
+    dataError.value = true
+    console.warn('US fund dataset failed to load:', error)
+  } finally {
+    dataLoading.value = false
+  }
+}
+onMounted(loadDataset)
 </script>
 
 <template>
   <div class="fund-page">
-    <header class="page-heading">
-      <div>
-        <p>{{ t('funds.sub') }}</p>
-        <h1>{{ t('funds.title') }}</h1>
-      </div>
+    <ResearchPageHeader :eyebrow="t('funds.sub')" :title="t('funds.title')">
+      <template #status>
       <DataUpdateStatus
         :updated-at="dataset.updatedAt"
         schedule="funds"
         :label="t('funds.monitor')"
+        source-label="天天基金公开页面"
+        quality="complete"
       />
-    </header>
+      </template>
+    </ResearchPageHeader>
+
+    <AsyncDataState
+      :loading="dataLoading"
+      :error="dataError"
+      loading-label="正在载入基金数据…"
+      error-message="基金数据暂时无法载入；当前页面不会展示不完整的费用比较。"
+      :retry-label="t('ui.app.retry')"
+      @retry="loadDataset"
+    />
 
     <section class="scope-note">
       <p>
@@ -119,11 +146,16 @@ const limitChanged = (fund: UsFund) => {
 
     <div class="controls">
       <div class="segmented" :aria-label="t('funds.venue.exchange')">
-        <button :class="{ active: activeVenue === 'exchange' }" @click="activeVenue = 'exchange'">
+        <button
+          :class="{ active: activeVenue === 'exchange' }"
+          :aria-pressed="activeVenue === 'exchange'"
+          @click="activeVenue = 'exchange'"
+        >
           {{ t('funds.venue.exchange') }}
         </button>
         <button
           :class="{ active: activeVenue === 'offExchange' }"
+          :aria-pressed="activeVenue === 'offExchange'"
           @click="activeVenue = 'offExchange'"
         >
           {{ t('funds.venue.offExchange') }}
@@ -174,20 +206,20 @@ const limitChanged = (fund: UsFund) => {
         </thead>
         <tbody>
           <tr v-for="fund in visibleFunds" :key="fund.code">
-            <td>
+            <td :data-label="t('funds.table.fund')">
               <a :href="fund.sourceUrl" target="_blank" rel="noopener noreferrer">
                 <strong>{{ fund.name }}</strong>
                 <small>{{ fund.code }} ↗</small>
               </a>
             </td>
-            <td>
+            <td :data-label="t('funds.table.indexLabel')">
               <span class="index-tag">{{ fund.index }}</span>
             </td>
-            <td class="number">
+            <td class="number" :data-label="t('funds.table.scale')">
               <strong>{{ fund.scaleBillionCny?.toFixed(2) ?? '—' }} 亿</strong>
               <small>{{ fund.scaleDate ?? '—' }}</small>
             </td>
-            <td class="number">
+            <td class="number" :data-label="t('funds.table.value')">
               <strong>{{
                 fund.venue === 'exchange'
                   ? (fund.latestClose?.toFixed(4) ?? '—')
@@ -201,17 +233,17 @@ const limitChanged = (fund: UsFund) => {
                 }}
               </small>
             </td>
-            <td class="number">
+            <td class="number" :data-label="t('funds.table.fee')">
               <strong>{{ formatFee(totalFee(fund)) }}</strong>
               <small>{{ t('funds.table.row.annualOpFee') }}</small>
             </td>
-            <td class="number">
+            <td class="number" :data-label="t('funds.table.premium')">
               <strong>{{
                 formatSignedFee(fund.venue === 'exchange' ? fund.premiumRatePct : null)
               }}</strong>
               <small>{{ fund.navDate ?? '—' }}</small>
             </td>
-            <td class="number">
+            <td class="number" :data-label="t('funds.table.entryCost')">
               <strong>{{
                 formatFee(fund.venue === 'exchange' ? brokerageFeePct : fund.purchaseFeePct)
               }}</strong>
@@ -223,11 +255,11 @@ const limitChanged = (fund: UsFund) => {
                 }}
               </small>
             </td>
-            <td class="number cost-total">
+            <td class="number cost-total" :data-label="t('funds.table.firstYear')">
               <strong>{{ formatSignedFee(firstYearCost(fund)) }}</strong>
               <small>{{ t('funds.table.row.feeFormula') }}</small>
             </td>
-            <td v-if="activeVenue === 'offExchange'">
+            <td v-if="activeVenue === 'offExchange'" :data-label="t('funds.table.dailyLimit')">
               <span
                 class="limit"
                 :class="{
@@ -240,7 +272,7 @@ const limitChanged = (fund: UsFund) => {
               <em v-if="limitChanged(fund)" class="limit-change">{{ t('funds.status.changed') }}</em>
               <small class="channel-note">{{ t('funds.row.channelNote') }}</small>
             </td>
-            <td class="fee-detail">
+            <td class="fee-detail" :data-label="t('funds.table.detail')">
               <span>{{ t('funds.legend.management', { value: formatFee(fund.managementFeePct) }) }}</span>
               <span>{{ t('funds.legend.custody', { value: formatFee(fund.custodianFeePct) }) }}</span>
               <span v-if="(fund.serviceFeePct ?? 0) > 0">
@@ -263,9 +295,9 @@ const limitChanged = (fund: UsFund) => {
 
 <style scoped>
 .fund-page {
-  max-width: 1320px;
+  max-width: var(--content-wide);
   margin: 0 auto;
-  padding: 40px clamp(20px, 3.5vw, 52px) 80px;
+  padding: 32px var(--page-gutter) 80px;
 }
 
 .limit-change {
@@ -564,6 +596,65 @@ footer {
 
   select {
     width: 100%;
+    min-width: 0;
+  }
+
+  .table-wrap {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  table,
+  tbody,
+  tr,
+  td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  tbody tr {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--panel-radius);
+    background: var(--surface);
+  }
+
+  td,
+  td.number {
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: minmax(92px, 0.45fr) minmax(0, 1fr);
+    gap: 14px;
+    text-align: right;
+    white-space: normal;
+  }
+
+  td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  td:last-child {
+    border-bottom: 0;
+  }
+
+  td a,
+  .fee-detail {
     min-width: 0;
   }
 }

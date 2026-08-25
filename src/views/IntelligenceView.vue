@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import { useI18n } from '@/composables/use-i18n'
+import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
 
 const { t } = useI18n()
 
@@ -13,18 +14,13 @@ const tabs = [
 
 <template>
   <main class="intelligence-page">
-    <header class="intelligence-hero">
-      <div>
-        <p>{{ t('intelligence.badge') }}</p>
-        <h1>{{ t('intelligence.heading') }}</h1>
-        <span>{{ t('intelligence.intro') }}</span>
-      </div>
-      <nav :aria-label="t('intelligence.navigation')">
+    <ResearchPageHeader :eyebrow="t('intelligence.badge')" :title="t('intelligence.heading')" :description="t('intelligence.intro')">
+      <template #status><nav class="intelligence-nav" :aria-label="t('intelligence.navigation')">
         <RouterLink v-for="tab in tabs" :key="tab.to" :to="tab.to">
           {{ t(tab.label) }}
         </RouterLink>
-      </nav>
-    </header>
+      </nav></template>
+    </ResearchPageHeader>
 
     <RouterView />
   </main>
@@ -32,9 +28,13 @@ const tabs = [
 
 <style scoped>
 .intelligence-page {
-  width: min(100%, 1280px);
+  width: min(100%, var(--content-standard));
   margin: 0 auto;
-  padding: 40px clamp(20px, 3.5vw, 52px) 80px;
+  padding: 32px var(--page-gutter) 80px;
+}
+.intelligence-nav {
+  display: flex;
+  gap: 4px;
 }
 .intelligence-hero {
   margin-bottom: 32px;
@@ -67,7 +67,7 @@ const tabs = [
   display: flex;
   gap: 4px;
 }
-.intelligence-hero a {
+.intelligence-nav a {
   min-height: 42px;
   padding: 0 14px;
   border: 1px solid transparent;
@@ -80,17 +80,17 @@ const tabs = [
   font-size: 11px;
   white-space: nowrap;
 }
-.intelligence-hero a:hover {
+.intelligence-nav a:hover {
   background: var(--surface-soft);
   color: var(--ink);
 }
-.intelligence-hero a.router-link-active {
+.intelligence-nav a.router-link-active {
   border-color: var(--border);
   background: var(--surface);
   color: var(--ink);
   font-weight: 700;
 }
-.intelligence-hero a:focus-visible {
+.intelligence-nav a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }

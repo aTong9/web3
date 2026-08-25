@@ -36,6 +36,11 @@ jobs:
         env:
           MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
         run: npm run update:option-market
+      - name: Validate core stock datasets
+        run: npm run validate:data:hot-stocks
+      - name: Validate option dataset when refreshed
+        if: ${{ vars.ENABLE_OPTION_MARKET == 'true' }}
+        run: npm run validate:data:option-market
       - name: Commit changed rankings
         run: |
           if git diff --quiet -- src/data/hot-stocks.json src/data/us-megacaps.json src/data/us-stock-technical-signals.json src/data/option-market.json; then

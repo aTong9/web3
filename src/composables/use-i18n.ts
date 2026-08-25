@@ -53,6 +53,7 @@ const messages: Record<Locale, DictionaryNode> = {
         sourceTraceable: '自动更新 · 来源可追溯',
         loadingWorkspace: '正在准备研究工作区',
         loadingWorkspaceHint: '载入行情、技术指标与历史验证数据…',
+        retry: '重新加载',
         openMenu: '打开菜单',
         closeMenu: '关闭菜单',
         closeBackdrop: '关闭菜单',
@@ -111,6 +112,10 @@ const messages: Record<Locale, DictionaryNode> = {
       titleHeader: '全球市场每日报告',
       syncLabel: '系统更新：',
       syncHint: '图片数据随首页同步更新',
+      loadHint: '海报生成器包含高清导出引擎，仅在需要制作图片时加载。',
+      openBuilder: '打开海报生成器',
+      closeBuilder: '收起海报生成器',
+      loadingBuilder: '正在载入海报生成器…',
       marketWithDirection: '主要市场与未来方向',
       marketFactors: {
         title: '全部市场驱动因素',
@@ -909,8 +914,26 @@ const messages: Record<Locale, DictionaryNode> = {
       section3Title: '资讯台',
       section3Desc:
         '集中存放高频阅读入口，以原站跳转替代 iframe 嵌入，减少加载问题和第三方追踪面。',
+      architectureTitle: '交易系统职责边界',
+      architectureDesc:
+        '长期架构以 NautilusTrader 为交易研究与执行主引擎；本项目负责可视化、研究输入、控制指令与证据审阅，不在浏览器中嵌入 Python/Rust 引擎。',
+      uiLayerTitle: 'Vue / Electron 辅助工作台',
+      uiLayerDesc: '展示市场研究、参数、Paper 记录、风险闸门与人工复核状态。',
+      controlLayerTitle: '受限控制与证据层',
+      controlLayerDesc: 'Cloudflare Worker 与 D1 保存版本化指令和可审计证据，不保存聊天中的密钥。',
+      engineLayerTitle: 'NautilusTrader 独立侧车',
+      engineLayerDesc:
+        '目标承载回测、Sandbox 和唯一的 DEMO/Testnet 订单生命周期；与前端独立部署并锁定版本。',
+      architectureStatusTitle: '当前仍处于分阶段迁移',
+      architectureStatusDesc:
+        '现有 Worker Paper/Testnet 路径继续受安全门禁约束；在 Nautilus 接管前不会开启双执行器。LIVE 与真实资金始终关闭，任何上线都不构成实盘授权。',
       readmeTitle: '项目说明',
-      readmeDesc: '在页底部同步展示仓库根目录的 README.md 以便核对当前系统说明。',
+      readmeDesc: '需要核对开发与数据维护细节时，再按需载入仓库根目录的 README.md。',
+      readmeOpen: '载入完整 README',
+      readmeClose: '收起 README',
+      readmeLoading: '正在载入…',
+      readmeRetry: '重新载入 README',
+      readmeError: 'README 暂时无法载入，系统说明的其他内容不受影响。',
       footer: '内容仅供个人研究使用，不构成任何投资建议。',
     },
     blogger: {
@@ -930,9 +953,14 @@ const messages: Record<Locale, DictionaryNode> = {
     },
     dataStatus: {
       updated: '数据已更新',
-      pending: '等待计划更新',
+      pending: '数据更新已逾期',
       lastUpdated: '最近更新',
+      missedUpdate: '错过计划',
       nextUpdate: '下次预计',
+      asOf: '数据截至',
+      source: '来源',
+      complete: '完整',
+      partial: '部分可用',
     },
     assetTechnical: {
       badge: 'ASSET CHARTS · TECHNICAL SIGNALS',
@@ -1928,6 +1956,7 @@ const messages: Record<Locale, DictionaryNode> = {
         sourceTraceable: 'Auto update · Traceable source',
         loadingWorkspace: 'Preparing the research workspace',
         loadingWorkspaceHint: 'Loading quotes, technical indicators and validation history…',
+        retry: 'Retry',
         openMenu: 'Open menu',
         closeMenu: 'Close menu',
         closeBackdrop: 'Close menu',
@@ -2618,6 +2647,10 @@ const messages: Record<Locale, DictionaryNode> = {
       titleHeader: 'Global Daily Market Brief',
       syncLabel: 'System sync: ',
       syncHint: 'Image data follows homepage updates',
+      loadHint: 'The high-resolution export engine loads only when you open the poster builder.',
+      openBuilder: 'Open poster builder',
+      closeBuilder: 'Close poster builder',
+      loadingBuilder: 'Loading poster builder…',
       marketWithDirection: 'Markets and direction',
       marketFactors: {
         title: 'All market drivers',
@@ -2812,8 +2845,29 @@ const messages: Record<Locale, DictionaryNode> = {
       section3Title: 'Briefing',
       section3Desc:
         'High-frequency research sources are grouped here; open original sites directly instead of iframes.',
+      architectureTitle: 'Trading system responsibility boundary',
+      architectureDesc:
+        'The long-term architecture uses NautilusTrader as the primary research and execution engine. This project remains the visualization, research-input, control, and evidence-review layer; the Python/Rust engine is not bundled into the browser.',
+      uiLayerTitle: 'Vue / Electron auxiliary workbench',
+      uiLayerDesc:
+        'Displays market research, parameters, Paper records, risk gates, and human-review status.',
+      controlLayerTitle: 'Restricted control and evidence layer',
+      controlLayerDesc:
+        'Cloudflare Worker and D1 retain versioned commands and auditable evidence. Secrets are never collected in chat.',
+      engineLayerTitle: 'Independent NautilusTrader sidecar',
+      engineLayerDesc:
+        'Target owner for backtesting, Sandbox, and the sole DEMO/Testnet order lifecycle, deployed independently and version-pinned.',
+      architectureStatusTitle: 'Migration remains staged',
+      architectureStatusDesc:
+        'The existing Worker Paper/Testnet path remains safety-gated. Two executors will never control the same account during handover. LIVE and real funds remain disabled; deployment is not live-trading authorization.',
       readmeTitle: 'Project README',
-      readmeDesc: 'README.md from repository root is displayed here for quick reference.',
+      readmeDesc:
+        'Load README.md from the repository root only when you need development and data-maintenance details.',
+      readmeOpen: 'Load full README',
+      readmeClose: 'Collapse README',
+      readmeLoading: 'Loading…',
+      readmeRetry: 'Retry README',
+      readmeError: 'README is temporarily unavailable. The rest of the system notes remain usable.',
       footer: 'For personal research only. Not financial advice.',
     },
     blogger: {
@@ -2833,9 +2887,14 @@ const messages: Record<Locale, DictionaryNode> = {
     },
     dataStatus: {
       updated: 'Data updated',
-      pending: 'Awaiting scheduled update',
+      pending: 'Data update overdue',
       lastUpdated: 'Last updated',
+      missedUpdate: 'Missed schedule',
       nextUpdate: 'Next expected',
+      asOf: 'As of',
+      source: 'Source',
+      complete: 'Complete',
+      partial: 'Partially available',
     },
     assetTechnical: {
       badge: 'ASSET CHARTS · TECHNICAL SIGNALS',

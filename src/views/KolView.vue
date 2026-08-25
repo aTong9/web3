@@ -67,6 +67,9 @@ const contentCount = computed(() =>
 const syncedCount = computed(
   () => dataset.kols.filter((kol) => ['ok', 'partial'].includes(kol.status)).length,
 )
+const dataQuality = computed<'complete' | 'partial'>(() =>
+  dataset.kols.every((kol) => kol.status === 'ok') ? 'complete' : 'partial',
+)
 
 const stockMentions = computed(() => {
   const stocks = new Map<string, KolStockMention & { count: number }>()
@@ -136,7 +139,13 @@ const addSubscription = async () => {
         <p>{{ t('kol.badge') }}</p>
         <h1>{{ t('kol.title') }}</h1>
       </div>
-      <DataUpdateStatus :updated-at="dataset.updatedAt" schedule="kols" :label="t('kol.sync')" />
+      <DataUpdateStatus
+        :updated-at="dataset.updatedAt"
+        schedule="kols"
+        :label="t('kol.sync')"
+        source-label="RSS / Atom / 公开页面"
+        :quality="dataQuality"
+      />
     </header>
 
     <section class="subscription-panel">
@@ -221,13 +230,18 @@ const addSubscription = async () => {
 
     <div class="toolbar">
       <div class="platform-tabs">
-        <button :class="{ active: activePlatform === 'all' }" @click="activePlatform = 'all'">
+        <button
+          :class="{ active: activePlatform === 'all' }"
+          :aria-pressed="activePlatform === 'all'"
+          @click="activePlatform = 'all'"
+        >
           {{ t('ui.navigation.allResources') }}
         </button>
         <button
           v-for="platform in platforms"
           :key="platform"
           :class="{ active: activePlatform === platform }"
+          :aria-pressed="activePlatform === platform"
           @click="activePlatform = platform"
         >
           {{ platformNames[platform] }}
@@ -244,7 +258,11 @@ const addSubscription = async () => {
     <div class="kol-list">
       <section v-for="kol in visibleKols" :key="kol.id" class="kol-card">
         <header>
-          <button class="kol-toggle" @click="toggleKol(kol.id)">
+          <button
+            class="kol-toggle"
+            :aria-expanded="expandedKols.includes(kol.id)"
+            @click="toggleKol(kol.id)"
+          >
             <span class="platform">{{ platformNames[kol.platform] }}</span>
             <span class="kol-name"
               ><strong>{{ kol.name }}</strong

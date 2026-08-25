@@ -24,6 +24,8 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Fetch latest KOL content
         run: npm run update:kols
+      - name: Validate KOL monitor
+        run: npm run validate:data:kols
       - name: Commit changed data
         run: |
           if git diff --quiet -- src/data/kol-monitor.json; then

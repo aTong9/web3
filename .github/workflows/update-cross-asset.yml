@@ -25,6 +25,8 @@ jobs:
       - run: npm run update:cross-asset
       - run: npm run update:technical-events
       - run: npm run update:fund-transmission
+      - name: Validate cross-asset dataset family
+        run: npm run validate:data:cross-asset
       - name: Commit changed data
         run: |
           if git diff --quiet -- src/data/cross-asset.json src/data/market-home.json src/data/cross-asset-forecast-history.json src/data/technical-events.json src/data/asset-technical-signals.json src/data/fund-transmission.json; then

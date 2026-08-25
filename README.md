@@ -37,6 +37,16 @@ GitHub Pages部署 main每次提交后；上述数据任务成功后也会自动
 
 网站清单由 YAML 文件统一维护。界面不依赖站点 Logo 或内容图片，所有外部网站均在新标签页打开。
 
+## 交易系统架构边界
+
+长期架构以 **NautilusTrader** 作为交易研究与执行主引擎，本仓库作为辅助工作台：
+
+- Vue / Electron：市场研究展示、参数输入、Paper 记录、风险闸门和人工复核。
+- Cloudflare Worker + D1：受限控制接口、版本化指令和可审计证据，不承载 Nautilus Python/Rust 运行时。
+- NautilusTrader 独立侧车：目标承载回测、Sandbox，以及唯一的 DEMO/Testnet 订单生命周期。
+
+迁移仍按“研究 → 回测 → Paper → Sandbox/Testnet → 人工复核”推进。Nautilus 接管某个账户的订单生命周期前，必须停用 Worker 对同一账户的竞争执行与对账路径。LIVE 和真实资金始终关闭；构建、部署或测试通过都不构成实盘授权，也不要在聊天、源码或页面中保存 API Key。
+
 ## 开发
 
 ```bash

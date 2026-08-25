@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
+import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
 import { useI18n } from '@/composables/use-i18n'
 import { useAuth } from '@/composables/use-auth'
 import crossAssetData from '@/data/cross-asset.json'
@@ -238,17 +239,14 @@ onMounted(async () => {
 
 <template>
   <main class="quant-page">
-    <header class="page-heading">
-      <div>
-        <p>{{ t('quant.badge') }}</p>
-        <h1>{{ t('quant.title') }}</h1>
-        <span>{{ t('quant.intro') }}</span>
+    <ResearchPageHeader :eyebrow="t('quant.badge')" :title="t('quant.title')" :description="t('quant.intro')">
+      <template #meta>
         <small class="cloud-state" :class="cloudStatus">{{
           t(`quant.cloud.${cloudStatus}`)
         }}</small>
         <DataUpdateStatus :updated-at="dashboard.generatedAt" schedule="crossAsset" />
-      </div>
-      <section class="strategy-focus" :aria-label="t('quant.configTitle')">
+      </template>
+      <template #status><section class="strategy-focus" :aria-label="t('quant.configTitle')">
         <header>
           <span>{{ t('quant.configTitle') }}</span>
           <b>35x + 20%</b>
@@ -280,8 +278,8 @@ onMounted(async () => {
             </dd>
           </div>
         </dl>
-      </section>
-    </header>
+      </section></template>
+    </ResearchPageHeader>
 
     <section class="summary-strip">
       <div>
@@ -752,9 +750,9 @@ onMounted(async () => {
 
 <style scoped>
 .quant-page {
-  max-width: 1380px;
+  max-width: var(--content-wide);
   margin: 0 auto;
-  padding: 40px clamp(20px, 3.5vw, 52px) 80px;
+  padding: 32px var(--page-gutter) 80px;
 }
 .page-heading {
   display: grid;

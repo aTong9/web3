@@ -1,6 +1,7 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { writeJsonAtomic } from './lib/write-json-atomic.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const megaCapsPath = resolve(root, 'src/data/us-megacaps.json')
@@ -251,8 +252,7 @@ const output = {
     '选取365–730 DTE内接近1年、18个月和2年的到期日；每个到期日以最接近平值的8份合约计算平均IV，预期波动=IV×√(DTE/365)。Put/Call仅统计所示LEAPS到期日。IV Rank使用每日近端LEAPS平值IV历史，至少20个观测后才显示。',
   symbols,
 }
-await mkdir(dirname(outputPath), { recursive: true })
-await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`)
+await writeJsonAtomic(outputPath, output)
 process.stdout.write(`wrote option market: ${okCount} ok, ${partialCount} partial\n`)
 if (!apiKey) process.stdout.write('::warning::MASSIVE_API_KEY is missing; option data remains unavailable\n')
 else if (!hasUsableData)

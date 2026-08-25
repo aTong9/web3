@@ -27,7 +27,9 @@ const runKolUpdate = (projectRoot: string) =>
     child.stderr.on('data', (chunk) => (output += chunk.toString()))
     child.on('error', reject)
     child.on('close', (code) =>
-      code === 0 ? resolve(output.trim()) : reject(new Error(output.trim() || `更新退出码 ${code}`)),
+      code === 0
+        ? resolve(output.trim())
+        : reject(new Error(output.trim() || `更新退出码 ${code}`)),
     )
   })
 
@@ -58,24 +60,23 @@ const kolSubscriptionPlugin = (): Plugin => {
             if (!name || !url) throw new Error('名称以及主页或RSS地址不能为空')
             for (const candidate of [url, feedUrl].filter(Boolean)) {
               const parsed = new URL(candidate as string)
-              if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('仅支持HTTP(S)地址')
+              if (!['http:', 'https:'].includes(parsed.protocol))
+                throw new Error('仅支持HTTP(S)地址')
             }
             const configPath = fileURLToPath(
               new URL('./src/data/kols.yml', `file://${server.config.root}/`),
             )
             const current = load(await readFile(configPath, 'utf8'))
             if (!Array.isArray(current)) throw new Error('kols.yml 顶层必须是数组')
-            if (
-              current.some(
-                (item) => item?.url === url || (feedUrl && item?.feedUrl === feedUrl),
-              )
-            )
+            if (current.some((item) => item?.url === url || (feedUrl && item?.feedUrl === feedUrl)))
               throw new Error('该主页或RSS订阅已经存在')
             current.push({
               name,
               url,
               ...(feedUrl ? { feedUrl } : {}),
-              ...(input.tags?.length ? { tags: input.tags.map((tag) => tag.trim()).filter(Boolean) } : {}),
+              ...(input.tags?.length
+                ? { tags: input.tags.map((tag) => tag.trim()).filter(Boolean) }
+                : {}),
               enabled: true,
             })
             updating = true
@@ -153,8 +154,30 @@ export default defineConfig({
       workbox: {
         navigateFallback: 'index.html',
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,yml,woff,woff2}'],
+        globIgnores: [
+          '**/asset-technical-signals-*.json',
+          '**/us-stock-technical-signals-*.json',
+          '**/us-index-daily-*.js',
+          '**/README-*.js',
+          '**/a-share-sectors-*.js',
+          '**/us-funds-*.js',
+          '**/DailyMarketPoster-*.js',
+          '**/poster-export-vendor-*.js',
+          '**/analytics-vendor-*.js',
+          '**/chart-vendor-*.js',
+        ],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         runtimeCaching: [
+          {
+            urlPattern:
+              /\/assets\/(?:asset-technical-signals|us-stock-technical-signals|us-index-daily|a-share-sectors|us-funds|DailyMarketPoster|poster-export-vendor|analytics-vendor|chart-vendor)-/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'research-data-v1',
+              cacheableResponse: { statuses: [0, 200] },
+              expiration: { maxEntries: 10, maxAgeSeconds: 30 * 24 * 60 * 60 },
+            },
+          },
           {
             urlPattern: /^https:\/\/.+\/api\//,
             handler: 'NetworkFirst',
@@ -182,6 +205,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          if (id.includes('node_modules/html2canvas')) return 'poster-export-vendor'
+          if (id.includes('node_modules/posthog-js')) return 'analytics-vendor'
           if (id.includes('node_modules/echarts') || id.includes('node_modules/zrender'))
             return 'chart-vendor'
           if (id.includes('node_modules/vue')) return 'vue-vendor'

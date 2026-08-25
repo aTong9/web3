@@ -1,8 +1,10 @@
 import { createHash } from 'node:crypto'
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
 import { translateNewsTitle, translationProvider } from './lib/news-translator.mjs'
+import { writeJsonAtomic } from './lib/write-json-atomic.mjs'
 
-const outputPath = new URL('../src/data/market-news.json', import.meta.url)
+const outputPath = fileURLToPath(new URL('../src/data/market-news.json', import.meta.url))
 const userAgent = 'web3-market-monitor/1.0 (+https://github.com/aTong9/web3)'
 
 const topics = [
@@ -262,20 +264,13 @@ const unchanged =
 if (unchanged) {
   console.log(`No article changes (${articles.length} retained)`)
 } else {
-  await writeFile(
-    outputPath,
-    `${JSON.stringify(
-      {
-        updatedAt: new Date().toISOString(),
-        source: 'GDELT、CNBC、华尔街日报与央行、监管机构公开信息源',
-        refreshMinutes: 15,
-        translationProvider,
-        sourceStatus,
-        articles,
-      },
-      null,
-      2,
-    )}\n`,
-  )
+  await writeJsonAtomic(outputPath, {
+    updatedAt: new Date().toISOString(),
+    source: 'GDELT、CNBC、华尔街日报与央行、监管机构公开信息源',
+    refreshMinutes: 15,
+    translationProvider,
+    sourceStatus,
+    articles,
+  })
   console.log(`Updated ${articles.length} market-news articles`)
 }

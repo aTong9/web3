@@ -10,7 +10,9 @@ on:
       - Update hot stocks
       - Update KOL monitor
       - Update global market news
+      - Update Norway sovereign fund
       - Update US fund data
+      - Update US index research data
     types: [completed]
   workflow_dispatch:
 
@@ -47,6 +49,9 @@ jobs:
 
       - name: Test trading core
         run: npm run test:trading
+
+      - name: Check code quality
+        run: npm run lint:check
 
       - name: Validate and build
         run: npm run build

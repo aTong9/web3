@@ -1,6 +1,7 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { writeJsonAtomic } from './lib/write-json-atomic.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const inputPath = resolve(root, 'src/data/cross-asset.json')
@@ -34,8 +35,7 @@ const output = {
     })),
 }
 
-await mkdir(dirname(outputPath), { recursive: true })
-await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`)
+await writeJsonAtomic(outputPath, output)
 process.stdout.write(
   `wrote ${output.markets.length} fund-market proxies and ${output.chains.length} related chains\n`,
 )

@@ -19,6 +19,46 @@ export interface NorwayFundHolding {
   ownershipPct: number
 }
 
+export interface NorwayFundSnapshot {
+  schemaVersion: number
+  updatedAt: string
+  status: 'complete'
+  source: string
+  sources: { report: string; holdings: string; holdingsApi: string }
+  summary: {
+    asOfDate: string
+    publishedDate: string
+    periodLabel: string
+    valueBillionNok: number
+    periodReturnPct: number
+    periodReturnBillionNok: number
+    relativeReturnPctPoints: number
+    netInflowBillionNok: number
+    currencyEffectBillionNok: number
+    expectedVolatilityPct: number
+    listedCompanies: number
+  }
+  availability: {
+    equityRegions: 'reported' | 'not-reported'
+  }
+  assetAllocation: Array<{
+    id: string
+    label: string
+    weightPct: number
+    valueBillionNok: number
+    returnPct: number
+  }>
+  equitySectors: Array<{
+    label: string
+    weightPct: number
+    marketValueBillionNok: number
+    returnPct: number
+  }>
+  equityRegions: Array<{ label: string; weightPct: number; returnPct: number }>
+  topHoldings: NorwayFundHolding[]
+  fixedIncome: Array<{ label: string; weightPct: number; returnPct: number }>
+}
+
 export const norwayFundSources = {
   halfYear:
     'https://www.nbim.no/en/news-and-insights/reports/2026/half-year-report-2026/web-report-half-year-report-2026/',
@@ -27,93 +67,6 @@ export const norwayFundSources = {
   fiscalRule:
     'https://www.regjeringen.no/no/tema/okonomi-og-budsjett/norsk_okonomi/economic-policy/id418083/',
 }
-
-export const norwayFundSummary = {
-  asOfDate: '2026-06-30',
-  publishedDate: '2026-08-12',
-  valueBillionNok: 22683,
-  halfYearReturnPct: 9.4,
-  halfYearReturnBillionNok: 1753,
-  relativeReturnPctPoints: 0.22,
-  netInflowBillionNok: 89,
-  currencyEffectBillionNok: -427,
-  expectedVolatilityPct: 11.1,
-  listedCompanies: '约 7,000 家',
-}
-
-export const norwayFundAssetAllocation = [
-  { id: 'equity', label: '上市股票', weightPct: 72.08, valueBillionNok: 16357.8, returnPct: 13 },
-  {
-    id: 'fixed-income',
-    label: '固定收益',
-    weightPct: 25.82,
-    valueBillionNok: 5860.1,
-    returnPct: 0.9,
-  },
-  {
-    id: 'real-estate',
-    label: '非上市房地产',
-    weightPct: 1.64,
-    valueBillionNok: 372.8,
-    returnPct: 3,
-  },
-  {
-    id: 'renewable',
-    label: '非上市可再生能源基础设施',
-    weightPct: 0.46,
-    valueBillionNok: 104.4,
-    returnPct: -0.2,
-  },
-]
-
-export const norwayFundEquitySectors = [
-  ['科技', 32.2, 5288, 25.3],
-  ['金融', 15.8, 2592.2, 7],
-  ['工业', 12.9, 2120.9, 12.3],
-  ['可选消费', 11.3, 1851.1, -4],
-  ['医疗保健', 8.4, 1391.4, 3.4],
-  ['通信', 3.8, 624.5, 42.9],
-  ['房地产（上市）', 3.7, 600.2, 7.6],
-  ['必选消费', 3.6, 590, 5],
-  ['基础材料', 3.5, 566.4, 10.5],
-  ['能源', 2.9, 482.4, 17.1],
-  ['公用事业', 2.4, 397.9, 9.8],
-] as const
-
-export const norwayFundEquityRegions = [
-  ['北美', 57],
-  ['欧洲', 20.1],
-  ['亚洲及大洋洲', 12.9],
-  ['新兴市场', 10.5],
-] as const
-
-export const norwayFundTopHoldings: NorwayFundHolding[] = [
-  [1, 'NVIDIA', '美国', '科技', 612, 1.28],
-  [2, 'Apple', '美国', '科技', 521.7, 1.24],
-  [3, 'Alphabet', '美国', '科技', 499.4, 1.17],
-  [4, 'Microsoft', '美国', '科技', 347.5, 1.27],
-  [5, 'Taiwan Semiconductor Manufacturing', '台湾', '科技', 331.8, 1.7],
-  [6, 'Amazon.com', '美国', '可选消费', 315.3, 1.24],
-  [7, 'Broadcom', '美国', '科技', 231.6, 1.3],
-  [8, 'Samsung Electronics', '韩国', '通信（NBIM 分类）', 222.8, 1.88],
-  [9, 'ASML Holding', '荷兰', '科技', 175, 2.32],
-  [10, 'SK hynix', '韩国', '科技', 174.1, 1.44],
-].map(([rank, company, country, sector, marketValueBillionNok, ownershipPct]) => ({
-  rank: Number(rank),
-  company: String(company),
-  country: String(country),
-  sector: String(sector),
-  marketValueBillionNok: Number(marketValueBillionNok),
-  ownershipPct: Number(ownershipPct),
-}))
-
-export const norwayFundFixedIncome = [
-  ['政府债', 54.9, 0.5],
-  ['公司债', 26.3, 1.3],
-  ['政府相关债', 10.4, 1.7],
-  ['通胀挂钩债', 6.4, 2.1],
-  ['证券化债券', 5.9, -0.5],
-] as const
 
 export const norwayFundMilestones: NorwayFundMilestone[] = [
   {

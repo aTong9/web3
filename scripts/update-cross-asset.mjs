@@ -1,7 +1,8 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { selectSourceCandidate } from './lib/source-policy.mjs'
+import { writeJsonBatchAtomic } from './lib/write-json-atomic.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const outputPath = resolve(root, 'src/data/cross-asset.json')
@@ -4110,14 +4111,15 @@ const technicalSignalsOutput = {
     .filter((asset) => asset.points.length >= 2),
 }
 
-await mkdir(dirname(outputPath), { recursive: true })
-await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`)
-await writeFile(homeOutputPath, `${JSON.stringify(homeOutput, null, 2)}\n`)
-await writeFile(technicalSignalsPath, `${JSON.stringify(technicalSignalsOutput, null, 2)}\n`)
-await writeFile(
-  forecastHistoryPath,
-  `${JSON.stringify({ updatedAt: new Date().toISOString(), records: liveForecastHistory }, null, 2)}\n`,
-)
+await writeJsonBatchAtomic([
+  { outputPath, value: output },
+  { outputPath: homeOutputPath, value: homeOutput },
+  { outputPath: technicalSignalsPath, value: technicalSignalsOutput },
+  {
+    outputPath: forecastHistoryPath,
+    value: { updatedAt: output.updatedAt, records: liveForecastHistory },
+  },
+])
 process.stdout.write(
   `wrote ${output.assets.length} visible assets and ${matrixIds.length}x${matrixIds.length} matrix\n`,
 )

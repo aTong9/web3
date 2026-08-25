@@ -24,11 +24,19 @@ const description = computed(() => t(String(route.meta.descriptionKey ?? 'market
     <div class="topbar-actions">
       <span class="system-state"><i></i>{{ t('ui.app.systemRunning') }}</span>
       <div class="locale-switch" role="group" :aria-label="t('ui.app.language')">
-        <button :class="{ active: locale === 'zh' }" @click="setLocale('zh')">
+        <button
+          :class="{ active: locale === 'zh' }"
+          :aria-pressed="locale === 'zh'"
+          @click="setLocale('zh')"
+        >
           <span class="full-label">{{ t('ui.app.chinese') }}</span>
           <span class="short-label">{{ t('ui.app.chineseShort') }}</span>
         </button>
-        <button :class="{ active: locale === 'en' }" @click="setLocale('en')">
+        <button
+          :class="{ active: locale === 'en' }"
+          :aria-pressed="locale === 'en'"
+          @click="setLocale('en')"
+        >
           <span class="full-label">{{ t('ui.app.english') }}</span>
           <span class="short-label">{{ t('ui.app.englishShort') }}</span>
         </button>
@@ -41,7 +49,7 @@ const description = computed(() => t(String(route.meta.descriptionKey ?? 'market
 
 <style scoped>
 .app-topbar {
-  height: 64px;
+  height: 58px;
   padding: 0 clamp(18px, 3vw, 34px);
   border-bottom: 1px solid var(--border);
   background: color-mix(in srgb, var(--paper) 92%, transparent);
@@ -64,7 +72,7 @@ const description = computed(() => t(String(route.meta.descriptionKey ?? 'market
 .app-topbar small {
   margin-top: 3px;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 10px;
 }
 .menu-button {
   display: none;
@@ -87,7 +95,7 @@ const description = computed(() => t(String(route.meta.descriptionKey ?? 'market
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-size: 9px;
+  font-size: 10px;
 }
 .system-state i {
   width: 6px;
@@ -108,7 +116,7 @@ const description = computed(() => t(String(route.meta.descriptionKey ?? 'market
   background: transparent;
   color: var(--muted);
   cursor: pointer;
-  font-size: 9px;
+  font-size: 11px;
 }
 .locale-switch button.active {
   background: var(--surface-soft);

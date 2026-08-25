@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
+import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
 import crossAssetData from '@/data/cross-asset.json'
 import marketHomeData from '@/data/market-home.json'
 import type { CrossAssetDataset, DailyReportConfig, MarketHomeDataset } from '@/types'
@@ -57,18 +58,20 @@ const xUrl = computed(
 
 <template>
   <main class="report-page">
-    <header class="page-heading">
-      <div>
-        <p>{{ t('report.badge') }}</p>
-        <h1>{{ t('report.title') }}</h1>
-        <span>{{ t('report.intro') }}</span>
-      </div>
-      <DataUpdateStatus
-        :updated-at="home.updatedAt"
-        schedule="crossAsset"
-        :label="t('report.ready')"
-      />
-    </header>
+    <ResearchPageHeader
+      :eyebrow="t('report.badge')"
+      :title="t('report.title')"
+      :description="t('report.intro')"
+      variant="plain"
+    >
+      <template #status>
+        <DataUpdateStatus
+          :updated-at="home.updatedAt"
+          schedule="crossAsset"
+          :label="t('report.ready')"
+        />
+      </template>
+    </ResearchPageHeader>
 
     <section class="security-note">
       <b>{{ t('report.securityTitle') }}</b>
@@ -182,9 +185,9 @@ const xUrl = computed(
 
 <style scoped>
 .report-page {
-  max-width: 1380px;
+  max-width: var(--content-wide);
   margin: 0 auto;
-  padding: 40px clamp(20px, 3.5vw, 52px) 80px;
+  padding: var(--space-section) var(--page-gutter) 80px;
 }
 .page-heading {
   display: flex;

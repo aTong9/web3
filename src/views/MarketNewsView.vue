@@ -53,6 +53,9 @@ const highCount = computed(
 const officialCount = computed(
   () => dataset.value.articles.filter((article) => article.sourceType === 'official').length,
 )
+const dataQuality = computed<'complete' | 'partial'>(() =>
+  dataset.value.sourceStatus.every((source) => source.status === 'ok') ? 'complete' : 'partial',
+)
 
 const formatTime = (value: string) =>
   new Intl.DateTimeFormat('zh-CN', {
@@ -89,7 +92,7 @@ onUnmounted(() => window.clearInterval(refreshTimer))
 </script>
 
 <template>
-  <main class="news-page" :class="{ embedded }">
+  <component :is="embedded ? 'section' : 'main'" class="news-page" :class="{ embedded }">
     <header v-if="!embedded" class="page-heading">
       <div>
         <p>{{ t('marketNews.badge') }}</p>
@@ -100,6 +103,8 @@ onUnmounted(() => window.clearInterval(refreshTimer))
         :updated-at="dataset.updatedAt"
         schedule="news"
         :label="t('marketNews.backendUpdate')"
+        source-label="GDELT / 官方与财经媒体"
+        :quality="dataQuality"
       />
     </header>
 
@@ -180,7 +185,7 @@ onUnmounted(() => window.clearInterval(refreshTimer))
     </div>
 
     <footer>{{ t('marketNews.footer', { source: dataset.source }) }}</footer>
-  </main>
+  </component>
 </template>
 
 <style scoped>

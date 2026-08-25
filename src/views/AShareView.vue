@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
+import AsyncDataState from '@/components/AsyncDataState.vue'
+import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
 import FundResearchWorkbench from '@/components/FundResearchWorkbench.vue'
-import sectorData from '@/data/a-share-sectors.json'
 import type { AShareFund, AShareSectorDataset, SectorKind, SectorPeriod } from '@/types'
 import HotStocksPanel from '@/components/HotStocksPanel.vue'
 import { useI18n } from '@/composables/use-i18n'
@@ -10,7 +11,25 @@ import type { FundResearchItem } from '@/utils/fund-research'
 
 type Scope = 'all' | SectorKind
 
-const dataset = sectorData as AShareSectorDataset
+const dataset = ref<AShareSectorDataset>({
+  updatedAt: '',
+  tradingDate: '',
+  marketStatus: 'closed',
+  source: '',
+  periods: {
+    day: '',
+    week: '',
+    month: '',
+    quarter: '',
+    halfYear: '',
+    yearToDate: '',
+    year: '',
+  },
+  sectors: [],
+  funds: [],
+})
+const dataLoading = ref(true)
+const dataError = ref(false)
 const activePeriod = ref<SectorPeriod>('day')
 const activeScope = ref<Scope>('all')
 const direction = ref<'desc' | 'asc'>('desc')
@@ -30,7 +49,7 @@ const periodOptions: Array<{ value: SectorPeriod; label: string }> = [
 
 const rankedSectors = computed(() => {
   const needle = query.value.trim().toLocaleLowerCase()
-  return dataset.sectors
+  return dataset.value.sectors
     .filter(
       (sector) =>
         (activeScope.value === 'all' || sector.kind === activeScope.value) &&
@@ -44,15 +63,15 @@ const rankedSectors = computed(() => {
 })
 
 const upCount = computed(
-  () => dataset.sectors.filter((sector) => (sector.returns.day ?? 0) > 0).length,
+  () => dataset.value.sectors.filter((sector) => (sector.returns.day ?? 0) > 0).length,
 )
 const downCount = computed(
-  () => dataset.sectors.filter((sector) => (sector.returns.day ?? 0) < 0).length,
+  () => dataset.value.sectors.filter((sector) => (sector.returns.day ?? 0) < 0).length,
 )
 
-const getRepresentative = (code: string) => dataset.funds.find((fund) => fund.code === code)
+const getRepresentative = (code: string) => dataset.value.funds.find((fund) => fund.code === code)
 const getSectorFunds = (sectorName: string) =>
-  dataset.funds
+  dataset.value.funds
     .filter((fund) => fund.sector === sectorName)
     .sort((a, b) => (b.scaleBillionCny ?? -1) - (a.scaleBillionCny ?? -1))
 
@@ -82,7 +101,7 @@ const returnClass = (value: number | null) => ({
 })
 
 const researchFunds = computed<FundResearchItem[]>(() =>
-  dataset.funds.map((fund) => ({
+  dataset.value.funds.map((fund) => ({
     code: fund.code,
     name: fund.name,
     group: fund.sector,
@@ -98,21 +117,46 @@ const researchFunds = computed<FundResearchItem[]>(() =>
   })),
 )
 
+const loadDataset = async () => {
+  dataLoading.value = true
+  dataError.value = false
+  try {
+    const module = await import('@/data/a-share-sectors.json')
+    dataset.value = module.default as AShareSectorDataset
+  } catch (error) {
+    dataError.value = true
+    console.warn('A-share sector dataset failed to load:', error)
+  } finally {
+    dataLoading.value = false
+  }
+}
+onMounted(loadDataset)
+
 </script>
 
 <template>
   <div class="sector-page">
-    <header class="page-heading">
-      <div>
-        <p>{{ t('aShare.eyebrow') }}</p>
-        <h1>{{ t('aShare.title') }}</h1>
-      </div>
+    <ResearchPageHeader :eyebrow="t('aShare.eyebrow')" :title="t('aShare.title')">
+      <template #status>
       <DataUpdateStatus
         :updated-at="dataset.updatedAt"
         schedule="aShare"
         :label="`${t('aShare.tradingDay')} ${dataset.tradingDate}`"
+        :as-of-date="dataset.tradingDate"
+        source-label="新浪行情 / 东方财富"
+        quality="complete"
       />
-    </header>
+      </template>
+    </ResearchPageHeader>
+
+    <AsyncDataState
+      :loading="dataLoading"
+      :error="dataError"
+      loading-label="正在载入A股行业数据…"
+      error-message="A股行业数据暂时无法载入；当前页面不会展示不完整的排名。"
+      :retry-label="t('ui.app.retry')"
+      @retry="loadDataset"
+    />
 
     <section class="market-summary">
       <div>
@@ -143,6 +187,7 @@ const researchFunds = computed<FundResearchItem[]>(() =>
           v-for="option in periodOptions"
           :key="option.value"
           :class="{ active: activePeriod === option.value }"
+          :aria-pressed="activePeriod === option.value"
           @click="activePeriod = option.value"
         >
           {{ option.label }}
@@ -216,29 +261,29 @@ const researchFunds = computed<FundResearchItem[]>(() =>
               rel="noopener noreferrer"
               class="fund-row"
             >
-              <span
+              <span :data-label="t('aShare.fundHead')"
                 ><strong>{{ fund.name }}</strong
                 ><small>{{ fund.code }} ↗</small></span
               >
-              <span>
+              <span :data-label="t('aShare.fundScale')">
                 <strong
                   >{{ fund.scaleBillionCny?.toFixed(2) ?? '—' }} {{ t('aShare.fundScaleUnit') }}</strong
                 >
                 <small>{{ fund.scaleDate ?? t('aShare.fundScalePending') }}</small>
               </span>
-              <span>{{ totalFee(fund) === null ? '—' : `${totalFee(fund)?.toFixed(2)}%` }}</span>
-              <span
+              <span :data-label="t('aShare.managementFee')">{{ totalFee(fund) === null ? '—' : `${totalFee(fund)?.toFixed(2)}%` }}</span>
+              <span :data-label="t('aShare.premium')"
                 >{{ formatCost(fund.premiumRatePct)
                 }}<small
                   >{{ t('aShare.navLabel') }} {{ fund.latestNav?.toFixed(4) ?? '—' }} ·
                   {{ fund.navDate ?? '—' }}</small
                 ></span
               >
-              <span
+              <span :data-label="t('aShare.firstYear')"
                 >{{ formatCost(firstYearCost(fund))
                 }}<small>{{ t('funds.row.feeFormula') }} {{ t('funds.row.buyFee') }} {{ brokerageFeePct.toFixed(2) }}%</small></span
               >
-              <span>{{ fund.latestClose.toFixed(3) }}<small>{{ fund.latestDate }}</small></span>
+              <span :data-label="t('aShare.latestClose')">{{ fund.latestClose.toFixed(3) }}<small>{{ fund.latestDate }}</small></span>
             </a>
           </div>
         </div>
@@ -255,9 +300,9 @@ const researchFunds = computed<FundResearchItem[]>(() =>
 
 <style scoped>
 .sector-page {
-  max-width: 1240px;
+  max-width: var(--content-standard);
   margin: 0 auto;
-  padding: 40px clamp(20px, 3.5vw, 52px) 80px;
+  padding: 32px var(--page-gutter) 80px;
 }
 
 .page-heading {
@@ -668,11 +713,50 @@ footer {
   }
 
   .fund-table {
-    overflow-x: auto;
+    overflow: visible;
   }
 
   .fund-row {
-    min-width: 850px;
+    min-width: 0;
+  }
+
+  .fund-header {
+    display: none;
+  }
+
+  .fund-row:not(.fund-header) {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 18px;
+  }
+
+  .fund-row:not(.fund-header) > span {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+  }
+
+  .fund-row:not(.fund-header) > span::before {
+    content: attr(data-label);
+    margin-bottom: 4px;
+    color: var(--muted);
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  .fund-row:not(.fund-header) > span:first-child {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+
+  .fund-row:not(.fund-header) > span:nth-last-child(-n + 2) {
+    border-bottom: 0;
   }
 }
 </style>

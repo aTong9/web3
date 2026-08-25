@@ -1,6 +1,7 @@
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { writeJsonAtomic } from './lib/write-json-atomic.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const outputPath = resolve(root, 'src/data/us-megacaps.json')
@@ -245,21 +246,14 @@ try {
     ],
     stocks,
   }
-  await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`)
+  await writeJsonAtomic(outputPath, output)
   process.stdout.write(`wrote ${stocks.length} US mega-cap valuations\n`)
 } catch (error) {
   if (!previous) throw error
-  await writeFile(
-    outputPath,
-    `${JSON.stringify(
-      {
-        ...previous,
-        status: 'stale',
-        statusMessage: `本次更新失败，保留上次数据：${error.message}`,
-      },
-      null,
-      2,
-    )}\n`,
-  )
+  await writeJsonAtomic(outputPath, {
+    ...previous,
+    status: 'stale',
+    statusMessage: `本次更新失败，保留上次数据：${error.message}`,
+  })
   process.stdout.write(`kept previous US mega-cap data: ${error.message}\n`)
 }

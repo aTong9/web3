@@ -17,7 +17,6 @@ const groups = computed(() => [
     items: [
       { title: 'ui.nav.marketPage', to: '/' },
       { title: 'ui.nav.crossAsset', to: '/cross-asset' },
-      { title: 'ui.nav.quant', to: '/quant-signals' },
     ],
   },
   {
@@ -25,11 +24,16 @@ const groups = computed(() => [
     icon: '⌁',
     items: [
       { title: 'ui.nav.assetTechnical', to: '/asset-technical' },
+      { title: 'ui.nav.usIndexes', to: '/us-indexes' },
       { title: 'ui.nav.aShareMarket', to: '/a-share' },
       { title: 'ui.nav.usMarket', to: '/funds' },
       { title: 'ui.nav.norwayFund', to: '/norway-sovereign-fund' },
-      { title: 'ui.nav.usIndexes', to: '/us-indexes' },
     ],
+  },
+  {
+    title: 'ui.nav.quant',
+    icon: '△',
+    items: [{ title: 'ui.nav.quant', to: '/quant-signals' }],
   },
   {
     title: 'ui.nav.intelligence',
@@ -58,7 +62,13 @@ const toggleGroup = (title: string) => {
 </script>
 
 <template>
-  <aside class="sidebar" :class="{ open: mobileOpen }">
+  <aside
+    class="sidebar"
+    :class="{ open: mobileOpen }"
+    :role="mobileOpen ? 'dialog' : undefined"
+    :aria-modal="mobileOpen ? 'true' : undefined"
+    :aria-label="mobileOpen ? t('ui.app.navigation') : undefined"
+  >
     <div class="brand">
       <RouterLink to="/" @click="$emit('close')"
         ><b>F.</b
@@ -74,10 +84,11 @@ const toggleGroup = (title: string) => {
       </div>
     </div>
     <nav :aria-label="t('ui.app.navigation') ?? '系统主菜单'">
-      <section v-for="group in groups" :key="group.title">
+      <section v-for="(group, index) in groups" :key="group.title">
         <button
           class="group-title"
           :aria-expanded="!collapsed.includes(group.title)"
+          :aria-controls="`sidebar-group-${index}`"
           @click="toggleGroup(group.title)"
         >
           <span
@@ -86,7 +97,11 @@ const toggleGroup = (title: string) => {
           >
           <b :class="{ collapsed: collapsed.includes(group.title) }">⌄</b>
         </button>
-        <div v-show="!collapsed.includes(group.title)" class="children">
+        <div
+          v-show="!collapsed.includes(group.title)"
+          :id="`sidebar-group-${index}`"
+          class="children"
+        >
           <RouterLink
             v-for="item in group.items"
             :key="item.to"

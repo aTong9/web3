@@ -95,7 +95,7 @@ const getHost = (url: string) => new URL(url).hostname.replace(/^www\./, '')
       />
     </section>
 
-    <main class="source-list">
+    <component :is="embedded ? 'section' : 'main'" class="source-list">
       <a
         v-for="(site, index) in visibleSites"
         :key="site.id"
@@ -113,7 +113,7 @@ const getHost = (url: string) => new URL(url).hostname.replace(/^www\./, '')
         <span class="host">{{ getHost(site.url) }}</span>
         <span aria-hidden="true">↗</span>
       </a>
-    </main>
+    </component>
   </div>
 </template>
 

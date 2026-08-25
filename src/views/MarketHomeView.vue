@@ -1,17 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, defineAsyncComponent, ref } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import MarketQuoteStatus from '@/components/MarketQuoteStatus.vue'
+import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
 import marketHomeData from '@/data/market-home.json'
 import crossAssetData from '@/data/cross-asset.json'
 import type { CrossAssetDataset, MarketHomeDataset } from '@/types'
-import DailyMarketPoster from '@/components/DailyMarketPoster.vue'
 import DisclosureCard from '@/components/DisclosureCard.vue'
 import { useI18n } from '@/composables/use-i18n'
 import { marketAssetQuoteSymbols, useMarketQuotes } from '@/composables/use-market-quotes'
 
 const dataset = marketHomeData as MarketHomeDataset
 const crossAssetDataset = crossAssetData as CrossAssetDataset
+const posterOpen = ref(false)
+const DailyMarketPoster = defineAsyncComponent(
+  () => import('@/components/DailyMarketPoster.vue'),
+)
 const markets = computed(() => dataset.marketBrief.markets)
 const leadMarket = computed(() => markets.value[0])
 const { t } = useI18n()
@@ -75,14 +79,16 @@ const validationText = (
 
 <template>
   <main class="market-home">
-    <header class="home-heading">
-      <div class="heading-copy">
-        <p>{{ t('marketHome.badge') }}</p>
-        <h1>{{ t('marketHome.heading') }}</h1>
-        <span>{{ t('marketHome.hint') }}</span>
-        <DataUpdateStatus :updated-at="dataset.updatedAt" schedule="crossAsset" />
-      </div>
-      <section v-if="leadMarket" class="market-pulse" :aria-label="t('marketHome.pulse.baseline')">
+    <ResearchPageHeader :eyebrow="t('marketHome.badge')" :title="t('marketHome.heading')" :description="t('marketHome.hint')">
+      <template #meta>
+        <DataUpdateStatus
+          :updated-at="dataset.updatedAt"
+          schedule="crossAsset"
+          source-label="跨资产自动快照"
+          quality="complete"
+        />
+      </template>
+      <template #status><section v-if="leadMarket" class="market-pulse" :aria-label="t('marketHome.pulse.baseline')">
         <div class="pulse-heading">
           <span>{{ t('marketHome.pulse.baseline') }}</span>
           <strong>{{ leadMarket.name }}</strong>
@@ -113,8 +119,8 @@ const validationText = (
             <em>{{ historicalRangeText(horizon) }}</em>
           </span>
         </div>
-      </section>
-    </header>
+      </section></template>
+    </ResearchPageHeader>
 
     <section class="global-factors">
       <DisclosureCard
@@ -213,16 +219,53 @@ const validationText = (
       {{ t('marketHome.noteDescription') }}
     </footer>
 
-    <DailyMarketPoster :home="dataset" :cross-asset="crossAssetDataset" />
+    <section class="poster-launcher" aria-labelledby="poster-launcher-title">
+      <div>
+        <small>{{ t('poster.badge') }}</small>
+        <h2 id="poster-launcher-title">{{ t('poster.title') }}</h2>
+        <p>{{ t('poster.loadHint') }}</p>
+      </div>
+      <button
+        type="button"
+        :aria-expanded="posterOpen"
+        aria-controls="daily-market-poster"
+        @click="posterOpen = !posterOpen"
+      >
+        {{ posterOpen ? t('poster.closeBuilder') : t('poster.openBuilder') }}
+      </button>
+    </section>
+    <div v-if="posterOpen" id="daily-market-poster">
+      <Suspense>
+        <DailyMarketPoster :home="dataset" :cross-asset="crossAssetDataset" />
+        <template #fallback>
+          <p class="data-load-state" role="status">{{ t('poster.loadingBuilder') }}</p>
+        </template>
+      </Suspense>
+    </div>
   </main>
 </template>
 
 <style scoped>
 .market-home {
-  max-width: 1380px;
+  max-width: var(--content-wide);
   margin: 0 auto;
-  padding: 40px clamp(20px, 3.5vw, 52px) 80px;
+  padding: 32px var(--page-gutter) 80px;
 }
+.poster-launcher {
+  margin-top: 48px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.poster-launcher small { color: var(--accent); font-size: 9px; font-weight: 800; letter-spacing: 0.14em; }
+.poster-launcher h2 { margin: 6px 0; font: 500 24px Georgia, 'Songti SC', serif; }
+.poster-launcher p { margin: 0; color: var(--muted); font-size: 12px; }
+.poster-launcher button { padding: 0 18px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: white; cursor: pointer; white-space: nowrap; }
 .home-heading {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
@@ -477,6 +520,10 @@ const validationText = (
   }
   .horizons {
     grid-template-columns: 1fr;
+  }
+  .poster-launcher {
+    align-items: stretch;
+    flex-direction: column;
   }
 }
 </style>

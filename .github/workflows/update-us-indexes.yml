@@ -26,14 +26,16 @@ jobs:
         run: npm run update:us-indexes
       - name: Validate research calculations
         run: npm run test:trading
+      - name: Validate freshness and completeness
+        run: npm run validate:data:us-indexes
       - name: Commit changed snapshot
         run: |
-          if git diff --quiet -- src/data/us-index-research.json; then
+          if git diff --quiet -- src/data/us-index-research.json src/data/us-index-daily.json; then
             echo "No US index data changes"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/data/us-index-research.json
+          git add src/data/us-index-research.json src/data/us-index-daily.json
           git commit -m "chore: update US index research data"
           git push

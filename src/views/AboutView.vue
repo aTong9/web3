@@ -1,15 +1,46 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useI18n } from '@/composables/use-i18n'
-import readmeMd from '../../README.md?raw'
+import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
 
 const { t } = useI18n()
-const readmeContent = readmeMd
+const readmeContent = ref('')
+const readmeOpen = ref(false)
+const readmeLoading = ref(false)
+const readmeError = ref(false)
+
+const toggleReadme = async () => {
+  if (readmeOpen.value) {
+    readmeOpen.value = false
+    return
+  }
+  if (readmeContent.value) {
+    readmeOpen.value = true
+    return
+  }
+  readmeLoading.value = true
+  readmeError.value = false
+  try {
+    const module = await import('../../README.md?raw')
+    readmeContent.value = module.default
+    readmeOpen.value = true
+  } catch (error) {
+    readmeError.value = true
+    console.warn('Project README failed to load:', error)
+  } finally {
+    readmeLoading.value = false
+  }
+}
 </script>
 
 <template>
   <article class="about-page">
-    <p class="eyebrow">{{ t('about.eyebrow') }}</p>
-    <h1>{{ t('about.heading') }}</h1>
+    <ResearchPageHeader
+      :eyebrow="t('about.eyebrow')"
+      :title="t('about.heading')"
+      variant="plain"
+      density="comfortable"
+    />
 
     <div class="lede">
       <p>{{ t('about.intro1') }}</p>
@@ -42,12 +73,64 @@ const readmeContent = readmeMd
 
     <footer>{{ t('about.footer') }}</footer>
 
-    <section class="readme-block">
+    <section class="architecture-block">
       <span>04</span>
+      <div>
+        <h2>{{ t('about.architectureTitle') }}</h2>
+        <p>{{ t('about.architectureDesc') }}</p>
+        <div class="architecture-flow" :aria-label="t('about.architectureTitle')">
+          <article>
+            <small>UI / RESEARCH</small>
+            <strong>{{ t('about.uiLayerTitle') }}</strong>
+            <p>{{ t('about.uiLayerDesc') }}</p>
+          </article>
+          <i aria-hidden="true">→</i>
+          <article>
+            <small>CONTROL / EVIDENCE</small>
+            <strong>{{ t('about.controlLayerTitle') }}</strong>
+            <p>{{ t('about.controlLayerDesc') }}</p>
+          </article>
+          <i aria-hidden="true">→</i>
+          <article class="engine-layer">
+            <small>PRIMARY ENGINE TARGET</small>
+            <strong>{{ t('about.engineLayerTitle') }}</strong>
+            <p>{{ t('about.engineLayerDesc') }}</p>
+          </article>
+        </div>
+        <aside>
+          <b>{{ t('about.architectureStatusTitle') }}</b>
+          <p>{{ t('about.architectureStatusDesc') }}</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="readme-block">
+      <span>05</span>
       <div>
         <h2>{{ t('about.readmeTitle') }}</h2>
         <p>{{ t('about.readmeDesc') }}</p>
-        <pre>{{ readmeContent }}</pre>
+        <button
+          type="button"
+          class="readme-toggle"
+          :aria-expanded="readmeOpen"
+          aria-controls="project-readme"
+          :disabled="readmeLoading"
+          @click="toggleReadme"
+        >
+          {{
+            readmeLoading
+              ? t('about.readmeLoading')
+              : readmeOpen
+                ? t('about.readmeClose')
+                : readmeError
+                  ? t('about.readmeRetry')
+                  : t('about.readmeOpen')
+          }}
+        </button>
+        <p v-if="readmeError" class="readme-error" role="alert">
+          {{ t('about.readmeError') }}
+        </p>
+        <pre v-if="readmeOpen" id="project-readme">{{ readmeContent }}</pre>
       </div>
     </section>
   </article>
@@ -55,28 +138,9 @@ const readmeContent = readmeMd
 
 <style scoped>
 .about-page {
-  max-width: 900px;
+  max-width: var(--content-standard);
   margin: 0 auto;
-  padding: 72px clamp(20px, 5vw, 64px) 90px;
-}
-
-.eyebrow {
-  margin: 0 0 18px;
-  color: var(--accent);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-h1 {
-  max-width: 760px;
-  margin: 0;
-  font-family: Georgia, "Songti SC", serif;
-  font-size: clamp(42px, 7vw, 72px);
-  font-weight: 400;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
+  padding: var(--space-section) var(--page-gutter) 90px;
 }
 
 .lede {
@@ -101,7 +165,7 @@ section > span {
 
 h2 {
   margin: 0 0 8px;
-  font-family: Georgia, "Songti SC", serif;
+  font-family: Georgia, 'Songti SC', serif;
   font-size: 21px;
   font-weight: 500;
 }
@@ -121,6 +185,64 @@ footer {
   font-size: 12px;
 }
 
+.architecture-flow {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.architecture-flow article {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.architecture-flow article.engine-layer {
+  border-color: color-mix(in oklab, var(--accent) 50%, var(--border));
+  background: var(--accent-soft);
+}
+
+.architecture-flow small,
+.architecture-flow strong {
+  display: block;
+}
+
+.architecture-flow small {
+  color: var(--accent);
+  font:
+    700 9px ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+}
+
+.architecture-flow strong {
+  margin: 9px 0;
+  font-size: 14px;
+}
+
+.architecture-flow i {
+  align-self: center;
+  color: var(--muted);
+  font-style: normal;
+}
+
+.architecture-block aside {
+  margin-top: 14px;
+  padding: 15px 18px;
+  border-left: 3px solid var(--danger);
+  background: var(--surface-soft);
+}
+
+.architecture-block aside b {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 11px;
+}
+
 .readme-block pre {
   margin: 16px 0 0;
   padding: 16px;
@@ -137,9 +259,44 @@ footer {
   word-break: break-word;
 }
 
+.readme-toggle {
+  margin-top: 16px;
+  padding: 9px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.readme-toggle:hover,
+.readme-toggle:focus-visible {
+  border-color: var(--accent);
+}
+
+.readme-toggle:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.readme-block .readme-error {
+  margin-top: 10px;
+  color: var(--danger);
+}
+
 @media (max-width: 640px) {
   .lede {
     margin-left: 0;
+  }
+
+  .architecture-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .architecture-flow i {
+    justify-self: center;
+    transform: rotate(90deg);
   }
 }
 </style>

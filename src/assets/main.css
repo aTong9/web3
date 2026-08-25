@@ -26,6 +26,14 @@
   --sidebar-text: #aeb7c0;
   --sidebar-muted: #74808d;
   --sidebar-active-text: #aee1cc;
+  --content-standard: 1280px;
+  --content-wide: 1380px;
+  --content-workbench: 1440px;
+  --page-gutter: clamp(18px, 4vw, 48px);
+  --space-section: 24px;
+  --panel-radius: 12px;
+  --panel-padding: clamp(18px, 2.2vw, 24px);
+  --control-height: 40px;
   color: var(--ink);
   background: var(--paper);
   font-family:
@@ -110,7 +118,7 @@ input {
 }
 
 button {
-  min-height: 40px;
+  min-height: var(--control-height);
 }
 
 button:active {
@@ -135,6 +143,21 @@ a:focus-visible {
   background: var(--accent-soft);
 }
 
+.data-load-state {
+  margin: 0 0 var(--space-section);
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.data-load-state.error {
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--border));
+  color: var(--danger);
+}
+
 button,
 input,
 select,
@@ -155,6 +178,26 @@ summary::-webkit-details-marker {
   min-height: 100vh;
 }
 
+.skip-link {
+  padding: 10px 14px;
+  border-radius: 0 0 8px 0;
+  background: var(--accent);
+  color: white;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  transform: translateY(-120%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.route-frame:focus {
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -163,5 +206,24 @@ summary::-webkit-details-marker {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 720px) {
+  :root {
+    --page-gutter: 14px;
+    --space-section: 18px;
+    --control-height: 44px;
+  }
+
+  small {
+    font-size: max(12px, 0.75em) !important;
+  }
+
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    font-size: 14px !important;
   }
 }

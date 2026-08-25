@@ -24,6 +24,10 @@ jobs:
         run: node scripts/update-us-funds.mjs
       - name: Refresh chart fund index
         run: node scripts/update-technical-funds.mjs
+      - name: Validate freshness and completeness
+        run: npm run validate:data:us-funds
+      - name: Validate technical-fund projection
+        run: npm run validate:data:technical-funds
       - name: Commit changed data
         run: |
           if git diff --quiet -- src/data/us-funds.json src/data/technical-funds.json; then
