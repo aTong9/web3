@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import EChart from '@/components/EChart.vue'
 import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
@@ -20,6 +20,8 @@ const activeCategory = ref<'all' | CrossAssetCategory>('all')
 const chainStatus = ref<'all' | 'confirming' | 'diverging' | 'dormant' | 'context' | 'unavailable'>(
   'all',
 )
+const chainSearch = ref('')
+const visibleChainLimit = ref(12)
 const selectedBriefId = ref(dataset.marketBrief.markets[0]?.id ?? 'sp500')
 const { theme } = useTheme()
 const { t } = useI18n()
@@ -64,11 +66,26 @@ const visibleAssets = computed(() =>
     (asset) => activeCategory.value === 'all' || asset.category === activeCategory.value,
   ),
 )
-const visibleChains = computed(() =>
-  dataset.transmissionChains.filter(
-    (chain) => chainStatus.value === 'all' || chain.status === chainStatus.value,
+const chainStatusCounts = computed(() =>
+  dataset.transmissionChains.reduce<Record<string, number>>(
+    (counts, chain) => ({ ...counts, [chain.status]: (counts[chain.status] ?? 0) + 1 }),
+    {},
   ),
 )
+const filteredChains = computed(() => {
+  const query = chainSearch.value.trim().toLocaleLowerCase()
+  return dataset.transmissionChains.filter((chain) => {
+    const matchesStatus = chainStatus.value === 'all' || chain.status === chainStatus.value
+    const searchable = `${chain.group} ${chain.title} ${chain.interpretation} ${chain.steps.join(' ')}`
+      .toLocaleLowerCase()
+    return matchesStatus && (!query || searchable.includes(query))
+  })
+})
+const visibleChains = computed(() => filteredChains.value.slice(0, visibleChainLimit.value))
+const hasMoreChains = computed(() => visibleChains.value.length < filteredChains.value.length)
+watch([chainStatus, chainSearch], () => {
+  visibleChainLimit.value = 12
+})
 const selectedBrief = computed(
   () =>
     dataset.marketBrief.markets.find((market) => market.id === selectedBriefId.value) ??
@@ -713,18 +730,41 @@ const performanceOption = computed(() => ({
         </article>
         <footer>{{ dataset.marketBrief.methodology }}</footer>
       </div>
-      <div class="chain-filters">
-        <button :class="{ active: chainStatus === 'all' }" @click="chainStatus = 'all'">
-          {{ t('crossAsset.allLabel') }}
-        </button>
-        <button
-          v-for="(name, key) in chainStatusNames"
-          :key="key"
-          :class="{ active: chainStatus === key }"
-          @click="chainStatus = key"
-        >
-          {{ name }}
-        </button>
+      <div class="chain-explorer">
+        <label class="chain-search">
+          <span>{{ t('crossAsset.chainSearchLabel') }}</span>
+          <input
+            v-model="chainSearch"
+            type="search"
+            :placeholder="t('crossAsset.chainSearchPlaceholder')"
+          />
+        </label>
+        <div class="chain-filters" role="group" :aria-label="t('crossAsset.chainStatusFilter')">
+          <button
+            :class="{ active: chainStatus === 'all' }"
+            :aria-pressed="chainStatus === 'all'"
+            @click="chainStatus = 'all'"
+          >
+            {{ t('crossAsset.allLabel') }} <span>{{ dataset.transmissionChains.length }}</span>
+          </button>
+          <button
+            v-for="(name, key) in chainStatusNames"
+            :key="key"
+            :class="{ active: chainStatus === key }"
+            :aria-pressed="chainStatus === key"
+            @click="chainStatus = key"
+          >
+            {{ name }} <span>{{ chainStatusCounts[key] ?? 0 }}</span>
+          </button>
+        </div>
+        <p>
+          {{
+            t('crossAsset.chainResultCount', {
+              shown: visibleChains.length,
+              total: filteredChains.length,
+            })
+          }}
+        </p>
       </div>
       <div class="chain-grid">
         <details
@@ -797,6 +837,25 @@ const performanceOption = computed(() => ({
           </a>
         </details>
       </div>
+      <div v-if="!visibleChains.length" class="chain-empty" role="status">
+        <strong>{{ t('crossAsset.chainEmptyTitle') }}</strong>
+        <span>{{ t('crossAsset.chainEmptyHint') }}</span>
+        <button type="button" @click="chainSearch = ''; chainStatus = 'all'">
+          {{ t('crossAsset.chainReset') }}
+        </button>
+      </div>
+      <button
+        v-if="hasMoreChains"
+        type="button"
+        class="load-more-chains"
+        @click="visibleChainLimit += 12"
+      >
+        {{
+          t('crossAsset.chainLoadMore', {
+            remaining: filteredChains.length - visibleChains.length,
+          })
+        }}
+      </button>
     </section>
 
     <section class="regime-strip">
@@ -1143,10 +1202,44 @@ tbody th {
   gap: 12px;
 }
 .chain-filters {
-  margin: -4px 0 14px;
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
+}
+.chain-explorer {
+  margin: -4px 0 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  display: grid;
+  grid-template-columns: minmax(220px, 0.75fr) minmax(0, 1.75fr) auto;
+  align-items: end;
+  gap: 12px;
+}
+.chain-search {
+  display: grid;
+  gap: 5px;
+}
+.chain-search span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+}
+.chain-search input {
+  width: 100%;
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--paper);
+  font-size: 11px;
+}
+.chain-explorer > p {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 10px;
+  white-space: nowrap;
 }
 .daily-brief {
   margin-bottom: 22px;
@@ -1465,10 +1558,55 @@ tbody th {
   font-size: 10px;
   cursor: pointer;
 }
+.chain-filters button span {
+  min-width: 20px;
+  padding: 2px 5px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  display: inline-block;
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
 .chain-filters button.active {
   border-color: var(--ink);
   background: var(--ink);
   color: white;
+}
+.chain-filters button.active span {
+  background: color-mix(in srgb, white 18%, transparent);
+  color: inherit;
+}
+.load-more-chains {
+  width: 100%;
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 11px;
+}
+.chain-empty {
+  padding: 28px;
+  border: 1px dashed var(--border);
+  border-radius: 9px;
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+}
+.chain-empty span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.chain-empty button {
+  margin-top: 8px;
+  padding: 0 14px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
 }
 .chain-grid .chain-card {
   padding: 18px;
@@ -1622,6 +1760,22 @@ tbody th {
   }
   .chain-grid {
     grid-template-columns: 1fr;
+  }
+  .chain-explorer {
+    padding: 10px;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+  .chain-filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  .chain-filters button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  .chain-explorer > p {
+    margin: 0;
   }
   .daily-brief > header,
   .brief-detail {

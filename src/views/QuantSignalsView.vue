@@ -463,6 +463,12 @@ onMounted(async () => {
             }}</strong>
           </div>
         </div>
+        <details class="candidate-analysis">
+          <summary>
+            <span>{{ t('quant.optionAnalysis') }}</span>
+            <small>{{ t('quant.optionAnalysisHint') }}</small>
+          </summary>
+          <div class="candidate-analysis-content">
         <section class="earnings-panel">
           <header>
             <b>{{ t('quant.earnings.title') }}</b>
@@ -654,7 +660,7 @@ onMounted(async () => {
           </p>
           <small class="market-method">{{ t('quant.optionMarket.method') }}</small>
         </section>
-        <details>
+        <details class="evidence-detail">
           <summary>{{ t('quant.detail') }}</summary>
           <div class="option-detail">
             <b>{{ t('quant.reasons') }}</b>
@@ -665,6 +671,8 @@ onMounted(async () => {
             <ul>
               <li v-for="blocker in candidate.blockers" :key="blocker">{{ blocker }}</li>
             </ul>
+          </div>
+        </details>
           </div>
         </details>
         <footer>
@@ -1320,10 +1328,51 @@ onMounted(async () => {
 .event-window dl {
   grid-template-columns: repeat(4, 1fr);
 }
-.option-card details {
+.candidate-analysis {
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+.candidate-analysis > summary {
+  min-height: 42px;
+  padding: 9px 11px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  list-style: none;
+}
+.candidate-analysis > summary::-webkit-details-marker {
+  display: none;
+}
+.candidate-analysis > summary::after {
+  content: '+';
+  color: var(--accent);
+  font-size: 17px;
+  line-height: 1;
+}
+.candidate-analysis[open] > summary::after {
+  content: '−';
+}
+.candidate-analysis > summary span {
+  color: var(--ink);
+  font-weight: 700;
+}
+.candidate-analysis > summary small {
+  margin-left: auto;
+  color: var(--muted);
+}
+.candidate-analysis-content {
+  padding: 0 11px 11px;
+}
+.candidate-analysis .earnings-panel {
+  margin-top: 2px;
+}
+.option-card .evidence-detail {
   border-top: 1px solid var(--border);
 }
-.option-card details summary {
+.option-card .evidence-detail summary {
   padding: 11px 0;
   color: var(--muted);
   cursor: pointer;

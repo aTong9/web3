@@ -134,6 +134,7 @@ const compareId = ref('')
 const comparisonMode = ref<ComparisonMode>('normalized')
 const search = ref('')
 const assetPickerOpen = ref(false)
+const focusMode = ref(false)
 const range = ref<RangeId>(technicalConfig.value.display.defaultRange)
 const chartMode = ref<ChartMode>('line')
 const chartInterval = ref<ChartInterval>('day')
@@ -1499,7 +1500,11 @@ onBeforeUnmount(() => {
       </div>
     </section>
 
-    <div v-if="workspaceMode === 'research'" class="research-layout">
+    <div
+      v-if="workspaceMode === 'research'"
+      class="research-layout"
+      :class="{ 'focus-mode': focusMode }"
+    >
       <button
         class="asset-drawer-toggle"
         :aria-expanded="assetPickerOpen"
@@ -1638,6 +1643,18 @@ onBeforeUnmount(() => {
               @click="chartMode = 'candle'"
             >
               {{ t('assetTechnical.candle') }}
+            </button>
+            <button
+              class="focus-mode-button"
+              :class="{ active: focusMode }"
+              :aria-pressed="focusMode"
+              @click="focusMode = !focusMode"
+            >
+              {{
+                focusMode
+                  ? t('assetTechnical.exitFocusMode')
+                  : t('assetTechnical.enterFocusMode')
+              }}
             </button>
             <button @click="toggleFullscreen">{{ t('assetTechnical.fullscreen') }}</button>
             <button @click="downloadChart">PNG</button>
@@ -2554,6 +2571,22 @@ onBeforeUnmount(() => {
   gap: 16px;
   align-items: start;
 }
+.research-layout.focus-mode {
+  grid-template-columns: minmax(0, 1fr);
+}
+.research-layout.focus-mode > .asset-picker,
+.research-layout.focus-mode > .signal-panel,
+.research-layout.focus-mode > .asset-drawer-toggle {
+  display: none;
+}
+.research-layout.focus-mode > .chart-column {
+  min-width: 0;
+}
+.focus-mode-button.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
 .asset-drawer-toggle {
   display: none;
 }
@@ -3416,6 +3449,9 @@ onBeforeUnmount(() => {
   }
   .research-layout {
     grid-template-columns: 1fr;
+  }
+  .focus-mode-button {
+    display: none;
   }
   .asset-drawer-toggle {
     width: 100%;

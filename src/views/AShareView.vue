@@ -10,6 +10,7 @@ import { useI18n } from '@/composables/use-i18n'
 import type { FundResearchItem } from '@/utils/fund-research'
 
 type Scope = 'all' | SectorKind
+type Workspace = 'overview' | 'research' | 'ranking'
 
 const dataset = ref<AShareSectorDataset>({
   updatedAt: '',
@@ -35,6 +36,7 @@ const activeScope = ref<Scope>('all')
 const direction = ref<'desc' | 'asc'>('desc')
 const query = ref('')
 const brokerageFeePct = ref(0.03)
+const activeWorkspace = ref<Workspace>('overview')
 const { t } = useI18n()
 
 const periodOptions: Array<{ value: SectorPeriod; label: string }> = [
@@ -173,14 +175,32 @@ onMounted(loadDataset)
       </div>
     </section>
 
-    <HotStocksPanel market="aShare" />
+    <nav class="workspace-tabs" :aria-label="t('aShare.workspace.label')">
+      <button
+        v-for="workspace in (['overview', 'research', 'ranking'] as Workspace[])"
+        :key="workspace"
+        :class="{ active: activeWorkspace === workspace }"
+        :aria-pressed="activeWorkspace === workspace"
+        @click="activeWorkspace = workspace"
+      >
+        <strong>{{ t(`aShare.workspace.${workspace}`) }}</strong>
+        <span>{{ t(`aShare.workspace.${workspace}Hint`) }}</span>
+      </button>
+    </nav>
 
-    <FundResearchWorkbench
-      :funds="researchFunds"
-      :initial-codes="['512880', '512800', '512690']"
-      storage-key="a-share-funds"
-    />
+    <section v-show="activeWorkspace === 'overview'" class="workspace-panel">
+      <HotStocksPanel market="aShare" />
+    </section>
 
+    <section v-show="activeWorkspace === 'research'" class="workspace-panel">
+      <FundResearchWorkbench
+        :funds="researchFunds"
+        :initial-codes="['512880', '512800', '512690']"
+        storage-key="a-share-funds"
+      />
+    </section>
+
+    <section v-show="activeWorkspace === 'ranking'" class="workspace-panel">
     <div class="toolbar">
       <div class="period-tabs" :aria-label="t('aShare.filterRange')">
         <button
@@ -289,6 +309,7 @@ onMounted(loadDataset)
         </div>
       </details>
     </div>
+    </section>
 
     <footer>
       {{ dataset.source }}
@@ -387,6 +408,54 @@ h1 {
 .market-summary span,
 .market-summary strong {
   display: block;
+}
+
+.workspace-tabs {
+  margin: 0 0 28px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.workspace-tabs button {
+  min-height: 64px;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+  text-align: left;
+}
+
+.workspace-tabs button:hover {
+  background: var(--surface-elevated);
+}
+
+.workspace-tabs button.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.workspace-tabs strong {
+  font-size: 12px;
+}
+
+.workspace-tabs span {
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.workspace-panel {
+  min-width: 0;
 }
 
 .market-summary span {
@@ -668,6 +737,14 @@ footer {
 
   .market-summary {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .workspace-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-tabs button {
+    min-height: 52px;
   }
 
   .market-summary div:nth-child(2) {

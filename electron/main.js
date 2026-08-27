@@ -11,6 +11,7 @@ const updateCheckInterval = 4 * 60 * 60 * 1000
 
 let skippedVersion = null
 let downloadingUpdate = false
+let mainWindow = null
 
 const isTrustedNavigation = (url) => {
   if (developmentUrl) return url.startsWith(developmentUrl)
@@ -49,10 +50,19 @@ const createWindow = async () => {
     await window.loadFile(path.join(currentDirectory, '..', 'dist', 'index.html'))
   }
 
+  mainWindow = window
+  window.once('closed', () => {
+    if (mainWindow === window) mainWindow = null
+  })
   return window
 }
 
-const configureAutoUpdater = (window) => {
+const showUpdateDialog = (options) => {
+  const window = BrowserWindow.getFocusedWindow() ?? mainWindow
+  return window ? dialog.showMessageBox(window, options) : dialog.showMessageBox(options)
+}
+
+const configureAutoUpdater = () => {
   if (!app.isPackaged) return
 
   autoUpdater.autoDownload = false
@@ -61,7 +71,7 @@ const configureAutoUpdater = (window) => {
   autoUpdater.on('update-available', async (info) => {
     if (info.version === skippedVersion || downloadingUpdate) return
 
-    const result = await dialog.showMessageBox(window, {
+    const result = await showUpdateDialog({
       type: 'info',
       title: '发现新版本',
       message: `发现新版本 ${info.version}`,
@@ -88,7 +98,7 @@ const configureAutoUpdater = (window) => {
     } catch (error) {
       downloadingUpdate = false
       console.error('Electron update download failed:', error)
-      await dialog.showMessageBox(window, {
+      await showUpdateDialog({
         type: 'error',
         title: '更新下载失败',
         message: '无法下载新版本',
@@ -104,7 +114,7 @@ const configureAutoUpdater = (window) => {
 
   autoUpdater.on('update-downloaded', async (info) => {
     downloadingUpdate = false
-    const result = await dialog.showMessageBox(window, {
+    const result = await showUpdateDialog({
       type: 'info',
       title: '更新已下载',
       message: `新版本 ${info.version} 已准备就绪`,
@@ -133,8 +143,8 @@ const configureAutoUpdater = (window) => {
 }
 
 app.whenReady().then(async () => {
-  const window = await createWindow()
-  configureAutoUpdater(window)
+  await createWindow()
+  configureAutoUpdater()
   app.on('activate', async () => {
     if (BrowserWindow.getAllWindows().length === 0) await createWindow()
   })

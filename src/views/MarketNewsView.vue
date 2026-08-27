@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import embeddedData from '@/data/market-news.json'
 import type { MarketNewsCategory, MarketNewsDataset, MarketNewsImpact } from '@/types'
@@ -11,6 +11,7 @@ const dataset = ref(embeddedData as MarketNewsDataset)
 const impact = ref<'all' | MarketNewsImpact>('all')
 const category = ref<'all' | MarketNewsCategory>('all')
 const query = ref('')
+const visibleLimit = ref(12)
 const liveStatus = ref<'idle' | 'checking' | 'updated' | 'error'>('idle')
 let refreshTimer: number | undefined
 const { t } = useI18n()
@@ -43,6 +44,11 @@ const articles = computed(() => {
           ...article.affectedAssets,
         ].some((value) => value.toLocaleLowerCase().includes(needle))),
   )
+})
+const visibleArticles = computed(() => articles.value.slice(0, visibleLimit.value))
+const hasMoreArticles = computed(() => visibleLimit.value < articles.value.length)
+watch([impact, category, query], () => {
+  visibleLimit.value = 12
 })
 const urgentCount = computed(
   () => dataset.value.articles.filter((article) => article.impact === 'critical').length,
@@ -143,12 +149,20 @@ onUnmounted(() => window.clearInterval(refreshTimer))
         v-model="query"
         type="search"
         :placeholder="t('marketNews.searchPlaceholder')"
+        :aria-label="t('marketNews.searchPlaceholder')"
       />
+    </div>
+
+    <div class="result-state" role="status">
+      <span>{{ t('marketNews.resultCount', { visible: visibleArticles.length, total: articles.length }) }}</span>
+      <button v-if="impact !== 'all' || category !== 'all' || query" @click="impact = 'all'; category = 'all'; query = ''">
+        {{ t('marketNews.clearFilters') }}
+      </button>
     </div>
 
     <div class="news-list">
       <a
-        v-for="article in articles"
+        v-for="article in visibleArticles"
         :key="article.id"
         :href="article.url"
         target="_blank"
@@ -183,6 +197,14 @@ onUnmounted(() => window.clearInterval(refreshTimer))
       </a>
       <div v-if="!articles.length" class="empty">{{ t('marketNews.noData') }}</div>
     </div>
+
+    <button
+      v-if="hasMoreArticles"
+      class="load-more"
+      @click="visibleLimit = Math.min(visibleLimit + 12, articles.length)"
+    >
+      {{ t('marketNews.loadMore', { remaining: articles.length - visibleArticles.length }) }}
+    </button>
 
     <footer>{{ t('marketNews.footer', { source: dataset.source }) }}</footer>
   </component>
@@ -323,6 +345,24 @@ input {
 input {
   width: min(320px, 100%);
 }
+.result-state {
+  min-height: 30px;
+  margin-bottom: 8px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 10px;
+}
+.result-state button {
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font: inherit;
+}
 .news-list {
   border-top: 1px solid var(--ink);
 }
@@ -405,6 +445,21 @@ time {
   padding: 50px;
   color: var(--muted);
   text-align: center;
+}
+.load-more {
+  width: 100%;
+  min-height: 42px;
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 11px;
+}
+.load-more:hover {
+  border-color: var(--accent);
+  background: var(--surface);
 }
 footer {
   margin-top: 24px;

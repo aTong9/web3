@@ -11,6 +11,7 @@ import { useI18n } from '@/composables/use-i18n'
 import type { FundResearchItem } from '@/utils/fund-research'
 
 type SortKey = 'scale' | 'fee' | 'premium' | 'firstYearCost'
+type Workspace = 'overview' | 'research' | 'costs'
 const ALL_INDEX = 'all'
 
 const dataset = ref<UsFundDataset>({ updatedAt: '', source: '', funds: [] })
@@ -20,6 +21,7 @@ const activeVenue = ref<FundVenue>('exchange')
 const activeIndex = ref(ALL_INDEX)
 const sortKey = ref<SortKey>('scale')
 const brokerageFeePct = ref(0.03)
+const activeWorkspace = ref<Workspace>('overview')
 const { t } = useI18n()
 
 const indices = computed(() => [...new Set(dataset.value.funds.map((fund) => fund.index))])
@@ -135,15 +137,33 @@ onMounted(loadDataset)
       <p>{{ dataset.source }}</p>
     </section>
 
-    <UsMegaCapsPanel />
-    <HotStocksPanel market="us" />
+    <nav class="workspace-tabs" :aria-label="t('funds.workspace.label')">
+      <button
+        v-for="workspace in (['overview', 'research', 'costs'] as Workspace[])"
+        :key="workspace"
+        :class="{ active: activeWorkspace === workspace }"
+        :aria-pressed="activeWorkspace === workspace"
+        @click="activeWorkspace = workspace"
+      >
+        <strong>{{ t(`funds.workspace.${workspace}`) }}</strong>
+        <span>{{ t(`funds.workspace.${workspace}Hint`) }}</span>
+      </button>
+    </nav>
 
-    <FundResearchWorkbench
-      :funds="researchFunds"
-      :initial-codes="['513100', '159941', '513500']"
-      storage-key="us-funds"
-    />
+    <section v-show="activeWorkspace === 'overview'" class="workspace-panel">
+      <UsMegaCapsPanel />
+      <HotStocksPanel market="us" />
+    </section>
 
+    <section v-show="activeWorkspace === 'research'" class="workspace-panel">
+      <FundResearchWorkbench
+        :funds="researchFunds"
+        :initial-codes="['513100', '159941', '513500']"
+        storage-key="us-funds"
+      />
+    </section>
+
+    <section v-show="activeWorkspace === 'costs'" class="workspace-panel">
     <div class="controls">
       <div class="segmented" :aria-label="t('funds.venue.exchange')">
         <button
@@ -286,6 +306,7 @@ onMounted(loadDataset)
         </tbody>
       </table>
     </div>
+    </section>
 
     <footer>
       {{ t('funds.notice') }} {{ t('funds.caution') }}
@@ -381,6 +402,54 @@ h1 {
 
 .scope-note p {
   margin: 0;
+}
+
+.workspace-tabs {
+  margin-bottom: 28px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.workspace-tabs button {
+  min-height: 64px;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+  text-align: left;
+}
+
+.workspace-tabs button:hover {
+  background: var(--surface-elevated);
+}
+
+.workspace-tabs button.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.workspace-tabs strong {
+  font-size: 12px;
+}
+
+.workspace-tabs span {
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.workspace-panel {
+  min-width: 0;
 }
 
 .controls {
@@ -583,6 +652,14 @@ footer {
   .scope-note {
     grid-template-columns: 1fr;
     gap: 12px;
+  }
+
+  .workspace-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-tabs button {
+    min-height: 52px;
   }
 
   .segmented button {

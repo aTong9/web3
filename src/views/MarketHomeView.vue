@@ -13,10 +13,30 @@ import { marketAssetQuoteSymbols, useMarketQuotes } from '@/composables/use-mark
 const dataset = marketHomeData as MarketHomeDataset
 const crossAssetDataset = crossAssetData as CrossAssetDataset
 const posterOpen = ref(false)
+type MarketScope = 'all' | 'equity' | 'commodity' | 'crypto'
+const marketScope = ref<MarketScope>('all')
 const DailyMarketPoster = defineAsyncComponent(() => import('@/components/DailyMarketPoster.vue'))
 const markets = computed(() => dataset.marketBrief.markets)
 const leadMarket = computed(() => markets.value[0])
 const { t } = useI18n()
+const marketScopes: Array<{ id: MarketScope; label: string }> = [
+  { id: 'all', label: 'marketHome.scope.all' },
+  { id: 'equity', label: 'marketHome.scope.equity' },
+  { id: 'commodity', label: 'marketHome.scope.commodity' },
+  { id: 'crypto', label: 'marketHome.scope.crypto' },
+]
+const marketScopeById: Record<string, Exclude<MarketScope, 'all'>> = {
+  sp500: 'equity',
+  nasdaq: 'equity',
+  shanghai: 'equity',
+  hangseng: 'equity',
+  euro50: 'equity',
+  nikkei: 'equity',
+  wti: 'commodity',
+  gold: 'commodity',
+  btc: 'crypto',
+  eth: 'crypto',
+}
 const quoteSymbols = computed(() =>
   markets.value
     .map((market) => marketAssetQuoteSymbols[market.id])
@@ -40,6 +60,15 @@ const formatMarketValue = (id: string) => {
 }
 const marketMove = (market: MarketHomeDataset['marketBrief']['markets'][number]) =>
   marketQuote(market.id)?.changePct ?? market.dailyMove
+const filteredMarkets = computed(() =>
+  marketScope.value === 'all'
+    ? markets.value
+    : markets.value.filter((market) => marketScopeById[market.id] === marketScope.value),
+)
+const risingMarkets = computed(
+  () => markets.value.filter((market) => (marketMove(market) ?? 0) >= 0).length,
+)
+const fallingMarkets = computed(() => markets.value.length - risingMarkets.value)
 const directionName = (direction: 'bullish' | 'bearish') =>
   direction === 'bullish' ? t('direction.bullish') : t('direction.bearish')
 const formatSignedPct = (value: number) => `${value > 0 ? '+' : ''}${value.toFixed(2)}%`
@@ -160,9 +189,46 @@ const validationText = (
       </DisclosureCard>
     </section>
 
-    <section class="market-grid">
+    <section class="market-section" aria-labelledby="market-section-title">
+      <header class="market-section-heading">
+        <div>
+          <p>{{ t('marketHome.marketList.eyebrow') }}</p>
+          <h2 id="market-section-title">{{ t('marketHome.marketList.title') }}</h2>
+          <span>{{ t('marketHome.marketList.description') }}</span>
+        </div>
+        <dl class="market-summary" :aria-label="t('marketHome.marketList.summary')">
+          <div>
+            <dt>{{ t('marketHome.marketList.covered') }}</dt>
+            <dd>{{ markets.length }}</dd>
+          </div>
+          <div>
+            <dt>{{ t('marketHome.marketList.rising') }}</dt>
+            <dd class="up">{{ risingMarkets }}</dd>
+          </div>
+          <div>
+            <dt>{{ t('marketHome.marketList.falling') }}</dt>
+            <dd class="down">{{ fallingMarkets }}</dd>
+          </div>
+        </dl>
+      </header>
+      <div class="market-toolbar">
+        <div class="scope-switch" role="group" :aria-label="t('marketHome.scope.label')">
+          <button
+            v-for="scope in marketScopes"
+            :key="scope.id"
+            type="button"
+            :class="{ active: marketScope === scope.id }"
+            :aria-pressed="marketScope === scope.id"
+            @click="marketScope = scope.id"
+          >
+            {{ t(scope.label) }}
+          </button>
+        </div>
+        <span>{{ t('marketHome.marketList.showing', { count: filteredMarkets.length }) }}</span>
+      </div>
+      <div class="market-grid">
       <DisclosureCard
-        v-for="market in markets"
+        v-for="market in filteredMarkets"
         :key="market.id"
         class="market-card"
         :eyebrow="market.date ?? t('marketHome.unknownDate')"
@@ -225,6 +291,7 @@ const validationText = (
           </section>
         </div>
       </DisclosureCard>
+      </div>
     </section>
 
     <footer>
@@ -435,6 +502,88 @@ const validationText = (
   font-size: 12px;
   line-height: 1.7;
 }
+.market-section {
+  margin-top: 38px;
+}
+.market-section-heading {
+  margin-bottom: 18px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.market-section-heading p {
+  margin: 0 0 6px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 800;
+}
+.market-section-heading h2 {
+  margin: 0;
+  font: 500 clamp(24px, 3vw, 34px) Georgia, 'Songti SC', serif;
+}
+.market-section-heading span {
+  margin-top: 7px;
+  color: var(--muted);
+  display: block;
+  font-size: 12px;
+}
+.market-summary {
+  margin: 0;
+  display: flex;
+  gap: 8px;
+}
+.market-summary > div {
+  min-width: 76px;
+  padding: 10px 12px;
+  border-left: 1px solid var(--border);
+}
+.market-summary dt {
+  color: var(--muted);
+  font-size: 9px;
+}
+.market-summary dd {
+  margin: 4px 0 0;
+  font-size: 20px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+.market-toolbar {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.market-toolbar > span {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.scope-switch {
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+  display: inline-flex;
+  gap: 2px;
+}
+.scope-switch button {
+  min-height: 32px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+}
+.scope-switch button.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+  font-weight: 700;
+}
 .market-grid {
   display: grid;
   gap: 10px;
@@ -571,6 +720,34 @@ const validationText = (
   }
   .horizons {
     grid-template-columns: 1fr;
+  }
+  .market-section {
+    margin-top: 30px;
+  }
+  .market-section-heading {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .market-summary {
+    width: 100%;
+  }
+  .market-summary > div {
+    min-width: 0;
+    flex: 1;
+  }
+  .market-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .scope-switch {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .scope-switch button {
+    flex: 1;
+    white-space: nowrap;
   }
   .poster-launcher {
     align-items: stretch;

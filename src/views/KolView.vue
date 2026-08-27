@@ -10,7 +10,7 @@ const { embedded = false } = defineProps<{ embedded?: boolean }>()
 const dataset = kolData as KolMonitorDataset
 const query = ref('')
 const activePlatform = ref<'all' | KolPlatform>('all')
-const expandedKols = ref<string[]>(dataset.kols.map((kol) => kol.id))
+const expandedKols = ref<string[]>([])
 const subscription = ref({ name: '', url: '', feedUrl: '', tags: '' })
 const updateState = ref<'idle' | 'updating' | 'success' | 'error'>('idle')
 const updateMessage = ref('')
@@ -59,6 +59,9 @@ const visibleKols = computed(() => {
         )),
   )
 })
+const allVisibleExpanded = computed(
+  () => visibleKols.value.length > 0 && visibleKols.value.every((kol) => expandedKols.value.includes(kol.id)),
+)
 
 const platforms = computed(() => [...new Set(dataset.kols.map((kol) => kol.platform))])
 const contentCount = computed(() =>
@@ -88,6 +91,12 @@ const toggleKol = (id: string) => {
   expandedKols.value = expandedKols.value.includes(id)
     ? expandedKols.value.filter((item) => item !== id)
     : [...expandedKols.value, id]
+}
+const toggleAllVisible = () => {
+  const visibleIds = visibleKols.value.map((kol) => kol.id)
+  expandedKols.value = allVisibleExpanded.value
+    ? expandedKols.value.filter((id) => !visibleIds.includes(id))
+    : [...new Set([...expandedKols.value, ...visibleIds])]
 }
 
 const formatDate = (value: string | null) => {
@@ -255,6 +264,13 @@ const addSubscription = async () => {
       />
     </div>
 
+    <div class="result-state" role="status">
+      <span>{{ t('kol.resultCount', { count: visibleKols.length }) }}</span>
+      <button v-if="visibleKols.length" @click="toggleAllVisible">
+        {{ allVisibleExpanded ? t('kol.collapseAll') : t('kol.expandAll') }}
+      </button>
+    </div>
+
     <div class="kol-list">
       <section v-for="kol in visibleKols" :key="kol.id" class="kol-card">
         <header>
@@ -317,6 +333,24 @@ const addSubscription = async () => {
 .kol-page.embedded {
   max-width: none;
   padding: 0;
+}
+.result-state {
+  min-height: 34px;
+  margin-bottom: 8px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 10px;
+}
+.result-state button {
+  padding: 5px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font: inherit;
 }
 .page-heading {
   display: flex;
