@@ -46,6 +46,8 @@ const groups = computed(() => [
     items: [
       { title: 'ui.nav.resource', to: '/resources' },
       { title: 'ui.nav.gameIncome', to: '/income-opportunities' },
+      { title: 'ui.nav.chinaGameIncome', to: '/china-game-income' },
+      { title: 'ui.nav.countryTravel', to: '/country-travel-guide' },
       { title: 'ui.nav.report', to: '/report' },
       { title: 'ui.nav.about', to: '/about' },
     ],

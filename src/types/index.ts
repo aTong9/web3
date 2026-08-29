@@ -16,6 +16,31 @@ export interface NavTaxonomy {
   list: NavTerm[]
 }
 
+export interface LifelongBook {
+  title: string
+  authors: string[]
+  firstPublishYear: number | null
+  editionCount: number
+  rating: number | null
+  source: string
+  url: string
+}
+
+export interface LifelongBookCategory {
+  category: string
+  books: LifelongBook[]
+}
+
+export interface LifelongBookCatalog {
+  generatedAt: string
+  source: {
+    name: string
+    url: string
+    methodology: string
+  }
+  categories: LifelongBookCategory[]
+}
+
 export type GameIncomePayout = 'fiat' | 'crypto' | 'mixed'
 export type GameIncomeStartCost = 'free' | 'low' | 'capital'
 export type IncomeOpportunityCategory =
@@ -24,7 +49,16 @@ export type IncomeOpportunityCategory =
   | 'digital-product'
   | 'teaching'
   | 'research'
+  | 'local-service'
   | 'game'
+export type IncomeOpportunityMethod =
+  | 'client-work'
+  | 'audience'
+  | 'product'
+  | 'teaching'
+  | 'tasks'
+  | 'digital-economy'
+export type IncomeOpportunityCoverage = 'broad' | 'multi-country' | 'limited'
 
 export interface GameIncomeSource {
   label: string
@@ -49,6 +83,8 @@ export interface GameIncomeGame {
 
 export interface IncomeOpportunity extends GameIncomeGame {
   category: IncomeOpportunityCategory
+  method: IncomeOpportunityMethod
+  coverage: IncomeOpportunityCoverage
   workMode: string
   skills: string[]
 }
@@ -1515,10 +1551,7 @@ export interface TradingReviewPackage {
   evidence: {
     backtest: ContractBacktestEvidenceEnvelope | null
     paperDrift: ContractPaperDriftEvidenceEnvelope | null
-    testnet:
-      | TestnetExecutionCalibrationReport
-      | TestnetExecutionCalibrationEvidenceEnvelope
-      | null
+    testnet: TestnetExecutionCalibrationReport | TestnetExecutionCalibrationEvidenceEnvelope | null
     reviewChecklist: TradingReviewChecklist
     reviewChecklistEvaluation: TradingReviewChecklistEvaluation
   }

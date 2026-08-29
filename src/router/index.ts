@@ -75,6 +75,24 @@ const router = createRouter({
     },
     { path: '/game-income', redirect: '/income-opportunities' },
     {
+      path: '/china-game-income',
+      name: 'china-game-income',
+      component: () => import('../views/ChinaGameIncomeView.vue'),
+      meta: {
+        titleKey: 'ui.routes.chinaGameIncome.title',
+        descriptionKey: 'ui.routes.chinaGameIncome.description',
+      },
+    },
+    {
+      path: '/country-travel-guide',
+      name: 'country-travel-guide',
+      component: () => import('../views/CountryTravelGuideView.vue'),
+      meta: {
+        titleKey: 'ui.routes.countryTravel.title',
+        descriptionKey: 'ui.routes.countryTravel.description',
+      },
+    },
+    {
       path: '/intelligence',
       component: () => import('../views/IntelligenceView.vue'),
       meta: {
