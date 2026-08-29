@@ -106,7 +106,30 @@ const merchantPlaybook = [
       <section class="sources"><h3>官方规则与功能依据</h3><a href="https://aion.web.sdo.com/web12/newsContent.html?CategoryID=1362&id=389026" target="_blank" rel="noreferrer">2026 非正常行为处罚公告 ↗</a><a href="https://aion.web.sdo.com/web12/newsContent.html?CategoryID=5892&id=343757" target="_blank" rel="noreferrer">官方反外挂 FAQ ↗</a><a href="https://aion.web.sdo.com/web12/newsContent.html?CategoryID=5892&id=386696" target="_blank" rel="noreferrer">版本与世界交易所说明 ↗</a></section>
     </template>
 
-    <section v-else class="coming-soon"><span>EXPANSION QUEUE</span><h2>{{ activeGame.name }} 深度指南扩展中</h2><p>{{ activeGame.positioning }}</p><p>后续将按“账号门槛、日周排班、玩法矩阵、交易市场、成本账本、官方规则”补齐，不用未经核验的收益数字占位。</p></section>
+    <template v-else>
+      <section v-if="activeGame.ruleNote" class="policy-alert"><strong>{{ activeGame.accountModel }}</strong><p>{{ activeGame.ruleNote }}</p></section>
+
+      <section class="section-heading"><span>01 · OPERATING MODEL</span><h2>账号模型与合规边界</h2><p>只采用当前官方客户端与正常玩家行为；先确认服务器、版本、绑定状态和交易规则，再投入角色与库存。</p></section>
+      <div class="boundary-grid">
+        <article><h3>可做范围</h3><ul><li v-for="item in activeGame.allowed" :key="item">{{ item }}</li></ul></article>
+        <article class="prohibited"><h3>不纳入指南</h3><ul><li v-for="item in activeGame.prohibited" :key="item">{{ item }}</li></ul></article>
+      </div>
+
+      <section class="section-heading"><span>02 · DAILY / WEEKLY PLAN</span><h2>日常与周期排班</h2><p>固定收益先做，小样本验证后才追加时间；绑定奖励只算角色成长，不计入可交易收入。</p></section>
+      <div class="plans">
+        <article><header><small>DAILY LOOP</small><h3>每日执行</h3></header><ol><li v-for="(step, index) in activeGame.dailyPlan" :key="step.title"><b>{{ index + 1 }}</b><div><strong>{{ step.title }}</strong><p>{{ step.detail }}</p></div></li></ol></article>
+        <article><header><small>WEEKLY LOOP</small><h3>每周复盘</h3></header><ol><li v-for="(step, index) in activeGame.weeklyPlan" :key="step.title"><b>{{ index + 1 }}</b><div><strong>{{ step.title }}</strong><p>{{ step.detail }}</p></div></li></ol></article>
+      </div>
+
+      <section class="section-heading"><span>03 · ROUTE MATRIX</span><h2>{{ activeGame.name }} 主要经济玩法</h2><p>每条路径都同时展示进入门槛、产出、执行方式和最容易被忽略的成本。</p></section>
+      <div class="table-wrap"><table><thead><tr><th>玩法</th><th>门槛 / 周期</th><th>产出</th><th>怎么做</th><th>主要风险</th></tr></thead><tbody><tr v-for="route in activeGame.routes" :key="route.name"><th>{{ route.name }}</th><td>{{ route.entry }}<small>{{ route.cadence }}</small></td><td>{{ route.output }}</td><td>{{ route.operation }}</td><td>{{ route.risk }}</td></tr></tbody></table></div>
+
+      <section class="section-heading"><span>04 · MARKET DESK</span><h2>市场与商人经营</h2><p>价差必须建立在真实成交、手续费和库存周转上，不把活动期最高挂牌价当作利润。</p></section>
+      <div class="merchant-grid"><article v-for="item in activeGame.merchantPlan" :key="item.title"><h3>{{ item.title }}</h3><p>{{ item.detail }}</p></article></div>
+
+      <section class="ledger"><div><span>成本账本</span><h2>只比较已成交净值，不用理论最高价估算收益</h2></div><ul><li v-for="item in activeGame.ledger" :key="item">{{ item }}</li></ul></section>
+      <section class="sources"><h3>官方规则与系统来源</h3><a v-for="source in activeGame.sources" :key="source.url" :href="source.url" target="_blank" rel="noreferrer">{{ source.label }} ↗</a></section>
+    </template>
 
     <section v-if="activeGame.id === 'fantasy-westward-journey'" class="sources"><h3>规则校验入口</h3><p>公开网页未提供稳定的电脑版固定多开数字。发布前仍需在当前登录器、客户端协议或官方客服确认；以下链接只用于核验网易通用行为与非官方交易边界。</p><a href="https://protocol.unisdk.netease.com/release/latest_v195.html" target="_blank" rel="noreferrer">网易游戏使用许可及服务协议 ↗</a><a href="https://unisdk.update.netease.com/html/latest_v38.html" target="_blank" rel="noreferrer">网易产品服务条款与玩家守则实例 ↗</a></section>
   </main>
@@ -114,7 +137,7 @@ const merchantPlaybook = [
 
 <style scoped>
 .game-income-view{width:min(var(--content-wide),100%);margin:0 auto;padding:var(--page-gutter)}
-.guardrail,.game-summary,.ledger,.coming-soon,.policy-alert,.sources{border:1px solid var(--border);border-radius:var(--panel-radius);background:var(--surface)}
+.guardrail,.game-summary,.ledger,.coming-soon,.policy-alert,.sources,.boundary-grid article{border:1px solid var(--border);border-radius:var(--panel-radius);background:var(--surface)}
 .guardrail{padding:20px 24px;display:grid;grid-template-columns:280px 1fr;gap:28px;border-left:4px solid var(--warning)}
 .guardrail span,.section-heading span,.ledger span,.coming-soon>span{color:var(--accent);font-size:10px;font-weight:800;letter-spacing:.14em}.guardrail h2,.game-summary h2,.section-heading h2,.ledger h2,.coming-soon h2{margin:6px 0;font:700 clamp(22px,3vw,32px)/1.2 Georgia,serif}.guardrail p,.game-summary p,.section-heading p,.merchant-grid p,.route-cards p,.coming-soon p{margin:0;color:var(--muted);font-size:13px;line-height:1.75}
 .game-tabs{margin:20px 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.game-tabs button{min-height:88px;padding:14px;text-align:left;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--ink);cursor:pointer;position:relative}.game-tabs button.active{border-color:var(--accent);background:var(--accent-soft)}.game-tabs span,.game-tabs small{display:block}.game-tabs span{font-weight:800}.game-tabs small{margin-top:5px;color:var(--muted)}.game-tabs em{position:absolute;top:10px;right:10px;color:var(--accent);font-size:9px;font-style:normal}
@@ -124,6 +147,7 @@ const merchantPlaybook = [
 .merchant-grid,.route-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.merchant-grid article,.route-cards article{padding:20px}.route-cards header{display:flex;justify-content:space-between;gap:12px}.route-cards header span{color:var(--accent);font-size:11px}.route-cards dl{margin:14px 0 0}.route-cards dl div{padding:8px 0;border-top:1px solid var(--border);display:grid;grid-template-columns:54px 1fr;gap:8px;font-size:12px}.route-cards dt{color:var(--muted)}.route-cards dd{margin:0}
 .ledger{margin-top:24px;padding:24px;display:grid;grid-template-columns:1.3fr 1fr;gap:24px;background:var(--inverse);color:var(--inverse-text)}.ledger ul{margin:0;padding-left:20px;color:color-mix(in srgb,var(--inverse-text) 72%,transparent);font-size:12px;line-height:1.9}.coming-soon{margin-top:24px;padding:clamp(30px,6vw,70px);text-align:center}.coming-soon p{max-width:720px;margin:10px auto}
 .policy-alert{margin-top:24px;padding:18px 20px;border-color:var(--danger);background:var(--danger-soft)}.policy-alert strong{color:var(--danger)}.policy-alert p,.sources p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.7}.sources{margin-top:24px;padding:20px}.sources h3{margin:0 0 10px}.sources a{margin:8px 12px 0 0;color:var(--accent);font-size:12px;font-weight:700;display:inline-block}
+.boundary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.boundary-grid article{padding:20px}.boundary-grid h3{margin:0 0 10px}.boundary-grid ul{margin:0;padding-left:20px;color:var(--muted);font-size:12px;line-height:1.8}.boundary-grid .prohibited{border-color:color-mix(in srgb,var(--danger) 45%,var(--border));background:color-mix(in srgb,var(--danger-soft) 40%,var(--surface))}
 @media(max-width:900px){.game-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.guardrail,.game-summary,.plans,.ledger{grid-template-columns:1fr}.game-summary aside{padding:18px 0 0;border-top:1px solid var(--border);border-left:0}}
-@media(max-width:620px){.game-income-view{padding:18px}.game-tabs,.merchant-grid,.route-cards{grid-template-columns:1fr}.game-tabs button{min-height:76px}.guardrail{padding:18px}.table-wrap{margin-inline:-18px;border-radius:0}}
+@media(max-width:620px){.game-income-view{padding:18px}.game-tabs,.merchant-grid,.route-cards,.boundary-grid{grid-template-columns:1fr}.game-tabs button{min-height:76px}.guardrail{padding:18px}.table-wrap{margin-inline:-18px;border-radius:0}}
 </style>
