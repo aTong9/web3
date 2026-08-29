@@ -45,6 +45,7 @@ const groups = computed(() => [
     icon: '◇',
     items: [
       { title: 'ui.nav.resource', to: '/resources' },
+      { title: 'ui.nav.gameIncome', to: '/income-opportunities' },
       { title: 'ui.nav.report', to: '/report' },
       { title: 'ui.nav.about', to: '/about' },
     ],

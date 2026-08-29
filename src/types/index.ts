@@ -16,6 +16,43 @@ export interface NavTaxonomy {
   list: NavTerm[]
 }
 
+export type GameIncomePayout = 'fiat' | 'crypto' | 'mixed'
+export type GameIncomeStartCost = 'free' | 'low' | 'capital'
+export type IncomeOpportunityCategory =
+  | 'freelance'
+  | 'creator'
+  | 'digital-product'
+  | 'teaching'
+  | 'research'
+  | 'game'
+
+export interface GameIncomeSource {
+  label: string
+  url: string
+}
+
+export interface GameIncomeGame {
+  id: string
+  name: string
+  model: string
+  payout: GameIncomePayout
+  startCost: GameIncomeStartCost
+  platforms: string
+  availability: string
+  summary: string
+  earningRoutes: string[]
+  steps: string[]
+  requirements: string[]
+  risks: string[]
+  sources: GameIncomeSource[]
+}
+
+export interface IncomeOpportunity extends GameIncomeGame {
+  category: IncomeOpportunityCategory
+  workMode: string
+  skills: string[]
+}
+
 export interface SiteConfig {
   title: string
   description: string

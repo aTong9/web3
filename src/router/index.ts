@@ -65,6 +65,16 @@ const router = createRouter({
       },
     },
     {
+      path: '/income-opportunities',
+      name: 'income-opportunities',
+      component: () => import('../views/IncomeOpportunitiesView.vue'),
+      meta: {
+        titleKey: 'ui.routes.gameIncome.title',
+        descriptionKey: 'ui.routes.gameIncome.description',
+      },
+    },
+    { path: '/game-income', redirect: '/income-opportunities' },
+    {
       path: '/intelligence',
       component: () => import('../views/IntelligenceView.vue'),
       meta: {
