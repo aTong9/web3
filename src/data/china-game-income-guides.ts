@@ -24,6 +24,7 @@ export interface ChinaGameGuide {
   stage: '深度指南' | '扩展中'
   positioning: string
   settlement: string
+  accountingUnit: string
   routes: ChinaGameRoute[]
   accountModel?: string
   ruleNote?: string
@@ -169,6 +170,7 @@ export const chinaGameGuides: ChinaGameGuide[] = [
     stage: '深度指南',
     positioning: '任务产出打底，生活技能和低风险周转提高资金效率。',
     settlement: '游戏内经济为主；涉及现实货币时只使用官方认可渠道并复核当期规则。',
+    accountingUnit: '梦幻币',
     routes: fantasyWestwardRoutes,
   },
   {
@@ -178,6 +180,7 @@ export const chinaGameGuides: ChinaGameGuide[] = [
     stage: '深度指南',
     positioning: '围绕材料、消耗品和可交易副本掉落建立小规模经营闭环。',
     settlement: '先按游戏内基纳核算；不把非官方现金交易计入收入。',
+    accountingUnit: '基纳',
     routes: aionRoutes,
   },
   {
@@ -187,6 +190,7 @@ export const chinaGameGuides: ChinaGameGuide[] = [
     stage: '深度指南',
     positioning: '以正常角色成长、职业生产和闲置资产流转为主，不建立纯产出工具号。',
     settlement: '游戏币与已成交资产分账；现实货款只统计藏宝阁可提现到账金额。',
+    accountingUnit: '大话币',
     accountModel: '普通玩家主账号 / 少量正常成长角色',
     ruleNote: '没有可写死的当前多开上限；网易协议禁止为营利注册多账号、重复单一产出、跨服套利及非认可平台交易。',
     allowed: ['正常参与师门、帮派、副本和周常', '体力活力与职业技能生产', '本服小批量摆售和藏宝阁闲置资产退出'],
@@ -230,6 +234,7 @@ export const chinaGameGuides: ChinaGameGuide[] = [
     stage: '深度指南',
     positioning: '在官方客户端原生多窗口范围内，以人工队伍、正常成长和奇宝斋寄售组成闭环。',
     settlement: '问道币、游戏内成交和奇宝斋实际到账分别核算。',
+    accountingUnit: '问道币',
     accountModel: '先单角色熟悉系统，再按客户端当期限制扩展人工队伍',
     ruleNote: '官网确认客户端支持一机多开，但不等于允许第三方多开器、同步器、无人值守或工作室经营；实际窗口数需在当前客户端确认。',
     allowed: ['官方客户端自然多窗口和人工组队', '正常摆摊、角色间合理交换', '通过奇宝斋寄售当期支持的物品、问道币与角色'],
@@ -274,6 +279,7 @@ export const chinaGameGuides: ChinaGameGuide[] = [
     stage: '深度指南',
     positioning: '围绕一个正常成长角色，把副本结余、生活技能与装备灵兽流转连接起来。',
     settlement: '银两与可交易物净值为主；官方寄售品类必须在当前客户端确认。',
+    accountingUnit: '银两',
     accountModel: '单个主要角色 + 一条生活技能链',
     ruleNote: '网易协议禁止营利型多账号、自动一条龙、脚本采集、代练和非认可交易；物品能否寄售会逐版本、逐物品变化。',
     allowed: ['正常完成一条龙、剧情、副本和帮派内容', '生产并出售明确可交易的生活技能产品', '通过游戏内或网易认可入口处置闲置资产'],
@@ -316,6 +322,7 @@ export const chinaGameGuides: ChinaGameGuide[] = [
     stage: '深度指南',
     positioning: '先选择端游服务器类型，再按该服货币、绑定、身份和藏宝阁范围设计经营。',
     settlement: '服务器内货币与物品净值；只有具体服务器当期开放品类才能进入官方寄售。',
+    accountingUnit: '服务器内货币',
     accountModel: '逆水寒端游单一服务器、单个主要角色',
     ruleNote: '赛季服、老兵服、黄金畅玩服规则不同；黄金畅玩服公告称暂不开放藏宝阁铜钱和道具交易，不能套用其他服务器。',
     allowed: ['当前服务器允许的身份生产、交易行和副本掉落', '正常规模的同服小额周转', '该服务器当期开放的藏宝阁角色或资产功能'],
@@ -358,6 +365,7 @@ export const chinaGameGuides: ChinaGameGuide[] = [
     stage: '深度指南',
     positioning: '以一个腾讯账号内正常培养的角色组为基础，管理疲劳、副本结余与拍卖行库存。',
     settlement: '只统计金币和可交易材料净值；没有核验到官方金币现金提现渠道。',
+    accountingUnit: '金币',
     accountModel: '单个腾讯账号内的正常角色组',
     ruleNote: '当前网页没有稳定的 DNF 专属限制数字，因此不预填固定多开数、金币上限或寄售费率；所有数字以当期客户端为准。',
     allowed: ['正常培养主角色与少量真正游玩的副角色', '出售明确可交易的副本材料、卡片和消耗品', '在游戏内拍卖行人工进行正常规模交易'],
@@ -397,6 +405,7 @@ export const chinaGameGuides: ChinaGameGuide[] = [
     stage: '深度指南',
     positioning: '先选择正式服或具体怀旧服，再用单账号专业、采集、订单和拍卖行管理游戏内金币。',
     settlement: '只统计游戏内金币；协议禁止为线下售卖而刷金，官方闭环功能也不等于现金提现。',
+    accountingUnit: '金币',
     accountModel: '单账号、单一版本和明确服务器 / 阵营',
     ruleNote: '国服协议禁止 BOT、作弊、商业刷金、现金售金、有偿代练和账号租借；金币带队必须遵守当期“老手带队”等官方分类规则。',
     allowed: ['人工采集、专业制造、制造订单和拍卖行交易', '游戏内以金币购买材料、成品或规则允许的服务', '符合官方 API 和协议的信息展示类插件'],
