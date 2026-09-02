@@ -11,7 +11,10 @@ const completeFamily = () => ({
     assets: Array.from({ length: 40 }, () => ({})),
     matrix: {
       ids: Array.from({ length: 10 }, (_, index) => `a${index}`),
-      correlations: Array.from({ length: 10 }, () => Array.from({ length: 10 }, () => 1)),
+      correlations: Array.from({ length: 10 }, (_, index) => ({
+        id: `a${index}`,
+        values: Array.from({ length: 10 }, () => 1),
+      })),
     },
   },
   'market-home': {
@@ -42,7 +45,7 @@ test('cross-asset family gate rejects mixed versions after a partial update', ()
 
 test('cross-asset family gate rejects a truncated correlation matrix', () => {
   const datasets = completeFamily()
-  datasets['cross-asset'].matrix.correlations[0] = [1]
+  datasets['cross-asset'].matrix.correlations[0].values = [1]
   const result = validateCrossAssetDatasets(datasets, now)
   assert.equal(result.ok, false)
   assert.ok(result.errors.some((error) => error.includes('完整方阵')))

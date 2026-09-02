@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-24T23:42:40.952Z",
+  "updatedAt": "2026-09-01T16:54:31.803Z",
   "methodology": "从只追加的跨资产预测账本按市场和日期选取绝对得分最高的当时多空记录；中性记录不标注，每个市场最多保留120条。",
   "events": [
     {
@@ -131,6 +131,14 @@
       "ruleName": "纯动量趋势方向"
     },
     {
+      "marketId": "sp500",
+      "marketDate": "2026-08-31",
+      "bias": "bullish",
+      "score": 1,
+      "horizonId": "week",
+      "ruleName": "纯动量趋势方向"
+    },
+    {
       "marketId": "nasdaq",
       "marketDate": "2026-07-31",
       "bias": "bullish",
@@ -257,6 +265,14 @@
       "score": 1,
       "horizonId": "halfYear",
       "ruleName": "纯动量均衡方向"
+    },
+    {
+      "marketId": "nasdaq",
+      "marketDate": "2026-08-31",
+      "bias": "bullish",
+      "score": 1,
+      "horizonId": "week",
+      "ruleName": "纯动量趋势方向"
     },
     {
       "marketId": "shanghai",
@@ -395,6 +411,14 @@
       "ruleName": "纯动量短线方向"
     },
     {
+      "marketId": "shanghai",
+      "marketDate": "2026-09-01",
+      "bias": "bullish",
+      "score": 1,
+      "horizonId": "week",
+      "ruleName": "纯动量趋势方向"
+    },
+    {
       "marketId": "hangseng",
       "marketDate": "2026-07-31",
       "bias": "bullish",
@@ -519,6 +543,14 @@
       "marketDate": "2026-08-24",
       "bias": "bearish",
       "score": -0.75,
+      "horizonId": "day",
+      "ruleName": "纯动量短线方向"
+    },
+    {
+      "marketId": "hangseng",
+      "marketDate": "2026-09-01",
+      "bias": "bearish",
+      "score": -1,
       "horizonId": "day",
       "ruleName": "纯动量短线方向"
     },
@@ -651,6 +683,14 @@
       "ruleName": "纯动量均衡方向"
     },
     {
+      "marketId": "euro50",
+      "marketDate": "2026-08-31",
+      "bias": "bearish",
+      "score": -1,
+      "horizonId": "day",
+      "ruleName": "纯动量短线方向"
+    },
+    {
       "marketId": "nikkei",
       "marketDate": "2026-07-31",
       "bias": "bullish",
@@ -779,6 +819,14 @@
       "ruleName": "纯动量趋势方向"
     },
     {
+      "marketId": "nikkei",
+      "marketDate": "2026-09-01",
+      "bias": "bullish",
+      "score": 1,
+      "horizonId": "week",
+      "ruleName": "纯动量短线方向"
+    },
+    {
       "marketId": "wti",
       "marketDate": "2026-07-27",
       "bias": "bullish",
@@ -809,6 +857,14 @@
       "score": 1,
       "horizonId": "day",
       "ruleName": "纯动量短线方向"
+    },
+    {
+      "marketId": "wti",
+      "marketDate": "2026-08-25",
+      "bias": "bearish",
+      "score": -1,
+      "horizonId": "day",
+      "ruleName": "纯动量趋势方向"
     },
     {
       "marketId": "gold",
@@ -935,6 +991,14 @@
       "marketDate": "2026-08-21",
       "bias": "bullish",
       "score": 1,
+      "horizonId": "day",
+      "ruleName": "纯动量短线方向"
+    },
+    {
+      "marketId": "gold",
+      "marketDate": "2026-08-31",
+      "bias": "bearish",
+      "score": -1,
       "horizonId": "day",
       "ruleName": "纯动量短线方向"
     },
@@ -1067,6 +1131,14 @@
       "ruleName": "纯动量均衡方向"
     },
     {
+      "marketId": "btc",
+      "marketDate": "2026-08-31",
+      "bias": "bullish",
+      "score": 1,
+      "horizonId": "month",
+      "ruleName": "纯动量短线方向"
+    },
+    {
       "marketId": "eth",
       "marketDate": "2026-08-01",
       "bias": "bearish",
@@ -1193,20 +1265,22 @@
       "score": 1,
       "horizonId": "day",
       "ruleName": "纯动量趋势方向"
+    },
+    {
+      "marketId": "eth",
+      "marketDate": "2026-08-31",
+      "bias": "bullish",
+      "score": 1,
+      "horizonId": "month",
+      "ruleName": "纯动量短线方向"
     }
   ],
   "corporateEvents": [
     {
       "symbol": "NVDA",
-      "date": "2026-05-20",
-      "type": "earningsReported",
-      "surprisePct": 10
-    },
-    {
-      "symbol": "NVDA",
       "date": "2026-08-26",
-      "type": "earningsExpected",
-      "surprisePct": null
+      "type": "earningsReported",
+      "surprisePct": 6.22
     },
     {
       "symbol": "AAPL",
@@ -1237,6 +1311,12 @@
       "date": "2026-07-16",
       "type": "earningsReported",
       "surprisePct": 11.37
+    },
+    {
+      "symbol": "TSM",
+      "date": "2026-10-15",
+      "type": "earningsExpected",
+      "surprisePct": null
     },
     {
       "symbol": "SPCX",
@@ -1649,24 +1729,6 @@
       "sourceUrl": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
     },
     {
-      "date": "2026-08-26",
-      "type": "usGdp",
-      "title": "GDP (Second Estimate) and Corporate Profits, 2nd Quarter 2026",
-      "titleZh": "美国 GDP 数据发布",
-      "status": "scheduled",
-      "source": "U.S. Bureau of Economic Analysis",
-      "sourceUrl": "https://www.bea.gov/news/schedule"
-    },
-    {
-      "date": "2026-08-26",
-      "type": "usPce",
-      "title": "Personal Income and Outlays, July 2026",
-      "titleZh": "美国个人收入与支出（含 PCE）",
-      "status": "scheduled",
-      "source": "U.S. Bureau of Economic Analysis",
-      "sourceUrl": "https://www.bea.gov/news/schedule"
-    },
-    {
       "date": "2026-09-16",
       "type": "fomcDecision",
       "title": "Federal Reserve interest-rate decision",
@@ -1847,5 +1909,5 @@
       "sourceUrl": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
     }
   ],
-  "macroUpdatedAt": "2026-08-24T23:42:41.454Z"
+  "macroUpdatedAt": "2026-09-01T16:54:33.541Z"
 }

@@ -44,7 +44,12 @@ export const validateCrossAssetDatasets = (datasets, now = new Date()) => {
   if (
     !Array.isArray(correlations) ||
     correlations.length !== matrixIds.length ||
-    correlations.some((row) => !Array.isArray(row) || row.length !== matrixIds.length)
+    correlations.some(
+      (row, index) =>
+        row?.id !== matrixIds[index] ||
+        !Array.isArray(row.values) ||
+        row.values.length !== matrixIds.length,
+    )
   )
     errors.push('相关矩阵不是完整方阵')
   if (!Array.isArray(home.marketBrief?.markets) || home.marketBrief.markets.length < 8)

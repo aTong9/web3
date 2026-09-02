@@ -1,0 +1,12 @@
+# 资源导航第 37 批：开源应用核验
+
+核验日期：2026-09-02。按小写标题及去尾斜杠 URL 检查当前 `src/data/webstack.yml`，下列标题与仓库 URL 均恰好出现一次，没有相互重复。候选均保留主维护方 GitHub 仓库。
+
+| 分类 | 候选 | 形态与相关性 | 许可与当前边界 | 一手来源 |
+| --- | --- | --- | --- | --- |
+| 3D 打印 | CuraEngine | Windows、macOS 与 Linux 可构建的 C++ 命令行切片引擎；把三维模型转换为打印 G-code，可作为 Cura 后端或集成组件。 | AGPL-3.0；它不是独立图形界面。5.13.0 发布于 2026-05-26。 | [仓库与 README](https://github.com/Ultimaker/CuraEngine) · [构建平台](https://github.com/Ultimaker/CuraEngine/wiki/Building-CuraEngine-From-Source) · [许可](https://github.com/Ultimaker/CuraEngine/blob/main/LICENSE) · [5.13.0](https://github.com/Ultimaker/CuraEngine/releases/tag/5.13.0) |
+| 安全防护 | Suricata | OISF 主导的网络 IDS、IPS 与 NSM 引擎；官方安装文档主要覆盖 Linux 发行版和源码构建。 | GPL-2.0；不宜笼统写成“跨平台”。IPS 故障可能中断流量或造成漏检，上线前须调优规则、限定数据留存并取得网络监控授权。8.0.6 发布于 2026-07-07。 | [仓库与 README](https://github.com/OISF/suricata) · [安装文档](https://docs.suricata.io/en/latest/install.html) · [许可](https://github.com/OISF/suricata/blob/master/COPYING) · [8.0.6](https://github.com/OISF/suricata/releases/tag/suricata-8.0.6) |
+| 包管理 | mise | Linux、macOS 与 Windows 命令行开发环境管理器；按项目管理语言运行时、CLI 工具、环境变量与任务，比“通用系统包管理器”更准确。 | MIT；项目配置可触发工具安装、环境和任务工作流，启用 Shell 集成前应审查配置。v2026.9.0 发布于 2026-09-01。 | [仓库与 README](https://github.com/jdx/mise) · [安装文档](https://github.com/jdx/mise/blob/main/docs/installing-mise.md) · [许可](https://github.com/jdx/mise/blob/main/LICENSE) · [v2026.9.0](https://github.com/jdx/mise/releases/tag/v2026.9.0) |
+| 备份恢复 | Vorta | Linux 与 macOS 的 BorgBackup 图形客户端；配置加密、去重和压缩备份，并支持本地盘、自有服务器或 BorgBase。 | GPL-3.0；Windows 当前不受 Borg 支持。加密不替代密钥保管和恢复演练。v0.11.5 发布于 2026-05-11。 | [仓库与 README](https://github.com/borgbase/vorta) · [许可](https://github.com/borgbase/vorta/blob/master/LICENSE.txt) · [v0.11.5](https://github.com/borgbase/vorta/releases/tag/v0.11.5) |
+| 本地 AI | LocalAI | 可自托管 AI 推理引擎与 API 服务；兼容 OpenAI 等 API，可通过容器或 macOS 包运行文本、视觉、语音、图像和视频模型，并支持 CPU 或多类 GPU。 | MIT；“本地”取决于实际部署和网络配置，模型仍有各自许可、资源与隐私边界。v4.9.0 发布于 2026-08-20。 | [仓库与 README](https://github.com/mudler/LocalAI) · [许可](https://github.com/mudler/LocalAI/blob/master/LICENSE) · [v4.9.0](https://github.com/mudler/LocalAI/releases/tag/v4.9.0) |
+| 编译工具链 | CMake | Kitware 维护的跨平台开源构建系统生成器，官方列出 Windows、macOS、Linux、BSD、Solaris 与 AIX；它生成构建工程，而不是直接替代编译器。 | BSD-3-Clause；跨平台生成并不保证项目依赖本身可移植。v4.4.3 发布于 2026-08-25。 | [仓库与 README](https://github.com/Kitware/CMake/blob/master/README.rst) · [许可](https://github.com/Kitware/CMake/blob/master/LICENSE.rst) · [v4.4.3](https://github.com/Kitware/CMake/releases/tag/v4.4.3) |
