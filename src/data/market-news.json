@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-12T16:20:30.914Z",
+  "updatedAt": "2026-09-12T18:37:28.365Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -38,9 +38,43 @@
   "articles": [
     {
       "id": "0380aed393412f0c",
-      "title": "Why it might be time to use AI to rehearse pay, performance chats before meeting with your manager",
+      "title": "Conversations that AIs are having in the office that may influence your performance review and pay",
       "url": "https://www.cnbc.com/2026/09/12/ai-manager-coaching-employee-feedback-performanc-review.html",
-      "publishedAt": "2026-09-12T16:17:13.000Z",
+      "publishedAt": "2026-09-12T17:39:10.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "人工智能在办公室进行的对话可能会影响您的绩效考核和薪酬",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "17f0f87ae2012345",
+      "title": "Larry Ellison nixes plan to offload up to $7.5 billion worth of Oracle stock",
+      "url": "https://www.cnbc.com/2026/09/12/larry-ellison-nixes-plan-to-offload-up-to-7point5-billion-worth-of-oracle-stock-.html",
+      "publishedAt": "2026-09-12T17:14:56.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "Larry Ellison nixes计划卸载价值高达75 $的甲骨文股票",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "6330808811ea0b69",
+      "title": "Anthropic's Amodei proposes plan to 'slow the pace' of advancing AI capabilities",
+      "url": "https://www.cnbc.com/2026/09/12/anthropics-amodei-proposes-plan-to-slow-the-pace-of-advancing-ai-capabilities.html",
+      "publishedAt": "2026-09-12T17:00:10.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "technology",
@@ -48,8 +82,8 @@
       "impact": "low",
       "impactScore": 1,
       "affectedAssets": [],
-      "translatedTitle": null,
-      "translationStatus": "failed",
+      "translatedTitle": "Anthropic的Amodei提出计划，以“减缓”推进人工智能能力的步伐",
+      "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
     {
@@ -61,13 +95,13 @@
       "sourceType": "media",
       "category": "equities",
       "language": "English",
-      "impact": "high",
-      "impactScore": 4,
+      "impact": "medium",
+      "impactScore": 3,
       "affectedAssets": [
         "美股"
       ],
-      "translatedTitle": null,
-      "translationStatus": "failed",
+      "translatedTitle": "股票在通胀恐慌中跌跌撞撞，但我们的两个名字让我们有理由保持看涨",
+      "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
     {
@@ -82,8 +116,8 @@
       "impact": "low",
       "impactScore": 0,
       "affectedAssets": [],
-      "translatedTitle": null,
-      "translationStatus": "failed",
+      "translatedTitle": "建筑机器人正在解决美国的住房短缺问题，但我们距离人形房屋建筑商还有很长的路要走",
+      "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
     {
@@ -98,8 +132,8 @@
       "impact": "low",
       "impactScore": 0,
       "affectedAssets": [],
-      "translatedTitle": null,
-      "translationStatus": "failed",
+      "translatedTitle": "大学贴纸价格持续上涨。为什么许多学校仍然面临财务压力",
+      "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
     {
@@ -130,8 +164,8 @@
       "impact": "medium",
       "impactScore": 3,
       "affectedAssets": [],
-      "translatedTitle": null,
-      "translationStatus": "failed",
+      "translatedTitle": "巴菲特对陷入困境的十年收购的信心终于得到了回报",
+      "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
     {
@@ -151,24 +185,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "b57413e0d79c7acd",
-      "title": "Trump sees Iran war ending soon after mid-term elections, predicts oil prices will then fall sharply",
-      "url": "https://www.cnbc.com/2026/09/12/trump-sees-iran-war-ending-very-soon-oil-prices-then-falling.html",
-      "publishedAt": "2026-09-12T13:02:15.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "geopolitics",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "原油"
-      ],
-      "translatedTitle": null,
-      "translationStatus": "failed",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "b58669a25998b03c",
       "title": "I worked with Gloria Steinem for 30 years—This was her No. 1 antidote to fear",
       "url": "https://www.cnbc.com/2026/09/12/i-worked-with-gloria-steinem-for-30-years-this-was-her-no-1-antidote-to-fear.html",
@@ -180,8 +196,24 @@
       "impact": "low",
       "impactScore": 0,
       "affectedAssets": [],
-      "translatedTitle": null,
-      "translationStatus": "failed",
+      "translatedTitle": "我和格洛丽亚·斯泰纳姆（ Gloria Steinem ）共事了30年--这是她对恐惧的头号解毒剂",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "72d094022dd923ae",
+      "title": "Inflation is outpacing wage growth again, squeezing Americans’ paychecks",
+      "url": "https://www.cnbc.com/2026/09/12/inflation-is-outpacing-wage-growth-again-squeezing-americans-paychecks.html",
+      "publishedAt": "2026-09-12T12:49:15.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [],
+      "translatedTitle": "通货膨胀再次超过工资增长，挤压了美国人的薪水",
+      "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
     {
@@ -217,8 +249,8 @@
       "affectedAssets": [
         "A股"
       ],
-      "translatedTitle": null,
-      "translationStatus": "failed",
+      "translatedTitle": "通用汽车计划开发美国电池，因为特朗普的DOT攻击福特与中国的关系",
+      "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
     {
@@ -251,8 +283,24 @@
       "affectedAssets": [
         "美股"
       ],
-      "translatedTitle": null,
-      "translationStatus": "failed",
+      "translatedTitle": "甲骨文的拉里·埃里森（ Larry Ellison ）采用交易计划出售价值高达75亿美元的股票",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "385b983c7f9cae38",
+      "title": "Cramer: This market has eerie parallels with 2018. Here's what investors should do",
+      "url": "https://www.cnbc.com/2026/09/11/cramer-market-eerie-parallels-2018-what-it-means-for-investors.html",
+      "publishedAt": "2026-09-11T23:09:35.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "克莱默：这个市场与2018年有着令人毛骨悚然的相似之处。以下是投资者应该做的事情",
+      "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
     {
@@ -268,44 +316,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "图片：美国纪念9/11 25周年",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "63ef2f6bb29ad74f",
-      "title": "Cramer’s week ahead: Falling oil could help stocks but Fed is the next big test",
-      "url": "https://www.cnbc.com/2026/09/11/cramers-week-ahead-falling-oil-fed.html",
-      "publishedAt": "2026-09-11T22:35:09.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "commodities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "美股",
-        "美元",
-        "原油"
-      ],
-      "translatedTitle": "Cramer的未来一周：油价下跌可能有助于股市，但美联储是下一个重大考验",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "a5fd00758f210673",
-      "title": "Saudi Arabia shut down East-West crude oil pipeline after multiple attacks by drones from Iraq",
-      "url": "https://www.cnbc.com/2026/09/11/saudi-arabia-shut-down-east-west-crude-oil-pipeline.html",
-      "publishedAt": "2026-09-11T21:35:14.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "geopolitics",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "原油"
-      ],
-      "translatedTitle": "在伊拉克无人驾驶飞机多次袭击后，沙特阿拉伯关闭了东西方原油管道",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -374,22 +384,6 @@
         "原油"
       ],
       "translatedTitle": "据报道，胡塞武装前进到关键的红海岛屿，进一步威胁到关键的石油瓶颈",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "e954e0d6f3ab3986",
-      "title": "Here’s the inflation breakdown for August 2026 — in one chart",
-      "url": "https://www.cnbc.com/2026/09/11/cpi-inflation-breakdown-august-2026.html",
-      "publishedAt": "2026-09-11T17:14:27.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 3,
-      "affectedAssets": [],
-      "translatedTitle": "这是2026年8月的通货膨胀明细—在一张图表中",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -618,24 +612,6 @@
       "impactScore": 2,
       "affectedAssets": [],
       "translatedTitle": "机构减轻社区银行的监管负担，提高18个月考试周期的资格",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "e6f766cce731ec87",
-      "title": "SEC Charges Founder and His Two New Jersey-Based Companies in Alleged $16 Million Ponzi Scheme",
-      "url": "https://www.sec.gov/newsroom/press-releases/2026-86-sec-charges-founder-his-two-new-jersey-based-companies-alleged-16-million-ponzi-scheme",
-      "publishedAt": "2026-09-10T17:45:22.000Z",
-      "source": "美国证监会",
-      "sourceType": "official",
-      "category": "equities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "SEC指控创始人及其两家总部位于新泽西州的公司涉嫌1600万美元的庞氏骗局（ $ 16 million Ponzi Scheme ）",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     }
