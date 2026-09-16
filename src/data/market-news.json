@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-16T00:29:35.077Z",
+  "updatedAt": "2026-09-16T05:09:42.180Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
   "sourceStatus": [
     {
       "source": "GDELT · global",
-      "status": "ok",
-      "message": ""
+      "status": "failed",
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -37,6 +37,140 @@
   ],
   "articles": [
     {
+      "id": "4ce357594b1c9e00",
+      "title": "Treasury yields hitting 5% may not break markets now — but the clock is ticking",
+      "url": "https://www.cnbc.com/2026/09/16/10-year-treasury-yeilds-rise-impact-markets.html",
+      "publishedAt": "2026-09-16T05:04:51.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "债券"
+      ],
+      "translatedTitle": "美国国债收益率触及5%现在可能不会打破市场—但时钟正在滴答作响",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "da1c09340c7893d7",
+      "title": "Oil falls as U.S. crude inventories reportedly rise, traders weigh Saudi pipeline closure",
+      "url": "https://www.cnbc.com/2026/09/16/oil-prices-today-brent-wti-hormuz-iran-war.html",
+      "publishedAt": "2026-09-16T04:56:02.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "commodities",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "原油"
+      ],
+      "translatedTitle": "据报道，随着美国原油库存增加，石油价格下跌，交易员权衡沙特管道关闭",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "c1d19f6a9092c9af",
+      "title": "Inside South Korea’s university programs offering a direct route to Samsung and SK Hynix",
+      "url": "https://www.cnbc.com/2026/09/16/samsung-sk-hynix-ai-boom-students-university-programs.html",
+      "publishedAt": "2026-09-16T04:47:29.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "韩国大学项目提供通往三星和SK海力士的直达路线",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "d7a3cefa65998ddf",
+      "title": "Grab aims for 'next level' in financial services with purchase of buy-now pay-later platform Atome",
+      "url": "https://www.cnbc.com/2026/09/16/grab-financial-services-atome-purchase-.html",
+      "publishedAt": "2026-09-16T04:31:46.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "Grab的目标是通过购买现收现付平台Atome ，实现金融服务的“新水平”",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "f04094a9bab7299f",
+      "title": "Nvidia's Huang diverges with CEOs of Anthropic, OpenAI on AI safety at Dreamforce",
+      "url": "https://www.cnbc.com/2026/09/15/nvidia-and-anthropic-ceos-diverge-on-ai-safety-at-dreamforce.html",
+      "publishedAt": "2026-09-16T04:21:39.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "Nvidia的Huang与OpenAI的Anthropic首席执行官在Dreamforce的人工智能安全问题上存在分歧",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "a5844566a3c50234",
+      "title": "China's AI leaders keep quiet despite U.S. 'publicity' on tech risks",
+      "url": "https://www.cnbc.com/2026/09/16/chinas-ai-leaders-keep-quiet-despite-us-publicity-on-tech-risks.html",
+      "publishedAt": "2026-09-16T04:01:59.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "A股"
+      ],
+      "translatedTitle": "尽管美国对技术风险进行了“宣传” ，但中国的人工智能领导者保持沉默",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "b9ea1f3e97c7d04a",
+      "title": "BOJ expected to hike rates by 25 basis points to fresh three-decade high: CNBC survey",
+      "url": "https://www.cnbc.com/2026/09/16/boj-hike-rates-cnbc-survey.html",
+      "publishedAt": "2026-09-16T01:56:24.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "日本央行预计将加息25个基点至三十年来新高： CNBC调查",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "8df8302b68c8e9f7",
+      "title": "Indonesia's new finance minister faces an uphill battle on fiscal credibility",
+      "url": "https://www.cnbc.com/2026/09/16/indonesia-finance-minister-msci-prabowo-.html",
+      "publishedAt": "2026-09-16T01:53:52.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "印尼新任财政部长面临财政信誉方面的艰巨斗争",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "da10272005350a57",
       "title": "House to vote on bill to rein in AI data center utility costs",
       "url": "https://www.cnbc.com/2026/09/15/congress-ai-data-center-utility-costs.html",
@@ -46,25 +180,27 @@
       "category": "technology",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "众议院投票通过控制人工智能数据中心公用事业成本的法案",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
     {
-      "id": "c1d19f6a9092c9af",
-      "title": "Inside South Korea’s university programs offering a direct route to Samsung and SK Hynix",
-      "url": "https://www.cnbc.com/2026/09/16/samsung-sk-hynix-ai-boom-students-university-programs.html",
-      "publishedAt": "2026-09-15T23:52:04.000Z",
+      "id": "96d0b4cce58ea6dd",
+      "title": "Why de-dollarization discussions are more talk, less action",
+      "url": "https://www.cnbc.com/2026/09/16/de-dollarization-brics-china-russia-trump.html",
+      "publishedAt": "2026-09-15T23:28:01.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "韩国大学项目提供通往三星和SK海力士的直达路线",
+      "impactScore": 0,
+      "affectedAssets": [
+        "美元"
+      ],
+      "translatedTitle": "为什么去美元化讨论更多是谈论，更少是行动",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -78,7 +214,7 @@
       "category": "technology",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "A股"
       ],
@@ -96,25 +232,9 @@
       "category": "geopolitics",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "国会预算办公室发现，伊朗战争在头五个月平均每天花费2.46 $",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "f04094a9bab7299f",
-      "title": "Nvidia's Huang diverges with CEOs of Anthropic, OpenAI on AI safety at Dreamforce",
-      "url": "https://www.cnbc.com/2026/09/15/nvidia-and-anthropic-ceos-diverge-on-ai-safety-at-dreamforce.html",
-      "publishedAt": "2026-09-15T22:17:47.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "low",
       "impactScore": 0,
       "affectedAssets": [],
-      "translatedTitle": "Nvidia的Huang与OpenAI的Anthropic首席执行官在Dreamforce的人工智能安全问题上存在分歧",
+      "translatedTitle": "国会预算办公室发现，伊朗战争在头五个月平均每天花费2.46 $",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -251,24 +371,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "b79c7a696bedd7dd",
-      "title": "U.S. oil tops $105 as Saudi Arabia reportedly cancels some crude cargoes after pipeline closure",
-      "url": "https://www.cnbc.com/2026/09/15/oil-extends-gains-following-houthi-strikes-on-saudi-arabia.html",
-      "publishedAt": "2026-09-15T18:58:36.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "commodities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "原油"
-      ],
-      "translatedTitle": "美国石油价格突破105 $ ，因据报道沙特阿拉伯在管道关闭后取消了一些原油货物",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "6bec766fc2d6e91b",
       "title": "AI skeptics from Bernie Sanders to Steve Bannon urge action, as Congress, Trump idle",
       "url": "https://www.cnbc.com/2026/09/15/ai-skeptics-concerns-congress-trump.html",
@@ -383,22 +485,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "c10552ba0f3c9567",
-      "title": "Mortgage credit scores are evolving. What homebuyers need to know",
-      "url": "https://www.cnbc.com/2026/09/15/mortgage-credit-scores-vantagescore-fico-homebuyers.html",
-      "publishedAt": "2026-09-15T15:19:36.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "抵押贷款信用评分正在发生变化。购房者需要了解哪些信息",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "fc467d0b9d24186d",
       "title": "Nike co-founder Phil Knight to donate $1.1 billion to Oregon medical center",
       "url": "https://www.cnbc.com/2026/09/15/nike-phil-knight-donation-oregon-medical-center.html",
@@ -445,97 +531,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "美国首次确认在太空部署武器",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "d7ba03cc497b4ea3",
-      "title": "Santoli: The youthful phase of AI is over. What it means for investors",
-      "url": "https://www.cnbc.com/2026/09/15/santoli-the-youthful-phase-of-ai-is-over-what-it-means-for-investors.html",
-      "publishedAt": "2026-09-15T12:33:08.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "Santoli ：人工智能的年轻阶段已经结束。对投资者意味着什么",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "dc98be3509f8b374",
-      "title": "Iranian foreign minister will head to China for talks, as Pentagon reveals financial cost of war",
-      "url": "https://www.cnbc.com/2026/09/15/us-iran-war-trump-hormuz-munitions-dod-costs-aircraft.html",
-      "publishedAt": "2026-09-15T11:53:36.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "geopolitics",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "A股"
-      ],
-      "translatedTitle": "随着五角大楼披露战争的财政成本，伊朗外交部长将前往中国进行会谈",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "e71549702ed21900",
-      "title": "Treasury yields are hovering above a critical threshold. Here's what it means for stocks",
-      "url": "https://www.cnbc.com/2026/09/15/treasury-yields-stocks-investors.html",
-      "publishedAt": "2026-09-15T11:19:51.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股",
-        "债券"
-      ],
-      "translatedTitle": "国债收益率徘徊在临界阈值之上。以下是它对股票的意义",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "49388e13086b6939",
-      "title": "Oil and Treasury yields haven’t moved this closely in seven years. That’s bad news for markets",
-      "url": "https://www.cnbc.com/2026/09/15/oil-us-treasurys-stocks-pressure.html",
-      "publishedAt": "2026-09-15T10:01:19.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "commodities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "债券",
-        "原油"
-      ],
-      "translatedTitle": "石油和国库券收益率在七年内没有接近这一水平。这对市场来说是个坏消息",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "858286a35aab5c95",
-      "title": "Counting the votes: Warsh faces a tough battle as the Fed girds for expected interest rate hike",
-      "url": "https://www.cnbc.com/2026/09/14/counting-the-votes-warsh-faces-tough-battle-as-fed-girds-for-expected-rate-hike.html",
-      "publishedAt": "2026-09-14T19:47:42.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "债券",
-        "美元"
-      ],
-      "translatedTitle": "计票：随着美联储加大预期加息力度，沃什面临着一场艰苦的战斗",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
