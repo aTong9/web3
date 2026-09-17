@@ -1065,11 +1065,12 @@ const strategyComparison = async (
   const estimatedRoundTripCostPct = btcAutoEstimatedRoundTripCostPct(feeRatePct)
   const row = await env.DB.prepare(
     `WITH eligible AS (
-       SELECT * FROM btc_auto_signal_history
+       SELECT observed_at, baseline_path_1h_pct, ensemble_path_1h_pct
+       FROM btc_auto_signal_history
        WHERE signal_model_version = ?1 AND (?2 IS NULL OR ensemble_regime = ?2)
          AND baseline_action IN ('long', 'short')
          AND ensemble_action IN ('long', 'short')
-     ), hourly AS (
+     ), hourly AS NOT MATERIALIZED (
        SELECT *, ROW_NUMBER() OVER (
          PARTITION BY substr(observed_at, 1, 13) ORDER BY observed_at ASC
        ) AS sample_rank
@@ -1174,8 +1175,8 @@ const scoreThresholdStudy = async (
   const candidateThreshold = Math.min(90, Math.max(70, currentThreshold + 10))
   const estimatedRoundTripCostPct = btcAutoEstimatedRoundTripCostPct(feeRatePct)
   const row = await env.DB.prepare(
-    `WITH hourly AS (
-       SELECT *, ROW_NUMBER() OVER (
+    `WITH hourly AS NOT MATERIALIZED (
+       SELECT observed_at, baseline_score, baseline_path_1h_pct, ROW_NUMBER() OVER (
          PARTITION BY substr(observed_at, 1, 13) ORDER BY observed_at ASC
        ) AS sample_rank
        FROM btc_auto_signal_history
@@ -1261,9 +1262,10 @@ const consensusStudy = async (
   const estimatedRoundTripCostPct = btcAutoEstimatedRoundTripCostPct(feeRatePct)
   const row = await env.DB.prepare(
     `WITH eligible AS (
-       SELECT * FROM btc_auto_signal_history
+       SELECT observed_at, baseline_action, ensemble_action, baseline_path_1h_pct
+       FROM btc_auto_signal_history
        WHERE signal_model_version = ?1 AND baseline_action IN ('long', 'short')
-     ), hourly AS (
+     ), hourly AS NOT MATERIALIZED (
        SELECT *, ROW_NUMBER() OVER (
          PARTITION BY substr(observed_at, 1, 13) ORDER BY observed_at ASC
        ) AS sample_rank

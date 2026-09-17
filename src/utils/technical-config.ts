@@ -1,4 +1,5 @@
 import type { TechnicalIndicatorConfig, TechnicalIndicatorConfigVersion } from '@/types'
+import { cloudflareFetch } from '@/utils/cloudflare-fetch'
 import { defaultTechnicalIndicatorConfig } from '@/utils/technical-config-default'
 
 export { defaultTechnicalIndicatorConfig } from '@/utils/technical-config-default'
@@ -23,7 +24,7 @@ const apiBase =
 
 const request = async <T>(path: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('market-admin-session')
-  const response = await fetch(`${apiBase}${path}`, {
+  const response = await cloudflareFetch(`${apiBase}${path}`, {
     ...options,
     headers: {
       Accept: 'application/json',

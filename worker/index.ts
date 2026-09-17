@@ -451,7 +451,8 @@ const refreshSnapshot = async (env: Env) => {
   await env.DB.batch([
     env.DB.prepare(
       `INSERT INTO quant_snapshots (id, generated_at, source_updated_at, payload)
-       VALUES (?, ?, ?, ?)`,
+       SELECT ?1, ?2, ?3, ?4
+       WHERE ?4 IS NOT (SELECT payload FROM quant_snapshots ORDER BY created_at DESC LIMIT 1)`,
     ).bind(id, dashboard.generatedAt, dashboard.generatedAt, JSON.stringify(dashboard)),
     env.DB.prepare(
       `DELETE FROM quant_snapshots

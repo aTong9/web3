@@ -1,5 +1,6 @@
 import { computed, onUnmounted, ref, toValue, watch, type MaybeRefOrGetter } from 'vue'
 import type { MarketQuote, MarketQuoteResponse } from '@/types'
+import { cloudflareFetch } from '@/utils/cloudflare-fetch'
 
 const defaultApiBase = 'https://web3-quant-api.binson0426.workers.dev'
 const refreshIntervalMs = 60_000
@@ -33,14 +34,24 @@ export const useMarketQuotes = (requestedSymbols: MaybeRefOrGetter<string[]>) =>
   const fetchedAt = ref<string | null>(null)
   let refreshTimer: number | undefined
   let requestSequence = 0
+  let lastSymbols = ''
+  let lastAttempt = 0
 
-  const refresh = async () => {
+  const refresh = async (automatic = false) => {
     const symbols = [...new Set(toValue(requestedSymbols).filter(Boolean))].slice(0, 25)
     if (!symbols.length || document.visibilityState === 'hidden') return
+    const key = symbols.join(',')
+    if (
+      key === lastSymbols &&
+      (loading.value || (automatic && Date.now() - lastAttempt < refreshIntervalMs))
+    )
+      return
+    lastSymbols = key
+    lastAttempt = Date.now()
     const sequence = ++requestSequence
     loading.value = true
     try {
-      const response = await fetch(
+      const response = await cloudflareFetch(
         `${apiBase}/api/market/quotes?symbols=${encodeURIComponent(symbols.join(','))}`,
         { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(requestTimeoutMs) },
       )
@@ -60,10 +71,10 @@ export const useMarketQuotes = (requestedSymbols: MaybeRefOrGetter<string[]>) =>
 
   const schedule = () => {
     window.clearInterval(refreshTimer)
-    refreshTimer = window.setInterval(refresh, refreshIntervalMs)
+    refreshTimer = window.setInterval(() => void refresh(true), refreshIntervalMs)
   }
   const onVisibilityChange = () => {
-    if (document.visibilityState === 'visible') void refresh()
+    if (document.visibilityState === 'visible') void refresh(true)
   }
 
   watch(

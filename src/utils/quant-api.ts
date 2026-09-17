@@ -16,6 +16,8 @@ import type {
   TradingEvidenceAuditCheckpointVerification,
 } from '@/types'
 
+import { cloudflareFetch } from '@/utils/cloudflare-fetch'
+
 const defaultApiBase = 'https://web3-quant-api.binson0426.workers.dev'
 const clientStorageKey = 'market-desk-quant-client-id-v1'
 const requestTimeoutMs = 12_000
@@ -35,7 +37,7 @@ export const getQuantClientId = () => {
 
 const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
   const sessionToken = window.localStorage.getItem('market-admin-session')
-  const response = await fetch(`${apiBase}${path}`, {
+  const response = await cloudflareFetch(`${apiBase}${path}`, {
     ...init,
     headers: {
       Accept: 'application/json',

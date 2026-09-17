@@ -1,4 +1,5 @@
 import type { AnalyticsConfig, AppUser, UserRole } from '@/types'
+import { cloudflareFetch } from '@/utils/cloudflare-fetch'
 
 const apiBase =
   (import.meta.env.VITE_QUANT_API_BASE as string | undefined)?.replace(/\/$/, '') ||
@@ -6,13 +7,15 @@ const apiBase =
 
 const request = async <T>(path: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('market-admin-session')
-  const response = await fetch(`${apiBase}${path}`, {
+  const response = await cloudflareFetch(`${apiBase}${path}`, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
+    signal: AbortSignal.timeout(12_000),
   })
   const body = (await response.json()) as T & { error?: string }
   if (!response.ok) throw new Error(body.error || `API ${response.status}`)

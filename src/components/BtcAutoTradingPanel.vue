@@ -27,7 +27,8 @@ const error = ref<string | null>(null)
 const calibrationEvidence = ref<TestnetExecutionCalibrationEvidenceEnvelope | null>(null)
 const calibrationLoading = ref(false)
 const calibrationError = ref<string | null>(null)
-const refreshIntervalMs = 60_000
+const refreshIntervalMs = 300_000
+let lastAutomaticLoad = 0
 let refreshTimer: number | undefined
 const refreshing = ref(false)
 const drillDraft = reactive<{ type: TestnetDrillType; evidence: string }>({
@@ -208,6 +209,8 @@ const saveDrill = async () => {
 
 const load = async (silent = false) => {
   if (refreshing.value || (silent && busy.value)) return
+  if (silent && Date.now() - lastAutomaticLoad < refreshIntervalMs) return
+  lastAutomaticLoad = Date.now()
   refreshing.value = true
   if (!silent) {
     loading.value = true

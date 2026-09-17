@@ -82,8 +82,7 @@ export const authenticate = async (request: Request, env: Env, permission?: Perm
 
 export const authStatus = async (env: Env) => ({
   initialized:
-    ((await env.DB.prepare('SELECT COUNT(*) count FROM users').first<{ count: number }>())?.count ??
-      0) > 0,
+    (await env.DB.prepare('SELECT 1 FROM users LIMIT 1').first()) !== null,
 })
 
 export const exchangeCode = async (
