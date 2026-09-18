@@ -325,7 +325,12 @@
 @media (hover: hover) and (pointer: fine) {
   #app .app-shell :is(a, button, summary, select, [role='button']):not(:disabled) {
     cursor:
-      url('./space/starship.svg') 16 2,
+      url('./space/cursor-hover.svg') 6 6,
+      pointer;
+  }
+  #app .app-shell :is(a, button, summary, select, [role='button']):not(:disabled):active {
+    cursor:
+      url('./space/cursor-active.svg') 6 6,
       pointer;
   }
   #app .app-shell :is(.opportunity-card, .country-card, .group-tile):hover {
