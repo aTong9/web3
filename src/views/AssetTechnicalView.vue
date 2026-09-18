@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { EChartsCoreOption } from 'echarts/core'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
-import ContractTradingWorkspace from '@/components/ContractTradingWorkspace.vue'
 import DisclosureCard from '@/components/DisclosureCard.vue'
 import EChart from '@/components/EChart.vue'
 import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
@@ -37,6 +36,10 @@ import {
 } from '@/utils/technical-config'
 import { useTheme } from '@/utils/use-theme'
 import { evaluateAssetFreshness } from '@/utils/market-calendar'
+
+const ContractTradingWorkspace = defineAsyncComponent(
+  () => import('@/components/ContractTradingWorkspace.vue'),
+)
 
 type RangeId = TechnicalChartRange
 type ChartMode = 'line' | 'area' | 'candle'

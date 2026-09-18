@@ -137,8 +137,8 @@ onMounted(loadDataset)
 </script>
 
 <template>
-  <div class="sector-page">
-    <ResearchPageHeader :eyebrow="t('aShare.eyebrow')" :title="t('aShare.title')">
+  <main class="sector-page">
+    <ResearchPageHeader density="workbench" :eyebrow="t('aShare.eyebrow')" :title="t('aShare.title')">
       <template #status>
       <DataUpdateStatus
         :updated-at="dataset.updatedAt"
@@ -175,6 +175,7 @@ onMounted(loadDataset)
       </div>
     </section>
 
+    <div class="market-workbench">
     <nav class="workspace-tabs" :aria-label="t('aShare.workspace.label')">
       <button
         v-for="workspace in (['overview', 'research', 'ranking'] as Workspace[])"
@@ -316,12 +317,13 @@ onMounted(loadDataset)
       {{ t('aShare.footerNotice') }}{{ t('aShare.footerNoticeDelimiter') }}
       {{ t('aShare.footerCost') }}
     </footer>
-  </div>
+    </div>
+  </main>
 </template>
 
 <style scoped>
 .sector-page {
-  max-width: var(--content-standard);
+  max-width: var(--content-wide);
   margin: 0 auto;
   padding: 32px var(--page-gutter) 80px;
 }
@@ -389,9 +391,10 @@ h1 {
 }
 
 .market-summary {
-  margin: 38px 0 28px;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  margin: 20px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius);
+  background: var(--surface);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
 }
@@ -411,7 +414,7 @@ h1 {
 }
 
 .workspace-tabs {
-  margin: 0 0 28px;
+  margin: 0 0 20px;
   padding: 5px;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -439,19 +442,19 @@ h1 {
 }
 
 .workspace-tabs button.active {
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: var(--shadow);
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: inset 0 -2px var(--accent);
 }
 
 .workspace-tabs strong {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .workspace-tabs span {
   color: var(--muted);
-  font-size: 9px;
-  line-height: 1.45;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 .workspace-panel {
@@ -468,11 +471,16 @@ h1 {
 
 .market-summary strong {
   font-family: Georgia, 'Songti SC', serif;
-  font-size: 22px;
-  font-weight: 500;
+  font-size: clamp(18px, 2vw, 26px);
+  font-weight: 600;
 }
 
 .toolbar {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius);
+  background: var(--surface);
+  flex-wrap: wrap;
   margin-bottom: 18px;
   display: flex;
   align-items: center;
@@ -498,9 +506,9 @@ h1 {
 }
 
 .period-tabs button.active {
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: var(--shadow);
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: inset 0 -2px var(--accent);
 }
 
 .filters {
@@ -528,6 +536,7 @@ h1 {
 }
 
 .commission-field input {
+  min-width: 0;
   width: 66px;
   border: 0;
   background: transparent;
@@ -567,7 +576,9 @@ summary {
 
 .ranking-list {
   overflow: hidden;
-  border-top: 1px solid var(--ink);
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius);
+  background: var(--surface);
 }
 
 details {
@@ -587,7 +598,7 @@ summary::-webkit-details-marker {
 }
 
 summary:hover {
-  background: var(--surface);
+  background: var(--surface-elevated);
 }
 
 .rank {
@@ -740,11 +751,21 @@ footer {
   }
 
   .workspace-tabs {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .workspace-tabs span {
+    display: none;
+  }
+
+  .workspace-tabs strong {
+    font-size: 12px;
   }
 
   .workspace-tabs button {
-    min-height: 52px;
+    min-height: 48px;
+    padding: 10px 6px;
+    text-align: center;
   }
 
   .market-summary div:nth-child(2) {
@@ -752,8 +773,16 @@ footer {
   }
 
   .filters {
+    min-width: 0;
+    width: 100%;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filters > select,
+  .filters > input {
+    min-width: 0;
+    width: 100%;
   }
 
   .filters > input {
@@ -761,6 +790,8 @@ footer {
   }
 
   .period-tabs {
+    min-width: 0;
+    width: 100%;
     overflow-x: auto;
   }
 
@@ -836,4 +867,20 @@ footer {
     border-bottom: 0;
   }
 }
+@media (min-width: 901px) {
+  .workspace-tabs {
+    position: sticky;
+    top: 70px;
+    z-index: 10;
+    background: var(--surface);
+  }
+}
+
+.market-workbench { display: grid; grid-template-columns: 178px minmax(0, 1fr); gap: 24px; align-items: start; }
+.market-workbench > .workspace-tabs { display: flex; flex-direction: column; position: sticky; top: 76px; margin: 0; padding: 6px; }
+.workspace-tabs button { text-align: left; padding: 16px 12px; }
+.workspace-panel { min-width: 0; }
+.workspace-panel :deep(.hot-panel), .workspace-panel :deep(.mega-panel) { margin-top: 0; }
+@media(max-width:1050px) { .market-workbench { grid-template-columns: 1fr; gap: 12px; } .market-workbench > .workspace-tabs { position: static; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); } }
+
 </style>

@@ -26,7 +26,7 @@ watch(
   async () => {
     mobileMenuOpen.value = false
     await nextTick()
-    routeFrame.value?.focus()
+    routeFrame.value?.focus({ preventScroll: true })
   },
 )
 watch(mobileMenuOpen, (open) => {
@@ -67,6 +67,7 @@ onUnmounted(() => {
           </template>
         </Suspense>
       </RouterView>
+      <footer class="mission-footer"><span>SPACEX INSPIRED / MARKET MISSION</span><span>探索 · 研究 · 独立判断</span></footer>
     </div>
     <AnalyticsConsent />
   </div>
@@ -75,7 +76,7 @@ onUnmounted(() => {
 <style scoped>
 .workspace {
   min-height: 100vh;
-  margin-left: 248px;
+  margin-left: var(--sidebar-width);
 }
 .route-frame {
   min-width: 0;
@@ -120,7 +121,7 @@ onUnmounted(() => {
 .loading-lines i {
   height: 8px;
   border-radius: 4px;
-  background: var(--surface-soft);
+  background: var(--accent-soft);
   animation: loading-pulse 1.2s ease-in-out infinite alternate;
 }
 .loading-lines i:nth-child(2) {
@@ -133,7 +134,7 @@ onUnmounted(() => {
 }
 @keyframes loading-pulse {
   to {
-    background: var(--accent-soft);
+    opacity: 0.35;
   }
 }
 @media (prefers-reduced-motion: reduce) {

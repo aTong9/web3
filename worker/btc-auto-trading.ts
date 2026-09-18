@@ -1062,57 +1062,52 @@ const strategyComparison = async (
   feeRatePct: number,
   regime: BtcAutoStrategyRegime | null = null,
 ): Promise<BtcAutoStrategyComparison> => {
+  // Find each hour's first eligible row before filtering outcomes; do not substitute later rows.
+  // ponytail: sparse histories may still scan fully; materialize hourly samples if this grows costly.
   const estimatedRoundTripCostPct = btcAutoEstimatedRoundTripCostPct(feeRatePct)
   const row = await env.DB.prepare(
-    `WITH eligible AS (
-       SELECT observed_at, baseline_path_1h_pct, ensemble_path_1h_pct
-       FROM btc_auto_signal_history
-       WHERE signal_model_version = ?1 AND (?2 IS NULL OR ensemble_regime = ?2)
-         AND baseline_action IN ('long', 'short')
-         AND ensemble_action IN ('long', 'short')
-     ), hourly AS NOT MATERIALIZED (
-       SELECT *, ROW_NUMBER() OVER (
-         PARTITION BY substr(observed_at, 1, 13) ORDER BY observed_at ASC
-       ) AS sample_rank
-       FROM eligible
-     ), paired AS (
-       SELECT * FROM hourly
-       WHERE sample_rank = 1
-         AND baseline_path_1h_pct IS NOT NULL
-         AND ensemble_path_1h_pct IS NOT NULL
-     ), paired_window AS (
-       SELECT * FROM paired ORDER BY observed_at DESC LIMIT 120
+    `WITH paired_window AS (
+       SELECT s.observed_at, s.baseline_path_1h_pct, s.ensemble_path_1h_pct
+       FROM btc_auto_signal_history s
+       WHERE s.signal_model_version = ?1 AND (?2 IS NULL OR s.ensemble_regime = ?2)
+         AND s.baseline_action IN ('long', 'short')
+         AND s.ensemble_action IN ('long', 'short')
+         AND s.baseline_path_1h_pct IS NOT NULL
+         AND s.ensemble_path_1h_pct IS NOT NULL
+         AND s.rowid = (
+           SELECT earlier.rowid FROM btc_auto_signal_history earlier
+           WHERE earlier.signal_model_version = ?1
+             AND earlier.observed_at >= substr(s.observed_at, 1, 13)
+             AND earlier.observed_at <= s.observed_at
+             AND earlier.baseline_action IN ('long', 'short')
+             AND earlier.ensemble_action IN ('long', 'short')
+             AND (?2 IS NULL OR earlier.ensemble_regime = ?2)
+           ORDER BY earlier.observed_at ASC LIMIT 1
+         )
+       ORDER BY s.observed_at DESC LIMIT 120
      ), ranked_window AS (
        SELECT *, ROW_NUMBER() OVER (ORDER BY observed_at DESC) AS validation_rank
        FROM paired_window
-     ), evaluation_window AS (
-       SELECT * FROM ranked_window WHERE validation_rank > 24
-     ), validation_window AS (
-       SELECT * FROM ranked_window WHERE validation_rank <= 24
      )
      SELECT
-       COUNT(*) AS paired_samples,
-       COUNT(*) AS baseline_samples,
-       AVG(CASE WHEN baseline_path_1h_pct > ?3 THEN 100.0 ELSE 0 END) AS baseline_hit_rate,
-       AVG(baseline_path_1h_pct) AS baseline_average_move,
-       COUNT(*) AS ensemble_samples,
-       AVG(CASE WHEN ensemble_path_1h_pct > ?3 THEN 100.0 ELSE 0 END) AS ensemble_hit_rate,
-       AVG(ensemble_path_1h_pct) AS ensemble_average_move,
+       COUNT(*) FILTER (WHERE validation_rank > 24) AS paired_samples,
+       COUNT(*) FILTER (WHERE validation_rank > 24) AS baseline_samples,
+       AVG(CASE WHEN baseline_path_1h_pct > ?3 THEN 100.0 ELSE 0 END) FILTER (WHERE validation_rank > 24) AS baseline_hit_rate,
+       AVG(baseline_path_1h_pct) FILTER (WHERE validation_rank > 24) AS baseline_average_move,
+       COUNT(*) FILTER (WHERE validation_rank > 24) AS ensemble_samples,
+       AVG(CASE WHEN ensemble_path_1h_pct > ?3 THEN 100.0 ELSE 0 END) FILTER (WHERE validation_rank > 24) AS ensemble_hit_rate,
+       AVG(ensemble_path_1h_pct) FILTER (WHERE validation_rank > 24) AS ensemble_average_move,
        SUM(CASE WHEN baseline_path_1h_pct > ?3 AND ensemble_path_1h_pct <= ?3
-         THEN 1 ELSE 0 END) AS baseline_only_wins,
+         THEN 1 ELSE 0 END) FILTER (WHERE validation_rank > 24) AS baseline_only_wins,
        SUM(CASE WHEN ensemble_path_1h_pct > ?3 AND baseline_path_1h_pct <= ?3
-         THEN 1 ELSE 0 END) AS ensemble_only_wins,
-       (SELECT COUNT(*) FROM validation_window) AS validation_baseline_samples,
-       (SELECT COUNT(*) FROM validation_window) AS validation_candidate_samples,
-       (SELECT AVG(CASE WHEN baseline_path_1h_pct > ?3 THEN 100.0 ELSE 0 END)
-         FROM validation_window) AS validation_baseline_hit_rate,
-       (SELECT AVG(CASE WHEN ensemble_path_1h_pct > ?3 THEN 100.0 ELSE 0 END)
-         FROM validation_window) AS validation_candidate_hit_rate,
-       (SELECT AVG(baseline_path_1h_pct) FROM validation_window)
-         AS validation_baseline_average_move,
-       (SELECT AVG(ensemble_path_1h_pct) FROM validation_window)
-         AS validation_candidate_average_move
-     FROM evaluation_window`,
+         THEN 1 ELSE 0 END) FILTER (WHERE validation_rank > 24) AS ensemble_only_wins,
+       COUNT(*) FILTER (WHERE validation_rank <= 24) AS validation_baseline_samples,
+       COUNT(*) FILTER (WHERE validation_rank <= 24) AS validation_candidate_samples,
+       AVG(CASE WHEN baseline_path_1h_pct > ?3 THEN 100.0 ELSE 0 END) FILTER (WHERE validation_rank <= 24) AS validation_baseline_hit_rate,
+       AVG(CASE WHEN ensemble_path_1h_pct > ?3 THEN 100.0 ELSE 0 END) FILTER (WHERE validation_rank <= 24) AS validation_candidate_hit_rate,
+       AVG(baseline_path_1h_pct) FILTER (WHERE validation_rank <= 24) AS validation_baseline_average_move,
+       AVG(ensemble_path_1h_pct) FILTER (WHERE validation_rank <= 24) AS validation_candidate_average_move
+     FROM ranked_window`,
   )
     .bind(signalModelVersion, regime, estimatedRoundTripCostPct)
     .first<{
@@ -1259,52 +1254,44 @@ const consensusStudy = async (
   signalModelVersion: string,
   feeRatePct: number,
 ): Promise<BtcAutoConsensusStudy> => {
+  // Match the hourly first-row rule while walking the covering index newest-first, stopping at 120.
   const estimatedRoundTripCostPct = btcAutoEstimatedRoundTripCostPct(feeRatePct)
   const row = await env.DB.prepare(
-    `WITH eligible AS (
-       SELECT observed_at, baseline_action, ensemble_action, baseline_path_1h_pct
-       FROM btc_auto_signal_history
-       WHERE signal_model_version = ?1 AND baseline_action IN ('long', 'short')
-     ), hourly AS NOT MATERIALIZED (
-       SELECT *, ROW_NUMBER() OVER (
-         PARTITION BY substr(observed_at, 1, 13) ORDER BY observed_at ASC
-       ) AS sample_rank
-       FROM eligible
-     ), samples_all AS (
-       SELECT * FROM hourly
-       WHERE sample_rank = 1 AND baseline_path_1h_pct IS NOT NULL
-     ), sample_pool AS (
-       SELECT * FROM samples_all ORDER BY observed_at DESC LIMIT 120
+    `WITH sample_pool AS (
+       SELECT s.observed_at, s.baseline_action, s.ensemble_action, s.baseline_path_1h_pct
+       FROM btc_auto_signal_history s
+       WHERE s.signal_model_version = ?1 AND s.baseline_action IN ('long', 'short')
+         AND s.baseline_path_1h_pct IS NOT NULL
+         AND s.rowid = (
+           SELECT earlier.rowid FROM btc_auto_signal_history earlier
+           WHERE earlier.signal_model_version = ?1
+             AND earlier.observed_at >= substr(s.observed_at, 1, 13)
+             AND earlier.observed_at <= s.observed_at
+             AND earlier.baseline_action IN ('long', 'short')
+           ORDER BY earlier.observed_at ASC LIMIT 1
+         )
+       ORDER BY s.observed_at DESC LIMIT 120
      ), ranked_window AS (
        SELECT *, ROW_NUMBER() OVER (ORDER BY observed_at DESC) AS validation_rank
        FROM sample_pool
-     ), samples AS (
-       SELECT * FROM ranked_window WHERE validation_rank > 24
-     ), validation_window AS (
-       SELECT * FROM ranked_window WHERE validation_rank <= 24
      )
      SELECT
-       COUNT(*) AS baseline_samples,
-       AVG(CASE WHEN baseline_path_1h_pct > ?2 THEN 100.0 ELSE 0 END) AS baseline_hit_rate,
-       AVG(baseline_path_1h_pct) AS baseline_average_move,
-       SUM(CASE WHEN ensemble_action = baseline_action THEN 1 ELSE 0 END) AS consensus_samples,
+       COUNT(*) FILTER (WHERE validation_rank > 24) AS baseline_samples,
+       AVG(CASE WHEN baseline_path_1h_pct > ?2 THEN 100.0 ELSE 0 END) FILTER (WHERE validation_rank > 24) AS baseline_hit_rate,
+       AVG(baseline_path_1h_pct) FILTER (WHERE validation_rank > 24) AS baseline_average_move,
+       SUM(CASE WHEN ensemble_action = baseline_action THEN 1 ELSE 0 END) FILTER (WHERE validation_rank > 24) AS consensus_samples,
        AVG(CASE WHEN ensemble_action = baseline_action
-         THEN CASE WHEN baseline_path_1h_pct > ?2 THEN 100.0 ELSE 0 END END) AS consensus_hit_rate,
+         THEN CASE WHEN baseline_path_1h_pct > ?2 THEN 100.0 ELSE 0 END END) FILTER (WHERE validation_rank > 24) AS consensus_hit_rate,
        AVG(CASE WHEN ensemble_action = baseline_action
-         THEN baseline_path_1h_pct END) AS consensus_average_move,
-       (SELECT COUNT(*) FROM validation_window) AS validation_baseline_samples,
-       (SELECT SUM(CASE WHEN ensemble_action = baseline_action THEN 1 ELSE 0 END)
-         FROM validation_window) AS validation_candidate_samples,
-       (SELECT AVG(CASE WHEN baseline_path_1h_pct > ?2 THEN 100.0 ELSE 0 END)
-         FROM validation_window) AS validation_baseline_hit_rate,
-       (SELECT AVG(CASE WHEN ensemble_action = baseline_action
-         THEN CASE WHEN baseline_path_1h_pct > ?2 THEN 100.0 ELSE 0 END END)
-         FROM validation_window) AS validation_candidate_hit_rate,
-       (SELECT AVG(baseline_path_1h_pct) FROM validation_window)
-         AS validation_baseline_average_move,
-       (SELECT AVG(CASE WHEN ensemble_action = baseline_action THEN baseline_path_1h_pct END)
-         FROM validation_window) AS validation_candidate_average_move
-     FROM samples`,
+         THEN baseline_path_1h_pct END) FILTER (WHERE validation_rank > 24) AS consensus_average_move,
+       COUNT(*) FILTER (WHERE validation_rank <= 24) AS validation_baseline_samples,
+       SUM(CASE WHEN ensemble_action = baseline_action THEN 1 ELSE 0 END) FILTER (WHERE validation_rank <= 24) AS validation_candidate_samples,
+       AVG(CASE WHEN baseline_path_1h_pct > ?2 THEN 100.0 ELSE 0 END) FILTER (WHERE validation_rank <= 24) AS validation_baseline_hit_rate,
+       AVG(CASE WHEN ensemble_action = baseline_action
+         THEN CASE WHEN baseline_path_1h_pct > ?2 THEN 100.0 ELSE 0 END END) FILTER (WHERE validation_rank <= 24) AS validation_candidate_hit_rate,
+       AVG(baseline_path_1h_pct) FILTER (WHERE validation_rank <= 24) AS validation_baseline_average_move,
+       AVG(CASE WHEN ensemble_action = baseline_action THEN baseline_path_1h_pct END) FILTER (WHERE validation_rank <= 24) AS validation_candidate_average_move
+     FROM ranked_window`,
   )
     .bind(signalModelVersion, estimatedRoundTripCostPct)
     .first<{

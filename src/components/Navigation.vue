@@ -336,6 +336,36 @@ watch(
       </dl>
     </header>
 
+        <div class="toolbar">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input
+              ref="searchInput"
+              v-model="query"
+              type="search"
+              :aria-label="t('ui.navigation.searchLabel')"
+              :placeholder="t('ui.navigation.searchPlaceholder')"
+            />
+            <kbd>/</kbd>
+          </label>
+          <button
+            v-if="contentMode === 'resources'"
+            class="favorite-filter"
+            :class="{ active: favoritesOnly }"
+            @click="favoritesOnly = !favoritesOnly"
+          >
+            <span aria-hidden="true">☆</span>
+            {{ t('ui.navigation.favoriteOnly') }}
+            <b>{{ favoriteUrls.length }}</b>
+          </button>
+          <label class="sort-control">
+            <span class="sr-only">{{ t('ui.navigation.sortLabel') }}</span>
+            <select v-model="sortMode" :aria-label="t('ui.navigation.sortLabel')">
+              <option value="default">{{ t('ui.navigation.sortDefault') }}</option>
+              <option value="title">{{ t('ui.navigation.sortTitle') }}</option>
+            </select>
+          </label>
+        </div>
     <nav class="group-switcher" :aria-label="t('ui.navigation.groupLabel')">
       <button
         :class="{ active: activeGroup === ACTIVE_OVERVIEW_GROUP }"
@@ -422,36 +452,7 @@ watch(
       </aside>
 
       <div class="content">
-        <div class="toolbar">
-          <label class="search-box">
-            <span aria-hidden="true">⌕</span>
-            <input
-              ref="searchInput"
-              v-model="query"
-              type="search"
-              :aria-label="t('ui.navigation.searchLabel')"
-              :placeholder="t('ui.navigation.searchPlaceholder')"
-            />
-            <kbd>/</kbd>
-          </label>
-          <button
-            v-if="contentMode === 'resources'"
-            class="favorite-filter"
-            :class="{ active: favoritesOnly }"
-            @click="favoritesOnly = !favoritesOnly"
-          >
-            <span aria-hidden="true">☆</span>
-            {{ t('ui.navigation.favoriteOnly') }}
-            <b>{{ favoriteUrls.length }}</b>
-          </button>
-          <label class="sort-control">
-            <span class="sr-only">{{ t('ui.navigation.sortLabel') }}</span>
-            <select v-model="sortMode" :aria-label="t('ui.navigation.sortLabel')">
-              <option value="default">{{ t('ui.navigation.sortDefault') }}</option>
-              <option value="title">{{ t('ui.navigation.sortTitle') }}</option>
-            </select>
-          </label>
-        </div>
+
 
         <section v-if="showOverview" class="group-overview">
           <div class="overview-heading">
@@ -645,7 +646,7 @@ watch(
 
 <style scoped>
 .resource-shell {
-  margin-top: 24px;
+  margin-top: 8px;
 }
 
 .catalog-summary {
@@ -704,6 +705,8 @@ watch(
 
 .catalog-summary dl div {
   min-width: 76px;
+  padding-left: 16px;
+  border-left: 1px solid var(--border);
 }
 
 .catalog-summary dt {
@@ -759,8 +762,9 @@ watch(
 }
 
 .group-switcher button.active {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
 }
 
 .group-switcher small {
@@ -771,10 +775,10 @@ watch(
 
 .workspace {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 208px minmax(0, 1fr);
   margin-top: 22px;
   min-height: calc(100vh - 72px);
-  gap: clamp(24px, 4vw, 56px);
+  gap: clamp(20px, 2.5vw, 32px);
 }
 
 .workspace--wide {
@@ -949,10 +953,10 @@ watch(
 }
 
 .group-grid button {
-  min-height: 116px;
+  min-height: 108px;
   padding: 20px;
   border: 1px solid var(--border);
-  border-radius: 13px;
+  border-radius: var(--panel-radius);
   background: var(--surface);
   color: var(--ink);
   display: grid;
@@ -1182,13 +1186,12 @@ watch(
   padding: 10px;
   border: 1px solid var(--border);
   border-radius: 13px;
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  background: var(--surface);
   position: sticky;
-  top: 76px;
+  top: 70px;
   z-index: 2;
   display: flex;
   gap: 12px;
-  backdrop-filter: blur(16px);
 }
 
 .search-box {
@@ -1687,7 +1690,7 @@ watch(
 
 @media (max-width: 640px) {
   .resource-shell {
-    margin-top: 16px;
+    margin-top: 8px;
   }
 
   .catalog-summary {
@@ -1701,6 +1704,7 @@ watch(
   }
 
   .catalog-summary dl div {
+    padding-left: 10px;
     min-width: 0;
   }
 
@@ -1840,4 +1844,26 @@ watch(
   white-space: nowrap;
   border: 0;
 }
+@media (min-width: 961px) {
+  .group-switcher { flex-wrap: wrap; }
+  .sidebar {
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--panel-radius);
+    background: var(--surface);
+  }
+}
+@media (min-width: 1440px) {
+  .group-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .group-grid button { padding: 16px; gap: 10px; }
+}
+
+.catalog-summary { padding:0 0 20px; border:0; border-bottom:1px solid var(--border); border-radius:0; background:none; gap:24px; }
+.catalog-summary h1 { font-size:clamp(26px,3vw,36px); }
+.catalog-summary dd { font-size:22px; }
+.resource-shell > .toolbar { position:static; margin-bottom:16px; padding:16px; }
+.resource-shell > .toolbar .search-box { min-height:48px; }
+.overview-heading { margin-top:8px; }
+@media(min-width:1200px) { .group-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+
 </style>

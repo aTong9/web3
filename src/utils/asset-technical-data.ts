@@ -29,11 +29,24 @@ const fetchDataset = async (url: string) => {
   return dataset
 }
 
-export const loadUsStockTechnicalDataset = () => fetchDataset(usStockDatasetUrl)
+// Share in-flight reads and parsed snapshots across routes; refresh long-lived tabs after 5 minutes.
+const datasets = new Map<string, { expiresAt: number; promise: Promise<AssetTechnicalDataset> }>()
+const loadDataset = (url: string) => {
+  const cached = datasets.get(url)
+  if (cached && cached.expiresAt > Date.now()) return cached.promise
+  const promise = fetchDataset(url).catch((error: unknown) => {
+    if (datasets.get(url)?.promise === promise) datasets.delete(url)
+    throw error
+  })
+  datasets.set(url, { expiresAt: Date.now() + 5 * 60_000, promise })
+  return promise
+}
+
+export const loadUsStockTechnicalDataset = () => loadDataset(usStockDatasetUrl)
 
 export const loadAssetTechnicalDataset = async (): Promise<AssetTechnicalDataset> => {
   const [baseDataset, usStockDataset] = await Promise.all([
-    fetchDataset(baseDatasetUrl),
+    loadDataset(baseDatasetUrl),
     loadUsStockTechnicalDataset(),
   ])
   const updatedAt = [baseDataset.updatedAt, usStockDataset.updatedAt]
@@ -48,10 +61,7 @@ export const loadAssetTechnicalDataset = async (): Promise<AssetTechnicalDataset
       ...(usStockDataset.assets.length ? [usStockDataset.source] : []),
     ].join(' / '),
     limitations: [...baseDataset.limitations, ...usStockDataset.limitations],
-    limitationsEn: [
-      ...(baseDataset.limitationsEn ?? []),
-      ...(usStockDataset.limitationsEn ?? []),
-    ],
+    limitationsEn: [...(baseDataset.limitationsEn ?? []), ...(usStockDataset.limitationsEn ?? [])],
     assets: [...baseDataset.assets, ...usStockDataset.assets],
   }
 }

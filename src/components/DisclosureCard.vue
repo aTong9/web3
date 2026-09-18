@@ -28,13 +28,16 @@ withDefaults(
 <style scoped>
 .disclosure-card {
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--panel-radius);
   background: var(--surface);
   overflow: hidden;
 }
+.disclosure-card[open] {
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
+}
 summary {
   min-height: 72px;
-  padding: 14px 16px;
+  padding: 18px 20px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto 20px;
   align-items: center;
@@ -75,7 +78,8 @@ summary:focus-visible {
   margin-top: 4px;
   overflow: hidden;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
+  line-height: 1.5;
   font-style: normal;
   text-overflow: ellipsis;
   white-space: nowrap;

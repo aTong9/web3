@@ -1,5 +1,5 @@
 :root {
-  --paper: #f7f7f4;
+  --paper: #f3f5f3;
   --surface: #ffffff;
   --surface-soft: #efefea;
   --surface-elevated: #fafaf7;
@@ -31,7 +31,8 @@
   --content-workbench: 1440px;
   --page-gutter: clamp(18px, 4vw, 48px);
   --space-section: 24px;
-  --panel-radius: 12px;
+  --panel-radius: 16px;
+  --sidebar-width: 232px;
   --panel-padding: clamp(18px, 2.2vw, 24px);
   --control-height: 40px;
   color: var(--ink);
@@ -113,7 +114,9 @@ table,
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 

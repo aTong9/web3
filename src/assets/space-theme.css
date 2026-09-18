@@ -1,0 +1,441 @@
+/* SpaceX-inspired mission control. Static vector art; no pointer tracking or render loop. */
+:root {
+  --paper: #eef0f3;
+  --surface: #ffffff;
+  --surface-soft: #e5e9ee;
+  --surface-elevated: #f7f8fa;
+  --ink: #10141b;
+  --muted: #566170;
+  --border: #c5ccd5;
+  --accent: #172d46;
+  --accent-soft: #dde5ee;
+  --inverse: #030508;
+  --inverse-text: #f4f6fa;
+  --panel-radius: 3px;
+  --shadow: none;
+  --sidebar-bg: #030508;
+  --sidebar-surface: #111720;
+  --sidebar-hover: #141d29;
+  --sidebar-active: #f0f3f7;
+  --sidebar-active-text: #090d13;
+  --sidebar-border: #27313e;
+  --sidebar-text: #bec7d2;
+  --sidebar-muted: #7c8a9c;
+  --font-display: 'Arial Narrow', 'Helvetica Neue', Arial, 'PingFang SC', sans-serif;
+  --font-telemetry: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+}
+:root[data-theme='dark'] {
+  --paper: #030508;
+  --surface: #090d13;
+  --surface-soft: #111923;
+  --surface-elevated: #0e151f;
+  --ink: #f4f6fa;
+  --muted: #a3aebd;
+  --border: #2a3442;
+  --accent: #edf3fa;
+  --accent-soft: #1d2a3b;
+  --inverse: #000;
+  --inverse-text: #f4f6fa;
+  --shadow: none;
+  --sidebar-bg: #030508;
+  --sidebar-surface: #111720;
+  --sidebar-hover: #141d29;
+  --sidebar-active: #f0f3f7;
+  --sidebar-active-text: #090d13;
+  --sidebar-border: #27313e;
+  --sidebar-text: #bec7d2;
+  --sidebar-muted: #7c8a9c;
+}
+#app .app-shell {
+  position: relative;
+  isolation: isolate;
+}
+#app .app-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--paper);
+  background-image:
+    url('./space/stars.svg'), radial-gradient(ellipse at 78% 18%, #234e7940, transparent 52%),
+    radial-gradient(ellipse at 30% 64%, #4f36752e, transparent 48%),
+    radial-gradient(ellipse at 92% 90%, #123e5033, transparent 45%);
+  background-size:
+    1440px 1000px,
+    cover,
+    cover,
+    cover;
+}
+@media (forced-colors: active) {
+  #app .app-shell::before {
+    background-image: none;
+  }
+}
+#app .app-shell :is(h1, h2, h3, h4) {
+  font-family: var(--font-display) !important;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+#app
+  .app-shell
+  :is(
+    button,
+    input,
+    select,
+    textarea,
+    details,
+    .panel,
+    .scope-note,
+    .market-summary,
+    .toolbar,
+    .controls,
+    .filters,
+    .workspace-tabs,
+    .section-nav,
+    .country-card,
+    .opportunity-card,
+    .group-tile,
+    .game-summary,
+    .guardrail,
+    .readiness,
+    .warning,
+    .analysis-callout,
+    .mega-panel,
+    .hot-panel
+  ) {
+  border-radius: 3px;
+}
+#app .app-shell :is(button, a, summary) {
+  -webkit-tap-highlight-color: transparent;
+}
+#app .app-shell :is(button, summary) {
+  transition:
+    background-color 160ms,
+    border-color 160ms,
+    color 160ms;
+}
+#app .app-shell :is(input, select, textarea):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+#app
+  .app-shell
+  :is(.metric-grid strong, .hero-value strong, .catalog-summary dd, .market-summary strong) {
+  font-family: var(--font-telemetry);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+}
+#app .app-shell :is(.research-header, .catalog-summary) {
+  position: relative;
+  isolation: isolate;
+  min-height: 148px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0;
+  background: var(--surface);
+  color: var(--ink);
+  background-image: url('./space/orbit.svg');
+  background-size: auto 100%;
+  background-position: right center;
+  background-repeat: no-repeat;
+}
+#app .app-shell .research-header::before {
+  display: none;
+}
+#app .app-shell :is(.research-header, .catalog-summary)::after {
+  content: '';
+  width: 34px;
+  height: 5px;
+  position: absolute;
+  bottom: -1px;
+  left: 24px;
+  background: var(--accent);
+}
+#app .app-shell :is(.research-header h1, .catalog-summary h1) {
+  font-size: clamp(26px, 3vw, 40px);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+#app .app-shell :is(.research-header > div, .catalog-summary > div) {
+  position: relative;
+  z-index: 1;
+}
+#app .app-shell :is(.research-header > div > p, .catalog-summary > div > p) {
+  color: var(--accent);
+  font-family: var(--font-telemetry);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+}
+#app .app-shell :is(.research-header > div > span, .catalog-summary > div > span) {
+  color: var(--muted);
+}
+#app .app-shell .research-header aside {
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+#app .app-shell .research-header :is(small, time) {
+  color: var(--muted);
+}
+#app .app-shell .research-header b {
+  color: var(--ink);
+}
+#app .app-shell .sidebar {
+  background: var(--sidebar-bg);
+}
+#app .app-shell .brand {
+  min-height: 92px;
+}
+#app .app-shell .brand a > b {
+  background: none;
+  border: 1px solid #6c7c8f;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  transform: rotate(30deg);
+}
+#app .app-shell .brand small {
+  font: 9px var(--font-telemetry);
+  color: #9ba9ba;
+  letter-spacing: 0.15em;
+}
+#app .app-shell .brand strong {
+  font: italic 700 22px var(--font-display);
+  letter-spacing: 0.1em;
+}
+#app .app-shell .children a {
+  position: relative;
+  border-radius: 0;
+  padding-right: 30px;
+}
+#app .app-shell .children a::after {
+  content: '';
+  position: absolute;
+  right: 10px;
+  top: calc(50% - 9px);
+  width: 18px;
+  height: 18px;
+  background: url('./space/starship.svg') center/contain no-repeat;
+  opacity: 0;
+  transform: translateY(5px) rotate(35deg);
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease;
+}
+#app .app-shell .children a:is(:hover, :focus-visible)::after {
+  opacity: 1;
+  transform: translateY(0) rotate(35deg);
+}
+#app .app-shell .children a.router-link-active::after {
+  opacity: 1;
+}
+#app .app-shell .group-title {
+  font-family: var(--font-telemetry);
+  letter-spacing: 0.06em;
+}
+#app .app-shell .app-topbar {
+  background: var(--surface);
+  border-bottom-color: var(--border);
+}
+.mission-code {
+  font: 9px var(--font-telemetry);
+  letter-spacing: 0.13em;
+  color: var(--muted);
+  border-right: 1px solid var(--border);
+  padding-right: 12px;
+  white-space: nowrap;
+}
+#app
+  .app-shell
+  :is(.workspace-tabs, .section-nav, .group-switcher, .category-panel, .game-tabs)
+  button.active {
+  background: var(--accent);
+  color: var(--paper);
+  box-shadow: none;
+}
+#app
+  .app-shell
+  :is(.workspace-tabs, .category-panel, .game-tabs)
+  button.active
+  :is(span, small, em, strong, b) {
+  color: inherit;
+}
+#app
+  .app-shell
+  :is(.opportunity-card, .country-card, .group-tile, .hot-panel, .mega-panel, .panel) {
+  box-shadow: none;
+  border-color: var(--border);
+}
+#app .app-shell :is(.opportunity-card, .country-card):has(details[open]) {
+  border-color: var(--accent);
+}
+#app .app-shell details[open] > summary {
+  border-bottom: 1px solid var(--border);
+}
+#app .app-shell :is(.empty-state, .data-load-state) {
+  border: 1px dashed var(--border);
+  background: var(--surface);
+}
+#app .app-shell .empty-state::before {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  background: url('./space/starship.svg') center/contain no-repeat;
+  transform: rotate(35deg);
+}
+#app .app-shell .async-state i,
+#app .app-shell .loading-mark {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: url('./space/starship.svg') center/contain no-repeat;
+  animation: spacecraft-loading 1s ease-in-out infinite alternate;
+}
+@keyframes spacecraft-loading {
+  from {
+    transform: translateY(3px);
+    opacity: 0.45;
+  }
+  to {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+.mission-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 var(--page-gutter);
+  padding: 18px 0;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font: 9px var(--font-telemetry);
+  letter-spacing: 0.12em;
+}
+.mission-footer span:last-child {
+  letter-spacing: 0.03em;
+}
+@media (hover: hover) and (pointer: fine) {
+  #app .app-shell :is(a, button, summary, select, [role='button']):not(:disabled) {
+    cursor:
+      url('./space/starship.svg') 16 2,
+      pointer;
+  }
+  #app .app-shell :is(.opportunity-card, .country-card, .group-tile):hover {
+    border-color: var(--accent);
+  }
+}
+@media (max-width: 900px) {
+  .mission-code {
+    display: none;
+  }
+}
+@media (max-width: 720px) {
+  #app .app-shell :is(.research-header, .catalog-summary) {
+    padding: 18px;
+    background-size: auto 150px;
+    background-position: right top;
+  }
+  #app .app-shell .research-header aside {
+    padding: 10px 12px;
+  }
+  .mission-footer {
+    flex-direction: column;
+    gap: 6px;
+    font-size: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #app .app-shell .async-state i,
+  #app .app-shell .loading-mark {
+    animation: none;
+  }
+  #app .app-shell .children a::after {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  #app .app-shell :is(a, button, summary, select) {
+    cursor: pointer;
+  }
+  #app .app-shell :is(.research-header, .catalog-summary) {
+    background-image: none;
+  }
+}
+#app .app-shell .skip-link {
+  color: var(--paper);
+}
+#app .app-shell .research-header {
+  background-position: right 240px center;
+}
+#app .app-shell .sidebar nav {
+  counter-reset: mission-section;
+}
+#app .app-shell .group-title > span::before {
+  counter-increment: mission-section;
+  content: '0' counter(mission-section);
+  color: var(--sidebar-muted);
+  font: 9px var(--font-telemetry);
+  margin-right: 9px;
+}
+#app .app-shell .group-title i {
+  display: none;
+}
+#app .app-shell :is(.panel-heading, .overview-heading, .section-heading) > div > p {
+  font-family: var(--font-telemetry);
+  letter-spacing: 0.12em;
+}
+#app .app-shell :is(.opportunity-card, .country-card) {
+  position: relative;
+}
+#app .app-shell :is(.opportunity-card, .country-card)::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  right: 8px;
+  top: 8px;
+  border-top: 1px solid var(--muted);
+  border-right: 1px solid var(--muted);
+  pointer-events: none;
+}
+#app .app-shell .research-header.workbench > div {
+  animation: none;
+}
+@media (max-width: 1100px) {
+  #app .app-shell .research-header {
+    background-position: right center;
+  }
+}
+@media (max-width: 720px) {
+  #app .app-shell .research-header {
+    background-position: right top;
+  }
+}
+@media (max-width: 720px) {
+  #app .app-shell :is(.research-header, .catalog-summary) {
+    background-image:
+      linear-gradient(
+        color-mix(in srgb, var(--surface) 82%, transparent),
+        color-mix(in srgb, var(--surface) 82%, transparent)
+      ),
+      url('./space/orbit.svg');
+  }
+  #app .app-shell .brand small {
+    font-size: 8px !important;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+}
+@media (min-width: 721px) {
+  #app .app-shell :is(.research-header, .catalog-summary) {
+    background-size: auto 180px;
+  }
+}

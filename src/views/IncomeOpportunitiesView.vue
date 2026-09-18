@@ -135,15 +135,17 @@ const resetFilters = () => {
 
 <template>
   <main class="income-view">
-    <ResearchPageHeader
+    <ResearchPageHeader density="workbench"
       eyebrow="GLOBAL INCOME PATHS · OFFICIAL SOURCES"
       title="全球自由职业与赚钱项目"
       description="从远程接单、内容创作、数字产品、在线教学、用户研究到游戏经营，整理全球可参与的真实收入路径，并说明如何找到需求、完成交付和安全收款。"
       :updated-at="incomeOpportunitiesUpdatedAt"
-      density="comfortable"
       variant="plain"
     />
 
+
+
+    <details class="starting-guide"><summary>第一次开始？查看项目验证与收款流程</summary>
     <section class="guardrail" aria-labelledby="guardrail-title">
       <div>
         <span>先完成最小收入闭环</span>
@@ -156,7 +158,8 @@ const resetFilters = () => {
         <li><b>核算净收入</b><span>扣除平台费、税费、退款、汇率和工时</span></li>
       </ol>
     </section>
-
+    </details>
+    <div class="income-workbench"><aside class="project-filters">
     <section class="category-panel" aria-label="赚钱项目分类">
       <button
         v-for="category in categoryOptions"
@@ -217,6 +220,7 @@ const resetFilters = () => {
       </label>
     </section>
 
+    </aside><div class="project-results">
     <div class="result-meta" role="status" aria-live="polite">
       <strong>{{ visibleOpportunities.length }} 个已核验项目</strong>
       <span>只展示操作路径，不承诺收入；注册前重新核对地区、税务和收款规则。</span>
@@ -254,7 +258,7 @@ const resetFilters = () => {
           <span v-for="skill in item.skills" :key="skill">{{ skill }}</span>
         </div>
         <details>
-          <summary><span>查看赚钱步骤、门槛与风险</span><b>展开</b></summary>
+          <summary><span>查看步骤、门槛与风险</span><b aria-hidden="true">⌄</b></summary>
           <div class="detail-grid">
             <section>
               <h3>赚钱操作闭环</h3>
@@ -295,6 +299,8 @@ const resetFilters = () => {
       <p>尝试更换分类、关键词或启动成本。</p>
       <button type="button" @click="resetFilters">清除全部筛选</button>
     </section>
+    </div></div>
+
   </main>
 </template>
 
@@ -302,7 +308,7 @@ const resetFilters = () => {
 .income-view {
   max-width: var(--content-workbench);
   margin: 0 auto;
-  padding: var(--space-section) var(--page-gutter) 80px;
+  padding: 32px var(--page-gutter) 80px;
 }
 .guardrail {
   margin-bottom: var(--space-section);
@@ -391,7 +397,7 @@ const resetFilters = () => {
 .category-panel small {
   margin-top: 3px;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.4;
 }
 .category-panel em {
@@ -409,10 +415,10 @@ const resetFilters = () => {
 .filters {
   margin-bottom: 14px;
   display: grid;
-  grid-template-columns: minmax(240px, 1fr) 160px 155px 145px 145px;
+  grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
-@media (max-width: 1120px) {
+@media (max-width: 1280px) {
   .filters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -422,7 +428,7 @@ const resetFilters = () => {
 }
 .filters label {
   min-width: 0;
-  height: 58px;
+  min-height: 70px;
   padding: 7px 12px;
   border: 1px solid var(--border);
   border-radius: 9px;
@@ -431,7 +437,7 @@ const resetFilters = () => {
 }
 .filters label > span {
   color: var(--muted);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -439,7 +445,6 @@ const resetFilters = () => {
 .filters select {
   min-width: 0;
   border: 0;
-  outline: 0;
   background: transparent;
   color: var(--ink);
   font-size: 12px;
@@ -457,6 +462,7 @@ const resetFilters = () => {
 }
 .opportunity-grid {
   display: grid;
+  align-items: start;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
@@ -506,8 +512,8 @@ const resetFilters = () => {
   min-height: 50px;
   margin: 14px 0 10px;
   color: var(--muted);
-  font-size: 12px;
-  line-height: 1.7;
+  font-size: 13px;
+  line-height: 1.75;
 }
 .earning-box {
   padding: 11px 12px;
@@ -517,7 +523,7 @@ const resetFilters = () => {
 }
 .earning-box span {
   color: var(--accent);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
 }
 .earning-box p {
@@ -536,7 +542,7 @@ dl {
 }
 dt {
   color: var(--muted);
-  font-size: 9px;
+  font-size: 11px;
 }
 dd {
   margin: 4px 0 0;
@@ -572,7 +578,7 @@ summary {
   font-weight: 700;
 }
 summary b {
-  font-size: 9px;
+  font-size: 11px;
 }
 details[open] summary b {
   transform: rotate(180deg);
@@ -615,7 +621,7 @@ details footer {
 details footer span {
   margin-right: 4px;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 11px;
 }
 details footer a {
   color: var(--accent);
@@ -661,9 +667,18 @@ details footer a {
   .income-view {
     padding-bottom: 60px;
   }
-  .category-panel,
+  .category-panel {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    padding-bottom: 8px;
+  }
+  .category-panel button {
+    flex: 0 0 168px;
+    scroll-snap-align: start;
+  }
   .filters {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .result-meta {
     display: grid;
@@ -679,4 +694,29 @@ details footer a {
     grid-column: 1 / -1;
   }
 }
+.filters label:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.opportunity-card:has(details[open]) {
+  border-color: var(--accent);
+}
+@media (max-width: 680px) {
+  .guardrail ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .opportunity-card { padding: 18px; }
+  .opportunity-card > header { flex-wrap: wrap; }
+}
+
+.income-workbench { display: grid; grid-template-columns: 230px minmax(0,1fr); gap: 24px; align-items: start; }
+.project-filters { min-width: 0; position: sticky; top: 76px; max-height: calc(100dvh - 92px); overflow-y: auto; }
+.project-results { min-width: 0; }
+.category-panel { grid-template-columns: 1fr; gap: 4px; margin: 0 0 16px; }
+.category-panel button { padding: 10px 12px; min-height: 44px; }
+.category-panel small { display: none; }
+.filters { grid-template-columns: 1fr; gap: 8px; }
+.result-meta { margin-top: 0; }
+.starting-guide { margin: 0 0 16px; border-bottom: 1px solid var(--border); }
+.starting-guide > summary { padding: 16px; cursor: pointer; color: var(--accent); }
+@media(max-width:1000px) { .income-workbench { grid-template-columns: minmax(0,1fr); } .project-filters { position: static; max-height: none; overflow: visible; } .category-panel { display:flex; overflow-x:auto; } .category-panel button { flex:0 0 auto; min-width:120px; } .filters { grid-template-columns:repeat(2,minmax(0,1fr)); } .filters label:first-child { grid-column:1/-1; } }
+
 </style>

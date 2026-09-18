@@ -122,22 +122,21 @@ const formatActivity = (value: number | null) => {
 
 <style scoped>
 .hot-panel {
-  margin: 28px 0;
-  padding: 22px;
+  margin: 20px 0;
+  padding: var(--panel-padding);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--panel-radius);
   background: var(--surface);
-  box-shadow: var(--shadow);
 }
 .hot-panel > header {
   display: flex;
-  align-items: end;
+  align-items: start;
   justify-content: space-between;
   gap: 24px;
 }
 .hot-panel header span {
   color: var(--accent);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.13em;
 }
@@ -149,7 +148,7 @@ const formatActivity = (value: number | null) => {
 .actions small {
   margin: 0;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 11px;
 }
 .actions {
   display: grid;
@@ -173,7 +172,6 @@ const formatActivity = (value: number | null) => {
 .period-tabs button.active {
   background: var(--surface);
   color: var(--ink);
-  box-shadow: var(--shadow);
 }
 .stock-grid {
   margin-top: 18px;
@@ -199,7 +197,7 @@ const formatActivity = (value: number | null) => {
 }
 .stock-grid > a > b {
   color: var(--muted);
-  font-size: 9px;
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 .stock-grid span,
@@ -218,7 +216,7 @@ const formatActivity = (value: number | null) => {
   margin-top: 3px;
   overflow: hidden;
   color: var(--muted);
-  font-size: 8px;
+  font-size: 10px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -245,7 +243,7 @@ const formatActivity = (value: number | null) => {
   background: transparent;
   color: var(--accent);
   cursor: pointer;
-  font-size: 9px;
+  font-size: 11px;
   text-decoration: none;
 }
 .status-message {

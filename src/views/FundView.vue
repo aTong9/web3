@@ -108,8 +108,8 @@ onMounted(loadDataset)
 </script>
 
 <template>
-  <div class="fund-page">
-    <ResearchPageHeader :eyebrow="t('funds.sub')" :title="t('funds.title')">
+  <main class="fund-page">
+    <ResearchPageHeader density="workbench" :eyebrow="t('funds.sub')" :title="t('funds.title')">
       <template #status>
       <DataUpdateStatus
         :updated-at="dataset.updatedAt"
@@ -130,13 +130,9 @@ onMounted(loadDataset)
       @retry="loadDataset"
     />
 
-    <section class="scope-note">
-      <p>
-        {{ t('funds.scope.intro') }}
-      </p>
-      <p>{{ dataset.source }}</p>
-    </section>
 
+
+    <div class="market-workbench">
     <nav class="workspace-tabs" :aria-label="t('funds.workspace.label')">
       <button
         v-for="workspace in (['overview', 'research', 'costs'] as Workspace[])"
@@ -164,6 +160,12 @@ onMounted(loadDataset)
     </section>
 
     <section v-show="activeWorkspace === 'costs'" class="workspace-panel">
+    <section class="scope-note">
+      <p>
+        {{ t('funds.scope.intro') }}
+      </p>
+      <p>{{ dataset.source }}</p>
+    </section>
     <div class="controls">
       <div class="segmented" :aria-label="t('funds.venue.exchange')">
         <button
@@ -311,7 +313,8 @@ onMounted(loadDataset)
     <footer>
       {{ t('funds.notice') }} {{ t('funds.caution') }}
     </footer>
-  </div>
+    </div>
+  </main>
 </template>
 
 <style scoped>
@@ -388,14 +391,15 @@ h1 {
 }
 
 .scope-note {
-  margin: 38px 0 34px;
-  padding: 16px 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  margin: 20px 0;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius);
+  background: var(--surface);
   color: var(--muted);
   display: grid;
   grid-template-columns: 1fr 0.7fr;
-  gap: 40px;
+  gap: 24px;
   font-size: 12px;
   line-height: 1.7;
 }
@@ -405,7 +409,7 @@ h1 {
 }
 
 .workspace-tabs {
-  margin-bottom: 28px;
+  margin-bottom: 20px;
   padding: 5px;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -433,19 +437,19 @@ h1 {
 }
 
 .workspace-tabs button.active {
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: var(--shadow);
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: inset 0 -2px var(--accent);
 }
 
 .workspace-tabs strong {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .workspace-tabs span {
   color: var(--muted);
-  font-size: 9px;
-  line-height: 1.45;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 .workspace-panel {
@@ -453,6 +457,11 @@ h1 {
 }
 
 .controls {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius);
+  background: var(--surface);
+  flex-wrap: wrap;
   margin-bottom: 20px;
   display: flex;
   align-items: end;
@@ -478,9 +487,9 @@ h1 {
 }
 
 .segmented button.active {
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: var(--shadow);
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: inset 0 -2px var(--accent);
 }
 
 .filter-row {
@@ -655,11 +664,21 @@ footer {
   }
 
   .workspace-tabs {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .workspace-tabs span {
+    display: none;
+  }
+
+  .workspace-tabs strong {
+    font-size: 12px;
   }
 
   .workspace-tabs button {
-    min-height: 52px;
+    min-height: 48px;
+    padding: 10px 6px;
+    text-align: center;
   }
 
   .segmented button {
@@ -735,4 +754,20 @@ footer {
     min-width: 0;
   }
 }
+@media (min-width: 901px) {
+  .workspace-tabs {
+    position: sticky;
+    top: 70px;
+    z-index: 10;
+    background: var(--surface);
+  }
+}
+
+.market-workbench { display: grid; grid-template-columns: 178px minmax(0, 1fr); gap: 24px; align-items: start; }
+.market-workbench > .workspace-tabs { display: flex; flex-direction: column; position: sticky; top: 76px; margin: 0; padding: 6px; }
+.workspace-tabs button { text-align: left; padding: 16px 12px; }
+.workspace-panel { min-width: 0; }
+.workspace-panel :deep(.hot-panel), .workspace-panel :deep(.mega-panel) { margin-top: 0; }
+@media(max-width:1050px) { .market-workbench { grid-template-columns: 1fr; gap: 12px; } .market-workbench > .workspace-tabs { position: static; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); } }
+
 </style>

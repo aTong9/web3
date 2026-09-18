@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, shallowRef } from 'vue'
+import AsyncDataState from '@/components/AsyncDataState.vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
 import { useI18n } from '@/composables/use-i18n'
@@ -31,10 +32,24 @@ const { can } = useAuth()
 const dataset = crossAssetData as CrossAssetDataset
 const megaCaps = megaCapData as UsMegaCapDataset
 const optionMarket = optionMarketData as OptionMarketDataset
-const stockTechnicals = await loadUsStockTechnicalDataset()
-const dashboard = ref<QuantDashboard>(
-  buildQuantDashboard(dataset, megaCaps, optionMarket, stockTechnicals),
-)
+const dashboard = shallowRef<QuantDashboard | null>(null)
+const dataLoading = ref(true)
+const dataError = ref(false)
+const loadDashboard = async () => {
+  dataLoading.value = true
+  dataError.value = false
+  try {
+    const stockTechnicals = await loadUsStockTechnicalDataset()
+    if (cloudStatus.value !== 'connected') {
+      dashboard.value = buildQuantDashboard(dataset, megaCaps, optionMarket, stockTechnicals)
+    }
+  } catch (error) {
+    console.warn('Quant technical data could not be loaded:', error)
+    dataError.value = true
+  } finally {
+    dataLoading.value = false
+  }
+}
 const category = ref<CategoryFilter>('all')
 const sortMode = ref<SortMode>('score')
 const paperPositions = ref<PaperSignalPosition[]>([])
@@ -45,7 +60,7 @@ const paperStorageKey = 'market-desk-quant-paper-signals-v1'
 
 const categoryFilters: CategoryFilter[] = ['all', 'stocks', 'bonds', 'fx', 'commodities', 'crypto']
 const filteredAssets = computed(() =>
-  dashboard.value.assets
+  (dashboard.value?.assets ?? [])
     .filter((asset) => category.value === 'all' || asset.category === category.value)
     .sort((left, right) =>
       sortMode.value === 'evidence'
@@ -166,7 +181,7 @@ const addPaperPosition = async (candidate: QuantOptionCandidate) => {
   persistPaper()
 }
 const currentCandidate = (symbol: string) =>
-  dashboard.value.options.find((candidate) => candidate.symbol === symbol)
+  dashboard.value?.options.find((candidate) => candidate.symbol === symbol)
 const paperReturn = (position: PaperSignalPosition) => {
   const price =
     position.status === 'closed'
@@ -214,6 +229,7 @@ const removePaperPosition = async (position: PaperSignalPosition) => {
 }
 
 onMounted(async () => {
+  void loadDashboard()
   try {
     const stored = window.localStorage.getItem(paperStorageKey)
     paperPositions.value = stored ? (JSON.parse(stored) as PaperSignalPosition[]) : []
@@ -244,9 +260,9 @@ onMounted(async () => {
         <small class="cloud-state" :class="cloudStatus">{{
           t(`quant.cloud.${cloudStatus}`)
         }}</small>
-        <DataUpdateStatus :updated-at="dashboard.generatedAt" schedule="crossAsset" />
+        <DataUpdateStatus v-if="dashboard" :updated-at="dashboard.generatedAt" schedule="crossAsset" />
       </template>
-      <template #status><section class="strategy-focus" :aria-label="t('quant.configTitle')">
+      <template #status><section v-if="dashboard" class="strategy-focus" :aria-label="t('quant.configTitle')">
         <header>
           <span>{{ t('quant.configTitle') }}</span>
           <b>35x + 20%</b>
@@ -281,6 +297,15 @@ onMounted(async () => {
       </section></template>
     </ResearchPageHeader>
 
+    <AsyncDataState
+      :loading="dataLoading && !dashboard"
+      :error="dataError && !dashboard"
+      :loading-label="t('ui.app.loadingWorkspace')"
+      :error-message="locale === 'zh' ? '技术数据暂时无法载入，请重试。' : 'Technical data could not be loaded. Please retry.'"
+      :retry-label="t('ui.app.retry')"
+      @retry="loadDashboard"
+    />
+    <template v-if="dashboard">
     <section class="summary-strip">
       <div>
         <span>{{ t('quant.summary.buy') }}</span
@@ -753,6 +778,7 @@ onMounted(async () => {
       </ul>
     </details>
     <footer class="disclaimer">{{ t('quant.disclaimer') }}</footer>
+    </template>
   </main>
 </template>
 

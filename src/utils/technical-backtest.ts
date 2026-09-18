@@ -4,16 +4,14 @@ import type {
   TechnicalBacktestResult,
   TechnicalIndicatorConfig,
 } from '@/types'
-import { analyzeTechnicalSignals } from '@/utils/technical-analysis'
+import { analyzeTechnicalSignals, calculateTechnicalSeries } from '@/utils/technical-analysis'
 
 const round = (value: number, digits = 2) => Number(value.toFixed(digits))
 const median = (values: number[]) => {
   if (!values.length) return null
   const sorted = [...values].sort((left, right) => left - right)
   const middle = Math.floor(sorted.length / 2)
-  return sorted.length % 2
-    ? sorted[middle]!
-    : (sorted[middle - 1]! + sorted[middle]!) / 2
+  return sorted.length % 2 ? sorted[middle]! : (sorted[middle - 1]! + sorted[middle]!) / 2
 }
 const wilsonInterval = (wins: number, samples: number, z = 1.96) => {
   if (!samples) return null
@@ -21,8 +19,7 @@ const wilsonInterval = (wins: number, samples: number, z = 1.96) => {
   const denominator = 1 + z ** 2 / samples
   const center = (rate + z ** 2 / (2 * samples)) / denominator
   const margin =
-    (z * Math.sqrt((rate * (1 - rate) + z ** 2 / (4 * samples)) / samples)) /
-    denominator
+    (z * Math.sqrt((rate * (1 - rate) + z ** 2 / (4 * samples)) / samples)) / denominator
   return {
     low: round(Math.max(0, center - margin) * 100, 1),
     high: round(Math.min(1, center + margin) * 100, 1),
@@ -96,9 +93,10 @@ const buildReadings = (
   startIndex: number,
   endIndex = points.length,
 ) => {
+  const series = calculateTechnicalSeries(points, config)
   const readings = new Map<number, HistoricalReading>()
   for (let index = startIndex; index < endIndex; index += 1) {
-    const reading = analyzeTechnicalSignals(points.slice(0, index + 1), 0, false, config)
+    const reading = analyzeTechnicalSignals(points.slice(0, index + 1), 0, false, config, series)
     readings.set(index, {
       score: reading.score,
       conflicting: reading.status === 'conflicting',
@@ -124,8 +122,7 @@ const reweightReadings = (
     volume: enabled.volume,
   }
   const activeWeight = Object.entries(active).reduce(
-    (sum, [id, isEnabled]) =>
-      sum + (isEnabled ? weights[id as keyof typeof active] : 0),
+    (sum, [id, isEnabled]) => sum + (isEnabled ? weights[id as keyof typeof active] : 0),
     0,
   )
   return new Map(
@@ -178,7 +175,7 @@ const directionalReturns = (
   signals.flatMap((signal) => {
     const entry = points[signal.index]?.close
     const exit = points[signal.index + observations]?.close
-    return entry && exit ? [((exit / entry - 1) * 100) * signal.direction] : []
+    return entry && exit ? [(exit / entry - 1) * 100 * signal.direction] : []
   })
 
 const horizonResult = (
@@ -196,14 +193,14 @@ const horizonResult = (
     const entry = points[signal.index]?.close
     const exit = points[signal.index + observations]?.close
     if (!entry || !exit) return
-    returns.push(((exit / entry - 1) * 100) * signal.direction)
+    returns.push((exit / entry - 1) * 100 * signal.direction)
 
     let worstDirectionalMove = 0
     let invalidatedAt: number | null = null
     for (let offset = 1; offset <= observations; offset += 1) {
       const point = points[signal.index + offset]
       if (!point) break
-      const directionalMove = ((point.close / entry - 1) * 100) * signal.direction
+      const directionalMove = (point.close / entry - 1) * 100 * signal.direction
       worstDirectionalMove = Math.min(worstDirectionalMove, directionalMove)
       if (invalidatedAt === null) {
         const subsequentScore = readings.get(signal.index + offset)?.score

@@ -4,6 +4,7 @@ import { useAuth } from '@/composables/use-auth'
 import { useAnalytics } from '@/composables/use-analytics'
 
 const router = createRouter({
+  scrollBehavior: (_to, _from, savedPosition) => savedPosition ?? { top: 0 },
   history:
     import.meta.env.VITE_APP_TARGET === 'electron'
       ? createWebHashHistory()

@@ -5,7 +5,7 @@ withDefaults(
     title: string
     description?: string
     updatedAt?: string
-    density?: 'compact' | 'comfortable'
+    density?: 'compact' | 'comfortable' | 'workbench'
     variant?: 'inverse' | 'plain'
     statusWidth?: 'compact' | 'wide'
   }>(),
@@ -39,20 +39,55 @@ withDefaults(
 
 <style scoped>
 .research-header {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   margin-bottom: var(--space-section);
   padding: 26px 30px;
   border: 1px solid var(--border);
   border-radius: var(--panel-radius);
-  background: linear-gradient(
-    135deg,
-    var(--inverse),
-    color-mix(in srgb, var(--inverse) 82%, #416487)
-  );
+  background:
+    radial-gradient(ellipse at 95% 0, #377e6a55, transparent 65%),
+    linear-gradient(135deg, var(--inverse), color-mix(in srgb, var(--inverse) 82%, #416487));
   color: var(--inverse-text);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 28px;
   align-items: center;
+}
+.research-header::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: 280px;
+  height: 280px;
+  right: -90px;
+  top: -150px;
+  border: 1px solid rgb(150 220 198 / 16%);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 38px rgb(150 220 198 / 4%),
+    0 0 0 76px rgb(150 220 198 / 3%);
+  pointer-events: none;
+}
+.research-header > div,
+.research-header aside {
+  min-width: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .research-header > div {
+    animation: header-enter 320ms ease-out;
+  }
+  @keyframes header-enter {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 .research-header.comfortable {
   padding-block: 38px;
@@ -145,4 +180,12 @@ b {
     border-left: 0;
   }
 }
+
+.research-header.workbench { padding: 0 0 20px; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: none; color: var(--ink); margin-bottom: 20px; gap: 16px; }
+.research-header.workbench::before { display: none; }
+.research-header.workbench h1 { font-size: clamp(26px, 3vw, 36px); color: var(--ink); }
+.research-header.workbench p, .research-header.workbench span { color: var(--muted); }
+.research-header.workbench aside { border-color: var(--border); }
+@media(max-width:720px) { .research-header.workbench { grid-template-columns: 1fr; } .research-header.workbench aside { padding: 0; border: 0; } .research-header.workbench > div > span { font-size: 12px; } }
+
 </style>

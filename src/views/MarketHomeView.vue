@@ -403,6 +403,7 @@ const validationText = (
   font-size: 10px;
 }
 .market-pulse {
+  color: var(--ink);
   padding: 20px;
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -494,6 +495,7 @@ const validationText = (
   margin: 24px 0 32px;
   display: grid;
   grid-template-columns: 1.35fr 1fr 1fr;
+  align-items: start;
   gap: 12px;
 }
 .global-factors p {
@@ -685,6 +687,20 @@ const validationText = (
   margin-top: 20px;
   color: var(--muted);
   font-size: 10px;
+}
+@media (min-width: 1440px) {
+  .market-home :deep(.research-header.wide-status) {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: 32px;
+  }
+  .market-home :deep(.research-header.wide-status aside) {
+    padding: 0;
+    border: 0;
+  }
+  .pulse-horizons {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
 }
 @media (max-width: 1050px) {
   .home-heading {

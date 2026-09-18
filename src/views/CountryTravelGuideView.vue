@@ -42,30 +42,37 @@ const visible = computed(() => {
 
 <template>
   <main class="travel-view">
-    <ResearchPageHeader
+    <ResearchPageHeader density="workbench"
       eyebrow="GLOBAL COUNTRY ESSENTIALS · OFFICIAL CHECKS"
       title="全球国家衣食住行指南"
       description="识别主要旅行国家当地常见的服饰、餐饮零售、住宿与交通品牌，并在出发前完成入境、支付、交通、电气和安全准备。"
       :updated-at="countryTravelGuidesUpdatedAt"
-      density="comfortable"
       variant="plain"
     />
+
+    <div class="travel-workbench"><aside class="travel-tools">
+    <section class="filters" aria-label="筛选国家">
+      <input v-model="query" type="search" aria-label="搜索国家、货币或品牌" placeholder="搜索国家、货币或品牌…" />
+      <select v-model="region" aria-label="筛选地区">
+        <option v-for="item in regions" :key="item.value" :value="item.value">
+          {{ item.label }}
+        </option>
+      </select>
+      <strong role="status">{{ visible.length }} 个国家</strong>
+    </section>
     <section class="warning">
       <b>入境规则不可缓存为结论</b
       ><span
         >签证、电子许可、健康申报和转机要求会变化，请按护照、居住地、目的和停留时间进入各国政府网站重新核验。</span
       >
     </section>
-    <section class="filters" aria-label="筛选国家">
-      <input v-model="query" type="search" placeholder="搜索国家、货币或品牌…" />
-      <select v-model="region">
-        <option v-for="item in regions" :key="item.value" :value="item.value">
-          {{ item.label }}
-        </option>
-      </select>
-      <strong>{{ visible.length }} 个国家</strong>
+    </aside><div class="country-results">
+    <section v-if="!visible.length" class="empty-state" role="status">
+      <h2>没有匹配的国家</h2>
+      <p>试试其他国家、货币或品牌关键词。</p>
+      <button type="button" @click="query = ''; region = 'all'">清除筛选</button>
     </section>
-    <section class="grid">
+    <section v-else class="grid">
       <article v-for="country in visible" :key="country.id" class="country-card">
         <header>
           <div>
@@ -93,7 +100,7 @@ const visible = computed(() => {
           </section>
         </div>
         <details>
-          <summary>查看首次旅行注意事项 <b>展开</b></summary>
+          <summary>首次旅行注意事项 <b aria-hidden="true">⌄</b></summary>
           <dl>
             <div>
               <dt>支付与小费</dt>
@@ -126,6 +133,7 @@ const visible = computed(() => {
         </details>
       </article>
     </section>
+    </div></div>
   </main>
 </template>
 
@@ -133,17 +141,17 @@ const visible = computed(() => {
 .travel-view {
   max-width: var(--content-workbench);
   margin: auto;
-  padding: var(--space-section) var(--page-gutter) 80px;
+  padding: 32px var(--page-gutter) 80px;
 }
 .warning {
   margin-bottom: 20px;
   padding: 16px 18px;
-  border: 1px solid #d8a744;
+  border: 1px solid color-mix(in srgb, var(--warning) 40%, var(--border));
   border-radius: 10px;
-  background: #fff7dc;
+  background: var(--warning-soft);
   display: grid;
   gap: 5px;
-  color: #5e481a;
+  color: var(--warning);
 }
 .warning span {
   font-size: 12px;
@@ -171,6 +179,7 @@ const visible = computed(() => {
 }
 .grid {
   display: grid;
+  align-items: start;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
@@ -178,11 +187,14 @@ const visible = computed(() => {
   min-width: 0;
   padding: 20px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--panel-radius);
   background: var(--surface);
 }
 header {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 14px;
 }
@@ -204,7 +216,7 @@ h2 {
 .brands section {
   padding: 12px;
   border-radius: 8px;
-  background: var(--surface-muted);
+  background: var(--surface-soft);
 }
 h3 {
   margin: 0 0 6px;
@@ -221,6 +233,10 @@ details {
   padding-top: 12px;
 }
 summary {
+  min-height: 44px;
+  align-items: center;
+  color: var(--accent);
+  font-size: 13px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -254,4 +270,52 @@ details a {
     grid-template-columns: 1fr;
   }
 }
+header > b {
+  align-self: start;
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+}
+.filters strong { padding: 0 8px; color: var(--muted); font-size: 12px; }
+.country-card:has(details[open]) { border-color: var(--accent); }
+details[open] summary b { transform: rotate(180deg); }
+.empty-state {
+  padding: 40px 20px;
+  border: 1px dashed var(--border);
+  border-radius: var(--panel-radius);
+  text-align: center;
+}
+.empty-state p { color: var(--muted); }
+.empty-state button {
+  padding: 8px 18px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  cursor: pointer;
+}
+@media (min-width: 761px) {
+  .filters { position: sticky; top: 70px; z-index: 10; }
+}
+@media (max-width: 760px) {
+  .filters { grid-template-columns: minmax(0, 1fr) auto; }
+  .filters input { grid-column: 1 / -1; }
+  .country-card { padding: 16px; }
+  .brands section { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; }
+  .brands h3 { margin: 0; }
+}
+
+.travel-workbench { display:grid; grid-template-columns:240px minmax(0,1fr); gap:24px; align-items:start; }
+.travel-tools { position:sticky; top:76px; }
+.travel-tools .filters { position:static; display:grid; grid-template-columns:1fr; gap:12px; padding:16px; }
+.travel-tools input, .travel-tools select { min-width:0; width:100%; }
+.travel-tools .warning { margin:16px 0 0; }
+.country-results { min-width:0; }
+.country-card .brands { grid-template-columns:1fr; }
+.country-card .brands section { display:grid; grid-template-columns:24px minmax(0,1fr); gap:10px; }
+@media(max-width:1100px) { .travel-workbench { grid-template-columns:1fr; } .travel-tools { position:static; } .travel-tools .filters { grid-template-columns:minmax(0,1fr) 170px auto; } .travel-tools .warning { padding:10px 14px; } }
+@media(max-width:600px) { .travel-tools .filters { grid-template-columns:minmax(0,1fr) auto; } .travel-tools input { grid-column:1/-1; } }
+
 </style>

@@ -77,7 +77,7 @@ onMounted(loadSnapshot)
 
 <template>
   <main class="norway-fund-page">
-    <ResearchPageHeader
+    <ResearchPageHeader density="workbench"
       eyebrow="GOVERNMENT PENSION FUND GLOBAL · GPFG"
       title="挪威主权基金"
       description="把资源收入、财政纪律、全球分散和跨世代治理组合成一套长期制度。"
@@ -109,16 +109,15 @@ onMounted(loadSnapshot)
     />
 
     <template v-if="snapshot">
-      <DataUpdateStatus
-        class="snapshot-status"
-        :updated-at="snapshot.updatedAt"
-        schedule="norwayFund"
-        :as-of-date="snapshot.summary.asOfDate"
-        source-label="NBIM 官方报告与持仓接口"
-        :source-url="snapshot.sources.report"
-        quality="complete"
-      />
 
+
+      <article class="analysis-callout">
+        <span>核心判断</span>
+        <p>
+          70% 战略股票比例决定了基金以股票风险为主。最新实际股票占比为
+          {{ norwayFundAssetAllocation.find((item) => item.id === 'equity')?.weightPct.toFixed(1) }}%，股票内部又显著集中于北美与科技行业；非上市资产规模较小，但估值不确定性更高。
+        </p>
+      </article>
     <TaskTabs
       class="section-nav"
       :model-value="activeSection"
@@ -141,13 +140,7 @@ onMounted(loadSnapshot)
         </article>
       </div>
 
-      <article class="analysis-callout">
-        <span>核心判断</span>
-        <p>
-          70% 战略股票比例决定了基金以股票风险为主。最新实际股票占比为
-          {{ norwayFundAssetAllocation.find((item) => item.id === 'equity')?.weightPct.toFixed(1) }}%，股票内部又显著集中于北美与科技行业；非上市资产规模较小，但估值不确定性更高。
-        </p>
-      </article>
+
 
       <section class="panel">
         <div class="panel-heading">
@@ -490,6 +483,15 @@ onMounted(loadSnapshot)
         >
       </article>
     </section>
+      <DataUpdateStatus
+        class="snapshot-status"
+        :updated-at="snapshot.updatedAt"
+        schedule="norwayFund"
+        :as-of-date="snapshot.summary.asOfDate"
+        source-label="NBIM 官方报告与持仓接口"
+        :source-url="snapshot.sources.report"
+        quality="complete"
+      />
     </template>
   </main>
 </template>
@@ -532,7 +534,7 @@ onMounted(loadSnapshot)
 .panel-heading small,
 .section-intro small {
   margin: 0;
-  color: #9fd2c3;
+  color: var(--accent);
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.16em;
@@ -559,12 +561,11 @@ onMounted(loadSnapshot)
   font-size: 10px;
   color: rgb(255 255 255 / 62%);
 }
-.hero a {
+.hero-meta a {
   color: #b9eadc;
 }
 .hero-value {
-  padding: 24px;
-  border-left: 1px solid rgb(255 255 255 / 18%);
+  padding: 8px 0;
   position: relative;
   z-index: 1;
 }
@@ -578,7 +579,7 @@ onMounted(loadSnapshot)
   display: block;
   margin: 5px 0 2px;
   font:
-    700 clamp(48px, 6vw, 76px)/1 Georgia,
+    700 clamp(40px, 4vw, 60px)/1.1 Georgia,
     serif;
 }
 .hero-value p {
@@ -590,12 +591,12 @@ onMounted(loadSnapshot)
   margin: -10px 0 18px auto;
 }
 .section-nav {
-  margin: 18px 0 30px;
+  margin: 18px 0 22px;
   padding: 5px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
-  display: inline-flex;
+  display: flex;
   gap: 3px;
 }
 .section-nav button,
@@ -620,7 +621,7 @@ onMounted(loadSnapshot)
 }
 .metric-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 .metric-grid article {
@@ -633,7 +634,7 @@ onMounted(loadSnapshot)
 .metric-grid span {
   display: block;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
 }
 .metric-grid strong {
   display: block;
@@ -644,11 +645,12 @@ onMounted(loadSnapshot)
     serif;
 }
 .metric-grid .negative strong {
-  color: #b55a5d;
+  color: var(--danger);
 }
 .analysis-callout {
   padding: 22px 26px;
   border-left: 3px solid var(--accent);
+  border-radius: 0 12px 12px 0;
   background: var(--accent-soft);
   display: grid;
   grid-template-columns: 80px 1fr;
@@ -663,7 +665,8 @@ onMounted(loadSnapshot)
 }
 .analysis-callout p {
   margin: 0;
-  line-height: 1.9;
+  font-size: 14px;
+  line-height: 1.8;
 }
 .panel {
   padding: 24px;
@@ -808,6 +811,7 @@ onMounted(loadSnapshot)
 }
 .timeline article.turning {
   border-left: 3px solid var(--accent);
+  border-radius: 0 12px 12px 0;
 }
 .year strong {
   display: block;
@@ -1000,10 +1004,6 @@ td {
   .hero {
     grid-template-columns: 1fr;
   }
-  .hero-value {
-    border-left: 0;
-    border-top: 1px solid rgb(255 255 255 / 18%);
-  }
   .allocation-list {
     grid-template-columns: 1fr;
   }
@@ -1022,7 +1022,12 @@ td {
   .section-nav button {
     flex: 0 0 auto;
   }
-  .metric-grid,
+  .metric-grid article {
+    padding: 14px;
+  }
+  .metric-grid strong {
+    font-size: 24px;
+  }
   .two-columns,
   .method-grid {
     grid-template-columns: 1fr;
@@ -1056,4 +1061,18 @@ td {
     grid-template-columns: 92px 1fr 38px;
   }
 }
+.section-nav :deep(button) {
+  flex: 1 0 auto;
+  font-size: 12px;
+}
+@media (min-width: 901px) {
+  .section-nav {
+    position: sticky;
+    top: 70px;
+    z-index: 10;
+  }
+}
+.snapshot-status { margin-top:24px; }
+.analysis-callout { margin-bottom:20px; }
+.hero-value strong { font-size:40px; }
 </style>

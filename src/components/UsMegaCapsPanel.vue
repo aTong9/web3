@@ -166,21 +166,21 @@ const signalSummary = computed(() => ({
 
 <style scoped>
 .mega-panel {
-  margin: 28px 0;
-  padding: 22px;
+  margin: 20px 0;
+  padding: var(--panel-padding);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--panel-radius);
   background: var(--surface);
 }
 .mega-panel > header {
   display: flex;
-  align-items: end;
+  align-items: start;
   justify-content: space-between;
   gap: 24px;
 }
 .mega-panel header > div > span {
   color: var(--accent);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.13em;
 }
@@ -233,13 +233,13 @@ select {
 }
 .discipline-bar div span {
   color: var(--muted);
-  font-size: 9px;
+  font-size: 11px;
 }
 .discipline-bar > span,
 .valuation-row em {
   padding: 4px 7px;
   border-radius: 5px;
-  font-size: 9px;
+  font-size: 11px;
   font-style: normal;
   white-space: nowrap;
 }
@@ -274,7 +274,7 @@ select {
 .table-head {
   min-height: 36px;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 11px;
   text-transform: uppercase;
 }
 .valuation-row > span strong,
@@ -288,7 +288,7 @@ select {
 .valuation-row small {
   margin-top: 4px;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 11px;
 }
 .valuation-row em {
   margin-top: 6px;
@@ -368,7 +368,7 @@ select {
     margin-bottom: 4px;
     color: var(--muted);
     display: block;
-    font-size: 9px;
+    font-size: 11px;
   }
 }
 @media (max-width: 520px) {

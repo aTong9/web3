@@ -146,11 +146,40 @@ const horizonReadings = (values: number[]): TechnicalHorizonReading[] =>
     }
   })
 
+// Each series is causal: a value only uses observations at or before its index.
+export const calculateTechnicalSeries = (
+  points: AssetPricePoint[],
+  config: TechnicalIndicatorConfig,
+) => {
+  const values = points.map((point) => point.close).filter(Number.isFinite)
+  const { parameters } = config
+  const ma20 = simpleMovingAverage(values, parameters.maShortPeriod)
+  const ma60 = simpleMovingAverage(values, parameters.maLongPeriod)
+  const ema12 = exponentialMovingAverage(values, parameters.macdFastPeriod)
+  const ema26 = exponentialMovingAverage(values, parameters.macdSlowPeriod)
+  const macd = values.map((_, index) =>
+    ema12[index] === null || ema26[index] === null ? null : round(ema12[index]! - ema26[index]!, 6),
+  )
+  const macdValues = macd.map((value) => value ?? 0)
+  const rawMacdSignal = exponentialMovingAverage(macdValues, parameters.macdSignalPeriod)
+  const macdSignal = rawMacdSignal.map((value, index) => (macd[index] === null ? null : value))
+  const rsi14 = relativeStrengthIndex(values, parameters.rsiPeriod)
+  const { upper: bollingerUpper, lower: bollingerLower } = bollingerBands(
+    values,
+    parameters.bollingerPeriod,
+    parameters.bollingerMultiplier,
+  )
+  const atr14 = averageTrueRange(points, parameters.atrPeriod)
+
+  return { ma20, ma60, macd, macdSignal, rsi14, bollingerUpper, bollingerLower, atr14 }
+}
+
 export const analyzeTechnicalSignals = (
   points: AssetPricePoint[],
   crossAssetScore = 0,
   stale = false,
   config: TechnicalIndicatorConfig = defaultTechnicalIndicatorConfig,
+  precomputedSeries?: ReturnType<typeof calculateTechnicalSeries>,
 ): TechnicalAnalysisResult => {
   const values = points.map((point) => point.close).filter(Number.isFinite)
   const { parameters, enabled, weights } = config
@@ -183,23 +212,15 @@ export const analyzeTechnicalSignals = (
     }
   }
 
-  const ma20 = simpleMovingAverage(values, parameters.maShortPeriod)
-  const ma60 = simpleMovingAverage(values, parameters.maLongPeriod)
-  const ema12 = exponentialMovingAverage(values, parameters.macdFastPeriod)
-  const ema26 = exponentialMovingAverage(values, parameters.macdSlowPeriod)
-  const macd = values.map((_, index) =>
-    ema12[index] === null || ema26[index] === null ? null : round(ema12[index]! - ema26[index]!, 6),
-  )
-  const macdValues = macd.map((value) => value ?? 0)
-  const rawMacdSignal = exponentialMovingAverage(macdValues, parameters.macdSignalPeriod)
-  const macdSignal = rawMacdSignal.map((value, index) => (macd[index] === null ? null : value))
-  const rsi14 = relativeStrengthIndex(values, parameters.rsiPeriod)
-  const { upper: bollingerUpper, lower: bollingerLower } = bollingerBands(
-    values,
-    parameters.bollingerPeriod,
-    parameters.bollingerMultiplier,
-  )
-  const atr14 = averageTrueRange(points, parameters.atrPeriod)
+  const series = precomputedSeries ?? calculateTechnicalSeries(points, config)
+  const ma20 = series.ma20.slice(0, values.length)
+  const ma60 = series.ma60.slice(0, values.length)
+  const macd = series.macd.slice(0, values.length)
+  const macdSignal = series.macdSignal.slice(0, values.length)
+  const rsi14 = series.rsi14.slice(0, values.length)
+  const bollingerUpper = series.bollingerUpper.slice(0, values.length)
+  const bollingerLower = series.bollingerLower.slice(0, values.length)
+  const atr14 = series.atr14.slice(0, points.length)
 
   const latest = last(values)!
   const latestMa20 = last(ma20) ?? null
@@ -249,7 +270,9 @@ export const analyzeTechnicalSignals = (
   const volumeScore =
     volumes.length >= 20
       ? clamp(
-          (last(volumes)! / (last(simpleMovingAverage(volumes, 20)) ?? last(volumes)!) - 1) * 35,
+          (last(volumes)! / (last(simpleMovingAverage(volumes.slice(-20), 20)) ?? last(volumes)!) -
+            1) *
+            35,
           -35,
           35,
         )

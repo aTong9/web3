@@ -74,10 +74,10 @@ const toggleGroup = (title: string) => {
   >
     <div class="brand">
       <RouterLink to="/" @click="$emit('close')"
-        ><b>F.</b
+        ><b><img src="@/assets/space/starship.svg" width="26" height="26" alt="" /></b
         ><span
-          ><strong>{{ t('ui.app.title') }}</strong
-          ><small>{{ t('ui.app.description') }}</small></span
+          ><strong>FIRE</strong
+          ><small>MARKET MISSION / 01</small></span
         ></RouterLink
       >
       <div class="brand-actions">
@@ -133,11 +133,12 @@ const toggleGroup = (title: string) => {
 
 <style scoped>
 .sidebar {
-  width: 248px;
+  width: var(--sidebar-width);
   height: 100vh;
+  height: 100dvh;
   padding: 0 14px 18px;
   border-right: 1px solid var(--sidebar-border);
-  background: var(--sidebar-bg);
+  background: radial-gradient(ellipse at 0 0, #24463c 0, transparent 48%), var(--sidebar-bg);
   color: var(--inverse-text);
   position: fixed;
   inset: 0 auto 0 0;
@@ -146,7 +147,8 @@ const toggleGroup = (title: string) => {
   flex-direction: column;
 }
 .brand {
-  height: 76px;
+  min-height: 76px;
+  flex-shrink: 0;
   padding: 0 8px;
   border-bottom: 1px solid var(--sidebar-border);
   display: flex;
@@ -201,6 +203,9 @@ nav {
   padding-top: 18px;
   flex: 1;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sidebar-border) transparent;
 }
 nav section {
   margin-bottom: 12px;
@@ -238,10 +243,15 @@ nav section {
   gap: 3px;
 }
 .children a {
+  position: relative;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
   padding: 9px 12px 9px 35px;
   border-radius: 6px;
   color: var(--sidebar-text);
   font-size: 12px;
+  transition: transform 160ms ease;
   text-decoration: none;
 }
 .children a:hover {
@@ -252,7 +262,24 @@ nav section {
   background: var(--sidebar-active);
   color: var(--sidebar-active-text);
 }
+.children a.router-link-active::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  width: 3px;
+  height: 16px;
+  border-radius: 3px;
+  background: var(--sidebar-active-text);
+  box-shadow: 0 0 10px #72c5a440;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .children a:hover {
+    transform: translateX(3px);
+  }
+}
 footer {
+  flex-shrink: 0;
+  margin-top: 12px;
   padding: 13px 10px;
   border: 1px solid var(--sidebar-border);
   border-radius: 8px;
@@ -284,10 +311,12 @@ footer small {
 }
 @media (max-width: 900px) {
   .sidebar {
+    visibility: hidden;
     transform: translateX(-100%);
     transition: transform 0.22s;
   }
   .sidebar.open {
+    visibility: visible;
     transform: translateX(0);
   }
   .brand .close-menu {

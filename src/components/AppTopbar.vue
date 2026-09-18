@@ -22,6 +22,7 @@ const description = computed(() => t(String(route.meta.descriptionKey ?? 'market
       <small>{{ description }}</small>
     </div>
     <div class="topbar-actions">
+      <span class="mission-code" aria-hidden="true">MISSION CONTROL / {{ route.path === '/' ? 'OVERVIEW' : route.path.slice(1).toUpperCase() }}</span>
       <span class="system-state"><i></i>{{ t('ui.app.systemRunning') }}</span>
       <div class="locale-switch" role="group" :aria-label="t('ui.app.language')">
         <button
@@ -50,10 +51,9 @@ const description = computed(() => t(String(route.meta.descriptionKey ?? 'market
 <style scoped>
 .app-topbar {
   height: 58px;
-  padding: 0 clamp(18px, 3vw, 34px);
+  padding: 0 var(--page-gutter);
   border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--paper) 92%, transparent);
-  backdrop-filter: blur(14px);
+  background: var(--surface);
   position: sticky;
   top: 0;
   z-index: 28;
@@ -62,9 +62,15 @@ const description = computed(() => t(String(route.meta.descriptionKey ?? 'market
   align-items: center;
   gap: 18px;
 }
+.app-topbar > div:first-of-type {
+  min-width: 0;
+}
 .app-topbar strong,
 .app-topbar small {
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .app-topbar strong {
   font-size: 13px;

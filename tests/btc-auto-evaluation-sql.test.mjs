@@ -62,5 +62,34 @@ test('covering evaluation index preserves hourly samples, null outcomes and vali
       plan.some((row) => row.detail.includes('COVERING INDEX btc_auto_signal_evaluation_idx')),
     )
   })
+  const baseline = JSON.parse(
+    fs.readFileSync(
+      new URL('./fixtures/btc-evaluation-before-single-pass.json', import.meta.url),
+      'utf8',
+    ),
+  )
+  // Same timestamp must still contribute at most one hourly sample.
+  db.exec(
+    'UPDATE btc_auto_signal_history SET observed_at = (SELECT observed_at FROM btc_auto_signal_history WHERE id = 121) WHERE id = 122',
+  )
+  for (const limit of [2400, 288, 120, 0]) {
+    db.prepare('DELETE FROM btc_auto_signal_history WHERE id >= ?').run(limit)
+    for (const model of ['v2', 'old', 'missing']) {
+      for (const regime of [null, 'trending', 'ranging', 'volatile', 'missing']) {
+        for (const cost of [0, 0.1, 1]) {
+          const args = { 1: model, 2: regime, 3: cost }
+          assert.deepEqual(
+            db.prepare(queries[0]).get(args),
+            db.prepare(baseline.strategyComparison).get(args),
+          )
+          const consensusArgs = { 1: model, 2: cost }
+          assert.deepEqual(
+            db.prepare(queries[2]).get(consensusArgs),
+            db.prepare(baseline.consensusStudy).get(consensusArgs),
+          )
+        }
+      }
+    }
+  }
   db.close()
 })
