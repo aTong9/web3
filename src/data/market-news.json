@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-19T13:28:04.774Z",
+  "updatedAt": "2026-09-19T16:45:18.836Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -38,9 +38,9 @@
   "articles": [
     {
       "id": "36c1648c6cc83a73",
-      "title": "MS NOW journalists blocked from White House after Trump bans three media outlets",
+      "title": "MS NOW, CNN and Politico journalists blocked from White House after Trump ban",
       "url": "https://www.cnbc.com/2026/09/19/trump-media-ban-ms-now.html",
-      "publishedAt": "2026-09-19T13:11:34.000Z",
+      "publishedAt": "2026-09-19T16:39:21.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "macro",
@@ -48,7 +48,74 @@
       "impact": "low",
       "impactScore": 1,
       "affectedAssets": [],
-      "translatedTitle": "在特朗普禁止三家媒体后， MS现在阻止记者进入白宫",
+      "translatedTitle": "MS NOW ， CNN和Politico记者在特朗普禁令后被阻止进入白宫",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "262403cdc1dfdcfc",
+      "title": "Higher interest rates and AI safety fears put the stock market to the test last week",
+      "url": "https://www.cnbc.com/2026/09/19/higher-interest-rates-and-ai-safety-fears-put-the-stock-market-to-the-test-last-week.html",
+      "publishedAt": "2026-09-19T16:03:09.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "美股",
+        "债券"
+      ],
+      "translatedTitle": "上周，利率上升和人工智能安全担忧给股市带来了考验",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "19f276028f76e69c",
+      "title": "She pays $96 a month to live in Yellowstone National Park: 'Being here has changed my life'",
+      "url": "https://www.cnbc.com/2026/09/19/living-in-yellowstone-for-96-dollars-a-month.html",
+      "publishedAt": "2026-09-19T14:10:02.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "她每月支付96 $住在黄石国家公园： “在这里生活改变了我的生活”",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "d8111971e9d67be0",
+      "title": "Flames reported near Saudi capital airport as Pakistan presses Iran over energy supplies",
+      "url": "https://www.cnbc.com/2026/09/19/riyadh-airport-smoke-saudi-arabia.html",
+      "publishedAt": "2026-09-19T13:48:04.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "巴基斯坦就能源供应问题向伊朗施压，沙特首都机场附近发生火灾",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "a1c08724c0b3f56a",
+      "title": "Student loan borrowers exiting SAVE may face sharply higher payments if they don't take action soon",
+      "url": "https://www.cnbc.com/2026/09/19/save-student-loan-deadline-avoid-higher-payments.html",
+      "publishedAt": "2026-09-19T13:30:01.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "如果不尽快采取行动，退出SAVE的学生贷款借款人可能会面临大幅增加的付款",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -62,7 +129,7 @@
       "category": "macro",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [],
       "translatedTitle": "尽管经济稳健，但消费者情绪仍处于低迷状态。高盛指责“较低的幸福感”",
       "translationStatus": "translated",
@@ -78,7 +145,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "巴菲特采取下一步计划，以防止伯克希尔偏离正轨",
       "translationStatus": "translated",
@@ -94,7 +161,7 @@
       "category": "technology",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "AI杀戮开关解释说： “还不算太少，但可能已经太晚了。”",
       "translationStatus": "translated",
@@ -247,24 +314,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "0c56d654dd9f3ae4",
-      "title": "What it will take for us to buy the dip in DuPont. Plus, profit-taking hits cyber stocks",
-      "url": "https://www.cnbc.com/2026/09/18/what-it-will-take-for-us-to-buy-the-dip-in-dupont-plus-profit-taking-hits-cyber-stocks.html",
-      "publishedAt": "2026-09-18T18:32:55.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "我们在杜邦购买DIP需要什么。此外，获利冲击网络股票",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "e79bf6e03ce051da",
       "title": "Fed staff should have known Silicon Valley Bank was vulnerable, new report finds",
       "url": "https://www.cnbc.com/2026/09/18/fed-silicon-valley-bank.html",
@@ -314,22 +363,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "麦当劳是新的“超值餐” ，交易员Mike Khouw说",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "7d0d0bc62b6de4a7",
-      "title": "Ticket prices rise for Macklemore solo concert after Ed Sheeran tour removal",
-      "url": "https://www.cnbc.com/2026/09/18/macklemore-ticket-prices-rise-amid-ed-sheeran-tour-fallout.html",
-      "publishedAt": "2026-09-18T18:01:39.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "移除Ed Sheeran巡演后， Macklemore独奏音乐会的门票价格上涨",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -450,22 +483,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "fead9dfa4a8344bf",
-      "title": "Sportsbooks remain king this football season, but upstarts are making a run for the money",
-      "url": "https://www.cnbc.com/2026/09/18/sportsbooks-remain-king-this-football-season-but-upstarts-are-making-a-run-for-the-money.html",
-      "publishedAt": "2026-09-18T15:16:44.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "体育博彩在这个足球赛季仍然是王者，但新贵们正在为钱而奔跑",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "205b5c19274ab1e2",
       "title": "Federal Reserve Board announces termination of enforcement action with SNB Bancshares and Bank of Eufaula",
       "url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20260918b.htm",
@@ -499,22 +516,6 @@
         "美元"
       ],
       "translatedTitle": "联邦储备委员会向Northstar银行前雇员、American Express Travel Related Services Company, Inc.前雇员和Regions Bank前雇员发出执法行动通知",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "3e5a1d979cdcd76b",
-      "title": "Rep. Chip Roy doesn't want to regulate AI, but says Congress should have an oversight role",
-      "url": "https://www.cnbc.com/2026/09/18/chip-roy-ai-congress-regulate.html",
-      "publishedAt": "2026-09-18T14:20:46.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "众议员Chip Roy不想监管人工智能，但表示国会应该发挥监督作用",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
