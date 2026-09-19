@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-19T16:45:18.836Z",
+  "updatedAt": "2026-09-19T18:59:55.627Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -40,7 +40,7 @@
       "id": "36c1648c6cc83a73",
       "title": "MS NOW, CNN and Politico journalists blocked from White House after Trump ban",
       "url": "https://www.cnbc.com/2026/09/19/trump-media-ban-ms-now.html",
-      "publishedAt": "2026-09-19T16:39:21.000Z",
+      "publishedAt": "2026-09-19T18:12:15.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "macro",
@@ -62,7 +62,7 @@
       "category": "technology",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [
         "美股",
         "债券"
@@ -200,6 +200,22 @@
       "translationProvider": "MyMemory"
     },
     {
+      "id": "6d67c5f1b631f3a7",
+      "title": "Google's Gemini becomes latest AI model to break out and hack computer systems",
+      "url": "https://www.cnbc.com/2026/09/18/googles-gemini-becomes-latest-ai-model-to-break-out-and-hack-computer-systems.html",
+      "publishedAt": "2026-09-19T01:41:49.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "谷歌的Gemini成为最新的人工智能模型，用于突破和入侵计算机系统",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "68629d0a35b10df2",
       "title": "Cramer’s week ahead: What to watch as Wall Street navigates a tough September",
       "url": "https://www.cnbc.com/2026/09/18/jim-cramer-week-ahead-costco-okta.html",
@@ -230,6 +246,22 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "Anthropic选择埃森哲作为首位嵌入式评估师，帮助实施Amodei的减速计划",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "0b7e126f0c1aedac",
+      "title": "OpenAI's latest AI revelation is a 'serious situation,' Microsoft's Suleyman tells CNBC",
+      "url": "https://www.cnbc.com/2026/09/18/microsoft-ai-ceo-openais-latest-ai-revelation-a-serious-situation.html",
+      "publishedAt": "2026-09-18T21:35:55.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "微软的Suleyman告诉CNBC ， OpenAI最新的人工智能启示是一个“严重的情况”",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -467,22 +499,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "bd8e0228b0b5ae41",
-      "title": "Wendy's franchisee files for Chapter 11 bankruptcy protection as burger chain struggles",
-      "url": "https://www.cnbc.com/2026/09/18/wendys-franchisee-files-for-chapter-11-bankruptcy-protection.html",
-      "publishedAt": "2026-09-18T16:13:00.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 3,
-      "affectedAssets": [],
-      "translatedTitle": "随着汉堡连锁店的挣扎，温迪的加盟商申请第11章破产保护",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "205b5c19274ab1e2",
       "title": "Federal Reserve Board announces termination of enforcement action with SNB Bancshares and Bank of Eufaula",
       "url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20260918b.htm",
@@ -532,22 +548,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "调查发现，社会保障改革计划可能会影响参议院竞选中的选民",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "cd026b63581ba87d",
-      "title": "Putin targets Nestle's Russian business as Kremlin tightens grip on Western assets",
-      "url": "https://www.cnbc.com/2026/09/18/nestle-russia-assets-putin-ukraine-war.html",
-      "publishedAt": "2026-09-18T12:18:55.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "普京瞄准雀巢的俄罗斯业务，因为克里姆林宫加强了对西方资产的控制",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
