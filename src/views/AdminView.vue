@@ -350,7 +350,7 @@ header p,
 }
 .card button {
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   cursor: pointer;
 }
 .table {

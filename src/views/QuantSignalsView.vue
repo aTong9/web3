@@ -1429,7 +1429,7 @@ onMounted(async () => {
   border: 1px solid var(--accent);
   border-radius: 6px;
   background: var(--accent);
-  color: var(--inverse-text);
+  color: var(--on-accent);
   cursor: pointer;
   font-size: 9px;
 }

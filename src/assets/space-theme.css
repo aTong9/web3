@@ -8,6 +8,7 @@
   --muted: #566170;
   --border: #c5ccd5;
   --accent: #172d46;
+  --on-accent: #ffffff;
   --accent-soft: #dde5ee;
   --inverse: #030508;
   --inverse-text: #f4f6fa;
@@ -33,6 +34,7 @@
   --muted: #a3aebd;
   --border: #2a3442;
   --accent: #edf3fa;
+  --on-accent: #10141b;
   --accent-soft: #1d2a3b;
   --inverse: #000;
   --inverse-text: #f4f6fa;
@@ -252,12 +254,12 @@
   :is(.workspace-tabs, .section-nav, .group-switcher, .category-panel, .game-tabs)
   button.active {
   background: var(--accent);
-  color: var(--paper);
+  color: var(--on-accent);
   box-shadow: none;
 }
 #app
   .app-shell
-  :is(.workspace-tabs, .category-panel, .game-tabs)
+  :is(.workspace-tabs, .section-nav, .group-switcher, .category-panel, .game-tabs)
   button.active
   :is(span, small, em, strong, b) {
   color: inherit;

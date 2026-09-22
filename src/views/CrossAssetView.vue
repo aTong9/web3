@@ -1605,7 +1605,7 @@ tbody th {
   border: 1px solid var(--accent);
   border-radius: 6px;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   cursor: pointer;
 }
 .chain-grid .chain-card {

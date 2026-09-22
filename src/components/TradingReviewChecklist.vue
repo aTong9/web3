@@ -230,7 +230,7 @@ const itemState = (key: TradingReviewChecklistKey) => ({
 .review-checklist button.primary {
   border-color: var(--accent);
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
 }
 @media (max-width: 760px) {
   .review-checklist > header,

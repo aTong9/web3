@@ -41,6 +41,6 @@ const { consentNeeded, grant, decline } = useAnalytics()
 }
 .consent .primary {
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
 }
 </style>

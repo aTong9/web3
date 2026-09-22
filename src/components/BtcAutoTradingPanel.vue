@@ -2075,7 +2075,7 @@ dd {
 .auto-config button.primary {
   border-color: var(--accent);
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
 }
 .auto-config button.danger {
   border-color: color-mix(in srgb, var(--negative) 56%, var(--border));

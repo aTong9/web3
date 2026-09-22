@@ -25,12 +25,32 @@ const funds = [
   { code: '006479', venue: 'offExchange', index: '纳斯达克 100' },
   { code: '040046', venue: 'offExchange', index: '纳斯达克 100' },
   { code: '014978', venue: 'offExchange', index: '纳斯达克 100' },
-  { code: '161130', venue: 'offExchange', index: '纳斯达克 100' },
+  { code: '000834', venue: 'offExchange', index: '纳斯达克 100' },
   { code: '012870', venue: 'offExchange', index: '纳斯达克 100' },
   { code: '050025', venue: 'offExchange', index: '标普 500' },
   { code: '006075', venue: 'offExchange', index: '标普 500' },
   { code: '007721', venue: 'offExchange', index: '标普 500' },
   { code: '007722', venue: 'offExchange', index: '标普 500' },
+  { code: '159513', venue: 'exchange', index: '纳斯达克 100' },
+  { code: '159632', venue: 'exchange', index: '纳斯达克 100' },
+  { code: '159660', venue: 'exchange', index: '纳斯达克 100' },
+  { code: '159696', venue: 'exchange', index: '纳斯达克 100' },
+  { code: '513390', venue: 'exchange', index: '纳斯达克 100' },
+  { code: '513870', venue: 'exchange', index: '纳斯达克 100' },
+  { code: '159509', venue: 'exchange', index: '纳斯达克科技' },
+  { code: '161125', venue: 'exchange', index: '标普 500' },
+  { code: '161130', venue: 'exchange', index: '纳斯达克 100' },
+  { code: '513290', venue: 'exchange', index: '纳斯达克生物科技' },
+  { code: '008971', venue: 'offExchange', index: '纳斯达克 100' },
+  { code: '012752', venue: 'offExchange', index: '纳斯达克 100' },
+  { code: '015299', venue: 'offExchange', index: '纳斯达克 100' },
+  { code: '015300', venue: 'offExchange', index: '纳斯达克 100' },
+  { code: '016055', venue: 'offExchange', index: '纳斯达克 100' },
+  { code: '016057', venue: 'offExchange', index: '纳斯达克 100' },
+  { code: '016532', venue: 'offExchange', index: '纳斯达克 100' },
+  { code: '016533', venue: 'offExchange', index: '纳斯达克 100' },
+  { code: '017028', venue: 'offExchange', index: '标普 500' },
+  { code: '017030', venue: 'offExchange', index: '标普 500' },
 ]
 
 const fetchText = async (url) => {
@@ -197,6 +217,11 @@ if (results.length !== funds.length) {
 
 for (const fund of results) {
   const peers = results.filter((candidate) => candidate.index === fund.index)
+  if (peers.length < 2) {
+    fund.trackingErrorPct = null
+    fund.trackingBenchmark = null
+    continue
+  }
   const benchmark = peers.toSorted(
     (left, right) =>
       Number(right.venue === 'exchange') - Number(left.venue === 'exchange') ||

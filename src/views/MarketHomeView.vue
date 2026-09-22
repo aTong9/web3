@@ -364,7 +364,7 @@ const validationText = (
   border: 1px solid var(--accent);
   border-radius: 8px;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   cursor: pointer;
   white-space: nowrap;
 }

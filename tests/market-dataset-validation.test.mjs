@@ -48,6 +48,31 @@ test('fund gate rejects stale and partial snapshots', () => {
   assert.ok(result.errors.some((error) => error.includes('少于20条')))
 })
 
+test('US market coverage keeps trillion-dollar mega-caps and 20 funds per venue', () => {
+  const funds = JSON.parse(readFileSync('src/data/us-funds.json', 'utf8'))
+  const mega = JSON.parse(readFileSync('src/data/us-megacaps.json', 'utf8'))
+  for (const [kind, dataset] of [['us-funds', funds], ['us-megacaps', mega]]) {
+    const timestamp = new Date(dataset.updatedAt)
+    assert.equal(validateDataset(kind, dataset, timestamp).ok, true)
+    const key = kind === 'us-funds' ? 'funds' : 'stocks'
+    const invalidRows = kind === 'us-funds'
+      ? dataset[key].slice(0, 10)
+      : [...dataset.stocks, { symbol: 'BOUNDARY', marketCapUsd: 1_000_000_000_000 }]
+    assert.equal(validateDataset(kind, { ...dataset, [key]: invalidRows }, timestamp).ok, false)
+  }
+  assert.equal(new Set(funds.funds.map((fund) => fund.code)).size, 40)
+  for (const venue of ['exchange', 'offExchange']) {
+    assert.equal(funds.funds.filter((fund) => fund.venue === venue).length, 20)
+  }
+  for (const fund of funds.funds) {
+    assert.ok((fund.venue === 'exchange' ? fund.priceHistory : fund.navHistory).length > 0)
+    if (funds.funds.filter((peer) => peer.index === fund.index).length === 1) {
+      assert.equal(fund.trackingErrorPct, null)
+      assert.equal(fund.trackingBenchmark, null)
+    }
+  }
+})
+
 test('US index gate requires four complete chronological series', () => {
   const result = validateDataset(
     'us-indexes',

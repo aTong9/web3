@@ -99,7 +99,7 @@ const fetchLargestStocks = async () => {
       seen.add(company)
       return true
     })
-    .slice(0, 10)
+    .filter((item) => numberFrom(item.marketCap) > 1_000_000_000_000)
 }
 
 const fetchValuation = async (symbol) => {
@@ -238,7 +238,7 @@ try {
     updatedAt: new Date().toISOString(),
     status: 'ok',
     methodology:
-      'Nasdaq全市场普通股按市值选取前10；当前价、Forward PE和已公布财报日期来自StockAnalysis；长期PE为CompaniesMarketCap最近5个可用年度正PE的中位数；财报结果、EPS预期和近4周修正来自Nasdaq。',
+      'Nasdaq全市场普通股筛选市值大于1万亿美元的公司，按市值降序排列；当前价、Forward PE和已公布财报日期来自StockAnalysis；长期PE为CompaniesMarketCap最近5个可用年度正PE的中位数；财报结果、EPS预期和近4周修正来自Nasdaq。',
     sources: [
       { name: 'Nasdaq', url: 'https://www.nasdaq.com/market-activity/stocks/screener' },
       { name: 'StockAnalysis', url: 'https://stockanalysis.com/stocks/' },

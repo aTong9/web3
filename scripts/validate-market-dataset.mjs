@@ -54,10 +54,10 @@ export const validateDataset = (kind, dataset, now = new Date(), related = {}) =
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dataset.tradingDate ?? '')) errors.push('交易日期无效')
     facts.push(['基金', dataset.funds?.length ?? 0], ['行业', dataset.sectors?.length ?? 0])
   } else if (kind === 'us-funds') {
-    if (!Array.isArray(dataset.funds) || dataset.funds.length < 20) errors.push('基金记录少于20条')
+    if (!Array.isArray(dataset.funds) || dataset.funds.length < 40) errors.push('基金记录少于40条')
     const exchange = dataset.funds?.filter((fund) => fund.venue === 'exchange').length ?? 0
     const offExchange = dataset.funds?.filter((fund) => fund.venue === 'offExchange').length ?? 0
-    if (exchange < 10 || offExchange < 10) errors.push('场内或场外基金记录少于10条')
+    if (exchange < 20 || offExchange < 20) errors.push('场内或场外基金记录少于20条')
     facts.push(['基金', dataset.funds?.length ?? 0], ['场内/场外', `${exchange}/${offExchange}`])
   } else if (kind === 'us-indexes') {
     if (dataset.status !== 'complete') errors.push('数据状态不是complete')
@@ -296,16 +296,16 @@ export const validateDataset = (kind, dataset, now = new Date(), related = {}) =
     )
   } else if (kind === 'us-megacaps') {
     if (dataset.status !== 'ok') errors.push('龙头估值状态不是ok')
-    if (!Array.isArray(dataset.stocks) || dataset.stocks.length !== 10)
-      errors.push('龙头股票数量不是10')
+    if (!Array.isArray(dataset.stocks) || dataset.stocks.length === 0)
+      errors.push('龙头股票列表为空')
     const symbols = new Set(dataset.stocks?.map((stock) => stock.symbol))
     if (symbols.size !== dataset.stocks?.length) errors.push('龙头股票代码存在重复')
     if (
       dataset.stocks?.some(
-        (stock) => !Number.isFinite(stock.marketCapUsd) || stock.marketCapUsd <= 0,
+        (stock) => !Number.isFinite(stock.marketCapUsd) || stock.marketCapUsd <= 1_000_000_000_000,
       )
     )
-      errors.push('存在无效市值')
+      errors.push('存在无效市值或市值不超过1万亿美元的公司')
     facts.push(['龙头股票', dataset.stocks?.length ?? 0], ['唯一代码', symbols.size])
   } else if (kind === 'us-technicals') {
     const assets = Array.isArray(dataset.assets) ? dataset.assets : []

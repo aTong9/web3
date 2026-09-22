@@ -644,7 +644,7 @@ details footer a {
   border: 0;
   border-radius: 7px;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   cursor: pointer;
 }
 @media (max-width: 1050px) {

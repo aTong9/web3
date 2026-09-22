@@ -853,9 +853,9 @@ const messages: Record<Locale, DictionaryNode> = {
       },
       scope: {
         intro:
-          '覆盖首选A股投资者可买的标普500、纳斯达克相关场内ETF与场外基金。首年成本拆分为管理/托管/服务费、买入费与近期折溢价。',
+          '收录场内 ETF/LOF、场外基金各20只，覆盖标普500、纳斯达克100及科技、生物科技指数；规模排名限当前收录范围，A/C等份额单独列示。首年成本拆分为管理/托管/服务费、买入费与近期折溢价。',
       },
-      venue: { exchange: '场内ETF', offExchange: '场外基金' },
+      venue: { exchange: '场内 ETF / LOF', offExchange: '场外基金' },
       index: '跟踪指数',
       allIndex: '全部指数',
       sort: '排序',
@@ -948,7 +948,7 @@ const messages: Record<Locale, DictionaryNode> = {
         '跟踪误差按最近最多 252 个共同交易日的日收益差标准差年化计算，基准为同指数/行业内规模优先的场内基金代理。单日绝对跳变超过 30% 视作可能份额折算并从收益统计剔除；这不是基金公司披露的官方指数跟踪误差。',
     },
     mega: {
-      heading: '美股市值前十 · TOP10',
+      heading: '万亿美元美股巨头 · 市值 > $1T',
       title: '美股巨头估值',
       desc: '默认按前瞻PE由低到高排序；五年PE中枢为最近5个可用年度正PE值中位数。',
       sortLabel: '排序口径',
@@ -2623,9 +2623,9 @@ const messages: Record<Locale, DictionaryNode> = {
       },
       scope: {
         intro:
-          'Coverage starts from major onshore QDII funds linked to Nasdaq 100 and S&P 500. First-year cost separates management/custody/service fees, entry fee and recent premium/discount.',
+          'Coverage includes 20 exchange-traded ETF/LOF products and 20 off-exchange share classes linked to S&P 500, Nasdaq 100, technology and biotechnology indexes. Size rankings apply only to this coverage; share classes are listed separately. First-year cost separates management/custody/service fees, entry fee and recent premium/discount.',
       },
-      venue: { exchange: 'Exchange ETF', offExchange: 'Off-exchange fund' },
+      venue: { exchange: 'Exchange ETF / LOF', offExchange: 'Off-exchange fund' },
       index: 'Tracking index',
       allIndex: 'All indexes',
       sort: 'Sort',
@@ -2728,7 +2728,7 @@ const messages: Record<Locale, DictionaryNode> = {
         'Tracking error annualizes the standard deviation of daily return differences over up to 252 common trading days. The benchmark is the size-prioritized exchange fund in the same index/sector. Absolute one-day jumps above 30% are treated as possible unit adjustments and excluded; this is not the issuer’s official index tracking error.',
     },
     mega: {
-      heading: 'US MEGA CAPS · TOP 10',
+      heading: 'US MEGA CAPS · MARKET CAP > $1T',
       title: 'US Mega Cap Valuation',
       desc: 'Default sorted by forward PE ascending; 5-year anchor is the median of last five usable yearly positive PE values.',
       sortLabel: 'Sort metric',

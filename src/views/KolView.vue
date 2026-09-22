@@ -464,7 +464,7 @@ h1 {
   border: 0;
   border-radius: 7px;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   white-space: nowrap;
   cursor: pointer;
   font-size: 11px;

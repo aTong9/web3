@@ -364,7 +364,7 @@ button,
 .primary {
   border-color: var(--accent);
   background: var(--accent);
-  color: var(--inverse-text);
+  color: var(--on-accent);
 }
 .automation-note {
   margin-top: 18px;

@@ -2471,7 +2471,7 @@ onMounted(loadResearchDataset)
 }
 .detail-action {
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   border-color: var(--accent);
 }
 .quick-calc > p {
