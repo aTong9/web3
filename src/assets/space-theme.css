@@ -266,6 +266,13 @@
 }
 #app
   .app-shell
+  :is(.workspace-tabs, .section-nav, .group-switcher, .category-panel, .game-tabs)
+  button.active em {
+  background: var(--surface-soft);
+  color: var(--ink);
+}
+#app
+  .app-shell
   :is(.opportunity-card, .country-card, .group-tile, .hot-panel, .mega-panel, .panel) {
   box-shadow: none;
   border-color: var(--border);

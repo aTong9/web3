@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light;
   --paper: #f3f5f3;
   --surface: #ffffff;
   --surface-soft: #efefea;
@@ -46,6 +47,7 @@
 }
 
 :root[data-theme='dark'] {
+  color-scheme: dark;
   --paper: #101419;
   --surface: #171c22;
   --surface-soft: #20262d;
@@ -166,6 +168,17 @@ input,
 select,
 textarea {
   color: inherit;
+}
+
+select option,
+select optgroup {
+  color: var(--ink);
+  background-color: var(--surface);
+}
+
+select option:disabled,
+select optgroup:disabled {
+  color: var(--muted);
 }
 
 summary {

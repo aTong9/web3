@@ -98,3 +98,82 @@ test('unchanged quant snapshots do not write rows, changed payload with same tim
     db.close()
   }
 })
+
+test('public reads are reused across page visits, expire, and invalidate on writes', async (t) => {
+  let reads = 0
+  let now = 1000
+  t.mock.method(Date, 'now', () => now)
+  t.mock.method(globalThis, 'fetch', async () => { reads++; return Response.json({ reads }) })
+  const url = 'https://cache.test/api/technical-config'
+  await cloudflareFetch(url)
+  await cloudflareFetch(url)
+  assert.equal(reads, 1)
+  now += 61_000
+  await cloudflareFetch(url)
+  assert.equal(reads, 2)
+  await cloudflareFetch('https://cache.test/api/admin/technical-config', { method: 'PATCH' })
+  await cloudflareFetch(url)
+  assert.equal(reads, 4)
+})
+
+test('quota responses suppress subsequent reads until Retry-After, without retrying writes', async (t) => {
+  let reads = 0
+  let now = 1000
+  t.mock.method(Date, 'now', () => now)
+  t.mock.method(globalThis, 'fetch', async () => {
+    reads++
+    return Response.json({ error: 'quota' }, { status: 429, headers: { 'Retry-After': '60' } })
+  })
+  const url = 'https://quota.test/api/market/quotes'
+  assert.equal((await cloudflareFetch(url)).status, 429)
+  assert.equal((await cloudflareFetch(url)).status, 429)
+  assert.equal(reads, 1)
+  await cloudflareFetch(url, { method: 'POST' })
+  assert.equal(reads, 2)
+  now += 61_000
+  await cloudflareFetch(url)
+  assert.equal(reads, 3)
+})
+
+test('public Worker configuration cache avoids repeat D1 reads and keeps CORS request-specific', async (t) => {
+  const worker = (await createJiti(import.meta.url, {
+    alias: { '@': new URL('../src', import.meta.url).pathname },
+  }).import('../worker/index.ts')).default
+  const entries = new Map()
+  const originalCaches = globalThis.caches
+  globalThis.caches = { default: {
+    match: async (key) => entries.get(key.url)?.clone(),
+    put: async (key, value) => { entries.set(key.url, value.clone()) },
+  } }
+  t.after(() => { globalThis.caches = originalCaches })
+  let reads = 0
+  const env = { ALLOWED_ORIGINS: 'https://one.test,https://two.test', DB: {
+    prepare: () => ({ first: async () => { reads++; return {
+      version: 1, config_json: '{}', formula_version: 'v1', created_at: '2026-09-22', created_by: 'admin',
+    } } }),
+  } }
+  const get = (origin) => worker.fetch(new Request('https://api.test/api/technical-config', {
+    headers: { Origin: origin },
+  }), env)
+  const first = await get('https://one.test')
+  const second = await get('https://two.test')
+  assert.equal(first.status, 200)
+  assert.equal(second.headers.get('Access-Control-Allow-Origin'), 'https://two.test')
+  assert.equal(reads, 1)
+  entries.clear()
+  await get('https://one.test')
+  assert.equal(reads, 2)
+})
+
+test('D1 failures returned as 500 back off, while successful permission reads remain uncached', async (t) => {
+  let calls = 0
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    calls++
+    return Response.json({}, { status: url.includes('/auth/me') ? 200 : 500 })
+  })
+  for (let i = 0; i < 3; i++) await cloudflareFetch('https://d1.test/api/quant/dashboard')
+  assert.equal(calls, 1)
+  await cloudflareFetch('https://d1.test/api/auth/me')
+  await cloudflareFetch('https://d1.test/api/auth/me')
+  assert.equal(calls, 3)
+})

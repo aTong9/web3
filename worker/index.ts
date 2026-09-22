@@ -216,6 +216,27 @@ const responseHeaders = (request: Request, env: Env) => {
 const json = (request: Request, env: Env, value: unknown, status = 200) =>
   new Response(JSON.stringify(value), { status, headers: responseHeaders(request, env) })
 
+// Public research only: keep authentication and account data out of shared caches.
+const publicResearchJson = async (request: Request, env: Env, load: () => Promise<unknown>) => {
+  const url = new URL(request.url)
+  const key = new Request(`${url.origin}/__research-cache/v1${url.pathname}`)
+  try {
+    const cached = await caches.default.match(key)
+    if (cached) return new Response(cached.body, { headers: responseHeaders(request, env) })
+  } catch {
+    console.warn('Public research cache read unavailable')
+  }
+  const payload = JSON.stringify(await load())
+  try {
+    await caches.default.put(key, new Response(payload, {
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' },
+    }))
+  } catch {
+    console.warn('Public research cache write unavailable')
+  }
+  return new Response(payload, { headers: responseHeaders(request, env) })
+}
+
 const readBoundedJson = async <T>(response: Response): Promise<T> => {
   if (!response.ok || !response.body) {
     throw new Error(`数据源响应异常：${response.status}`)
@@ -1273,7 +1294,7 @@ const handleApi = async (request: Request, env: Env) => {
     return json(request, env, await analyticsConfig(env))
   }
   if (url.pathname === '/api/technical-config' && request.method === 'GET') {
-    return json(request, env, await latestTechnicalConfig(env))
+    return publicResearchJson(request, env, () => latestTechnicalConfig(env))
   }
   if (url.pathname === '/api/market/quotes' && request.method === 'GET') {
     return json(request, env, await marketQuotes(request, env))
@@ -1312,7 +1333,7 @@ const handleApi = async (request: Request, env: Env) => {
     return json(request, env, await saveTechnicalConfig(request, env, actor.id))
   }
   if (url.pathname === '/api/quant/dashboard' && request.method === 'GET') {
-    return json(request, env, await latestDashboard(env))
+    return publicResearchJson(request, env, () => latestDashboard(env))
   }
   if (url.pathname === '/api/btc-auto-trading' && request.method === 'GET') {
     await authenticate(request, env, 'autoTrade.manage')
