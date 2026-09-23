@@ -28,6 +28,7 @@ const groups = computed(() => [
       { title: 'ui.nav.aShareMarket', to: '/a-share' },
       { title: 'ui.nav.usMarket', to: '/funds' },
       { title: 'ui.nav.norwayFund', to: '/norway-sovereign-fund' },
+      { title: 'ui.nav.reddit', to: '/reddit-monitor' },
     ],
   },
   {

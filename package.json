@@ -29,6 +29,7 @@
     "lint": "eslint . --fix --cache",
     "lint:check": "eslint . --cache",
     "format": "prettier --write --experimental-cli src/",
+    "update:reddit": "node scripts/update-reddit-monitor.mjs",
     "update:funds": "node scripts/update-us-funds.mjs",
     "update:a-share": "node scripts/update-a-share-sectors.mjs",
     "update:kols": "node scripts/update-kols.mjs",

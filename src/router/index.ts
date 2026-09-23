@@ -126,6 +126,12 @@ const router = createRouter({
     { path: '/kols', redirect: '/intelligence/kols' },
     { path: '/blogger', redirect: '/intelligence/sources' },
     {
+      path: '/reddit-monitor',
+      name: 'reddit-monitor',
+      component: () => import('../views/RedditMonitorView.vue'),
+      meta: { titleKey: 'ui.routes.reddit.title', descriptionKey: 'ui.routes.reddit.description' },
+    },
+    {
       path: '/funds',
       name: 'funds',
       component: () => import('../views/FundView.vue'),

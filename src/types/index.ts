@@ -2534,3 +2534,26 @@ export interface DailyMarketReport {
   socialText: string
   emailSubject: string
 }
+
+export interface RedditMonitorRow {
+  rank: number
+  symbol: string
+  name: string
+  mentions: number
+  upvotes: number
+  previousMentions: number | null
+  discussionUrl: string
+}
+
+export interface RedditMonitorMarket {
+  status: 'ok' | 'stale' | 'unavailable'
+  updatedAt: string | null
+  sourceUrl: string
+  message: string
+  rows: RedditMonitorRow[]
+}
+
+export interface RedditMonitorDataset {
+  updatedAt: string
+  markets: Record<'us' | 'crypto', RedditMonitorMarket>
+}
