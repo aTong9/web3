@@ -14,8 +14,17 @@ GitHub Pages部署 main每次提交后；上述数据任务成功后也会自动
 
 ## 当前功能
 
+- [我的研究台](docs/research-workspace.md)：自选资产分组、研究笔记、到期复查和本地备份，关联现有行情、资讯、预警与模拟账本
+- [宏观与财报日历](docs/event-calendar.md)：官方宏观计划、预计财报日期、时区切换、自选筛选和 ICS 导出
+- [个人资产与 FIRE](docs/personal-finance.md)：资产负债、现金流、可调整假设与三种目标情景
+- [组合复盘](docs/portfolio-review.md)：估值快照、外部资金流、配置变化、估算收益与观察点回撤
+- [统一提醒](docs/reminders.md)：研究复查、宏观日程与自选财报的站内待办、稍后提醒和处理记录
+- [数据健康中心](docs/data-health.md)：集中查看 19 份市场快照的时效、来源异常、缺失数据和维护入口
+- [专题学习路线](docs/learning-paths.md)：四条资料与练习路线、12 个步骤、本地进度与成果笔记
+- [增收实践账本](docs/income-ledger.md)：项目投入、实际到账、待到账、分币种净收益与复盘
+
 - 按主题浏览 `src/data/webstack.yml` 中的全部网站资源
-- 搜索站点名称、描述和域名
+- 搜索站点名称、描述、分类和域名；支持空格组合关键词与全角输入
 - 按分组筛选资源
 - 使用浏览器本地存储收藏常用站点
 - 比较中国市场的美股场内 ETF 与场外基金，可按规模和综合费率排序
@@ -84,6 +93,7 @@ Actions 构建产物，不会创建 Release。当前产物未做 Apple/Windows �
 ```bash
 npm run type-check
 npm run lint
+npm test
 npm run build
 ```
 
@@ -95,6 +105,11 @@ npm run build
 `/kols`、`/blogger` 会自动跳转到对应栏目，已有书签仍然有效。
 
 ## 数据维护
+
+项目结构、资源维护与本轮验证记录见 [项目维护说明](docs/project-maintenance.md)。
+新增官方资料的核对记录见 [研究资料补充](docs/research/resource-research-2026-09-26.md)。
+
+资源导航与书目按需加载，并在访问后缓存；尚未访问过的资源页面或书目不保证离线可用。
 
 资源数据位于 `src/data/webstack.yml`，结构为：
 

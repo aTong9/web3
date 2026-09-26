@@ -2557,3 +2557,58 @@ export interface RedditMonitorDataset {
   updatedAt: string
   markets: Record<'us' | 'crypto', RedditMonitorMarket>
 }
+
+export interface ResearchAsset {
+  id: string
+  name: string
+  symbol: string
+  category: string
+  quoteSymbol: string | null
+  value: number | null
+  unit: string
+  date: string | null
+  source: string
+  sourceUrl: string
+  stale: boolean
+  newsQuery: string
+  technicalId: string | null
+}
+
+export interface ResearchWatchEntry {
+  id: string
+  assetId: string
+  group: string
+  reason: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ResearchNote {
+  id: string
+  assetId: string
+  title: string
+  thesis: string
+  invalidation: string
+  reviewDate: string
+  conclusion: string
+  createdAt: string
+  updatedAt: string
+  sources: string[]
+  status: 'active' | 'reviewed' | 'invalidated'
+  paperTradeId: string | null
+}
+
+export interface ResearchWorkspace {
+  version: 1
+  watchlist: ResearchWatchEntry[]
+  notes: ResearchNote[]
+}
+
+export type * from './event-calendar'
+export type * from './personal-finance'
+export type * from './income-ledger'
+export type * from './data-health'
+export type * from './learning-paths'
+
+export type * from './portfolio-review'
+export type * from './reminders'

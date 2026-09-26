@@ -8,6 +8,7 @@ import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import { VitePWA } from 'vite-plugin-pwa'
 import { dump, load } from 'js-yaml'
+import { dataHealthPlugin } from './scripts/data-health-plugin'
 
 interface KolSubscriptionInput {
   name?: string
@@ -115,6 +116,7 @@ const githubPagesFallbackPlugin = (): Plugin => ({
 export default defineConfig({
   plugins: [
     vue(),
+    dataHealthPlugin(),
     vueDevTools(),
     kolSubscriptionPlugin(),
     githubPagesFallbackPlugin(),
@@ -155,6 +157,9 @@ export default defineConfig({
         navigateFallback: 'index.html',
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,yml,woff,woff2}'],
         globIgnores: [
+          '**/HomeView-*.js',
+          '**/HomeView-*.css',
+          '**/lifelong-books-*.json',
           '**/asset-technical-signals-*.json',
           '**/us-stock-technical-signals-*.json',
           '**/us-index-daily-*.js',
@@ -170,7 +175,7 @@ export default defineConfig({
         runtimeCaching: [
           {
             urlPattern:
-              /\/assets\/(?:asset-technical-signals|us-stock-technical-signals|us-index-daily|a-share-sectors|us-funds|DailyMarketPoster|poster-export-vendor|analytics-vendor|chart-vendor)-/,
+              /\/assets\/(?:HomeView|lifelong-books|asset-technical-signals|us-stock-technical-signals|us-index-daily|a-share-sectors|us-funds|DailyMarketPoster|poster-export-vendor|analytics-vendor|chart-vendor)-/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'research-data-v1',

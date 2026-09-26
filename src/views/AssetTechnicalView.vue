@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { EChartsCoreOption } from 'echarts/core'
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import DisclosureCard from '@/components/DisclosureCard.vue'
 import EChart from '@/components/EChart.vue'
@@ -71,6 +72,7 @@ interface MacroTechnicalEvent {
   sourceUrl: string
 }
 
+const route = useRoute()
 const dataset = await loadAssetTechnicalDataset()
 const crossAsset = crossAssetData as CrossAssetDataset
 const technicalEvents = technicalEventsData as {
@@ -110,6 +112,7 @@ const baseAssetCandidates = dataset.assets.map((asset) => ({
 }))
 const fundAssets = ref<TechnicalChartAsset[]>([])
 const fundsLoading = ref(false)
+let fundAssetsRequest: Promise<void> | undefined
 const sourceRank = (source: string) => {
   const normalized = source.toLowerCase()
   const index = technicalConfig.value.sourcePriority.findIndex((item) =>
@@ -132,6 +135,8 @@ const fallbackAsset = baseAssetCandidates[0] as TechnicalChartAsset
 const selectedId = ref(
   baseAssetCandidates.find((asset) => asset.id === 'sp500')?.id ?? fallbackAsset.id,
 )
+const requestedAssetMissing = ref(false)
+let assetSelectionRevision = 0
 const workspaceMode = ref<WorkspaceMode>('research')
 const compareId = ref('')
 const comparisonMode = ref<ComparisonMode>('normalized')
@@ -966,6 +971,8 @@ const localizedUnit = (unit: string) => {
   return ({ 点: 'pts', 美元: 'USD', '美元/吨': 'USD/tonne' }[unit] ?? unit)
 }
 const selectAsset = (id: string) => {
+  assetSelectionRevision += 1
+  requestedAssetMissing.value = false
   chainValidationActive.value = false
   selectedId.value = id
   localStorage.setItem(selectedStorageKey, id)
@@ -1306,16 +1313,35 @@ const toggleFavorite = (id: string) => {
     : [...favorites.value, id]
   localStorage.setItem(favoriteStorageKey, JSON.stringify(favorites.value))
 }
-const loadFundAssets = async () => {
-  if (fundAssets.value.length || fundsLoading.value) return
+const loadFundAssets = () => {
+  if (fundAssets.value.length) return Promise.resolve()
+  if (fundAssetsRequest) return fundAssetsRequest
   fundsLoading.value = true
-  try {
-    const module = await import('@/data/technical-funds.json')
-    fundAssets.value = (module.default as { assets: TechnicalChartAsset[] }).assets
-  } catch (error) {
-    console.error('Technical fund assets could not be loaded:', error)
-  } finally {
-    fundsLoading.value = false
+  fundAssetsRequest = import('@/data/technical-funds.json')
+    .then((module) => {
+      fundAssets.value = (module.default as { assets: TechnicalChartAsset[] }).assets
+    })
+    .catch((error: unknown) => {
+      console.error('Technical fund assets could not be loaded:', error)
+    })
+    .finally(() => {
+      fundsLoading.value = false
+      fundAssetsRequest = undefined
+    })
+  return fundAssetsRequest
+}
+const selectRequestedAsset = async (value: unknown) => {
+  const revision = ++assetSelectionRevision
+  requestedAssetMissing.value = false
+  if (value === undefined) return
+  const id = typeof value === 'string' ? value : ''
+  if (id.startsWith('fund-')) await loadFundAssets()
+  if (revision !== assetSelectionRevision) return
+  if (resolvedAssets.value.some((asset) => asset.id === id)) {
+    workspaceMode.value = 'research'
+    selectAsset(id)
+  } else {
+    requestedAssetMissing.value = true
   }
 }
 const moveChain = (step: number) => {
@@ -1364,6 +1390,10 @@ watch(selectedAsset, (asset) => {
   resetAlertThreshold()
 })
 watch(alertCondition, resetAlertThreshold)
+watch(
+  () => route.query.asset,
+  (value) => void selectRequestedAsset(value),
+)
 onMounted(() => {
   try {
     const stored = JSON.parse(localStorage.getItem(favoriteStorageKey) ?? '[]')
@@ -1379,12 +1409,18 @@ onMounted(() => {
   }
   const storedSelected = localStorage.getItem(selectedStorageKey)
   void (async () => {
-    if (
-      [...favorites.value, ...recentAssetIds.value, storedSelected].some((id) =>
-        id?.startsWith('fund-'),
-      )
+    const revision = assetSelectionRevision
+    const restoringFunds = [...favorites.value, ...recentAssetIds.value, storedSelected].some((id) =>
+      id?.startsWith('fund-'),
     )
-      await loadFundAssets()
+      ? loadFundAssets()
+      : undefined
+    if (route.query.asset !== undefined) {
+      await selectRequestedAsset(route.query.asset)
+      return
+    }
+    await restoringFunds
+    if (revision !== assetSelectionRevision) return
     selectAsset(
       storedSelected && resolvedAssets.value.some((asset) => asset.id === storedSelected)
         ? storedSelected
@@ -1414,6 +1450,13 @@ onBeforeUnmount(() => {
           :updated-at="dataset.updatedAt"
           schedule="crossAsset"
         />
+        <RouterLink
+          v-if="workspaceMode === 'research'"
+          class="research-note-link"
+          :to="{ path: '/research-workspace', query: { asset: selectedId, tab: 'notes' } }"
+        >
+          {{ locale === 'en' ? 'Record research' : '记录研究' }}
+        </RouterLink>
       </template>
       <template #status><section v-if="workspaceMode === 'research'" class="headline-signal" :class="analysis.status">
         <span>{{ t('assetTechnical.currentState') }}</span>
@@ -1428,6 +1471,12 @@ onBeforeUnmount(() => {
         <small>{{ t('assetTechnical.contract.noKeyRequired') }}</small>
       </section></template>
     </ResearchPageHeader>
+
+    <p v-if="requestedAssetMissing" class="requested-asset-warning" role="status">
+      {{ locale === 'en'
+        ? 'The requested asset has no available technical chart. The current selection is shown below.'
+        : '请求的资产不存在或暂无技术图，以下保留当前选择。' }}
+    </p>
 
     <nav class="workspace-mode-switch" :aria-label="t('assetTechnical.workspaceMode')">
       <button
@@ -2329,6 +2378,20 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.research-note-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  color: inherit;
+  font-size: 12px;
+}
+.requested-asset-warning {
+  color: var(--warning);
+}
 .technical-page {
   max-width: var(--content-workbench);
   margin: auto;

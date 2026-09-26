@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
 import { incomeOpportunities, incomeOpportunitiesUpdatedAt } from '@/data/income-opportunities'
 import type {
@@ -22,6 +23,11 @@ const costFilter = ref<CostFilter>('all')
 const methodFilter = ref<MethodFilter>('all')
 const coverageFilter = ref<CoverageFilter>('all')
 const query = ref('')
+const route = useRoute()
+const linkedProjectId = ref('')
+watch(() => route.query.project, (value) => {
+  linkedProjectId.value = typeof value === 'string' && incomeOpportunities.some((item) => item.id === value) ? value : ''
+}, { immediate: true })
 
 const categoryOptions: Array<{
   value: CategoryFilter
@@ -113,6 +119,7 @@ const visibleOpportunities = computed(() => {
       .join(' ')
       .toLocaleLowerCase()
     return (
+      (!linkedProjectId.value || item.id === linkedProjectId.value) &&
       matchesCategory &&
       matchesPayout &&
       matchesCost &&
@@ -130,6 +137,7 @@ const resetFilters = () => {
   methodFilter.value = 'all'
   coverageFilter.value = 'all'
   query.value = ''
+  linkedProjectId.value = ''
 }
 </script>
 
@@ -142,6 +150,9 @@ const resetFilters = () => {
       :updated-at="incomeOpportunitiesUpdatedAt"
       variant="plain"
     />
+
+    <p><RouterLink to="/income-ledger">打开增收实践账本 →</RouterLink></p>
+    <p v-if="linkedProjectId">正在查看账本关联项目。<button type="button" @click="resetFilters">显示全部项目</button></p>
 
 
 
@@ -227,7 +238,7 @@ const resetFilters = () => {
     </div>
 
     <section v-if="visibleOpportunities.length" class="opportunity-grid" aria-label="赚钱项目列表">
-      <article v-for="item in visibleOpportunities" :key="item.id" class="opportunity-card">
+      <article v-for="item in visibleOpportunities" :id="item.id" :key="item.id" class="opportunity-card">
         <header>
           <div>
             <p>{{ categoryLabels[item.category] }} · {{ item.model }}</p>
@@ -257,6 +268,7 @@ const resetFilters = () => {
         <div class="skill-list">
           <span v-for="skill in item.skills" :key="skill">{{ skill }}</span>
         </div>
+        <p><RouterLink :to="{ path: '/income-ledger', query: { project: item.id } }">记录此项目的投入与到账 →</RouterLink></p>
         <details>
           <summary><span>查看步骤、门槛与风险</span><b aria-hidden="true">⌄</b></summary>
           <div class="detail-grid">

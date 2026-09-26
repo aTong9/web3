@@ -1,16 +1,25 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import embeddedData from '@/data/market-news.json'
 import type { MarketNewsCategory, MarketNewsDataset, MarketNewsImpact } from '@/types'
 import { useI18n } from '@/composables/use-i18n'
 
 const { embedded = false } = defineProps<{ embedded?: boolean }>()
+const route = useRoute()
 
 const dataset = ref(embeddedData as MarketNewsDataset)
 const impact = ref<'all' | MarketNewsImpact>('all')
 const category = ref<'all' | MarketNewsCategory>('all')
 const query = ref('')
+watch(
+  () => route.query.q,
+  (value) => {
+    query.value = typeof value === 'string' ? value : ''
+  },
+  { immediate: true },
+)
 const visibleLimit = ref(12)
 const liveStatus = ref<'idle' | 'checking' | 'updated' | 'error'>('idle')
 let refreshTimer: number | undefined

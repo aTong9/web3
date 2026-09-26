@@ -7,6 +7,8 @@ export type DataScheduleId =
   | 'kols'
   | 'usIndexes'
   | 'norwayFund'
+  | 'reddit'
+  | 'technicalFunds'
 
 interface ScheduleSlot {
   hour: number
@@ -33,6 +35,11 @@ const schedules: Record<DataScheduleId, ScheduleSlot[]> = {
   // US close data is archived at 02:30 UTC Tuesday-Saturday.
   usIndexes: [{ hour: 10, minute: 30, weekdays: [2, 3, 4, 5, 6] }],
   norwayFund: [{ hour: 11, minute: 15, weekdays: [1] }],
+  reddit: [{ hour: 9, minute: 0 }],
+  technicalFunds: [
+    { hour: 9, minute: 15 },
+    { hour: 18, minute: 30 },
+  ],
 }
 
 const chinaParts = (value: Date) => {

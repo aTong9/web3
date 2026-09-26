@@ -1,15 +1,42 @@
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 import { useAuth } from '@/composables/use-auth'
 import { useAnalytics } from '@/composables/use-analytics'
 
 const router = createRouter({
-  scrollBehavior: (_to, _from, savedPosition) => savedPosition ?? { top: 0 },
+  scrollBehavior: (to, _from, savedPosition) =>
+    savedPosition ?? (to.hash ? { el: to.hash, top: 88 } : { top: 0 }),
   history:
     import.meta.env.VITE_APP_TARGET === 'electron'
       ? createWebHashHistory()
       : createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/reminders',
+      name: 'reminders',
+      component: () => import('../views/ReminderCenterView.vue'),
+      meta: {
+        titleKey: 'ui.routes.reminders.title',
+        descriptionKey: 'ui.routes.reminders.description',
+      },
+    },
+    {
+      path: '/portfolio-review',
+      name: 'portfolio-review',
+      component: () => import('../views/PortfolioReviewView.vue'),
+      meta: {
+        titleKey: 'ui.routes.portfolioReview.title',
+        descriptionKey: 'ui.routes.portfolioReview.description',
+      },
+    },
+    {
+      path: '/learning-paths',
+      name: 'learning-paths',
+      component: () => import('../views/LearningPathsView.vue'),
+      meta: {
+        titleKey: 'ui.routes.learningPaths.title',
+        descriptionKey: 'ui.routes.learningPaths.description',
+      },
+    },
     {
       path: '/admin',
       name: 'admin',
@@ -39,6 +66,51 @@ const router = createRouter({
       },
     },
     {
+      path: '/research-workspace',
+      name: 'research-workspace',
+      component: () => import('../views/ResearchWorkspaceView.vue'),
+      meta: {
+        titleKey: 'ui.routes.researchWorkspace.title',
+        descriptionKey: 'ui.routes.researchWorkspace.description',
+      },
+    },
+    {
+      path: '/event-calendar',
+      name: 'event-calendar',
+      component: () => import('../views/EventCalendarView.vue'),
+      meta: {
+        titleKey: 'ui.routes.eventCalendar.title',
+        descriptionKey: 'ui.routes.eventCalendar.description',
+      },
+    },
+    {
+      path: '/personal-finance',
+      name: 'personal-finance',
+      component: () => import('../views/PersonalFinanceView.vue'),
+      meta: {
+        titleKey: 'ui.routes.personalFinance.title',
+        descriptionKey: 'ui.routes.personalFinance.description',
+      },
+    },
+    {
+      path: '/data-health',
+      name: 'data-health',
+      component: () => import('../views/DataHealthView.vue'),
+      meta: {
+        titleKey: 'ui.routes.dataHealth.title',
+        descriptionKey: 'ui.routes.dataHealth.description',
+      },
+    },
+    {
+      path: '/income-ledger',
+      name: 'income-ledger',
+      component: () => import('../views/IncomeLedgerView.vue'),
+      meta: {
+        titleKey: 'ui.routes.incomeLedger.title',
+        descriptionKey: 'ui.routes.incomeLedger.description',
+      },
+    },
+    {
       path: '/quant-signals',
       name: 'quant-signals',
       component: () => import('../views/QuantSignalsView.vue'),
@@ -59,7 +131,7 @@ const router = createRouter({
     {
       path: '/resources',
       name: 'resources',
-      component: HomeView,
+      component: () => import('../views/HomeView.vue'),
       meta: {
         titleKey: 'ui.routes.resources.title',
         descriptionKey: 'ui.routes.resources.description',

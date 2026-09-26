@@ -4,6 +4,8 @@ import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, watch } fr
 import { navigationData } from '@/utils/data'
 import type { LifelongBookCatalog, NavLink, NavTerm } from '@/types'
 import { useI18n } from '@/composables/use-i18n'
+import { createResourceMatcher, parseResourceFavorites } from '@/utils/resource-search'
+import bookCatalogUrl from '@/data/lifelong-books.json?url'
 
 const FAVORITES_KEY = 'finance-desk-favorites'
 const query = ref('')
@@ -19,6 +21,8 @@ const sortMode = ref<'default' | 'title'>('default')
 const contentMode = ref<'resources' | 'books'>('resources')
 const bookCatalog = shallowRef<LifelongBookCatalog | null>(null)
 const booksLoading = ref(false)
+const booksError = ref(false)
+const favoritesSaveError = ref(false)
 const searchInput = ref<HTMLInputElement | null>(null)
 const { t } = useI18n()
 
@@ -65,7 +69,8 @@ const ageGuides: Record<
   '终身成长 · 12-18岁科学探索': {
     eyebrow: '自主成长阶段',
     title: '把兴趣连接到真实项目和未来路径',
-    description: '在科学、创作、技术、公民参与和职业体验中建立作品集，同时练习研究、沟通与自我管理。',
+    description:
+      '在科学、创作、技术、公民参与和职业体验中建立作品集，同时练习研究、沟通与自我管理。',
     focuses: ['项目与作品集', '研究与写作', '金融与生活技能', '专业与职业探索'],
     note: '鼓励青少年自己设定目标和复盘；涉及社区投稿、公开作品或账号互动时，先核对隐私与平台规则。',
   },
@@ -120,9 +125,8 @@ const currentGroup = computed(() => groups.value.find((group) => group.key === a
 const scopedTerms = computed(() => currentGroup.value?.terms ?? terms.value)
 
 const filteredCategories = computed(() => {
-  const needle = categoryQuery.value.trim().toLocaleLowerCase()
-  if (!needle) return scopedTerms.value
-  return scopedTerms.value.filter((term) => term.term.toLocaleLowerCase().includes(needle))
+  const matches = createResourceMatcher(categoryQuery.value)
+  return scopedTerms.value.filter((term) => matches(term.term, displayTermTitle(term.term)))
 })
 
 const categoryPreviewLimit = 18
@@ -134,6 +138,7 @@ const visibleCategories = computed(() =>
 
 const visibleTerms = computed(() => {
   const needle = query.value.trim().toLocaleLowerCase()
+  const matches = createResourceMatcher(query.value)
 
   if (activeGroup.value === ACTIVE_OVERVIEW_GROUP && !needle && !favoritesOnly.value) {
     return []
@@ -143,11 +148,13 @@ const visibleTerms = computed(() => {
     .filter((term) => activeTerm.value === ACTIVE_ALL_TERM || term.term === activeTerm.value)
     .map((term) => {
       const links = term.links.filter((link) => {
-        const matchesQuery =
-          !needle ||
-          [link.title, link.description, link.url].some((value) =>
-            value?.toLocaleLowerCase().includes(needle),
-          )
+        const matchesQuery = matches(
+          link.title,
+          link.description,
+          link.url,
+          term.term,
+          displayTermTitle(term.term),
+        )
         const matchesFavorite = !favoritesOnly.value || favoriteUrls.value.includes(link.url)
         return matchesQuery && matchesFavorite
       })
@@ -178,13 +185,9 @@ const activeBooks = computed(
 )
 
 const visibleBooks = computed(() => {
-  const needle = query.value.trim().toLocaleLowerCase()
-  const books = activeBooks.value.filter(
-    (book) =>
-      !needle ||
-      [book.title, book.authors.join(' '), String(book.firstPublishYear ?? '')].some((value) =>
-        value.toLocaleLowerCase().includes(needle),
-      ),
+  const matches = createResourceMatcher(query.value)
+  const books = activeBooks.value.filter((book) =>
+    matches(book.title, book.authors.join(' '), String(book.firstPublishYear ?? '')),
   )
 
   return sortMode.value === 'title'
@@ -199,10 +202,13 @@ const displayedResultCount = computed(() =>
 const loadBookCatalog = async () => {
   if (bookCatalog.value || booksLoading.value) return
   booksLoading.value = true
+  booksError.value = false
   try {
-    const module = await import('@/data/lifelong-books.json')
-    bookCatalog.value = module.default as LifelongBookCatalog
+    const response = await fetch(bookCatalogUrl)
+    if (!response.ok) throw new Error(`Book catalog request failed: ${response.status}`)
+    bookCatalog.value = (await response.json()) as LifelongBookCatalog
   } catch (error) {
+    booksError.value = true
     console.error('Lifelong book catalog loading failed:', error)
   } finally {
     booksLoading.value = false
@@ -278,7 +284,7 @@ const resetFilters = () => {
 const focusSearch = (event: KeyboardEvent) => {
   if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return
   const target = event.target as HTMLElement | null
-  if (target?.matches('input, textarea, select, [contenteditable="true"]')) return
+  if (target?.closest('input, textarea, select') || target?.isContentEditable) return
   event.preventDefault()
   searchInput.value?.focus()
 }
@@ -293,8 +299,7 @@ const getHost = (url: string) => {
 
 onMounted(() => {
   try {
-    const saved = JSON.parse(localStorage.getItem(FAVORITES_KEY) ?? '[]')
-    favoriteUrls.value = Array.isArray(saved) ? saved : []
+    favoriteUrls.value = parseResourceFavorites(localStorage.getItem(FAVORITES_KEY) ?? '[]')
   } catch {
     favoriteUrls.value = []
   }
@@ -306,7 +311,13 @@ onUnmounted(() => window.removeEventListener('keydown', focusSearch))
 watch(
   favoriteUrls,
   (urls) => {
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(urls))
+    try {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(urls))
+      favoritesSaveError.value = false
+    } catch (error) {
+      favoritesSaveError.value = true
+      console.warn('Resource favorites could not be saved:', error)
+    }
   },
   { deep: true },
 )
@@ -336,36 +347,38 @@ watch(
       </dl>
     </header>
 
-        <div class="toolbar">
-          <label class="search-box">
-            <span aria-hidden="true">⌕</span>
-            <input
-              ref="searchInput"
-              v-model="query"
-              type="search"
-              :aria-label="t('ui.navigation.searchLabel')"
-              :placeholder="t('ui.navigation.searchPlaceholder')"
-            />
-            <kbd>/</kbd>
-          </label>
-          <button
-            v-if="contentMode === 'resources'"
-            class="favorite-filter"
-            :class="{ active: favoritesOnly }"
-            @click="favoritesOnly = !favoritesOnly"
-          >
-            <span aria-hidden="true">☆</span>
-            {{ t('ui.navigation.favoriteOnly') }}
-            <b>{{ favoriteUrls.length }}</b>
-          </button>
-          <label class="sort-control">
-            <span class="sr-only">{{ t('ui.navigation.sortLabel') }}</span>
-            <select v-model="sortMode" :aria-label="t('ui.navigation.sortLabel')">
-              <option value="default">{{ t('ui.navigation.sortDefault') }}</option>
-              <option value="title">{{ t('ui.navigation.sortTitle') }}</option>
-            </select>
-          </label>
-        </div>
+    <div class="toolbar">
+      <label class="search-box">
+        <span aria-hidden="true">⌕</span>
+        <input
+          ref="searchInput"
+          v-model="query"
+          type="search"
+          :aria-label="t('ui.navigation.searchLabel')"
+          :placeholder="t('ui.navigation.searchPlaceholder')"
+        />
+        <kbd>/</kbd>
+      </label>
+      <button
+        v-if="contentMode === 'resources'"
+        class="favorite-filter"
+        :class="{ active: favoritesOnly }"
+        :aria-pressed="favoritesOnly"
+        @click="favoritesOnly = !favoritesOnly"
+      >
+        <span aria-hidden="true">☆</span>
+        {{ t('ui.navigation.favoriteOnly') }}
+        <b>{{ favoriteUrls.length }}</b>
+      </button>
+      <label class="sort-control">
+        <span class="sr-only">{{ t('ui.navigation.sortLabel') }}</span>
+        <select v-model="sortMode" :aria-label="t('ui.navigation.sortLabel')">
+          <option value="default">{{ t('ui.navigation.sortDefault') }}</option>
+          <option value="title">{{ t('ui.navigation.sortTitle') }}</option>
+        </select>
+      </label>
+    </div>
+    <p v-if="favoritesSaveError" role="status">{{ t('ui.navigation.favoritesSaveError') }}</p>
     <nav class="group-switcher" :aria-label="t('ui.navigation.groupLabel')">
       <button
         :class="{ active: activeGroup === ACTIVE_OVERVIEW_GROUP }"
@@ -452,8 +465,6 @@ watch(
       </aside>
 
       <div class="content">
-
-
         <section v-if="showOverview" class="group-overview">
           <div class="overview-heading">
             <div>
@@ -539,7 +550,7 @@ watch(
             @click="showBooks"
           >
             {{ t('ui.navigation.bookCatalog') }}
-            <span>{{ booksLoading ? '…' : activeBooks.length || 50 }}</span>
+            <span>{{ booksLoading ? '…' : activeBooks.length }}</span>
           </button>
         </div>
 
@@ -579,6 +590,7 @@ watch(
                 <button
                   class="star-button"
                   :class="{ saved: isFavorite(link) }"
+                  :aria-pressed="isFavorite(link)"
                   :aria-label="isFavorite(link) ? `取消收藏 ${link.title}` : `收藏 ${link.title}`"
                   @click="toggleFavorite(link)"
                 >
@@ -590,8 +602,12 @@ watch(
         </div>
 
         <section v-else-if="contentMode === 'books' && activeBookCategory" class="book-catalog">
-          <div v-if="booksLoading" class="book-loading">
+          <div v-if="booksLoading" class="book-loading" role="status">
             {{ t('ui.navigation.loadingBooks') }}
+          </div>
+          <div v-else-if="booksError" class="empty-state" role="status">
+            <p>{{ t('ui.navigation.booksError') }}</p>
+            <button type="button" @click="loadBookCatalog">{{ t('ui.navigation.retry') }}</button>
           </div>
           <template v-else>
             <div class="book-source-note">
@@ -605,16 +621,14 @@ watch(
             </div>
             <div class="book-list">
               <a
-                v-for="book in visibleBooks"
+                v-for="(book, index) in visibleBooks"
                 :key="`${book.url}-${book.title}`"
                 :href="book.url"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="book-row"
               >
-                <span class="book-index">{{
-                  String(visibleBooks.indexOf(book) + 1).padStart(2, '0')
-                }}</span>
+                <span class="book-index">{{ String(index + 1).padStart(2, '0') }}</span>
                 <span class="book-copy">
                   <strong>{{ book.title }}</strong>
                   <small>{{ book.authors.join(' · ') }}</small>
@@ -628,6 +642,9 @@ watch(
                 <span aria-hidden="true">↗</span>
               </a>
             </div>
+            <p v-if="!visibleBooks.length" class="empty-state" role="status">
+              {{ t('ui.navigation.noBooks') }}
+            </p>
           </template>
         </section>
 
@@ -1107,7 +1124,11 @@ watch(
   border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
   border-radius: 13px;
   background:
-    linear-gradient(135deg, color-mix(in srgb, var(--accent-soft) 72%, transparent), transparent 58%),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent-soft) 72%, transparent),
+      transparent 58%
+    ),
     var(--surface);
   display: grid;
   grid-template-columns: 38px minmax(0, 1fr);
@@ -1845,7 +1866,9 @@ watch(
   border: 0;
 }
 @media (min-width: 961px) {
-  .group-switcher { flex-wrap: wrap; }
+  .group-switcher {
+    flex-wrap: wrap;
+  }
   .sidebar {
     padding: 16px;
     border: 1px solid var(--border);
@@ -1854,16 +1877,43 @@ watch(
   }
 }
 @media (min-width: 1440px) {
-  .group-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .group-grid button { padding: 16px; gap: 10px; }
+  .group-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .group-grid button {
+    padding: 16px;
+    gap: 10px;
+  }
 }
 
-.catalog-summary { padding:0 0 20px; border:0; border-bottom:1px solid var(--border); border-radius:0; background:none; gap:24px; }
-.catalog-summary h1 { font-size:clamp(26px,3vw,36px); }
-.catalog-summary dd { font-size:22px; }
-.resource-shell > .toolbar { position:static; margin-bottom:16px; padding:16px; }
-.resource-shell > .toolbar .search-box { min-height:48px; }
-.overview-heading { margin-top:8px; }
-@media(min-width:1200px) { .group-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
-
+.catalog-summary {
+  padding: 0 0 20px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: none;
+  gap: 24px;
+}
+.catalog-summary h1 {
+  font-size: clamp(26px, 3vw, 36px);
+}
+.catalog-summary dd {
+  font-size: 22px;
+}
+.resource-shell > .toolbar {
+  position: static;
+  margin-bottom: 16px;
+  padding: 16px;
+}
+.resource-shell > .toolbar .search-box {
+  min-height: 48px;
+}
+.overview-heading {
+  margin-top: 8px;
+}
+@media (min-width: 1200px) {
+  .group-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
 </style>

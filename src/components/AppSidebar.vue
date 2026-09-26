@@ -16,6 +16,10 @@ const groups = computed(() => [
     icon: '◫',
     items: [
       { title: 'ui.nav.marketPage', to: '/' },
+      { title: 'ui.nav.researchWorkspace', to: '/research-workspace' },
+      { title: 'ui.nav.personalFinance', to: '/personal-finance' },
+      { title: 'ui.nav.portfolioReview', to: '/portfolio-review' },
+      { title: 'ui.nav.reminders', to: '/reminders' },
       { title: 'ui.nav.crossAsset', to: '/cross-asset' },
     ],
   },
@@ -23,6 +27,7 @@ const groups = computed(() => [
     title: 'ui.nav.monitor',
     icon: '⌁',
     items: [
+      { title: 'ui.nav.eventCalendar', to: '/event-calendar' },
       { title: 'ui.nav.assetTechnical', to: '/asset-technical' },
       { title: 'ui.nav.usIndexes', to: '/us-indexes' },
       { title: 'ui.nav.aShareMarket', to: '/a-share' },
@@ -46,9 +51,12 @@ const groups = computed(() => [
     icon: '◇',
     items: [
       { title: 'ui.nav.resource', to: '/resources' },
+      { title: 'ui.nav.learningPaths', to: '/learning-paths' },
       { title: 'ui.nav.gameIncome', to: '/income-opportunities' },
+      { title: 'ui.nav.incomeLedger', to: '/income-ledger' },
       { title: 'ui.nav.chinaGameIncome', to: '/china-game-income' },
       { title: 'ui.nav.countryTravel', to: '/country-travel-guide' },
+      { title: 'ui.nav.dataHealth', to: '/data-health' },
       { title: 'ui.nav.report', to: '/report' },
       { title: 'ui.nav.about', to: '/about' },
     ],
@@ -76,10 +84,7 @@ const toggleGroup = (title: string) => {
     <div class="brand">
       <RouterLink to="/" @click="$emit('close')"
         ><b><img src="@/assets/space/starship.svg" width="26" height="26" alt="" /></b
-        ><span
-          ><strong>FIRE</strong
-          ><small>MARKET MISSION / 01</small></span
-        ></RouterLink
+        ><span><strong>FIRE</strong><small>MARKET MISSION / 01</small></span></RouterLink
       >
       <div class="brand-actions">
         <button class="close-menu" :aria-label="t('ui.app.closeMenu')" @click="$emit('close')">

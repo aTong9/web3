@@ -26,6 +26,15 @@ const messages: Record<Locale, DictionaryNode> = {
       nav: {
         marketSummary: '总览',
         marketPage: '市场首页',
+        researchWorkspace: '我的研究台',
+        portfolioReview: '组合复盘',
+        reminders: '统一提醒',
+        eventCalendar: '事件日历',
+        personalFinance: '个人资产与 FIRE',
+        dataHealth: '数据健康中心',
+        incomeLedger: '增收实践账本',
+        learningPaths: '专题学习路线',
+
         crossAsset: '跨资产驾驶舱',
         quant: '量化信号',
         monitor: '市场监控',
@@ -75,7 +84,18 @@ const messages: Record<Locale, DictionaryNode> = {
         lightLabel: '浅色',
       },
       routes: {
+        portfolioReview: { title: '组合复盘', description: '配置、外部资金流与估算收益回撤' },
+        reminders: { title: '统一提醒', description: '事件计划与研究笔记复查待办' },
+        eventCalendar: { title: '事件日历', description: '宏观发布计划与公司财报日期' },
+        personalFinance: {
+          title: '个人资产与 FIRE',
+          description: '资产负债、现金流与财务目标情景',
+        },
+        dataHealth: { title: '数据健康中心', description: '快照时效、来源状态与维护入口' },
+        incomeLedger: { title: '增收实践账本', description: '实际投入、到账收入与项目复盘' },
+        learningPaths: { title: '专题学习路线', description: '从资料阅读到动手实践与进度记录' },
         home: { title: '市场首页', description: '今日因子与多周期方向' },
+        researchWorkspace: { title: '我的研究台', description: '自选资产、研究笔记与观点复盘' },
         crossAsset: { title: '跨资产驾驶舱', description: '传导链、相关性与市场状态' },
         quant: { title: '全球资产量化信号', description: '资产排名、期权候选与模拟记录' },
         assetTechnical: { title: '资产走势与技术信号', description: '走势、技术状态与传导链验证' },
@@ -128,6 +148,10 @@ const messages: Record<Locale, DictionaryNode> = {
         websiteResources: '网站资源',
         bookCatalog: '全球书目',
         loadingBooks: '正在加载书目…',
+        booksError: '书目加载失败，请检查网络后重试。',
+        retry: '重新加载',
+        noBooks: '没有匹配的书目，请更换关键词或分类。',
+        favoritesSaveError: '收藏暂未保存到浏览器，当前页面仍可使用；请检查浏览器存储设置。',
         bookSourceTitle: '全球主题书目索引',
         bookSourceDescription:
           '书目来自 Open Library 全球目录，按分类主题、作者与出版信息筛选，并依据版本数和读者评分排序。健康与法律类书目仅供学习索引，不构成专业建议。',
@@ -137,9 +161,9 @@ const messages: Record<Locale, DictionaryNode> = {
         all: '全部',
         allLabel: '全部',
         tipTitle: '使用提示',
-        tipText: '通过标题、简介或域名搜索，星标数据保存在当前浏览器。',
+        tipText: '可用空格组合多个关键词，匹配标题、简介、分类或域名；星标保存在当前浏览器。',
         searchLabel: '搜索',
-        searchPlaceholder: '输入站点、用途或域名…',
+        searchPlaceholder: '搜索站点、分类或用途，空格组合关键词…',
         favoriteOnly: '仅收藏',
         sortLabel: '结果排序',
         sortDefault: '默认排序',
@@ -2028,6 +2052,15 @@ const messages: Record<Locale, DictionaryNode> = {
       nav: {
         marketSummary: 'Overview',
         marketPage: 'Market Home',
+        researchWorkspace: 'My Research',
+        portfolioReview: 'Portfolio review',
+        reminders: 'Reminder center',
+        eventCalendar: 'Event calendar',
+        personalFinance: 'Personal finance & FIRE',
+        dataHealth: 'Data health',
+        incomeLedger: 'Income practice ledger',
+        learningPaths: 'Learning paths',
+
         crossAsset: 'Cross-Asset',
         quant: 'Quant Signals',
         monitor: 'Market Monitor',
@@ -2071,7 +2104,39 @@ const messages: Record<Locale, DictionaryNode> = {
         englishShort: 'EN',
       },
       routes: {
+        portfolioReview: {
+          title: 'Portfolio review',
+          description: 'Allocation, external cash flows and estimated performance',
+        },
+        reminders: {
+          title: 'Reminder center',
+          description: 'Scheduled events and research reviews in one place',
+        },
+        eventCalendar: {
+          title: 'Event calendar',
+          description: 'Macro schedules and corporate earnings dates',
+        },
+        personalFinance: {
+          title: 'Personal finance & FIRE',
+          description: 'Assets, liabilities, cash flow and goal scenarios',
+        },
+        dataHealth: {
+          title: 'Data health',
+          description: 'Snapshot freshness, source status and maintenance',
+        },
+        incomeLedger: {
+          title: 'Income practice ledger',
+          description: 'Actual effort, received income and project reviews',
+        },
+        learningPaths: {
+          title: 'Learning paths',
+          description: 'Read, practice and track your progress',
+        },
         home: { title: 'Market Home', description: 'Today factors and 6-horizon direction' },
+        researchWorkspace: {
+          title: 'My Research',
+          description: 'Watchlist, research notes and reviews',
+        },
         crossAsset: {
           title: 'Cross-Asset Cockpit',
           description: 'Transmission, correlation and market regime',
@@ -2162,6 +2227,11 @@ const messages: Record<Locale, DictionaryNode> = {
         websiteResources: 'Web resources',
         bookCatalog: 'Global books',
         loadingBooks: 'Loading books…',
+        booksError: 'Could not load books. Check your connection and retry.',
+        retry: 'Retry',
+        noBooks: 'No matching books. Try another keyword or category.',
+        favoritesSaveError:
+          'Favorites could not be saved. They remain available on this page; check browser storage settings.',
         bookSourceTitle: 'Global subject bibliography',
         bookSourceDescription:
           'Books come from the Open Library catalog, filtered by subject, author, and publication metadata, then ranked by editions and reader ratings. Health and legal titles are learning references, not professional advice.',
@@ -2170,9 +2240,10 @@ const messages: Record<Locale, DictionaryNode> = {
         allResources: 'All Resources',
         all: 'All',
         tipTitle: 'Usage Tip',
-        tipText: 'Search by title, description, or domain. Favorites stay in current browser.',
+        tipText:
+          'Combine keywords with spaces to search titles, descriptions, categories, or domains. Favorites stay in this browser.',
         searchLabel: 'Search',
-        searchPlaceholder: 'Enter site, purpose, or domain…',
+        searchPlaceholder: 'Search sites or categories; separate keywords with spaces…',
         favoriteOnly: 'Favorites only',
         sortLabel: 'Sort results',
         sortDefault: 'Default order',

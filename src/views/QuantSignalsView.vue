@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, shallowRef } from 'vue'
+import { computed, onMounted, ref, shallowRef, watch } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import AsyncDataState from '@/components/AsyncDataState.vue'
 import DataUpdateStatus from '@/components/DataUpdateStatus.vue'
 import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
@@ -29,10 +30,28 @@ type SortMode = 'score' | 'evidence'
 
 const { locale, t } = useI18n()
 const { can } = useAuth()
+const route = useRoute()
 const dataset = crossAssetData as CrossAssetDataset
 const megaCaps = megaCapData as UsMegaCapDataset
 const optionMarket = optionMarketData as OptionMarketDataset
 const dashboard = shallowRef<QuantDashboard | null>(null)
+let journalScrolled = false
+watch(
+  [() => route.hash, () => Boolean(dashboard.value)],
+  ([hash, ready]) => {
+    if (hash !== '#paper-journal') {
+      journalScrolled = false
+      return
+    }
+    if (!ready || journalScrolled) return
+    const journal = document.getElementById('paper-journal')
+    if (journal) {
+      journal.scrollIntoView({ block: 'start' })
+      journalScrolled = true
+    }
+  },
+  { immediate: true, flush: 'post' },
+)
 const dataLoading = ref(true)
 const dataError = ref(false)
 const loadDashboard = async () => {
@@ -725,7 +744,7 @@ onMounted(async () => {
       </article>
     </section>
 
-    <section class="paper-section">
+    <section id="paper-journal" class="paper-section">
       <div class="section-heading">
         <div>
           <h2>{{ t('quant.paperTitle') }}</h2>
@@ -737,6 +756,14 @@ onMounted(async () => {
         <div>
           <strong>{{ position.symbol }}</strong
           ><span>{{ actionLabel(position.action) }}</span>
+          <RouterLink
+            :to="{
+              path: '/research-workspace',
+              query: { asset: `us-${position.symbol.toLowerCase()}`, tab: 'notes', paper: position.id },
+            }"
+          >
+            {{ locale === 'en' ? 'Record review' : '记录复盘' }}
+          </RouterLink>
         </div>
         <div>
           <small>{{ t('quant.paperOpened') }}</small
@@ -1477,6 +1504,14 @@ onMounted(async () => {
   font-size: 8px;
 }
 .paper-row b {
+  font-size: 11px;
+}
+.paper-row a {
+  width: fit-content;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent);
   font-size: 11px;
 }
 .closed {
