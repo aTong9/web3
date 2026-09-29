@@ -179,18 +179,30 @@ const router = createRouter({
           name: 'market-news',
           component: () => import('../views/MarketNewsView.vue'),
           props: { embedded: true },
+          meta: {
+            titleKey: 'ui.routes.marketNews.title',
+            descriptionKey: 'ui.routes.marketNews.description',
+          },
         },
         {
           path: 'kols',
           name: 'kols',
           component: () => import('../views/KolView.vue'),
           props: { embedded: true },
+          meta: {
+            titleKey: 'ui.routes.kol.title',
+            descriptionKey: 'ui.routes.kol.description',
+          },
         },
         {
           path: 'sources',
           name: 'sources',
           component: () => import('../views/BloggerView.vue'),
           props: { embedded: true },
+          meta: {
+            titleKey: 'ui.routes.blogger.title',
+            descriptionKey: 'ui.routes.blogger.description',
+          },
         },
       ],
     },

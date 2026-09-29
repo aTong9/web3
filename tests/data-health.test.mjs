@@ -49,7 +49,7 @@ test('health metadata distinguishes schedule, source errors, missing collections
 })
 
 test('health index covers valid files without bundling their histories and treats unavailable options honestly', () => {
-  assert.equal(new Set(dataHealthDefinitions.map((item) => item.id)).size, 19)
+  assert.equal(new Set(dataHealthDefinitions.map((item) => item.id)).size, 18)
   for (const definition of dataHealthDefinitions) {
     const raw = readFileSync(`src/data/${definition.id}.json`, 'utf8')
     const data = JSON.parse(raw)

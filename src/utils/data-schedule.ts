@@ -31,7 +31,7 @@ const schedules: Record<DataScheduleId, ScheduleSlot[]> = {
     hour: Math.floor(index / 4),
     minute: (index % 4) * 15,
   })),
-  kols: [2, 8, 14, 20].map((hour) => ({ hour, minute: 15 })),
+  kols: Array.from({ length: 24 }, (_, hour) => ({ hour, minute: 15 })),
   // US close data is archived at 02:30 UTC Tuesday-Saturday.
   usIndexes: [{ hour: 10, minute: 30, weekdays: [2, 3, 4, 5, 6] }],
   norwayFund: [{ hour: 11, minute: 15, weekdays: [1] }],

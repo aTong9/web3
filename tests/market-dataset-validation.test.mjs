@@ -51,13 +51,17 @@ test('fund gate rejects stale and partial snapshots', () => {
 test('US market coverage keeps trillion-dollar mega-caps and 20 funds per venue', () => {
   const funds = JSON.parse(readFileSync('src/data/us-funds.json', 'utf8'))
   const mega = JSON.parse(readFileSync('src/data/us-megacaps.json', 'utf8'))
-  for (const [kind, dataset] of [['us-funds', funds], ['us-megacaps', mega]]) {
+  for (const [kind, dataset] of [
+    ['us-funds', funds],
+    ['us-megacaps', mega],
+  ]) {
     const timestamp = new Date(dataset.updatedAt)
     assert.equal(validateDataset(kind, dataset, timestamp).ok, true)
     const key = kind === 'us-funds' ? 'funds' : 'stocks'
-    const invalidRows = kind === 'us-funds'
-      ? dataset[key].slice(0, 10)
-      : [...dataset.stocks, { symbol: 'BOUNDARY', marketCapUsd: 1_000_000_000_000 }]
+    const invalidRows =
+      kind === 'us-funds'
+        ? dataset[key].slice(0, 10)
+        : [...dataset.stocks, { symbol: 'BOUNDARY', marketCapUsd: 1_000_000_000_000 }]
     assert.equal(validateDataset(kind, { ...dataset, [key]: invalidRows }, timestamp).ok, false)
   }
   assert.equal(new Set(funds.funds.map((fund) => fund.code)).size, 40)
@@ -340,11 +344,19 @@ test('KOL gate tolerates one inaccessible platform while requiring a usable majo
     {
       updatedAt: '2026-08-25T03:00:00.000Z',
       kols: [
-        { id: 'a', name: 'A', url: 'https://a.example', status: 'failed', items: [] },
+        {
+          id: 'a',
+          name: 'A',
+          url: 'https://a.example',
+          platform: 'rss',
+          status: 'failed',
+          items: [],
+        },
         {
           id: 'b',
           name: 'B',
           url: 'https://b.example',
+          platform: 'rss',
           status: 'partial',
           items: [{ title: 'B item', url: 'https://b.example/1' }],
         },
@@ -352,6 +364,7 @@ test('KOL gate tolerates one inaccessible platform while requiring a usable majo
           id: 'c',
           name: 'C',
           url: 'https://c.example',
+          platform: 'rss',
           status: 'stale',
           items: [{ title: 'C item', url: 'https://c.example/1' }],
         },
@@ -362,7 +375,7 @@ test('KOL gate tolerates one inaccessible platform while requiring a usable majo
   assert.equal(result.ok, true)
 })
 
-test('KOL gate rejects an update where most monitored sources have no content', () => {
+test('KOL gate accepts partial source coverage when genuine content exists', () => {
   const result = validateDataset(
     'kol-monitor',
     {
@@ -371,14 +384,33 @@ test('KOL gate rejects an update where most monitored sources have no content', 
         id: `kol-${index}`,
         name: `KOL ${index}`,
         url: `https://example.com/${index}`,
+        platform: 'rss',
         status: index === 0 ? 'ok' : 'failed',
         items: index === 0 ? [{ title: 'Only item', url: 'https://example.com/item' }] : [],
       })),
     },
     now,
   )
+  assert.equal(result.ok, true)
+})
+
+test('KOL gate rejects homepage metadata presented as content', () => {
+  const result = validateDataset(
+    'kol-monitor',
+    {
+      updatedAt: '2026-08-25T07:30:00.000Z',
+      kols: Array.from({ length: 3 }, (_, index) => ({
+        id: `kol-${index}`,
+        name: `KOL ${index}`,
+        url: `https://example.com/${index}`,
+        status: 'partial',
+        items: [{ kind: 'profile', title: 'Homepage', url: `https://example.com/${index}` }],
+      })),
+    },
+    now,
+  )
   assert.equal(result.ok, false)
-  assert.ok(result.errors.some((error) => error.includes('不足一半')))
+  assert.ok(result.errors.some((error) => error.includes('没有可直接展示')))
 })
 
 test('technical-fund gate requires twelve unique recent chronological series', () => {

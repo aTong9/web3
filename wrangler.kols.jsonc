@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "web3-kols-api",
+  "main": "./worker/kols.ts",
+  "compatibility_date": "2026-08-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "ALLOWED_ORIGINS": "https://atong9.github.io,http://localhost:3000,http://127.0.0.1:3000"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "web3-quant",
+      "database_id": "b4eb5a03-96c1-41e0-848b-5d2b2bcb3fd5"
+    }
+  ],
+  "services": [{ "binding": "RSSHUB_FETCHER", "service": "web3-rsshub" }],
+  "triggers": { "crons": ["15 * * * *"] },
+  "observability": { "enabled": true }
+}

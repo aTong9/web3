@@ -367,11 +367,16 @@ export const validateDataset = (kind, dataset, now = new Date(), related = {}) =
     )
   } else if (kind === 'kol-monitor') {
     const kols = Array.isArray(dataset.kols) ? dataset.kols : []
+    const isContent = (kol, item) =>
+      item.kind === 'content' ||
+      (!item.kind && ['youtube', 'rss'].includes(kol.platform) && item.url && item.url !== kol.url)
     const usable = kols.filter(
-      (kol) => ['ok', 'partial', 'stale'].includes(kol.status) && kol.items?.length,
+      (kol) =>
+        ['ok', 'partial', 'stale'].includes(kol.status) &&
+        kol.items?.some((item) => isContent(kol, item)),
     )
     if (kols.length < 3) errors.push('KOL数量少于3个')
-    if (usable.length < Math.ceil(kols.length / 2)) errors.push('有内容的可用KOL不足一半')
+    if (!usable.length) errors.push('没有可直接展示的KOL动态')
     const ids = new Set(kols.map((kol) => kol.id))
     const urls = new Set(kols.map((kol) => kol.url))
     if (ids.size !== kols.length || ids.has(undefined)) errors.push('KOL ID缺失或重复')
@@ -379,11 +384,19 @@ export const validateDataset = (kind, dataset, now = new Date(), related = {}) =
     for (const kol of kols) {
       if (!['ok', 'partial', 'stale', 'failed'].includes(kol.status))
         errors.push(`${kol.name ?? kol.id ?? '未知KOL'}状态无效`)
+      if (kol.lastSuccessAt != null && !validTimestamp(kol.lastSuccessAt))
+        errors.push(`${kol.name ?? kol.id}上次成功同步时间无效`)
       const itemUrls = (kol.items ?? []).map((item) => item.url).filter(Boolean)
       if (new Set(itemUrls).size !== itemUrls.length)
         errors.push(`${kol.name ?? kol.id}内容链接重复`)
       if ((kol.items ?? []).some((item) => !item.title?.trim() || !item.url))
         errors.push(`${kol.name ?? kol.id}存在标题或链接缺失的内容`)
+      if ((kol.items ?? []).some((item) => !/^https?:\/\//i.test(item.url ?? '')))
+        errors.push(`${kol.name ?? kol.id}存在不安全的内容链接`)
+      if (
+        (kol.items ?? []).some((item) => item.kind && !['content', 'profile'].includes(item.kind))
+      )
+        errors.push(`${kol.name ?? kol.id}内容类型无效`)
     }
     facts.push(
       ['KOL/有内容可用', `${kols.length}/${usable.length}`],

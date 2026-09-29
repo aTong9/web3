@@ -82,18 +82,14 @@ const getHost = (url: string) => new URL(url).hostname.replace(/^www\./, '')
       </div>
     </header>
 
-    <section v-else class="embedded-heading">
-      <div>
-        <h2>{{ t('blogger.heading') }}</h2>
-        <p>{{ t('blogger.desc') }}</p>
-      </div>
+    <div v-else class="embedded-filter">
       <input
         v-model="query"
         type="search"
         :placeholder="t('blogger.searchPlaceholder')"
         :aria-label="t('blogger.filterAria')"
       />
-    </section>
+    </div>
 
     <component :is="embedded ? 'section' : 'main'" class="source-list">
       <a
@@ -127,27 +123,12 @@ const getHost = (url: string) => new URL(url).hostname.replace(/^www\./, '')
   max-width: none;
   padding: 0;
 }
-.embedded-heading {
-  margin-bottom: 24px;
-  padding: 18px 20px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
+.embedded-filter {
+  margin-bottom: 16px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  justify-content: flex-end;
 }
-.embedded-heading h2 {
-  margin: 0 0 6px;
-  font: 500 24px Georgia, 'Songti SC', serif;
-}
-.embedded-heading p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 12px;
-}
-.embedded-heading input {
+.embedded-filter input {
   width: min(280px, 100%);
   min-height: 40px;
   padding: 0 12px;
@@ -248,11 +229,7 @@ h1 {
 }
 
 @media (max-width: 700px) {
-  .embedded-heading {
-    align-items: stretch;
-    flex-direction: column;
-  }
-  .embedded-heading input {
+  .embedded-filter input {
     width: 100%;
   }
   .heading-row {

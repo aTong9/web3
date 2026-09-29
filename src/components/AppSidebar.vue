@@ -44,7 +44,10 @@ const groups = computed(() => [
   {
     title: 'ui.nav.intelligence',
     icon: '◎',
-    items: [{ title: 'ui.nav.intelligenceCenter', to: '/intelligence' }],
+    items: [
+      { title: 'intelligence.tabs.news', to: '/intelligence/news' },
+      { title: 'ui.nav.kol', to: '/intelligence/kols' },
+    ],
   },
   {
     title: 'ui.nav.tools',

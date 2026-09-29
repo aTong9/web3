@@ -566,11 +566,13 @@ export interface KolStockMention {
 }
 
 export interface KolContentItem {
+  kind?: 'content' | 'profile'
   id: string
   title: string
   description: string
   url: string
   publishedAt: string | null
+  publishedLabel?: string
   stocks: KolStockMention[]
 }
 
@@ -578,10 +580,12 @@ export interface MonitoredKol {
   id: string
   name: string
   url: string
+  feedUrl?: string
   tags: string[]
   platform: KolPlatform
   status: KolSyncStatus
   statusMessage: string
+  lastSuccessAt?: string | null
   items: KolContentItem[]
 }
 

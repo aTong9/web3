@@ -152,15 +152,6 @@ export const dataHealthDefinitions: DataHealthDefinition[] = [
     collections: ['articles'],
   },
   {
-    id: 'kol-monitor',
-    title: 'KOL 监控',
-    titleEn: 'KOL monitor',
-    route: '/intelligence/kols',
-    workflow: 'kols',
-    schedule: 'kols',
-    collections: ['kols'],
-  },
-  {
     id: 'reddit-monitor',
     title: 'Reddit 监控',
     titleEn: 'Reddit monitor',

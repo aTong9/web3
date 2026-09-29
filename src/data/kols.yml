@@ -1,17 +1,156 @@
-# 添加 KOL 时只需填写 name 和 url。若平台限制抓取，可额外提供 feedUrl。
 - name: HenrySlowFIRE
   url: https://www.youtube.com/@HenrySlowFIRE/videos
-  enabled: true
-
+  feedUrl: https://www.youtube.com/feeds/videos.xml?channel_id=UC9KZAJODBZXwVbJje4SZg2A
+  enabled: false
 - name: 所有的烦恼都源于你穷
   url: https://www.xiaohongshu.com/user/profile/61ba0abd0000000010008ffa
-  enabled: true
-
+  enabled: false
 - name: 所有的烦恼都源于你穷（微信文章）
   url: https://mp.weixin.qq.com/s/a63aQFbWTtnMe3aSo1qp6A
-  enabled: true
-
+  enabled: false
 - name: 赚不完
   url: https://x.com/Ryu_LCat
+  enabled: false
+  tags:
+    - 美股
+    - 宏观
+- name: TheBlockBeats - 快讯
+  url: https://www.theblockbeats.info/newsflash
+  feedUrl: https://rsshub.app/theblockbeats/newsflash/0
   enabled: true
-  tags: [美股, 宏观]
+  tags:
+    - 加密
+  id: rss-51ad340c7133
+- name: Twitter @币安Binance华语
+  url: https://x.com/binancezh
+  feedUrl: https://rsshub.app/twitter/user/binancezh
+  enabled: true
+  tags:
+    - 加密
+  id: x-2665437e8b20
+- name: 赚_LCat的微博
+  url: https://weibo.com/6225948555/
+  feedUrl: https://rsshub.app/weibo/user/6225948555
+  enabled: true
+  tags:
+    - 加密
+  id: weibo-00321e6e5cd5
+- name: Twitter @CZ 🔶 BNB
+  url: https://x.com/cz_binance
+  feedUrl: https://rsshub.app/twitter/user/cz_binance
+  enabled: true
+  tags:
+    - 加密
+  id: x-790cd2876ad2
+- name: Twitter @冷静冷静再冷静
+  url: https://x.com/hexiecs
+  feedUrl: https://rsshub.app/twitter/user/hexiecs
+  enabled: true
+  tags:
+    - 加密
+  id: x-47ed36ccac3e
+- name: Twitter @大宇
+  url: https://x.com/BTCdayu
+  feedUrl: https://rsshub.app/twitter/user/BTCdayu
+  enabled: true
+  tags:
+    - 加密
+  id: x-ab21ca29bc32
+- name: Twitter @深大高财生.milady
+  url: https://x.com/GCsheng
+  feedUrl: https://rsshub.app/twitter/user/GCsheng
+  enabled: true
+  tags:
+    - 加密
+  id: x-c17208f5e376
+- name: Twitter @土澳大狮兄BroLeon | 🔶BNB |
+  url: https://x.com/BroLeonAus
+  feedUrl: https://rsshub.app/twitter/user/BroLeonAus
+  enabled: true
+  tags:
+    - 加密
+  id: x-10f652c34f8c
+- name: Twitter @Yi He
+  url: https://x.com/heyibinance
+  feedUrl: https://rsshub.app/twitter/user/heyibinance
+  enabled: true
+  tags:
+    - 加密
+  id: x-c05be27cdea7
+- name: Twitter @陈剑Jason
+  url: https://x.com/jason_chen998
+  feedUrl: https://rsshub.app/twitter/user/jason_chen998
+  enabled: true
+  tags:
+    - 加密
+  id: x-702e738ca2ae
+- name: 少数派
+  url: https://sspai.com/
+  feedUrl: https://sspai.com/feed
+  enabled: true
+  tags:
+    - 技术
+  id: rss-e35726e38947
+- name: 小众软件
+  url: https://www.appinn.com/
+  feedUrl: http://feeds-origin.appinn.com/appinns
+  enabled: true
+  tags:
+    - 技术
+  id: rss-47bcbb166783
+- name: HelloGithub - 精选开源项目
+  url: https://hellogithub.com/?sort_by=featured
+  feedUrl: https://rsshub.app/hellogithub/home
+  enabled: true
+  tags:
+    - 技术
+  id: rss-7a04362aa09c
+- name: 逛逛GitHub
+  url: https://ihsmgpnk.sealosgzg.site/feed/3516884134.xml
+  feedUrl: https://ihsmgpnk.sealosgzg.site/feed/3516884134.xml
+  enabled: true
+  tags:
+    - 技术
+  id: rss-be6f2d6141c2
+- name: Agili 的 Hacker Podcast
+  url: https://hacker-podcast.agi.li/
+  feedUrl: https://hacker-podcast.agi.li/rss.xml
+  enabled: true
+  tags:
+    - 新闻
+  id: rss-b5bc9cb15f87
+- name: AI资讯日报 RSS Feed
+  url: https://hex2077.dev/
+  feedUrl: https://justlovemaki.github.io/CloudFlare-AI-Insight-Daily/rss.xml
+  enabled: true
+  tags:
+    - 新闻
+  id: rss-660978058ae7
+- name: BBC中文 全文 实时推送 - Telegram Channel
+  url: https://t.me/s/bbczhongwen_rss
+  feedUrl: https://rsshub.app/telegram/channel/bbczhongwen_rss
+  enabled: true
+  tags:
+    - 新闻
+  id: rss-40aed527b58e
+- name: 彭博社最新报道
+  url: https://bbg.buzzing.cc/
+  feedUrl: https://bbg.buzzing.cc/feed.json
+  enabled: true
+  tags:
+    - 新闻
+  id: rss-7a8976c533c6
+- name: Bloomberg - News
+  url: http://www.bloomberg.com/
+  feedUrl: https://rsshub.app/bloomberg/%2F
+  enabled: true
+  tags:
+    - 新闻
+  id: rss-be989b385979
+- name: Twitter @陈一发儿
+  url: https://x.com/yifaer_chen
+  feedUrl: https://rsshub.app/twitter/user/yifaer_chen
+  enabled: true
+  tags:
+    - 美股
+  id: x-17409e864c21

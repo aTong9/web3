@@ -423,6 +423,25 @@
 #app .app-shell .research-header.workbench > div {
   animation: none;
 }
+#app .app-shell .kol-intelligence .research-header.workbench {
+  min-height: 0;
+  padding: 0 0 12px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  background-image: none;
+}
+#app .app-shell .kol-intelligence .research-header.workbench::after {
+  display: none;
+}
+#app .app-shell .kol-intelligence .research-header.workbench aside {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+#app .app-shell .kol-intelligence .research-header.workbench h1 {
+  font-size: 28px;
+}
 @media (max-width: 1100px) {
   #app .app-shell .research-header {
     background-position: right center;
