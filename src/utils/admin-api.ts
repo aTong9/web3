@@ -1,26 +1,8 @@
 import type { AnalyticsConfig, AppUser, UserRole } from '@/types'
-import { cloudflareFetch } from '@/utils/cloudflare-fetch'
+import { requestWorkerJson } from '@/utils/worker-json-request'
 
-const apiBase =
-  (import.meta.env.VITE_QUANT_API_BASE as string | undefined)?.replace(/\/$/, '') ||
-  (import.meta.env.DEV ? 'http://localhost:8787' : 'https://web3-quant-api.binson0426.workers.dev')
-
-const request = async <T>(path: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem('market-admin-session')
-  const response = await cloudflareFetch(`${apiBase}${path}`, {
-    ...options,
-    headers: {
-      Accept: 'application/json',
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-    signal: AbortSignal.timeout(12_000),
-  })
-  const body = (await response.json()) as T & { error?: string }
-  if (!response.ok) throw new Error(body.error || `API ${response.status}`)
-  return body
-}
+const request = <T>(path: string, options?: RequestInit) =>
+  requestWorkerJson<T>(path, options, 'API')
 
 export const adminApi = {
   status: () => request<{ initialized: boolean }>('/api/auth/status'),

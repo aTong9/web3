@@ -1,5 +1,4 @@
 import type { NavTaxonomy } from '@/types'
-import { load } from 'js-yaml'
-import webstackData from '@/data/webstack.yml?raw'
+import webstackData from 'virtual:webstack'
 
-export const navigationData = load(webstackData) as NavTaxonomy[]
+export const navigationData = webstackData as NavTaxonomy[]

@@ -112,11 +112,36 @@ const githubPagesFallbackPlugin = (): Plugin => ({
   },
 })
 
+const webstackPlugin = (): Plugin => {
+  const id = 'virtual:webstack'
+  let path = ''
+  return {
+    name: 'webstack-yaml',
+    configResolved(config) {
+      path = resolve(config.root, 'src/data/webstack.yml')
+    },
+    resolveId(source) {
+      if (source === id) return `\0${id}`
+    },
+    async load(source) {
+      if (source !== `\0${id}`) return
+      this.addWatchFile(path)
+      return `export default ${JSON.stringify(load(await readFile(path, 'utf8')))}`
+    },
+    handleHotUpdate({ file, server }) {
+      if (file !== path) return
+      const module = server.moduleGraph.getModuleById(`\0${id}`)
+      if (module) return [module]
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
     dataHealthPlugin(),
+    webstackPlugin(),
     vueDevTools(),
     kolSubscriptionPlugin(),
     githubPagesFallbackPlugin(),

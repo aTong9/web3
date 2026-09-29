@@ -9,3 +9,8 @@ declare module 'virtual:data-health' {
   const snapshots: import('./src/types/data-health').DataHealthSnapshot[]
   export default snapshots
 }
+
+declare module 'virtual:webstack' {
+  const navigationData: import('./src/types').NavTaxonomy[]
+  export default navigationData
+}

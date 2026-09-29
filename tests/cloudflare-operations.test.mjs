@@ -8,6 +8,56 @@ const { cloudflareFetch } = await createJiti(import.meta.url).import(
   '../src/utils/cloudflare-fetch.ts',
 )
 
+const requestJiti = createJiti(import.meta.url, {
+  alias: { '@': new URL('../src', import.meta.url).pathname },
+})
+const { requestWorkerJson } = await requestJiti.import('../src/utils/worker-json-request.ts')
+const { adminApi } = await requestJiti.import('../src/utils/admin-api.ts')
+const { technicalAlertApi } = await requestJiti.import('../src/utils/technical-alert-api.ts')
+
+test('Worker JSON requests preserve session, headers, timeout, and error text', async (t) => {
+  const originalStorage = globalThis.localStorage
+  let token = 'first'
+  globalThis.localStorage = { getItem: () => token }
+  t.after(() => {
+    globalThis.localStorage = originalStorage
+  })
+
+  const calls = []
+  t.mock.method(AbortSignal, 'timeout', (ms) => {
+    assert.equal(ms, 12_000)
+    return new AbortController().signal
+  })
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    calls.push({ url, options })
+    return url.endsWith('/api/auth/status') || url.endsWith('/api/technical-alerts')
+      ? Response.json({}, { status: 503 })
+      : Response.json({ ok: true })
+  })
+
+  await adminApi.publicAnalytics()
+  token = 'second'
+  await requestWorkerJson('/api/request-check-2')
+  await requestWorkerJson('/api/request-check', {
+    method: 'POST',
+    body: '{}',
+    headers: { Accept: 'text/plain', Authorization: 'Bearer override' },
+  })
+  assert.match(calls[0].url, /\/api\/analytics\/config$/)
+  assert.equal(calls[0].options.headers.Authorization, 'Bearer first')
+  assert.equal(calls[1].options.headers.Authorization, 'Bearer second')
+  assert.equal(calls[2].options.headers.Authorization, 'Bearer override')
+  assert.equal(calls[2].options.headers.Accept, 'text/plain')
+  assert.equal(calls[2].options.headers['Content-Type'], 'application/json')
+  assert.ok(calls.every(({ options }) => options.signal instanceof AbortSignal))
+
+  await assert.rejects(adminApi.status(), /API 503/)
+  await assert.rejects(technicalAlertApi.list(), /Cloudflare API 503/)
+  await requestWorkerJson('/api/technical-config')
+  await requestWorkerJson('/api/technical-config')
+  assert.equal(calls.filter(({ url }) => url.endsWith('/api/technical-config')).length, 1)
+})
+
 test('panel throttles automatic refresh but permits explicit refresh', async () => {
   const source = fs.readFileSync(
     new URL('../src/components/BtcAutoTradingPanel.vue', import.meta.url),

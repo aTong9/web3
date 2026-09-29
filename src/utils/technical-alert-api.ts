@@ -1,34 +1,10 @@
-import type {
-  TechnicalAlertCondition,
-  TechnicalAlertHorizon,
-  TechnicalAlertRule,
-} from '@/types'
+import type { TechnicalAlertCondition, TechnicalAlertHorizon, TechnicalAlertRule } from '@/types'
 
-import { cloudflareFetch } from '@/utils/cloudflare-fetch'
-
-const apiBase =
-  (import.meta.env.VITE_QUANT_API_BASE as string | undefined)?.replace(/\/$/, '') ||
-  (import.meta.env.DEV ? 'http://localhost:8787' : 'https://web3-quant-api.binson0426.workers.dev')
-
-const request = async <T>(path: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem('market-admin-session')
-  const response = await cloudflareFetch(`${apiBase}${path}`, {
-    ...options,
-    headers: {
-      Accept: 'application/json',
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-    signal: AbortSignal.timeout(12_000),
-  })
-  const body = (await response.json()) as T & { error?: string }
-  if (!response.ok) throw new Error(body.error || `Cloudflare API ${response.status}`)
-  return body
-}
+import { requestWorkerJson as request } from '@/utils/worker-json-request'
 
 export const technicalAlertApi = {
-  list: async () => (await request<{ alerts: TechnicalAlertRule[] }>('/api/technical-alerts')).alerts,
+  list: async () =>
+    (await request<{ alerts: TechnicalAlertRule[] }>('/api/technical-alerts')).alerts,
   create: async (input: {
     assetId: string
     assetName: string

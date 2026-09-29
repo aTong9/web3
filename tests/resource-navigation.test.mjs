@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import { load } from 'js-yaml'
 import { createJiti } from 'jiti'
+import { createServer } from 'vite'
 
 const jiti = createJiti(import.meta.url)
 const { createResourceMatcher, parseResourceFavorites } = jiti('../src/utils/resource-search.ts')
@@ -58,5 +59,16 @@ test('resource catalog has unique categories and URLs with complete, safe entrie
         urls.add(key)
       }
     }
+  }
+})
+
+test('virtual resource catalog preserves YAML content and order', async () => {
+  const server = await createServer({ server: { open: false, hmr: false } })
+  try {
+    const generated = (await server.ssrLoadModule('virtual:webstack')).default
+    const source = load(readFileSync('src/data/webstack.yml', 'utf8'))
+    assert.deepEqual(generated, source)
+  } finally {
+    await server.close()
   }
 })
