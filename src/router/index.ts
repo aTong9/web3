@@ -243,6 +243,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/china-demography',
+      name: 'china-demography',
+      component: () => import('../views/ChinaDemographyView.vue'),
+      meta: {
+        titleKey: 'ui.routes.chinaDemography.title',
+        descriptionKey: 'ui.routes.chinaDemography.description',
+      },
+    },
+    {
       path: '/a-share',
       name: 'a-share',
       component: () => import('../views/AShareView.vue'),

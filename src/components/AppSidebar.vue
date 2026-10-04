@@ -30,6 +30,7 @@ const groups = computed(() => [
       { title: 'ui.nav.eventCalendar', to: '/event-calendar' },
       { title: 'ui.nav.assetTechnical', to: '/asset-technical' },
       { title: 'ui.nav.usIndexes', to: '/us-indexes' },
+      { title: 'ui.nav.chinaDemography', to: '/china-demography' },
       { title: 'ui.nav.aShareMarket', to: '/a-share' },
       { title: 'ui.nav.usMarket', to: '/funds' },
       { title: 'ui.nav.norwayFund', to: '/norway-sovereign-fund' },
