@@ -178,10 +178,10 @@ const syncSubscription = async (row: SubscriptionRow, env: Env & KolsEnv) => {
          WHERE owner_user_id=? AND id=?`,
       ).bind(`已同步 ${items.length} 条`, now, now, row.owner_user_id, row.id),
       env.DB.prepare(
-        `DELETE FROM kol_items WHERE owner_user_id=? AND subscription_id=? AND id NOT IN
-         (SELECT id FROM kol_items WHERE owner_user_id=? AND subscription_id=?
-          ORDER BY COALESCE(published_at,created_at) DESC LIMIT 100)`,
-      ).bind(row.owner_user_id, row.id, row.owner_user_id, row.id),
+        `DELETE FROM kol_items WHERE rowid IN
+         (SELECT rowid FROM kol_items WHERE owner_user_id=? AND subscription_id=?
+          ORDER BY COALESCE(published_at,created_at) DESC LIMIT -1 OFFSET 100)`,
+      ).bind(row.owner_user_id, row.id),
     ])
   } catch (error) {
     const prior = await env.DB.prepare(

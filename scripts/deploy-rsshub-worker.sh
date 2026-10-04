@@ -3,6 +3,7 @@ set -euo pipefail
 
 RSSHUB_COMMIT=75dc86653f3c2bc5697b15ef9c290b4be85ec4eb
 RSSHUB_CHECKOUT=${RSSHUB_CHECKOUT:-/tmp/web3-rsshub-$RSSHUB_COMMIT}
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 mode=${1:---dry-run}
 
 if [[ $mode != --dry-run && $mode != --deploy ]]; then
@@ -24,6 +25,8 @@ fi
 if [[ ! -f $RSSHUB_CHECKOUT/dist-worker/worker.mjs ]]; then
   (cd "$RSSHUB_CHECKOUT" && npx --yes pnpm@10.34.5 run worker-build)
 fi
+cp "$SCRIPT_DIR/../worker/rsshub-cache-adapter.mjs" "$RSSHUB_CHECKOUT/dist-worker/rsshub-cache-adapter.mjs"
+cp "$SCRIPT_DIR/../worker/rsshub-worker-entry.mjs" "$RSSHUB_CHECKOUT/dist-worker/rsshub-worker-entry.mjs"
 
 git -C "$RSSHUB_CHECKOUT" show "$RSSHUB_COMMIT:wrangler.toml" > "$RSSHUB_CHECKOUT/wrangler.web3.toml"
 python3 - "$RSSHUB_CHECKOUT/wrangler.web3.toml" <<'PY'
@@ -32,9 +35,12 @@ import sys
 
 path = Path(sys.argv[1])
 source = path.read_text()
+assert 'main = "dist-worker/worker.mjs"' in source
+source = source.replace('main = "dist-worker/worker.mjs"', 'main = "dist-worker/rsshub-worker-entry.mjs"', 1)
 source = source.replace('name = "rsshub"', 'name = "web3-rsshub"\nworkers_dev = false\npreview_urls = false', 1)
 source = source.replace('command = "pnpm run worker-build"', 'command = "true"', 1)
-source = source.replace('binding = "CACHE"', 'binding = "CACHE"\nid = "767b07f6b63247cfafe964e30d63cbc4"', 1)
+# The wrapper provides CACHE using the Workers Cache API, so no KV namespace is bound.
+source = source.replace('[[kv_namespaces]]\nbinding = "CACHE"', '', 1)
 path.write_text(source)
 PY
 
