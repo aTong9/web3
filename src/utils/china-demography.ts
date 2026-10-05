@@ -1,6 +1,49 @@
 import demographyData from '@/data/china-demography.json'
+import earlyData from '@/data/china-demography-early.json'
+import historyData from '@/data/china-demography-history.json'
 
 export type ChinaScenario = 'low' | 'medium' | 'high'
+
+export interface ChinaHistoricalYear {
+  year: number
+  basis:
+    | 'mpd-2020-estimate'
+    | 'un-wpp-2024-estimate'
+    | 'un-wpp-2024-medium-projection'
+    | 'unavailable'
+  populationWan: number | null
+  populationDate: '1 January' | '1 July' | null
+  birthsWan: number | null
+  deathsWan: number | null
+  netMigrationWan: number | null
+  residentialUnitsWan: null
+  residentialFloorAreaBillionM2: null
+}
+
+/** MPD stocks are midyear; WPP stocks are 1 January. Flows cover the calendar year. */
+export const CHINA_HISTORICAL_YEARS: ChinaHistoricalYear[] = Array.from(
+  { length: 127 },
+  (_, index) => {
+    const year = 1900 + index
+    const source = historyData.find((row) => row.year === year)
+    const earlySource = earlyData.find((row) => row.year === year)
+    return {
+      year,
+      basis: source
+        ? (source.basis as ChinaHistoricalYear['basis'])
+        : earlySource
+          ? 'mpd-2020-estimate'
+          : 'unavailable',
+      populationWan: source?.populationJan1Wan ?? earlySource?.populationJuly1Wan ?? null,
+      populationDate: source ? '1 January' : earlySource ? '1 July' : null,
+      birthsWan: source?.birthsWan ?? null,
+      deathsWan: source?.deathsWan ?? null,
+      netMigrationWan: source?.netMigrationWan ?? null,
+      residentialUnitsWan: null,
+      residentialFloorAreaBillionM2: null,
+    }
+  },
+)
 
 export interface ChinaHousingAssumptions {
   householdSize2025: number

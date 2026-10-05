@@ -6,6 +6,7 @@ import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
 import { useI18n } from '@/composables/use-i18n'
 import anchorData from '@/data/china-demography.json'
 import {
+  CHINA_HISTORICAL_YEARS,
   DEFAULT_CHINA_HOUSING_ASSUMPTIONS,
   projectChinaDemography,
   type ChinaHousingAssumptions,
@@ -16,6 +17,9 @@ const { locale, t } = useI18n()
 const key = (name: string) => t(`chinaDemography.${name}`)
 const scenarios: ChinaScenario[] = ['low', 'medium', 'high']
 const scenario = ref<ChinaScenario>('medium')
+const mode = ref<'history' | 'projection'>('history')
+const historyRange = ref<'all' | 'early' | 'estimate' | 'forecast'>('all')
+const historyPage = ref(1)
 const endYear = ref(2125)
 const page = ref(1)
 const pageSize = 20
@@ -60,6 +64,21 @@ const pageCount = computed(() => Math.ceil(rows.value.length / pageSize))
 const tableRows = computed(() =>
   rows.value.slice((page.value - 1) * pageSize, page.value * pageSize),
 )
+const historyRows = computed(() =>
+  CHINA_HISTORICAL_YEARS.filter((row) => {
+    if (historyRange.value === 'early') return row.year <= 1949
+    if (historyRange.value === 'estimate') return row.year >= 1950 && row.year <= 2023
+    if (historyRange.value === 'forecast') return row.year >= 2024
+    return true
+  }),
+)
+const historyPageCount = computed(() => Math.ceil(historyRows.value.length / pageSize))
+const historyTableRows = computed(() =>
+  historyRows.value.slice((historyPage.value - 1) * pageSize, historyPage.value * pageSize),
+)
+watch(historyRange, () => {
+  historyPage.value = 1
+})
 watch(scenario, () => {
   page.value = 1
 })
@@ -76,6 +95,16 @@ const number = (value: number, digits = 0) =>
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   })
+const historyNumber = (value: number | null, digits = 0) =>
+  value === null ? key('unavailable') : number(value, digits)
+const historyBasisLabel = (basis: string) =>
+  basis === 'mpd-2020-estimate'
+    ? key('mpdEstimate')
+    : basis === 'un-wpp-2024-estimate'
+      ? key('wppEstimate')
+      : basis === 'un-wpp-2024-medium-projection'
+        ? key('wppForecast')
+        : key('unavailable')
 
 const axisText = '#8a9894'
 const commonChart = (unit: string) => ({
@@ -190,7 +219,119 @@ const housingOption = computed<EChartsCoreOption>(() => ({
     ),
   ],
 }))
+const historyChartBase = (unit: string) => ({
+  animation: false,
+  tooltip: { trigger: 'axis' },
+  legend: { top: 0, textStyle: { color: axisText } },
+  grid: { left: 64, right: 18, top: 54, bottom: 58 },
+  xAxis: {
+    type: 'category',
+    data: historyRows.value.map((row) => row.year),
+    axisLabel: { color: axisText, hideOverlap: true },
+  },
+  yAxis: {
+    type: 'value',
+    name: unit,
+    nameTextStyle: { color: axisText },
+    axisLabel: { color: axisText },
+  },
+  dataZoom: [{ type: 'inside' }, { type: 'slider', height: 16, bottom: 12 }],
+})
+const historyTotalOption = computed<EChartsCoreOption>(() => ({
+  ...historyChartBase(key('populationAxis')),
+  series: [
+    { basis: 'mpd-2020-estimate', name: key('mpdEstimate'), color: '#a17ac5' },
+    { basis: 'un-wpp-2024-estimate', name: key('wppEstimate'), color: '#57b28f' },
+    { basis: 'un-wpp-2024-medium-projection', name: key('wppForecast'), color: '#d29b65' },
+  ].map(({ basis, name, color }) => ({
+    name,
+    type: 'line',
+    showSymbol: false,
+    connectNulls: false,
+    data: historyRows.value.map((row) => (row.basis === basis ? row.populationWan : null)),
+    itemStyle: { color },
+  })),
+}))
+const historyFlowsOption = computed<EChartsCoreOption>(() => ({
+  ...historyChartBase(key('populationAxis')),
+  series: [
+    {
+      name: key('births'),
+      color: '#48a9c4',
+      values: historyRows.value.map((row) => row.birthsWan),
+    },
+    {
+      name: key('deaths'),
+      color: '#d58662',
+      values: historyRows.value.map((row) => row.deathsWan),
+    },
+    {
+      name: key('naturalChange'),
+      color: '#a17ac5',
+      values: historyRows.value.map((row) =>
+        row.birthsWan === null || row.deathsWan === null ? null : row.birthsWan - row.deathsWan,
+      ),
+    },
+  ].map(({ name, color, values }) => ({
+    name,
+    type: 'line',
+    showSymbol: false,
+    connectNulls: false,
+    data: values,
+    itemStyle: { color },
+  })),
+}))
 const csvCell = (value: string | number) => `"${String(value).replace(/"/g, '""')}"`
+const downloadCsv = (columns: string[], values: (string | number | null)[][], name: string) => {
+  const lines = [
+    columns.map(csvCell).join(','),
+    ...values.map((row) => row.map((value) => csvCell(value ?? '')).join(',')),
+  ]
+  const file = new Blob(['\uFEFF', lines.join('\r\n')], { type: 'text/csv;charset=utf-8' })
+  const url = URL.createObjectURL(file)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = name
+  link.click()
+  window.setTimeout(() => URL.revokeObjectURL(url), 0)
+}
+const exportHistoryCsv = () => {
+  downloadCsv(
+    [
+      'year',
+      'populationWan',
+      'birthsWan',
+      'deathsWan',
+      'naturalChangeWan',
+      'netMigrationWan',
+      'residentialUnitsWan',
+      'residentialFloorAreaBillionM2',
+      'basis',
+      'source',
+      'populationTime',
+      'flowPeriod',
+    ],
+    historyRows.value.map((row) => [
+      row.year,
+      row.populationWan,
+      row.birthsWan,
+      row.deathsWan,
+      row.birthsWan === null || row.deathsWan === null ? null : row.birthsWan - row.deathsWan,
+      row.netMigrationWan,
+      row.residentialUnitsWan,
+      row.residentialFloorAreaBillionM2,
+      row.basis,
+      row.basis === 'mpd-2020-estimate'
+        ? anchorData.sources.mpd2020
+        : row.basis === 'unavailable'
+          ? ''
+          : anchorData.sources.unWpp2024,
+      row.populationDate ?? '',
+      row.birthsWan === null ? '' : 'calendar year',
+    ]),
+    `china-demography-history-${historyRange.value}-1900-2026.csv`,
+  )
+}
 const exportCsv = () => {
   const columns = [
     'year',
@@ -290,185 +431,336 @@ const exportCsv = () => {
       </template>
       <template #status>
         <div class="hero-status">
-          <small>{{ key('projection') }}</small>
+          <small>{{ mode === 'history' ? key('historyStatus') : key('projection') }}</small>
           <strong>{{
-            scenario === 'low' ? key('low') : scenario === 'high' ? key('high') : key('medium')
+            mode === 'history'
+              ? key('historyStatusStrong')
+              : scenario === 'low'
+                ? key('low')
+                : scenario === 'high'
+                  ? key('high')
+                  : key('medium')
           }}</strong>
-          <span>{{ key('longHorizon') }}</span>
+          <span>{{ mode === 'history' ? key('historyStatusNote') : key('longHorizon') }}</span>
         </div>
       </template>
     </ResearchPageHeader>
 
-    <section class="panel controls" :aria-label="key('scenario')">
-      <label
-        >{{ key('scenario') }}
-        <select v-model="scenario">
-          <option v-for="value in scenarios" :key="value" :value="value">{{ key(value) }}</option>
-        </select>
-      </label>
-      <label
-        >{{ key('horizon') }}
-        <select v-model.number="endYear">
-          <option :value="2050">2050</option>
-          <option :value="2100">2100</option>
-          <option :value="2125">2125</option>
-        </select>
-      </label>
-      <p>{{ key('scenarioNote') }}</p>
-    </section>
-
-    <div v-if="selectedYear" class="summary-grid">
-      <article class="panel summary">
-        <small>{{ endYear }} · {{ key('population') }} / {{ key('peopleWan') }}</small
-        ><strong>{{ number(selectedYear.populationWan) }}</strong>
-      </article>
-      <article class="panel summary">
-        <small
-          >{{ endYear }} · {{ key('workingAge') }} ({{ key('ageAssumption') }}) /
-          {{ key('peopleWan') }}</small
-        ><strong>{{ number(selectedYear.age16to59Wan) }}</strong>
-      </article>
-      <article class="panel summary">
-        <small
-          >{{ endYear }} · {{ key('older') }} ({{ key('ageAssumption') }}) /
-          {{ key('peopleWan') }}</small
-        ><strong>{{ number(selectedYear.age65PlusWan) }}</strong>
-      </article>
-      <article class="panel summary">
-        <small>{{ endYear }} · {{ key('households') }} / {{ key('householdsWan') }}</small
-        ><strong>{{ number(selectedYear.householdsWan) }}</strong>
-      </article>
+    <div class="mode-tabs" role="tablist" :aria-label="key('viewMode')">
+      <button
+        type="button"
+        role="tab"
+        :aria-selected="mode === 'history'"
+        @click="mode = 'history'"
+      >
+        {{ key('historyTab') }}
+      </button>
+      <button
+        type="button"
+        role="tab"
+        :aria-selected="mode === 'projection'"
+        @click="mode = 'projection'"
+      >
+        {{ key('projectionTab') }}
+      </button>
     </div>
 
-    <section class="chart-grid">
-      <article class="panel chart-panel">
-        <h2>{{ key('totalChart') }}</h2>
-        <EChart :option="totalOption" :label="key('totalChart')" />
-      </article>
-      <article class="panel chart-panel">
-        <h2>{{ key('populationChart') }}</h2>
-        <EChart :option="birthsOption" :label="key('populationChart')" />
-      </article>
-      <article class="panel chart-panel">
-        <h2>{{ key('ageChart') }}</h2>
-        <EChart :option="ageOption" :label="key('ageChart')" />
-        <p>{{ key('ageNote') }}</p>
-      </article>
-      <article class="panel chart-panel wide">
-        <h2>{{ key('housingChart') }}</h2>
-        <EChart :option="housingOption" :label="key('housingChart')" />
-        <p>{{ key('balanceNote') }}</p>
-      </article>
-    </section>
-
-    <section class="panel assumptions">
-      <div class="section-heading">
-        <div>
-          <h2>{{ key('assumptions') }}</h2>
-          <p>{{ key('assumptionNote') }}</p>
-          <p>
-            {{
-              t('chinaDemography.sampleNote', {
-                households: number(anchorData.sample2025.familyHouseholdsWan),
-                size: anchorData.sample2025.averageFamilyHouseholdSize,
-              })
-            }}
-          </p>
-        </div>
-        <button type="button" @click="resetAssumptions">{{ key('reset') }}</button>
-      </div>
-      <div class="assumption-grid">
-        <label v-for="field in assumptionFields" :key="field.key">
-          <span>{{ key(field.key) }}</span>
-          <input
-            type="number"
-            :min="field.min"
-            :max="field.max"
-            :step="field.step"
-            :value="assumptions[field.key]"
-            @change="updateAssumption(field, $event)"
-          />
+    <div v-if="mode === 'history'">
+      <section class="panel controls" :aria-label="key('historyRange')">
+        <label
+          >{{ key('historyRange') }}
+          <select v-model="historyRange">
+            <option value="all">{{ key('rangeAll') }}</option>
+            <option value="early">{{ key('rangeEarly') }}</option>
+            <option value="estimate">{{ key('rangeEstimate') }}</option>
+            <option value="forecast">{{ key('rangeForecast') }}</option>
+          </select>
         </label>
-      </div>
-    </section>
-
-    <section class="panel data-section">
-      <div class="section-heading">
-        <div>
-          <h2>{{ key('modelRows') }}</h2>
-          <p>{{ key('projection') }} · {{ key('unitWan') }}</p>
+        <p>{{ key('historySummary') }}</p>
+      </section>
+      <section class="chart-grid">
+        <article class="panel chart-panel">
+          <h2>{{ key('historyPopulationChart') }}</h2>
+          <EChart :option="historyTotalOption" :label="key('historyPopulationChart')" />
+        </article>
+        <article class="panel chart-panel">
+          <h2>{{ key('populationChart') }}</h2>
+          <EChart :option="historyFlowsOption" :label="key('populationChart')" />
+        </article>
+      </section>
+      <section class="panel data-section">
+        <div class="section-heading">
+          <div>
+            <h2>{{ key('historicalRows') }}</h2>
+            <p>{{ key('historyTableNote') }}</p>
+          </div>
+          <button type="button" @click="exportHistoryCsv">{{ key('historyExport') }}</button>
         </div>
-        <button type="button" @click="exportCsv">{{ key('export') }}</button>
+        <div class="table-scroll">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>{{ key('year') }}</th>
+                <th>{{ key('basis') }}</th>
+                <th>{{ key('population') }}</th>
+                <th>{{ key('populationTime') }}</th>
+                <th>{{ key('births') }}</th>
+                <th>{{ key('deaths') }}</th>
+                <th>{{ key('naturalChange') }}</th>
+                <th>{{ key('historicalHousingStock') }}</th>
+                <th>{{ key('area') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in historyTableRows" :key="row.year">
+                <th>{{ row.year }}</th>
+                <td>{{ historyBasisLabel(row.basis) }}</td>
+                <td>{{ historyNumber(row.populationWan) }}</td>
+                <td>
+                  {{
+                    row.populationDate === '1 July'
+                      ? key('midyear')
+                      : row.populationDate === '1 January'
+                        ? key('jan1')
+                        : key('unavailable')
+                  }}
+                </td>
+                <td>{{ historyNumber(row.birthsWan) }}</td>
+                <td>{{ historyNumber(row.deathsWan) }}</td>
+                <td>
+                  {{
+                    historyNumber(
+                      row.birthsWan === null || row.deathsWan === null
+                        ? null
+                        : row.birthsWan - row.deathsWan,
+                    )
+                  }}
+                </td>
+                <td>{{ key('unavailable') }}</td>
+                <td>{{ key('unavailable') }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <button type="button" :disabled="historyPage === 1" @click="historyPage--">
+            {{ key('previous') }}
+          </button>
+          <span>{{
+            t('chinaDemography.page', { page: historyPage, total: historyPageCount })
+          }}</span>
+          <button type="button" :disabled="historyPage === historyPageCount" @click="historyPage++">
+            {{ key('next') }}
+          </button>
+        </div>
+      </section>
+      <section class="panel sources">
+        <h2>{{ key('source') }}</h2>
+        <p>{{ key('historySourceNote') }}</p>
+        <p>{{ key('historyCoverageNote') }}</p>
+        <p>{{ key('historyHousingNote') }}</p>
+        <div class="source-links">
+          <a :href="anchorData.sources.mpd2020" target="_blank" rel="noopener noreferrer"
+            >MPD 2020 ↗</a
+          >
+          <a
+            href="https://www.rug.nl/ggdc/historicaldevelopment/maddison/publications/wp15.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Bolt & van Zanden 2020 ↗</a
+          >
+          <a
+            href="https://www.cambridge.org/core/journals/journal-of-economic-history/article/china-europe-and-the-great-divergence-a-study-in-historical-national-accounting-9801850/6451E62524E28874293D8ED6DED9A24F"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Broadberry et al. 2018 ↗</a
+          >
+          <a href="https://doi.org/10.1111/aehr.12127" target="_blank" rel="noopener noreferrer"
+            >Xu et al. 2017 ↗</a
+          >
+          <a :href="anchorData.sources.unWpp2024" target="_blank" rel="noopener noreferrer"
+            >UN WPP 2024 ↗</a
+          >
+          <a :href="anchorData.sources.nbs2025" target="_blank" rel="noopener noreferrer"
+            >NBS · 2025 ↗</a
+          >
+        </div>
+      </section>
+    </div>
+    <div v-else>
+      <section class="panel controls" :aria-label="key('scenario')">
+        <label
+          >{{ key('scenario') }}
+          <select v-model="scenario">
+            <option v-for="value in scenarios" :key="value" :value="value">{{ key(value) }}</option>
+          </select>
+        </label>
+        <label
+          >{{ key('horizon') }}
+          <select v-model.number="endYear">
+            <option :value="2050">2050</option>
+            <option :value="2100">2100</option>
+            <option :value="2125">2125</option>
+          </select>
+        </label>
+        <p>{{ key('scenarioNote') }}</p>
+      </section>
+
+      <div v-if="selectedYear" class="summary-grid">
+        <article class="panel summary">
+          <small>{{ endYear }} · {{ key('population') }} / {{ key('peopleWan') }}</small
+          ><strong>{{ number(selectedYear.populationWan) }}</strong>
+        </article>
+        <article class="panel summary">
+          <small
+            >{{ endYear }} · {{ key('workingAge') }} ({{ key('ageAssumption') }}) /
+            {{ key('peopleWan') }}</small
+          ><strong>{{ number(selectedYear.age16to59Wan) }}</strong>
+        </article>
+        <article class="panel summary">
+          <small
+            >{{ endYear }} · {{ key('older') }} ({{ key('ageAssumption') }}) /
+            {{ key('peopleWan') }}</small
+          ><strong>{{ number(selectedYear.age65PlusWan) }}</strong>
+        </article>
+        <article class="panel summary">
+          <small>{{ endYear }} · {{ key('households') }} / {{ key('householdsWan') }}</small
+          ><strong>{{ number(selectedYear.householdsWan) }}</strong>
+        </article>
       </div>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>{{ key('year') }}</th>
-              <th>{{ key('basis') }}</th>
-              <th>{{ key('population') }}</th>
-              <th>{{ key('births') }}</th>
-              <th>{{ key('deaths') }}</th>
-              <th>{{ key('naturalChange') }}</th>
-              <th>{{ key('age16to59') }}</th>
-              <th>{{ key('age65Plus') }}</th>
-              <th>{{ key('urbanization') }}</th>
-              <th>{{ key('householdSize') }}</th>
-              <th>{{ key('households') }}</th>
-              <th>{{ key('housingStock') }}</th>
-              <th>{{ key('unitsAdded') }}</th>
-              <th>{{ key('unitsRetired') }}</th>
-              <th>{{ key('balance') }}</th>
-              <th>{{ key('area') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in tableRows" :key="row.year">
-              <th>{{ row.year }}</th>
-              <td>{{ populationBasisLabel(row.populationBasis) }}</td>
-              <td>{{ number(row.populationWan) }}</td>
-              <td>{{ number(row.birthsWan) }}</td>
-              <td>{{ number(row.deathsWan) }}</td>
-              <td>{{ number(row.birthsWan - row.deathsWan) }}</td>
-              <td>{{ number(row.age16to59Wan) }}</td>
-              <td>{{ number(row.age65PlusWan) }}</td>
-              <td>{{ number(row.urbanizationPercent, 1) }}%</td>
-              <td>{{ number(row.householdSize, 2) }}</td>
-              <td>{{ number(row.householdsWan) }}</td>
-              <td>{{ number(row.residentialUnitsWan) }}</td>
-              <td>{{ number(row.unitsAddedWan) }}</td>
-              <td>{{ number(row.unitsRetiredWan) }}</td>
-              <td>{{ number(row.unitsMinusHouseholdsWan) }}</td>
-              <td>{{ number(row.residentialFloorAreaBillionM2, 1) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="pagination">
-        <button type="button" :disabled="page === 1" @click="page--">{{ key('previous') }}</button>
-        <span>{{ t('chinaDemography.page', { page, total: pageCount }) }}</span>
-        <button type="button" :disabled="page === pageCount" @click="page++">
-          {{ key('next') }}
-        </button>
-      </div>
-    </section>
-    <section class="panel sources">
-      <h2>{{ key('source') }}</h2>
-      <p>{{ key('sourceNote') }}</p>
-      <p>{{ key('vintageNote') }}</p>
-      <p>{{ key('longHorizon') }}</p>
-      <div class="source-links">
-        <a :href="anchorData.sources.nbs2025" target="_blank" rel="noopener noreferrer"
-          >NBS · 2025 ↗</a
-        >
-        <a :href="anchorData.sources.nbs2025Sample" target="_blank" rel="noopener noreferrer"
-          >NBS · 2025 sample ↗</a
-        >
-        <a :href="anchorData.sources.unWpp2024" target="_blank" rel="noopener noreferrer"
-          >UN WPP 2024 ↗</a
-        >
-      </div>
-    </section>
+
+      <section class="chart-grid">
+        <article class="panel chart-panel">
+          <h2>{{ key('totalChart') }}</h2>
+          <EChart :option="totalOption" :label="key('totalChart')" />
+        </article>
+        <article class="panel chart-panel">
+          <h2>{{ key('populationChart') }}</h2>
+          <EChart :option="birthsOption" :label="key('populationChart')" />
+        </article>
+        <article class="panel chart-panel">
+          <h2>{{ key('ageChart') }}</h2>
+          <EChart :option="ageOption" :label="key('ageChart')" />
+          <p>{{ key('ageNote') }}</p>
+        </article>
+        <article class="panel chart-panel wide">
+          <h2>{{ key('housingChart') }}</h2>
+          <EChart :option="housingOption" :label="key('housingChart')" />
+          <p>{{ key('balanceNote') }}</p>
+        </article>
+      </section>
+
+      <section class="panel assumptions">
+        <div class="section-heading">
+          <div>
+            <h2>{{ key('assumptions') }}</h2>
+            <p>{{ key('assumptionNote') }}</p>
+            <p>
+              {{
+                t('chinaDemography.sampleNote', {
+                  households: number(anchorData.sample2025.familyHouseholdsWan),
+                  size: anchorData.sample2025.averageFamilyHouseholdSize,
+                })
+              }}
+            </p>
+          </div>
+          <button type="button" @click="resetAssumptions">{{ key('reset') }}</button>
+        </div>
+        <div class="assumption-grid">
+          <label v-for="field in assumptionFields" :key="field.key">
+            <span>{{ key(field.key) }}</span>
+            <input
+              type="number"
+              :min="field.min"
+              :max="field.max"
+              :step="field.step"
+              :value="assumptions[field.key]"
+              @change="updateAssumption(field, $event)"
+            />
+          </label>
+        </div>
+      </section>
+
+      <section class="panel data-section">
+        <div class="section-heading">
+          <div>
+            <h2>{{ key('modelRows') }}</h2>
+            <p>{{ key('projection') }} · {{ key('unitWan') }}</p>
+          </div>
+          <button type="button" @click="exportCsv">{{ key('export') }}</button>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ key('year') }}</th>
+                <th>{{ key('basis') }}</th>
+                <th>{{ key('population') }}</th>
+                <th>{{ key('births') }}</th>
+                <th>{{ key('deaths') }}</th>
+                <th>{{ key('naturalChange') }}</th>
+                <th>{{ key('age16to59') }}</th>
+                <th>{{ key('age65Plus') }}</th>
+                <th>{{ key('urbanization') }}</th>
+                <th>{{ key('householdSize') }}</th>
+                <th>{{ key('households') }}</th>
+                <th>{{ key('housingStock') }}</th>
+                <th>{{ key('unitsAdded') }}</th>
+                <th>{{ key('unitsRetired') }}</th>
+                <th>{{ key('balance') }}</th>
+                <th>{{ key('area') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in tableRows" :key="row.year">
+                <th>{{ row.year }}</th>
+                <td>{{ populationBasisLabel(row.populationBasis) }}</td>
+                <td>{{ number(row.populationWan) }}</td>
+                <td>{{ number(row.birthsWan) }}</td>
+                <td>{{ number(row.deathsWan) }}</td>
+                <td>{{ number(row.birthsWan - row.deathsWan) }}</td>
+                <td>{{ number(row.age16to59Wan) }}</td>
+                <td>{{ number(row.age65PlusWan) }}</td>
+                <td>{{ number(row.urbanizationPercent, 1) }}%</td>
+                <td>{{ number(row.householdSize, 2) }}</td>
+                <td>{{ number(row.householdsWan) }}</td>
+                <td>{{ number(row.residentialUnitsWan) }}</td>
+                <td>{{ number(row.unitsAddedWan) }}</td>
+                <td>{{ number(row.unitsRetiredWan) }}</td>
+                <td>{{ number(row.unitsMinusHouseholdsWan) }}</td>
+                <td>{{ number(row.residentialFloorAreaBillionM2, 1) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <button type="button" :disabled="page === 1" @click="page--">
+            {{ key('previous') }}
+          </button>
+          <span>{{ t('chinaDemography.page', { page, total: pageCount }) }}</span>
+          <button type="button" :disabled="page === pageCount" @click="page++">
+            {{ key('next') }}
+          </button>
+        </div>
+      </section>
+      <section class="panel sources">
+        <h2>{{ key('source') }}</h2>
+        <p>{{ key('sourceNote') }}</p>
+        <p>{{ key('vintageNote') }}</p>
+        <p>{{ key('longHorizon') }}</p>
+        <div class="source-links">
+          <a :href="anchorData.sources.nbs2025" target="_blank" rel="noopener noreferrer"
+            >NBS · 2025 ↗</a
+          >
+          <a :href="anchorData.sources.nbs2025Sample" target="_blank" rel="noopener noreferrer"
+            >NBS · 2025 sample ↗</a
+          >
+          <a :href="anchorData.sources.unWpp2024" target="_blank" rel="noopener noreferrer"
+            >UN WPP 2024 ↗</a
+          >
+        </div>
+      </section>
+    </div>
   </main>
 </template>
 
@@ -523,6 +815,18 @@ const exportCsv = () => {
   gap: 16px;
   flex-wrap: wrap;
   margin-bottom: 18px;
+}
+.mode-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 18px 0;
+}
+.mode-tabs button[aria-selected='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.history-table {
+  min-width: 860px;
 }
 .controls label,
 .assumption-grid label {

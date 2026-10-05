@@ -1,5 +1,21 @@
 # 中国人口与住宅存量：2026—2125 年年度情景
 
+## 1900—2026 年历史视图
+
+历史页逐年列出 1900—2026 共 **127 行**，但不同区段使用不同来源、人口时点和数据性质，不能作为完全同口径连续统计序列求增长率。
+
+| 年份      | 人口                                                                                                                                                                                                                                         | 出生、死亡、净迁移                         | 全国住宅套数与面积       |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------ |
+| 1900—1949 | [Maddison Project Database 2020](https://www.rug.nl/ggdc/historicaldevelopment/maddison/releases/maddison-project-database-2020?lang=en) `Full data` 表 `CHN`、`pop`，**年中历史估计**；原表千人除以 10 成万人                               | 无可直接核实的逐年人数，保留空值           | 无可比逐年存量，保留空值 |
+| 1950—2023 | [UN WPP 2024 Full Excel](<https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/EXCEL_FILES/1_General/WPP2024_GEN_F01_DEMOGRAPHIC_INDICATORS_FULL.xlsx>) `Estimates` 表、中国 location code 156，**1 月 1 日人口估计** | 同表全年估计流量；原表千人除以 10 成万人   | 保留空值                 |
+| 2024—2026 | 同文件 `Medium variant`，**1 月 1 日预测人口**                                                                                                                                                                                               | 同表全年预测流量；**并非中国官方实际统计** | 保留空值                 |
+
+MPD 2020 原表 `Notes` 指明人口为年中人口、单位千人。`1900=400000` 千人、`1949=543941` 千人等 50 个值均取自该文件，不是本项目按锚点自行插值。MPD 2020 是历史研究估计，不能当作当年中国官方统计实绩。MPD 与 WPP 在历史修订、地理覆盖及时点上可能不一致，1949 年中至 1950 年 1 月 1 日的断点不得解释为观测到的年度变化。2025 年末 [国家统计局统计公报](https://www.stats.gov.cn/sj/zxfb/202602/t20260228_1962662.html) 继续作为独立官方锚点展示，不覆盖 WPP 2025 预测行。
+
+按 MPD 工作簿的引用要求，使用其中国人口子集和图表时同时引述 [Bolt 与 van Zanden (2020), _Maddison style estimates of the evolution of the world economy_](https://www.rug.nl/ggdc/historicaldevelopment/maddison/publications/wp15.pdf)。MPD `Sources` 表列出与中国相关的 [Broadberry、Guan、Li (2018)](https://www.cambridge.org/core/journals/journal-of-economic-history/article/china-europe-and-the-great-divergence-a-study-in-historical-national-accounting-9801850/6451E62524E28874293D8ED6DED9A24F) 和 [Xu 等 (2017)](https://doi.org/10.1111/aehr.12127) 研究；该来源表未把每一年度的人口单元格逐一归因于这些论文，尤其未单列 1934—1949 年的底层出处。
+
+历史页 CSV 保留 `basis`、`source`、`populationTime` 与 `flowPeriod`，空值导出为空单元格，避免将不可用误作零。历史住房存量不借用下文 2026—2125 年假设模型。
+
 ## 数据与口径
 
 - **2025 年末锚点**：[国家统计局《2025 年国民经济和社会发展统计公报》](https://www.stats.gov.cn/sj/zxfbhjd/202602/t20260228_1962662.html)：人口 140489 万人，全年出生 792 万人、死亡 1131 万人，城镇常住人口 95380 万人、城镇化率 67.89%。年龄为 0–15 岁 23015 万人、16–59 岁 85136 万人、60 岁及以上 32338 万人，其中 65 岁及以上 22365 万人。因此 60–64 岁为差额 9973 万人。人口指大陆 31 个省级地区及现役军人，不含港澳台居民及外籍人员。

@@ -2,16 +2,52 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createJiti } from 'jiti'
 import source from '../src/data/china-demography.json' with { type: 'json' }
+import earlySource from '../src/data/china-demography-early.json' with { type: 'json' }
+import historySource from '../src/data/china-demography-history.json' with { type: 'json' }
 
 const jiti = createJiti(import.meta.url, {
   alias: { '@': new URL('../src', import.meta.url).pathname },
 })
 const {
+  CHINA_HISTORICAL_YEARS,
   CHINA_2025_OFFICIAL,
   CHINA_2025_HOUSEHOLD_SAMPLE,
   DEFAULT_CHINA_HOUSING_ASSUMPTIONS,
   projectChinaDemography,
 } = jiti('../src/utils/china-demography.ts')
+
+test('1900–2026 history keeps source periods and unavailable fields distinct', () => {
+  assert.equal(CHINA_HISTORICAL_YEARS.length, 127)
+  assert.deepEqual(
+    CHINA_HISTORICAL_YEARS.map(({ year }) => year),
+    Array.from({ length: 127 }, (_, index) => 1900 + index),
+  )
+  assert.equal(earlySource.length, 50)
+  assert.equal(historySource.length, 77)
+  for (const row of CHINA_HISTORICAL_YEARS) {
+    assert.equal(row.residentialUnitsWan, null)
+    assert.equal(row.residentialFloorAreaBillionM2, null)
+    if (row.year < 1950) {
+      const sourceRow = earlySource[row.year - 1900]
+      assert.equal(row.populationWan, sourceRow.populationJuly1Wan)
+      assert.equal(row.populationDate, '1 July')
+      assert.equal(row.basis, 'mpd-2020-estimate')
+      assert.equal(row.birthsWan, null)
+      assert.equal(row.deathsWan, null)
+      assert.equal(row.netMigrationWan, null)
+    } else {
+      const sourceRow = historySource[row.year - 1950]
+      assert.equal(row.populationWan, sourceRow.populationJan1Wan)
+      assert.equal(row.birthsWan, sourceRow.birthsWan)
+      assert.equal(row.deathsWan, sourceRow.deathsWan)
+      assert.equal(row.populationDate, '1 January')
+      assert.equal(
+        row.basis,
+        row.year <= 2023 ? 'un-wpp-2024-estimate' : 'un-wpp-2024-medium-projection',
+      )
+    }
+  }
+})
 
 test('2025 statistical anchors and annual WPP variants retain their source values', () => {
   assert.equal(CHINA_2025_OFFICIAL.populationWan, 140489)
