@@ -252,7 +252,7 @@ const exportCsv = () => {
         'assumption-model',
         'assumption-model',
         'assumption-model',
-        anchorData.sources.unWpp2024Full,
+        anchorData.sources.unWpp2024,
         anchorData.sources.nbs2025,
         anchorData.sources.nbs2025Sample,
         ...assumptionFields.map((field) => assumptions.value[field.key]),
@@ -464,7 +464,7 @@ const exportCsv = () => {
         <a :href="anchorData.sources.nbs2025Sample" target="_blank" rel="noopener noreferrer"
           >NBS · 2025 sample ↗</a
         >
-        <a :href="anchorData.sources.unWpp2024Full" target="_blank" rel="noopener noreferrer"
+        <a :href="anchorData.sources.unWpp2024" target="_blank" rel="noopener noreferrer"
           >UN WPP 2024 ↗</a
         >
       </div>
