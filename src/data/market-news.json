@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-14T05:27:01.320Z",
+  "updatedAt": "2026-10-14T10:31:18.049Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -37,10 +37,94 @@
   ],
   "articles": [
     {
+      "id": "6fd86b9c72fbea8f",
+      "title": "Oil prices rise after IEA warns on market constraints; Saudi officials say Aramco facilities attacked",
+      "url": "https://www.cnbc.com/2026/10/14/oil-rises-amid-growing-tensions-between-saudis-and-iran-backed-houthis.html",
+      "publishedAt": "2026-10-14T10:27:02.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "原油"
+      ],
+      "translatedTitle": "国际能源署警告市场限制后油价上涨；沙特官员称沙特阿美工厂遭到袭击",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "f39a16a4a873ad7c",
+      "title": "Bank of America is set to report third-quarter earnings – here’s what the Street expects",
+      "url": "https://www.cnbc.com/2026/10/14/bank-of-america-bac-q3-2026-earnings.html",
+      "publishedAt": "2026-10-14T10:15:01.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "美国银行(Bank of America)将公布第三季度收益–以下是街道预期的结果",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "e11aad89e29eed25",
+      "title": "South Texas Latino voters who flipped for Trump in 2024 are up for grabs in 2026",
+      "url": "https://www.cnbc.com/2026/10/14/texas-latino-voters-midterm-election-trump.html",
+      "publishedAt": "2026-10-14T10:00:01.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "2024年竞选特朗普的南德克萨斯州拉丁裔选民将在2026年争夺",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "9b527f4c3f3f3f71",
+      "title": "Ukraine warns Starlink limits are disrupting military operations as Russia pounds its energy infrastructure",
+      "url": "https://www.cnbc.com/2026/10/14/russia-ukraine-energy-ceasefire-power-outages.html",
+      "publishedAt": "2026-10-14T09:18:18.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "乌克兰警告Starlink限制正在扰乱军事行动，因为俄罗斯正在捣毁其能源基础设施",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "87e38a86e20b5ee2",
+      "title": "Scott Bessent's growth plans aren't enough to tame surging deficit and debt pile, IMF chief says",
+      "url": "https://www.cnbc.com/2026/10/14/bond-yields-debt-deficit-treasury.html",
+      "publishedAt": "2026-10-14T08:53:35.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "国际货币基金组织负责人表示，斯科特·贝森特（ Scott Bessent ）的增长计划不足以遏制不断飙升的赤字和债务",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "27fe2c26894d9563",
       "title": "ASML says it's getting order interest through 2030 as profit smashes expectations",
       "url": "https://www.cnbc.com/2026/10/14/asml-3q-earnings-ai-demand-orders-capacity.html",
-      "publishedAt": "2026-10-14T05:25:08.000Z",
+      "publishedAt": "2026-10-14T08:45:13.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "macro",
@@ -62,27 +146,9 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "法官延长了特朗普白宫现在对MS ， CNN和Politico的禁令",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "fd7bd220304a32e7",
-      "title": "Crypto bosses, CEOs and F1: Singapore's business events boom gathers pace",
-      "url": "https://www.cnbc.com/2026/10/14/crypto-bosses-ceos-and-f1-singapore-events-boom-gathers-pace-.html",
-      "publishedAt": "2026-10-14T04:41:29.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [
-        "加密"
-      ],
-      "translatedTitle": "加密老板，首席执行官和F1 ：新加坡的商业活动热潮加快步伐",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -96,29 +162,11 @@
       "category": "macro",
       "language": "English",
       "impact": "high",
-      "impactScore": 6,
+      "impactScore": 5,
       "affectedAssets": [
         "债券"
       ],
       "translatedTitle": "“哥斯拉厄尔尼诺现象”对菲律宾央行的通胀预测造成严重破坏",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "6fd86b9c72fbea8f",
-      "title": "Oil rises amid growing Mideast tensions between Iran-backed Houthis and Saudi Arabia",
-      "url": "https://www.cnbc.com/2026/10/14/oil-rises-amid-growing-tensions-between-saudis-and-iran-backed-houthis.html",
-      "publishedAt": "2026-10-14T04:07:00.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "commodities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 3,
-      "affectedAssets": [
-        "原油"
-      ],
-      "translatedTitle": "伊朗支持的胡塞武装与沙特阿拉伯之间中东紧张局势加剧，油价上涨",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -132,7 +180,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "A股"
       ],
@@ -239,6 +287,22 @@
       "translationProvider": "MyMemory"
     },
     {
+      "id": "81e2cc6a2a3ece95",
+      "title": "Frank Elderson: Ensuring resilience in the face of uncertainty",
+      "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp261014~e4ca33588e.en.html",
+      "publishedAt": "2026-10-14T00:00:00.000Z",
+      "source": "欧洲央行",
+      "sourceType": "official",
+      "category": "macro",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 2,
+      "affectedAssets": [],
+      "translatedTitle": "弗兰克·埃尔德森（ Frank Elderson ） ：确保面对不确定性的复原力",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "a3c09648d4b75b77",
       "title": "Goldman says investors are looking for 'profitable' Chinese business growth overseas",
       "url": "https://www.cnbc.com/2026/10/14/goldman-says-investors-seek-profitable-chinese-business-growth-abroad.html",
@@ -309,18 +373,18 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "420af2482a3d3925",
-      "title": "Anthropic to disclose new revenue numbers as AI lab financials become central to tech trade",
-      "url": "https://www.cnbc.com/2026/10/13/anthropic-q3-financials-ipo.html",
-      "publishedAt": "2026-10-13T21:02:52.000Z",
+      "id": "a5e31a1d042dd4ea",
+      "title": "United Airlines is making it harder to reach its top frequent flyer status in 2027",
+      "url": "https://www.cnbc.com/2026/10/13/united-flight-segments-earn-elite-status.html",
+      "publishedAt": "2026-10-13T21:02:43.000Z",
       "source": "CNBC",
       "sourceType": "media",
-      "category": "technology",
+      "category": "macro",
       "language": "English",
       "impact": "low",
       "impactScore": 0,
       "affectedAssets": [],
-      "translatedTitle": "随着人工智能实验室财务成为科技交易的核心， Anthropic将披露新的收入数据",
+      "translatedTitle": "美国联合航空公司（ United Airlines ）在2027年更难达到其顶级常旅客身份",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -409,24 +473,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "c31644d712c98453",
-      "title": "Paul Tudor Jones says 2027 could be a really challenging year for the stock market",
-      "url": "https://www.cnbc.com/2026/10/13/paul-tudor-jones-2027-really-challenging-year.html",
-      "publishedAt": "2026-10-13T19:21:27.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "保罗·都铎·琼斯（ Paul Tudor Jones ）表示， 2027年对股市来说可能是非常具有挑战",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "ab5c9cb8c08a254a",
       "title": "Michael Dell says AI needs safeguards and controls, and government has a role to play",
       "url": "https://www.cnbc.com/2026/10/13/michael-dell-ai-safeguards-government.html",
@@ -439,6 +485,22 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "迈克尔·戴尔（ Michael Dell ）表示，人工智能需要保障和控制，政府可以发挥作用",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "fe05086b3d693c7b",
+      "title": "Social Security cost-of-living adjustment for 2027 may be above average. Some say it's not enough",
+      "url": "https://www.cnbc.com/2026/10/13/social-security-cola-2027.html",
+      "publishedAt": "2026-10-13T18:51:08.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "2027年的社会保障生活费用调整可能高于平均水平。有人说这还不够",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -519,54 +581,6 @@
       "impactScore": 2,
       "affectedAssets": [],
       "translatedTitle": "2026年8月17日、9月9日和9月16日董事会贴现率会议纪要",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "0007ae5a44f35002",
-      "title": "Trump's diesel deal with Russia equals less than two weeks of U.S. demand",
-      "url": "https://www.cnbc.com/2026/10/13/trump-putin-zelenskyy-russia-ukraine-diesel-oil-price.html",
-      "publishedAt": "2026-10-13T16:53:43.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "特朗普与俄罗斯的柴油协议相当于美国需求不到两周",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "0baad3e4a99c0643",
-      "title": "In charts: How one of the world's biggest economies got trapped by debt",
-      "url": "https://www.cnbc.com/2026/10/13/france-2027-budget-debt.html",
-      "publishedAt": "2026-10-13T15:52:24.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "在图表中：世界上最大的经济体之一如何陷入债务困境",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "e87e103d21f8179b",
-      "title": "French supermarket fridges get hacked, heating to 122°F and sparking fires",
-      "url": "https://www.cnbc.com/2026/10/13/france-supermarket-hack-cyberattack-fridges-fires.html",
-      "publishedAt": "2026-10-13T12:22:59.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "法国超市的冰箱被黑客入侵，加热到122°F并引发火灾",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     }
