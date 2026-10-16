@@ -1,0 +1,1961 @@
+{
+  "checkedDate": "2026-10-15",
+  "source": "GitHub authenticated GraphQL repository metadata and REST README/public repository security advisories",
+  "binaryScanned": false,
+  "items": [
+    {
+      "nameWithOwner": "nvm-sh/nvm",
+      "url": "https://github.com/nvm-sh/nvm",
+      "description": "Node Version Manager - POSIX-compliant bash script to manage multiple active node.js versions.",
+      "stargazerCount": 95527,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-10T04:34:41Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v0.40.8",
+        "tagName": "v0.40.8",
+        "publishedAt": "2026-09-21T02:26:02Z",
+        "url": "https://github.com/nvm-sh/nvm/releases/tag/v0.40.8"
+      },
+      "readme_url": "https://github.com/nvm-sh/nvm/blob/master/README.md",
+      "advisories": [
+        {
+          "ghsa_id": "GHSA-4ghp-wxpw-rhpg",
+          "severity": "low",
+          "summary": "Malicious Node.js mirror response can overwrite shell startup files via LTS alias path traversal",
+          "url": "https://github.com/nvm-sh/nvm/security/advisories/GHSA-4ghp-wxpw-rhpg",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "",
+                "name": ""
+              },
+              "vulnerable_version_range": ">= 0.32.1, <= 0.40.5",
+              "patched_versions": "v0.40.6",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-8grh-q73j-ffrc",
+          "severity": "medium",
+          "summary": "Path traversal in nvm alias resolution — malicious .nvmrc reads arbitrary files when a developer runs `nvm use`",
+          "url": "https://github.com/nvm-sh/nvm/security/advisories/GHSA-8grh-q73j-ffrc",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "other",
+                "name": "nvm-sh/nvm"
+              },
+              "vulnerable_version_range": "<= 0.40.7",
+              "patched_versions": "0.40.8",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-3c52-35h2-gfmm",
+          "severity": "high",
+          "summary": "nvm executes commands from a malicious mirror's version strings (eval in nvm_download, awk in nvm_get_checksum)",
+          "url": "https://github.com/nvm-sh/nvm/security/advisories/GHSA-3c52-35h2-gfmm",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "other",
+                "name": "nvm-sh/nvm"
+              },
+              "vulnerable_version_range": "<= 0.40.4",
+              "patched_versions": "0.40.5",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-4fc5-r4vr-8rp7",
+          "severity": "medium",
+          "summary": "Arbitrary Command Injection in nvm_download() via eval and Unsanitized Environment Variables",
+          "url": "https://github.com/nvm-sh/nvm/security/advisories/GHSA-4fc5-r4vr-8rp7",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "nvm",
+                "name": "nvm"
+              },
+              "vulnerable_version_range": ">= 0.40.0, <= 0.40.3",
+              "patched_versions": "0.40.4",
+              "vulnerable_functions": []
+            }
+          ]
+        }
+      ],
+      "title": "nvm",
+      "category": "开源应用 · 开发环境"
+    },
+    {
+      "nameWithOwner": "astral-sh/uv",
+      "url": "https://github.com/astral-sh/uv",
+      "description": "An extremely fast Python package and project manager, written in Rust.",
+      "stargazerCount": 90789,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-15T09:10:01Z",
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "latestRelease": {
+        "name": "0.13.1",
+        "tagName": "0.13.1",
+        "publishedAt": "2026-10-14T05:15:30Z",
+        "url": "https://github.com/astral-sh/uv/releases/tag/0.13.1"
+      },
+      "readme_url": "https://github.com/astral-sh/uv/blob/main/README.md",
+      "advisories": [
+        {
+          "ghsa_id": "GHSA-2cv4-cqwr-gwf7",
+          "severity": "medium",
+          "summary": "Path traversal on Windows through wheel extraction",
+          "url": "https://github.com/astral-sh/uv/security/advisories/GHSA-2cv4-cqwr-gwf7",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "pip",
+                "name": "uv"
+              },
+              "vulnerable_version_range": ">= 0.12.7, < 0.12.18",
+              "patched_versions": ">= 0.12.18",
+              "vulnerable_functions": []
+            },
+            {
+              "package": {
+                "ecosystem": "rust",
+                "name": "uv"
+              },
+              "vulnerable_version_range": ">= 0.12.7, < 0.12.18",
+              "patched_versions": ">= 0.12.18",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-4gg8-gxpx-9rph",
+          "severity": "medium",
+          "summary": "Arbitrary file write through entry point names",
+          "url": "https://github.com/astral-sh/uv/security/advisories/GHSA-4gg8-gxpx-9rph",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "pip",
+                "name": "uv"
+              },
+              "vulnerable_version_range": "< 0.11.15",
+              "patched_versions": "0.11.15",
+              "vulnerable_functions": []
+            },
+            {
+              "package": {
+                "ecosystem": "rust",
+                "name": "uv"
+              },
+              "vulnerable_version_range": "< 0.11.15",
+              "patched_versions": "0.11.15",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-pjjw-68hj-v9mw",
+          "severity": "low",
+          "summary": "Abitrary file deletion through RECORD entries",
+          "url": "https://github.com/astral-sh/uv/security/advisories/GHSA-pjjw-68hj-v9mw",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "pip",
+                "name": "uv"
+              },
+              "vulnerable_version_range": "<= 0.11.5",
+              "patched_versions": "0.11.6",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-pqhf-p39g-3x64",
+          "severity": "medium",
+          "summary": "ZIP payload obfuscation through parsing differentials",
+          "url": "https://github.com/astral-sh/uv/security/advisories/GHSA-pqhf-p39g-3x64",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "pip",
+                "name": "uv"
+              },
+              "vulnerable_version_range": "<= 0.9.5",
+              "patched_versions": "0.9.6",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-w476-p2h3-79g9",
+          "severity": "low",
+          "summary": "Differential in tar extraction with PAX headers",
+          "url": "https://github.com/astral-sh/uv/security/advisories/GHSA-w476-p2h3-79g9",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "pip",
+                "name": "uv"
+              },
+              "vulnerable_version_range": "<= 0.9.4",
+              "patched_versions": "0.9.5",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-7j9j-68r2-f35q",
+          "severity": "low",
+          "summary": "Path traversal in tar extraction",
+          "url": "https://github.com/astral-sh/uv/security/advisories/GHSA-7j9j-68r2-f35q",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "pip",
+                "name": "uv"
+              },
+              "vulnerable_version_range": "<= 0.8.21",
+              "patched_versions": "",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-8qf3-x8v5-2pj8",
+          "severity": "medium",
+          "summary": "ZIP payload obfuscation through parsing differentials",
+          "url": "https://github.com/astral-sh/uv/security/advisories/GHSA-8qf3-x8v5-2pj8",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "pip",
+                "name": "uv"
+              },
+              "vulnerable_version_range": "< 0.8.5",
+              "patched_versions": "0.8.6",
+              "vulnerable_functions": []
+            }
+          ]
+        }
+      ],
+      "title": "uv",
+      "category": "开源应用 · 开发环境"
+    },
+    {
+      "nameWithOwner": "ducaale/xh",
+      "url": "https://github.com/ducaale/xh",
+      "description": "Friendly and fast tool for sending HTTP requests",
+      "stargazerCount": 8132,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-09-05T09:34:49Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v0.26.2",
+        "tagName": "v0.26.2",
+        "publishedAt": "2026-07-26T14:22:45Z",
+        "url": "https://github.com/ducaale/xh/releases/tag/v0.26.2"
+      },
+      "readme_url": "https://github.com/ducaale/xh/blob/master/README.md",
+      "advisories": [],
+      "title": "xh",
+      "category": "开源应用 · API 调试"
+    },
+    {
+      "nameWithOwner": "BurntSushi/ripgrep",
+      "url": "https://github.com/BurntSushi/ripgrep",
+      "description": "ripgrep recursively searches directories for a regex pattern while respecting your gitignore",
+      "stargazerCount": 69111,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-08-04T13:59:44Z",
+      "licenseInfo": {
+        "spdxId": "Unlicense"
+      },
+      "latestRelease": {
+        "name": "15.2.0",
+        "tagName": "15.2.0",
+        "publishedAt": "2026-07-15T16:26:10Z",
+        "url": "https://github.com/BurntSushi/ripgrep/releases/tag/15.2.0"
+      },
+      "readme_url": "https://github.com/BurntSushi/ripgrep/blob/master/README.md",
+      "advisories": [],
+      "title": "ripgrep",
+      "category": "开源应用 · 文本与结构化数据"
+    },
+    {
+      "nameWithOwner": "sharkdp/bat",
+      "url": "https://github.com/sharkdp/bat",
+      "description": "A cat(1) clone with wings.",
+      "stargazerCount": 60779,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-14T19:41:07Z",
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "latestRelease": {
+        "name": "v0.26.1",
+        "tagName": "v0.26.1",
+        "publishedAt": "2025-12-02T20:48:10Z",
+        "url": "https://github.com/sharkdp/bat/releases/tag/v0.26.1"
+      },
+      "readme_url": "https://github.com/sharkdp/bat/blob/master/README.md",
+      "advisories": [],
+      "title": "bat",
+      "category": "开源应用 · 文本与结构化数据"
+    },
+    {
+      "nameWithOwner": "jesseduffield/lazydocker",
+      "url": "https://github.com/jesseduffield/lazydocker",
+      "description": "The lazier way to manage everything docker",
+      "stargazerCount": 53128,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-04-19T02:51:06Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v0.25.2",
+        "tagName": "v0.25.2",
+        "publishedAt": "2026-04-19T02:54:16Z",
+        "url": "https://github.com/jesseduffield/lazydocker/releases/tag/v0.25.2"
+      },
+      "readme_url": "https://github.com/jesseduffield/lazydocker/blob/master/README.md",
+      "advisories": [],
+      "title": "Lazydocker",
+      "category": "开源应用 · 容器诊断"
+    },
+    {
+      "nameWithOwner": "astral-sh/ruff",
+      "url": "https://github.com/astral-sh/ruff",
+      "description": "An extremely fast Python linter and code formatter, written in Rust.",
+      "stargazerCount": 50099,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-15T07:46:51Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "0.17.0",
+        "tagName": "0.17.0",
+        "publishedAt": "2026-10-09T19:48:30Z",
+        "url": "https://github.com/astral-sh/ruff/releases/tag/0.17.0"
+      },
+      "readme_url": "https://github.com/astral-sh/ruff/blob/main/README.md",
+      "advisories": [],
+      "title": "Ruff",
+      "category": "开源应用 · 代码质量"
+    },
+    {
+      "nameWithOwner": "cli/cli",
+      "url": "https://github.com/cli/cli",
+      "description": "GitHub’s official command line tool",
+      "stargazerCount": 46652,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-15T07:41:04Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "GitHub CLI 2.102.0",
+        "tagName": "v2.102.0",
+        "publishedAt": "2026-09-30T02:40:02Z",
+        "url": "https://github.com/cli/cli/releases/tag/v2.102.0"
+      },
+      "readme_url": "https://github.com/cli/cli/blob/trunk/README.md",
+      "advisories": [
+        {
+          "ghsa_id": "GHSA-4mq3-hpgx-9cx8",
+          "severity": "low",
+          "summary": "`gh attestation verify` compares `--source-ref` case-insensitively",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-4mq3-hpgx-9cx8",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/cli/cli/v2"
+              },
+              "vulnerable_version_range": ">= v2.68.0, <= v2.101.0",
+              "patched_versions": "v2.102.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-wjmr-j3rp-mh2g",
+          "severity": "low",
+          "summary": "`gh attestation verify` treats `--signer-workflow` as a prefix",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-wjmr-j3rp-mh2g",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/cli/cli/v2"
+              },
+              "vulnerable_version_range": ">= v2.51.0, <= v2.101.0",
+              "patched_versions": "v2.102.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-39wj-f2f4-978v",
+          "severity": "medium",
+          "summary": "GitHub CLI filesystem operations can write outside intended destinations through symlinks",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-39wj-f2f4-978v",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/cli/cli/v2"
+              },
+              "vulnerable_version_range": "<= v2.101.0",
+              "patched_versions": "v2.102.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-qcwj-mr2r-2cx7",
+          "severity": "low",
+          "summary": "Argument injection in `gh skill search` can redirect skill installation",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-qcwj-mr2r-2cx7",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/cli/cli/v2"
+              },
+              "vulnerable_version_range": ">= v2.90.0, <= v2.101.0",
+              "patched_versions": "v2.102.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-vfhh-p7hm-pxfh",
+          "severity": "low",
+          "summary": "`gh codespace ports forward` exposes forwarded services on all network interfaces by default",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-vfhh-p7hm-pxfh",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/cli/cli/v2"
+              },
+              "vulnerable_version_range": ">=v2.28.0",
+              "patched_versions": "v2.98.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-4fjg-2h4q-fwg3",
+          "severity": "low",
+          "summary": "Unescaped variable components in request URLs could allow path traversal in GitHub CLI",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-4fjg-2h4q-fwg3",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/cli/cli/v2"
+              },
+              "vulnerable_version_range": "<=v2.96.0",
+              "patched_versions": "v2.97.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-3m3g-3wcr-px46",
+          "severity": "medium",
+          "summary": "Terminal escape sequence injection in multiple `gh` commands",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-3m3g-3wcr-px46",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/cli/cli/v2"
+              },
+              "vulnerable_version_range": "<= v2.96.0",
+              "patched_versions": "v2.97.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-cg6r-mpgc-h9mm",
+          "severity": "low",
+          "summary": "Partial token disclosure in `gh auth status` output",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-cg6r-mpgc-h9mm",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/cli/cli/v2"
+              },
+              "vulnerable_version_range": "<= v2.96.0",
+              "patched_versions": "v2.97.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-mm27-mwq9-fr5g",
+          "severity": "low",
+          "summary": "Attestation verification bypass via unescaped regex metacharacters in SAN matching",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-mm27-mwq9-fr5g",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/cli/cli/v2"
+              },
+              "vulnerable_version_range": "<=2.96.0",
+              "patched_versions": "v2.97.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-8cg3-r6g9-fpg2",
+          "severity": "medium",
+          "summary": "Connecting to a malicious Codespace via `gh codespace jupyter` could allow command execution on the user's computer",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-8cg3-r6g9-fpg2",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/cli/cli/v2"
+              },
+              "vulnerable_version_range": ">= v2.10.0",
+              "patched_versions": "v2.96.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-8xvp-7hj6-mcj9",
+          "severity": "high",
+          "summary": "Incorrect authorization header in API requests to TUF repository mirrors via `gh attestation`, `gh release verify`, and `gh release verify-asset` commands",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-8xvp-7hj6-mcj9",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/cli/cli/v2"
+              },
+              "vulnerable_version_range": "<= v2.92.0",
+              "patched_versions": "v2.93.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-crc3-h8v6-qh57",
+          "severity": "low",
+          "summary": "GitHub Actions log output in `gh run view` allows terminal escape sequence injection",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-crc3-h8v6-qh57",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "gh"
+              },
+              "vulnerable_version_range": "> v1.6.0",
+              "patched_versions": "v2.92.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-fgw4-v983-mgp8",
+          "severity": "medium",
+          "summary": "`gh attestation verify` returns incorrect exit code during verification when predicate types mismatch",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-fgw4-v983-mgp8",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "gh"
+              },
+              "vulnerable_version_range": ">= v2.49.0",
+              "patched_versions": "v2.67.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-2m9h-r57g-45pj",
+          "severity": "low",
+          "summary": "Downloading malicious GitHub Actions workflow artifact results in path traversal vulnerability",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-2m9h-r57g-45pj",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/cli/cli/v2"
+              },
+              "vulnerable_version_range": "<= 2.63.0",
+              "patched_versions": "2.63.1",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-p2h2-3vg9-4p87",
+          "severity": "high",
+          "summary": "Connecting to a malicious Codespaces via GH CLI could allow command execution on the user's computer",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-p2h2-3vg9-4p87",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "",
+                "name": "gh"
+              },
+              "vulnerable_version_range": "<= 2.61.0",
+              "patched_versions": "2.62.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-jwcm-9g39-pmcw",
+          "severity": "medium",
+          "summary": "Recursive repository cloning can leak authentication tokens to non-GitHub submodule hosts",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-jwcm-9g39-pmcw",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/cli/cli/v2"
+              },
+              "vulnerable_version_range": "<= 2.62.0",
+              "patched_versions": "2.63.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-fqfh-778m-2v32",
+          "severity": "medium",
+          "summary": "GitHub CLI can execute a git binary from the current directory",
+          "url": "https://github.com/cli/cli/security/advisories/GHSA-fqfh-778m-2v32",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "",
+                "name": "gh"
+              },
+              "vulnerable_version_range": "< 1.2.1",
+              "patched_versions": "1.2.1",
+              "vulnerable_functions": []
+            }
+          ]
+        }
+      ],
+      "title": "GitHub CLI",
+      "category": "开源应用 · Git 客户端"
+    },
+    {
+      "nameWithOwner": "helix-editor/helix",
+      "url": "https://github.com/helix-editor/helix",
+      "description": "A post-modern modal text editor.",
+      "stargazerCount": 46591,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-09-29T02:36:33Z",
+      "licenseInfo": {
+        "spdxId": "MPL-2.0"
+      },
+      "latestRelease": {
+        "name": "25.07.1",
+        "tagName": "25.07.1",
+        "publishedAt": "2025-07-18T15:13:19Z",
+        "url": "https://github.com/helix-editor/helix/releases/tag/25.07.1"
+      },
+      "readme_url": "https://github.com/helix-editor/helix/blob/master/README.md",
+      "advisories": [],
+      "title": "Helix",
+      "category": "开源应用 · 开发数据"
+    },
+    {
+      "nameWithOwner": "pyenv/pyenv",
+      "url": "https://github.com/pyenv/pyenv",
+      "description": "Simple Python version management",
+      "stargazerCount": 45140,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-14T14:09:37Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v2.8.10",
+        "tagName": "v2.8.10",
+        "publishedAt": "2026-10-14T14:09:47Z",
+        "url": "https://github.com/pyenv/pyenv/releases/tag/v2.8.10"
+      },
+      "readme_url": "https://github.com/pyenv/pyenv/blob/master/README.md",
+      "advisories": [
+        {
+          "ghsa_id": "GHSA-g478-f579-9vp9",
+          "severity": "low",
+          "summary": "Glob/wildcard metacharacters bypass is_version_safe(), causing silent version/interpreter substitution via unquoted expansion (CVE-2022-35861 residual)",
+          "url": "https://github.com/pyenv/pyenv/security/advisories/GHSA-g478-f579-9vp9",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "",
+                "name": "pyenv"
+              },
+              "vulnerable_version_range": "<= 2.7.3",
+              "patched_versions": "2.8.0",
+              "vulnerable_functions": []
+            }
+          ]
+        }
+      ],
+      "title": "pyenv",
+      "category": "开源应用 · 开发环境"
+    },
+    {
+      "nameWithOwner": "sharkdp/fd",
+      "url": "https://github.com/sharkdp/fd",
+      "description": "A simple, fast and user-friendly alternative to 'find'",
+      "stargazerCount": 44747,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-14T21:14:21Z",
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "latestRelease": {
+        "name": "10.5.0",
+        "tagName": "v10.5.0",
+        "publishedAt": "2026-08-26T07:59:09Z",
+        "url": "https://github.com/sharkdp/fd/releases/tag/v10.5.0"
+      },
+      "readme_url": "https://github.com/sharkdp/fd/blob/master/README.md",
+      "advisories": [],
+      "title": "fd",
+      "category": "开源应用 · 系统文件"
+    },
+    {
+      "nameWithOwner": "nushell/nushell",
+      "url": "https://github.com/nushell/nushell",
+      "description": "A new type of shell",
+      "stargazerCount": 40660,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-14T21:16:02Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "0.116.1",
+        "tagName": "0.116.1",
+        "publishedAt": "2026-10-04T15:26:13Z",
+        "url": "https://github.com/nushell/nushell/releases/tag/0.116.1"
+      },
+      "readme_url": "https://github.com/nushell/nushell/blob/main/README.md",
+      "advisories": [],
+      "title": "Nushell",
+      "category": "开源应用 · 终端效率"
+    },
+    {
+      "nameWithOwner": "koalaman/shellcheck",
+      "url": "https://github.com/koalaman/shellcheck",
+      "description": "ShellCheck, a static analysis tool for shell scripts",
+      "stargazerCount": 40172,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-14T02:12:17Z",
+      "licenseInfo": {
+        "spdxId": "GPL-3.0"
+      },
+      "latestRelease": {
+        "name": "Stable version v0.11.0",
+        "tagName": "v0.11.0",
+        "publishedAt": "2025-08-04T00:27:19Z",
+        "url": "https://github.com/koalaman/shellcheck/releases/tag/v0.11.0"
+      },
+      "readme_url": "https://github.com/koalaman/shellcheck/blob/master/README.md",
+      "advisories": [],
+      "title": "ShellCheck",
+      "category": "开源应用 · 代码质量"
+    },
+    {
+      "nameWithOwner": "casey/just",
+      "url": "https://github.com/casey/just",
+      "description": "🤖 Just a command runner",
+      "stargazerCount": 36281,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-15T06:41:33Z",
+      "licenseInfo": {
+        "spdxId": "CC0-1.0"
+      },
+      "latestRelease": {
+        "name": "1.59.0",
+        "tagName": "1.59.0",
+        "publishedAt": "2026-10-15T06:41:04Z",
+        "url": "https://github.com/casey/just/releases/tag/1.59.0"
+      },
+      "readme_url": "https://github.com/casey/just/blob/master/README.md",
+      "advisories": [],
+      "title": "just",
+      "category": "开源应用 · 开发环境"
+    },
+    {
+      "nameWithOwner": "aristocratos/btop",
+      "url": "https://github.com/aristocratos/btop",
+      "description": "A monitor of resources",
+      "stargazerCount": 34991,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-15T05:46:22Z",
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "latestRelease": {
+        "name": "btop++ (v1.4.7) New features & Bug fixes",
+        "tagName": "v1.4.7",
+        "publishedAt": "2026-05-01T16:05:51Z",
+        "url": "https://github.com/aristocratos/btop/releases/tag/v1.4.7"
+      },
+      "readme_url": "https://github.com/aristocratos/btop/blob/main/README.md",
+      "advisories": [],
+      "title": "btop",
+      "category": "开源应用 · 系统监控"
+    },
+    {
+      "nameWithOwner": "derailed/k9s",
+      "url": "https://github.com/derailed/k9s",
+      "description": "🐶 Kubernetes CLI To Manage Your Clusters In Style!",
+      "stargazerCount": 34814,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-15T06:58:42Z",
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "latestRelease": {
+        "name": "v0.51.0",
+        "tagName": "v0.51.0",
+        "publishedAt": "2026-06-06T14:13:12Z",
+        "url": "https://github.com/derailed/k9s/releases/tag/v0.51.0"
+      },
+      "readme_url": "https://github.com/derailed/k9s/blob/master/README.md",
+      "advisories": [],
+      "title": "K9s",
+      "category": "开源应用 · 容器诊断"
+    },
+    {
+      "nameWithOwner": "gitleaks/gitleaks",
+      "url": "https://github.com/gitleaks/gitleaks",
+      "description": "Find secrets with Gitleaks 🔑",
+      "stargazerCount": 29944,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-09-30T04:14:02Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v8.30.1",
+        "tagName": "v8.30.1",
+        "publishedAt": "2026-03-21T02:17:58Z",
+        "url": "https://github.com/gitleaks/gitleaks/releases/tag/v8.30.1"
+      },
+      "readme_url": "https://github.com/gitleaks/gitleaks/blob/master/README.md",
+      "advisories": [],
+      "title": "Gitleaks",
+      "category": "开源应用 · 凭据与供应链"
+    },
+    {
+      "nameWithOwner": "trufflesecurity/trufflehog",
+      "url": "https://github.com/trufflesecurity/trufflehog",
+      "description": "Find, verify, and analyze leaked credentials",
+      "stargazerCount": 28520,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-14T17:40:28Z",
+      "licenseInfo": {
+        "spdxId": "AGPL-3.0"
+      },
+      "latestRelease": {
+        "name": "v3.99.2",
+        "tagName": "v3.99.2",
+        "publishedAt": "2026-10-08T13:54:04Z",
+        "url": "https://github.com/trufflesecurity/trufflehog/releases/tag/v3.99.2"
+      },
+      "readme_url": "https://github.com/trufflesecurity/trufflehog/blob/main/README.md",
+      "advisories": [
+        {
+          "ghsa_id": "GHSA-fg8w-m62h-jvvw",
+          "severity": "medium",
+          "summary": "Workflow command injection via filenames in --github-actions output",
+          "url": "https://github.com/trufflesecurity/trufflehog/security/advisories/GHSA-fg8w-m62h-jvvw",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "actions",
+                "name": "trufflesecurity/trufflehog"
+              },
+              "vulnerable_version_range": ">= 3.31.0, < 3.98.0",
+              "patched_versions": "3.98.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-3r74-v83p-f4f4",
+          "severity": "low",
+          "summary": "Blind SSRF in some Detectors",
+          "url": "https://github.com/trufflesecurity/trufflehog/security/advisories/GHSA-3r74-v83p-f4f4",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/trufflesecurity/trufflehog/v3"
+              },
+              "vulnerable_version_range": "<v3.81.9",
+              "patched_versions": "v3.81.9",
+              "vulnerable_functions": []
+            }
+          ]
+        }
+      ],
+      "title": "TruffleHog",
+      "category": "开源应用 · 凭据与供应链"
+    },
+    {
+      "nameWithOwner": "charmbracelet/glow",
+      "url": "https://github.com/charmbracelet/glow",
+      "description": "Render markdown on the CLI, with pizzazz! 💅🏻",
+      "stargazerCount": 27696,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-05T11:11:20Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v3.0.0",
+        "tagName": "v3.0.0",
+        "publishedAt": "2026-08-11T18:09:45Z",
+        "url": "https://github.com/charmbracelet/glow/releases/tag/v3.0.0"
+      },
+      "readme_url": "https://github.com/charmbracelet/glow/blob/main/README.md",
+      "advisories": [],
+      "title": "Glow",
+      "category": "开源应用 · 文本与结构化数据"
+    },
+    {
+      "nameWithOwner": "Schniz/fnm",
+      "url": "https://github.com/Schniz/fnm",
+      "description": "🚀 Fast and simple Node.js version manager, built in Rust",
+      "stargazerCount": 27104,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-07-24T14:28:38Z",
+      "licenseInfo": {
+        "spdxId": "GPL-3.0"
+      },
+      "latestRelease": {
+        "name": "v1.39.0",
+        "tagName": "v1.39.0",
+        "publishedAt": "2026-03-06T15:23:47Z",
+        "url": "https://github.com/Schniz/fnm/releases/tag/v1.39.0"
+      },
+      "readme_url": "https://github.com/Schniz/fnm/blob/master/README.md",
+      "advisories": [],
+      "title": "fnm",
+      "category": "开源应用 · 开发环境"
+    },
+    {
+      "nameWithOwner": "fastfetch-cli/fastfetch",
+      "url": "https://github.com/fastfetch-cli/fastfetch",
+      "description": "A maintained, feature-rich and performance oriented, neofetch like system information tool.",
+      "stargazerCount": 25024,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-14T08:39:27Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "2.70.0",
+        "tagName": "2.70.0",
+        "publishedAt": "2026-10-14T08:39:27Z",
+        "url": "https://github.com/fastfetch-cli/fastfetch/releases/tag/2.70.0"
+      },
+      "readme_url": "https://github.com/fastfetch-cli/fastfetch/blob/dev/README.md",
+      "advisories": [
+        {
+          "ghsa_id": "GHSA-fr2v-2wgv-c994",
+          "severity": "low",
+          "summary": "CPU tempSensor Type Confusion",
+          "url": "https://github.com/fastfetch-cli/fastfetch/security/advisories/GHSA-fr2v-2wgv-c994",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "",
+                "name": ""
+              },
+              "vulnerable_version_range": "2.56.1",
+              "patched_versions": "2.60.0",
+              "vulnerable_functions": []
+            }
+          ]
+        }
+      ],
+      "title": "Fastfetch",
+      "category": "开源应用 · 系统监控"
+    },
+    {
+      "nameWithOwner": "charmbracelet/gum",
+      "url": "https://github.com/charmbracelet/gum",
+      "description": "A tool for glamorous shell scripts 🎀",
+      "stargazerCount": 24509,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-09-24T08:29:43Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v2.0.2",
+        "tagName": "v2.0.2",
+        "publishedAt": "2026-09-24T08:33:33Z",
+        "url": "https://github.com/charmbracelet/gum/releases/tag/v2.0.2"
+      },
+      "readme_url": "https://github.com/charmbracelet/gum/blob/main/README.md",
+      "advisories": [],
+      "title": "Gum",
+      "category": "开源应用 · 终端效率"
+    },
+    {
+      "nameWithOwner": "eza-community/eza",
+      "url": "https://github.com/eza-community/eza",
+      "description": "A modern alternative to ls",
+      "stargazerCount": 23565,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-08-06T19:53:22Z",
+      "licenseInfo": {
+        "spdxId": "EUPL-1.2"
+      },
+      "latestRelease": {
+        "name": "eza v0.23.5 (goodbye horses)",
+        "tagName": "v0.23.5",
+        "publishedAt": "2026-07-09T10:21:04Z",
+        "url": "https://github.com/eza-community/eza/releases/tag/v0.23.5"
+      },
+      "readme_url": "https://github.com/eza-community/eza/blob/main/README.md",
+      "advisories": [
+        {
+          "ghsa_id": "GHSA-3qx3-6hxr-j2ch",
+          "severity": "high",
+          "summary": " Potential Heap Overflow Vulnerability for AArch64",
+          "url": "https://github.com/eza-community/eza/security/advisories/GHSA-3qx3-6hxr-j2ch",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "rust",
+                "name": "eza"
+              },
+              "vulnerable_version_range": "< 0.18.2",
+              "patched_versions": "",
+              "vulnerable_functions": []
+            }
+          ]
+        }
+      ],
+      "title": "eza",
+      "category": "开源应用 · 系统文件"
+    },
+    {
+      "nameWithOwner": "rust-lang/rust-analyzer",
+      "url": "https://github.com/rust-lang/rust-analyzer",
+      "description": "A Rust compiler front-end for IDEs",
+      "stargazerCount": 16906,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-13T12:34:42Z",
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "latestRelease": {
+        "name": "2026-10-12",
+        "tagName": "2026-10-12",
+        "publishedAt": "2026-10-12T04:48:04Z",
+        "url": "https://github.com/rust-lang/rust-analyzer/releases/tag/2026-10-12"
+      },
+      "readme_url": "https://github.com/rust-lang/rust-analyzer/blob/master/README.md",
+      "advisories": [],
+      "title": "rust-analyzer",
+      "category": "开源应用 · 开发数据"
+    },
+    {
+      "nameWithOwner": "charmbracelet/vhs",
+      "url": "https://github.com/charmbracelet/vhs",
+      "description": "Your CLI home video recorder 📼",
+      "stargazerCount": 21120,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-01T20:42:55Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v0.12.1",
+        "tagName": "v0.12.1",
+        "publishedAt": "2026-09-24T09:30:55Z",
+        "url": "https://github.com/charmbracelet/vhs/releases/tag/v0.12.1"
+      },
+      "readme_url": "https://github.com/charmbracelet/vhs/blob/main/README.md",
+      "advisories": [],
+      "title": "VHS",
+      "category": "开源应用 · 终端效率"
+    },
+    {
+      "nameWithOwner": "so-fancy/diff-so-fancy",
+      "url": "https://github.com/so-fancy/diff-so-fancy",
+      "description": "Make your diffs human readable for improved code quality and faster defect detection. :tada:",
+      "stargazerCount": 18106,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-06T00:10:34Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v1.4.14",
+        "tagName": "v1.4.14",
+        "publishedAt": "2026-10-03T20:45:10Z",
+        "url": "https://github.com/so-fancy/diff-so-fancy/releases/tag/v1.4.14"
+      },
+      "readme_url": "https://github.com/so-fancy/diff-so-fancy/blob/next/README.md",
+      "advisories": [],
+      "title": "diff-so-fancy",
+      "category": "开源应用 · 文件比较"
+    },
+    {
+      "nameWithOwner": "denisidoro/navi",
+      "url": "https://github.com/denisidoro/navi",
+      "description": "An interactive cheatsheet tool for the command-line",
+      "stargazerCount": 17767,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-09-20T10:07:15Z",
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "latestRelease": {
+        "name": "2.24.0",
+        "tagName": "v2.24.0",
+        "publishedAt": "2025-01-29T23:18:52Z",
+        "url": "https://github.com/denisidoro/navi/releases/tag/v2.24.0"
+      },
+      "readme_url": "https://github.com/denisidoro/navi/blob/master/README.md",
+      "advisories": [],
+      "title": "navi",
+      "category": "开源应用 · 终端效率"
+    },
+    {
+      "nameWithOwner": "mikefarah/yq",
+      "url": "https://github.com/mikefarah/yq",
+      "description": "yq is a portable command-line YAML, JSON, XML, CSV, TOML, HCL  and properties processor",
+      "stargazerCount": 16103,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-15T03:54:48Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v4.54.1 - if-then-else",
+        "tagName": "v4.54.1",
+        "publishedAt": "2026-09-29T04:22:30Z",
+        "url": "https://github.com/mikefarah/yq/releases/tag/v4.54.1"
+      },
+      "readme_url": "https://github.com/mikefarah/yq/blob/master/README.md",
+      "advisories": [],
+      "title": "yq 结构化数据处理",
+      "category": "开源应用 · 文本与结构化数据"
+    },
+    {
+      "nameWithOwner": "pre-commit/pre-commit",
+      "url": "https://github.com/pre-commit/pre-commit",
+      "description": "A framework for managing and maintaining multi-language pre-commit hooks.",
+      "stargazerCount": 15636,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-13T16:03:45Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "pre-commit v4.7.0",
+        "tagName": "v4.7.0",
+        "publishedAt": "2026-10-13T15:35:39Z",
+        "url": "https://github.com/pre-commit/pre-commit/releases/tag/v4.7.0"
+      },
+      "readme_url": "https://github.com/pre-commit/pre-commit/blob/main/README.md",
+      "advisories": [],
+      "title": "pre-commit",
+      "category": "开源应用 · 代码质量"
+    },
+    {
+      "nameWithOwner": "direnv/direnv",
+      "url": "https://github.com/direnv/direnv",
+      "description": "unclutter your .profile",
+      "stargazerCount": 15503,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-12T20:56:43Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "Release v2.38.2",
+        "tagName": "v2.38.2",
+        "publishedAt": "2026-10-10T08:41:29Z",
+        "url": "https://github.com/direnv/direnv/releases/tag/v2.38.2"
+      },
+      "readme_url": "https://github.com/direnv/direnv/blob/master/README.md",
+      "advisories": [],
+      "title": "direnv",
+      "category": "开源应用 · 开发环境"
+    },
+    {
+      "nameWithOwner": "ClementTsang/bottom",
+      "url": "https://github.com/ClementTsang/bottom",
+      "description": "Yet another cross-platform graphical process/system monitor.",
+      "stargazerCount": 14101,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-04T01:33:55Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "0.14.9 Release",
+        "tagName": "0.14.9",
+        "publishedAt": "2026-08-27T08:24:00Z",
+        "url": "https://github.com/ClementTsang/bottom/releases/tag/0.14.9"
+      },
+      "readme_url": "https://github.com/ClementTsang/bottom/blob/main/README.md",
+      "advisories": [],
+      "title": "bottom",
+      "category": "开源应用 · 系统监控"
+    },
+    {
+      "nameWithOwner": "cheat/cheat",
+      "url": "https://github.com/cheat/cheat",
+      "description": "cheat allows you to create and view interactive cheatsheets on the command-line. It was designed to help remind *nix system administrators of options for commands that they use frequently, but not frequently enough to remember.",
+      "stargazerCount": 13481,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-05-19T16:11:23Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "5.1.0",
+        "tagName": "5.1.0",
+        "publishedAt": "2026-02-16T00:52:04Z",
+        "url": "https://github.com/cheat/cheat/releases/tag/5.1.0"
+      },
+      "readme_url": "https://github.com/cheat/cheat/blob/master/README.md",
+      "advisories": [],
+      "title": "cheat",
+      "category": "开源应用 · 终端效率"
+    },
+    {
+      "nameWithOwner": "anchore/grype",
+      "url": "https://github.com/anchore/grype",
+      "description": "A vulnerability scanner for container images and filesystems",
+      "stargazerCount": 13028,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-13T17:35:33Z",
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "latestRelease": {
+        "name": "v0.120.1",
+        "tagName": "v0.120.1",
+        "publishedAt": "2026-10-06T20:46:45Z",
+        "url": "https://github.com/anchore/grype/releases/tag/v0.120.1"
+      },
+      "readme_url": "https://github.com/anchore/grype/blob/main/README.md",
+      "advisories": [
+        {
+          "ghsa_id": "GHSA-6gxw-85q2-q646",
+          "severity": "high",
+          "summary": "Credential disclosure vulnerability in Grype JSON output",
+          "url": "https://github.com/anchore/grype/security/advisories/GHSA-6gxw-85q2-q646",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/anchore/grype"
+              },
+              "vulnerable_version_range": "< 0.104.1",
+              "patched_versions": "0.104.1",
+              "vulnerable_functions": []
+            }
+          ]
+        }
+      ],
+      "title": "Grype",
+      "category": "开源应用 · 凭据与供应链"
+    },
+    {
+      "nameWithOwner": "google/osv-scanner",
+      "url": "https://github.com/google/osv-scanner",
+      "description": "Vulnerability scanner written in Go which uses the data provided by https://osv.dev",
+      "stargazerCount": 11186,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-14T20:57:57Z",
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "latestRelease": {
+        "name": "v2.7.0",
+        "tagName": "v2.7.0",
+        "publishedAt": "2026-10-12T01:32:07Z",
+        "url": "https://github.com/google/osv-scanner/releases/tag/v2.7.0"
+      },
+      "readme_url": "https://github.com/google/osv-scanner/blob/main/README.md",
+      "advisories": [],
+      "title": "OSV-Scanner",
+      "category": "开源应用 · 凭据与供应链"
+    },
+    {
+      "nameWithOwner": "sharkdp/hexyl",
+      "url": "https://github.com/sharkdp/hexyl",
+      "description": "A command-line hex viewer",
+      "stargazerCount": 10292,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-04-30T08:24:07Z",
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "latestRelease": {
+        "name": "v0.17.0",
+        "tagName": "v0.17.0",
+        "publishedAt": "2026-02-14T12:56:31Z",
+        "url": "https://github.com/sharkdp/hexyl/releases/tag/v0.17.0"
+      },
+      "readme_url": "https://github.com/sharkdp/hexyl/blob/master/README.md",
+      "advisories": [],
+      "title": "hexyl",
+      "category": "开源应用 · 文本与结构化数据"
+    },
+    {
+      "nameWithOwner": "anchore/syft",
+      "url": "https://github.com/anchore/syft",
+      "description": "CLI tool and library for generating a Software Bill of Materials from container images and filesystems",
+      "stargazerCount": 9683,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-12T20:29:28Z",
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "latestRelease": {
+        "name": "v1.54.1",
+        "tagName": "v1.54.1",
+        "publishedAt": "2026-10-06T15:35:10Z",
+        "url": "https://github.com/anchore/syft/releases/tag/v1.54.1"
+      },
+      "readme_url": "https://github.com/anchore/syft/blob/main/README.md",
+      "advisories": [
+        {
+          "ghsa_id": "GHSA-mw2c-m758-9v5q",
+          "severity": "medium",
+          "summary": "Memory exhaustion and large allocations when parsing binary inputs",
+          "url": "https://github.com/anchore/syft/security/advisories/GHSA-mw2c-m758-9v5q",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/anchore/syft"
+              },
+              "vulnerable_version_range": "< v1.52.0",
+              "patched_versions": "v1.52.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-rjcw-vg7j-m9rc",
+          "severity": "medium",
+          "summary": "Syft improper temporary file cleanup",
+          "url": "https://github.com/anchore/syft/security/advisories/GHSA-rjcw-vg7j-m9rc",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/anchore/syft"
+              },
+              "vulnerable_version_range": "< v1.42.3",
+              "patched_versions": "v1.42.3",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-jp7v-3587-2956",
+          "severity": "medium",
+          "summary": "Credential disclosure in syft when SYFT_ATTEST_PASSWORD environment variable set",
+          "url": "https://github.com/anchore/syft/security/advisories/GHSA-jp7v-3587-2956",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/anchore/syft"
+              },
+              "vulnerable_version_range": ">= v0.69.0 && < v0.70.0",
+              "patched_versions": "v0.70.0",
+              "vulnerable_functions": []
+            }
+          ]
+        }
+      ],
+      "title": "Syft",
+      "category": "开源应用 · 凭据与供应链"
+    },
+    {
+      "nameWithOwner": "mvdan/sh",
+      "url": "https://github.com/mvdan/sh",
+      "description": "A shell parser, formatter, and interpreter with bash and zsh support; includes shfmt",
+      "stargazerCount": 9130,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-12T13:27:08Z",
+      "licenseInfo": {
+        "spdxId": "BSD-3-Clause"
+      },
+      "latestRelease": {
+        "name": "",
+        "tagName": "v3.14.1",
+        "publishedAt": "2026-09-06T15:02:21Z",
+        "url": "https://github.com/mvdan/sh/releases/tag/v3.14.1"
+      },
+      "readme_url": "https://github.com/mvdan/sh/blob/master/README.md",
+      "advisories": [],
+      "title": "shfmt",
+      "category": "开源应用 · 代码质量"
+    },
+    {
+      "nameWithOwner": "bridgecrewio/checkov",
+      "url": "https://github.com/bridgecrewio/checkov",
+      "description": "Prevent cloud misconfigurations and find vulnerabilities during build-time in infrastructure as code, container images and open source packages with Checkov by Bridgecrew.",
+      "stargazerCount": 9071,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-14T11:52:37Z",
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "latestRelease": {
+        "name": "3.3.29",
+        "tagName": "3.3.29",
+        "publishedAt": "2026-10-13T23:03:17Z",
+        "url": "https://github.com/bridgecrewio/checkov/releases/tag/3.3.29"
+      },
+      "readme_url": "https://github.com/bridgecrewio/checkov/blob/main/README.md",
+      "advisories": [],
+      "title": "Checkov",
+      "category": "开源应用 · 代码质量"
+    },
+    {
+      "nameWithOwner": "boyter/scc",
+      "url": "https://github.com/boyter/scc",
+      "description": "Sloc, Cloc and Code: scc is a very fast accurate code counter with complexity calculations and COCOMO estimates written in pure Go",
+      "stargazerCount": 8819,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-14T03:14:39Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v4.1.0",
+        "tagName": "v4.1.0",
+        "publishedAt": "2026-09-07T22:41:50Z",
+        "url": "https://github.com/boyter/scc/releases/tag/v4.1.0"
+      },
+      "readme_url": "https://github.com/boyter/scc/blob/master/README.md",
+      "advisories": [],
+      "title": "scc",
+      "category": "开源应用 · 代码质量"
+    },
+    {
+      "nameWithOwner": "j178/prek",
+      "url": "https://github.com/j178/prek",
+      "description": "⚡ A fast Git hook manager written in Rust, designed as a drop-in alternative to pre-commit, reimagined.",
+      "stargazerCount": 8612,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-14T14:03:55Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "0.5.5",
+        "tagName": "v0.5.5",
+        "publishedAt": "2026-10-05T06:10:04Z",
+        "url": "https://github.com/j178/prek/releases/tag/v0.5.5"
+      },
+      "readme_url": "https://github.com/j178/prek/blob/master/README.md",
+      "advisories": [],
+      "title": "prek",
+      "category": "开源应用 · 代码质量"
+    },
+    {
+      "nameWithOwner": "OpenShot/openshot-qt",
+      "url": "https://github.com/OpenShot/openshot-qt",
+      "description": "OpenShot Video Editor is an award-winning free and open-source video editor for Linux, Mac, and Windows, and is dedicated to delivering high quality video editing and animation solutions to the world.",
+      "stargazerCount": 6631,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-15T04:46:08Z",
+      "licenseInfo": {
+        "spdxId": "GPL-3.0-or-later"
+      },
+      "latestRelease": {
+        "name": "",
+        "tagName": "v4.0.1",
+        "publishedAt": "2026-09-27T22:16:25Z",
+        "url": "https://github.com/OpenShot/openshot-qt/releases/tag/v4.0.1"
+      },
+      "readme_url": "https://github.com/OpenShot/openshot-qt/blob/develop/README.md",
+      "advisories": [],
+      "title": "OpenShot",
+      "category": "开源应用 · 音视频"
+    },
+    {
+      "nameWithOwner": "peco/peco",
+      "url": "https://github.com/peco/peco",
+      "description": "Simplistic interactive filtering tool",
+      "stargazerCount": 7915,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-03T00:53:43Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v0.6.0",
+        "tagName": "v0.6.0",
+        "publishedAt": "2026-02-24T02:48:42Z",
+        "url": "https://github.com/peco/peco/releases/tag/v0.6.0"
+      },
+      "readme_url": "https://github.com/peco/peco/blob/master/README.md",
+      "advisories": [],
+      "title": "peco",
+      "category": "开源应用 · 终端效率"
+    },
+    {
+      "nameWithOwner": "svenstaro/miniserve",
+      "url": "https://github.com/svenstaro/miniserve",
+      "description": "🌟 For when you really just want to serve some files over HTTP right now!",
+      "stargazerCount": 7906,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-01T02:35:31Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "",
+        "tagName": "v0.35.0",
+        "publishedAt": "2026-04-08T12:11:43Z",
+        "url": "https://github.com/svenstaro/miniserve/releases/tag/v0.35.0"
+      },
+      "readme_url": "https://github.com/svenstaro/miniserve/blob/master/README.md",
+      "advisories": [],
+      "title": "miniserve",
+      "category": "开源应用 · 下载传输"
+    },
+    {
+      "nameWithOwner": "chmln/sd",
+      "url": "https://github.com/chmln/sd",
+      "description": "Intuitive find & replace CLI (sed alternative)",
+      "stargazerCount": 7389,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-02-25T19:26:21Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "",
+        "tagName": "v1.1.0",
+        "publishedAt": "2026-02-25T19:27:05Z",
+        "url": "https://github.com/chmln/sd/releases/tag/v1.1.0"
+      },
+      "readme_url": "https://github.com/chmln/sd/blob/master/README.md",
+      "advisories": [],
+      "title": "sd 文本替换",
+      "category": "开源应用 · 文本与结构化数据"
+    },
+    {
+      "nameWithOwner": "skim-rs/skim",
+      "url": "https://github.com/skim-rs/skim",
+      "description": "Fuzzy Finder in rust!",
+      "stargazerCount": 6995,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-14T09:45:41Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "5.7.4 - 2026-10-04",
+        "tagName": "v5.7.4",
+        "publishedAt": "2026-10-04T17:20:39Z",
+        "url": "https://github.com/skim-rs/skim/releases/tag/v5.7.4"
+      },
+      "readme_url": "https://github.com/skim-rs/skim/blob/master/README.md",
+      "advisories": [
+        {
+          "ghsa_id": "GHSA-9g93-rxr5-xhqw",
+          "severity": "high",
+          "summary": "Arbitrary code execution via pull_request_target fork checkout in pr.yml",
+          "url": "https://github.com/skim-rs/skim/security/advisories/GHSA-9g93-rxr5-xhqw",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "unapplicable",
+                "name": "skim"
+              },
+              "vulnerable_version_range": "<bf63404ad51985b00ed304690ba9d477860a5a75",
+              "patched_versions": "bf63404ad51985b00ed304690ba9d477860a5a75",
+              "vulnerable_functions": []
+            }
+          ]
+        }
+      ],
+      "title": "skim",
+      "category": "开源应用 · 终端效率"
+    },
+    {
+      "nameWithOwner": "tealdeer-rs/tealdeer",
+      "url": "https://github.com/tealdeer-rs/tealdeer",
+      "description": "A very fast implementation of tldr in Rust.",
+      "stargazerCount": 6592,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-08-25T22:10:38Z",
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "latestRelease": {
+        "name": "Version 1.9.0",
+        "tagName": "v1.9.0",
+        "publishedAt": "2026-08-24T15:27:55Z",
+        "url": "https://github.com/tealdeer-rs/tealdeer/releases/tag/v1.9.0"
+      },
+      "readme_url": "https://github.com/tealdeer-rs/tealdeer/blob/main/README.md",
+      "advisories": [],
+      "title": "tealdeer",
+      "category": "开源应用 · 终端效率"
+    },
+    {
+      "nameWithOwner": "sigstore/cosign",
+      "url": "https://github.com/sigstore/cosign",
+      "description": "Code signing and transparency for containers and binaries",
+      "stargazerCount": 6368,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-14T08:10:55Z",
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "latestRelease": {
+        "name": "v3.1.3",
+        "tagName": "v3.1.3",
+        "publishedAt": "2026-08-06T01:09:23Z",
+        "url": "https://github.com/sigstore/cosign/releases/tag/v3.1.3"
+      },
+      "readme_url": "https://github.com/sigstore/cosign/blob/main/README.md",
+      "advisories": [
+        {
+          "ghsa_id": "GHSA-fx35-mq7g-6g98",
+          "severity": "high",
+          "summary": "Verification bypass via public key in legacy bundle",
+          "url": "https://github.com/sigstore/cosign/security/advisories/GHSA-fx35-mq7g-6g98",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/sigstore/cosign/v3"
+              },
+              "vulnerable_version_range": "<= 3.1.2",
+              "patched_versions": "v3.1.3",
+              "vulnerable_functions": []
+            },
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/sigstore/cosign/v2"
+              },
+              "vulnerable_version_range": "<= 2.6.4",
+              "patched_versions": "v2.6.5",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-w6c6-c85g-mmv6",
+          "severity": "medium",
+          "summary": "verify-blob-attestation reports false positive when payload parsing fails",
+          "url": "https://github.com/sigstore/cosign/security/advisories/GHSA-w6c6-c85g-mmv6",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/sigstore/cosign"
+              },
+              "vulnerable_version_range": "<= v3.0.5, <= v2.6.2",
+              "patched_versions": "v3.0.6, v2.6.3",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-wfqv-66vq-46rm",
+          "severity": "low",
+          "summary": "Signatures considered valid with certificates that outlive expired CA certificates",
+          "url": "https://github.com/sigstore/cosign/security/advisories/GHSA-wfqv-66vq-46rm",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/sigstore/cosign"
+              },
+              "vulnerable_version_range": "<= 3.0.4",
+              "patched_versions": "3.0.5",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-whqx-f9j3-ch6m",
+          "severity": "medium",
+          "summary": "Verification accepts any valid Rekor entry under certain conditions",
+          "url": "https://github.com/sigstore/cosign/security/advisories/GHSA-whqx-f9j3-ch6m",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/sigstore/cosign"
+              },
+              "vulnerable_version_range": "<= 2.6.1, <= 3.0.3",
+              "patched_versions": "2.6.2, 3.0.4",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-88jx-383q-w4qc",
+          "severity": "medium",
+          "summary": "Malicious attachments can cause system-wide denial of service",
+          "url": "https://github.com/sigstore/cosign/security/advisories/GHSA-88jx-383q-w4qc",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/sigstore/cosign"
+              },
+              "vulnerable_version_range": "<= 2.2.3",
+              "patched_versions": "2.2.4",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-95pr-fxf5-86gv",
+          "severity": "medium",
+          "summary": "Malicious artifacts can cause machine-wide DoS",
+          "url": "https://github.com/sigstore/cosign/security/advisories/GHSA-95pr-fxf5-86gv",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/sigstore/cosign"
+              },
+              "vulnerable_version_range": "<= 2.2.3",
+              "patched_versions": "2.2.4",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-vfp6-jrw2-99g9",
+          "severity": "low",
+          "summary": "Possible endless data attack from attacker-controlled registry",
+          "url": "https://github.com/sigstore/cosign/security/advisories/GHSA-vfp6-jrw2-99g9",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "go",
+                "name": "github.com/sigstore/cosign"
+              },
+              "vulnerable_version_range": "<= 2.2.0",
+              "patched_versions": "2.2.1",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-8gw7-4j42-w388",
+          "severity": "medium",
+          "summary": "Vulnerabilities with blob verification",
+          "url": "https://github.com/sigstore/cosign/security/advisories/GHSA-8gw7-4j42-w388",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "sigstore",
+                "name": "cosign"
+              },
+              "vulnerable_version_range": "<=1.11.1",
+              "patched_versions": "1.12.0",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-vjxv-45g9-9296",
+          "severity": "medium",
+          "summary": "`cosign verify-attestation  --type` can report a false positive if any attestation exists",
+          "url": "https://github.com/sigstore/cosign/security/advisories/GHSA-vjxv-45g9-9296",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "cosign",
+                "name": "cosign"
+              },
+              "vulnerable_version_range": "< 1.10.0",
+              "patched_versions": "1.10.1",
+              "vulnerable_functions": []
+            }
+          ]
+        },
+        {
+          "ghsa_id": "GHSA-ccxc-vr6p-4858",
+          "severity": "low",
+          "summary": "Cosign can be manipulated to falsely claim an entry exists in the Rekor transparency log",
+          "url": "https://github.com/sigstore/cosign/security/advisories/GHSA-ccxc-vr6p-4858",
+          "vulnerabilities": [
+            {
+              "package": {
+                "ecosystem": "cosign",
+                "name": ""
+              },
+              "vulnerable_version_range": "< 1.5.1",
+              "patched_versions": "1.5.2",
+              "vulnerable_functions": []
+            }
+          ]
+        }
+      ],
+      "title": "Cosign",
+      "category": "开源应用 · 凭据与供应链"
+    },
+    {
+      "nameWithOwner": "dalance/procs",
+      "url": "https://github.com/dalance/procs",
+      "description": "A modern replacement for ps written in Rust",
+      "stargazerCount": 6193,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-10-06T20:06:38Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v0.14.12",
+        "tagName": "v0.14.12",
+        "publishedAt": "2026-06-25T10:12:30Z",
+        "url": "https://github.com/dalance/procs/releases/tag/v0.14.12"
+      },
+      "readme_url": "https://github.com/dalance/procs/blob/master/README.md",
+      "advisories": [],
+      "title": "procs",
+      "category": "开源应用 · 系统监控"
+    },
+    {
+      "nameWithOwner": "ankitpokhrel/jira-cli",
+      "url": "https://github.com/ankitpokhrel/jira-cli",
+      "description": "🔥 Feature-rich interactive Jira command line.",
+      "stargazerCount": 6033,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-09-22T12:42:52Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v1.7.0",
+        "tagName": "v1.7.0",
+        "publishedAt": "2025-08-31T08:28:23Z",
+        "url": "https://github.com/ankitpokhrel/jira-cli/releases/tag/v1.7.0"
+      },
+      "readme_url": "https://github.com/ankitpokhrel/jira-cli/blob/main/README.md",
+      "advisories": [],
+      "title": "Jira CLI",
+      "category": "开源应用 · 项目协作"
+    },
+    {
+      "nameWithOwner": "PaulJuliusMartinez/jless",
+      "url": "https://github.com/PaulJuliusMartinez/jless",
+      "description": "jless is a command-line JSON viewer designed for reading, exploring, and searching through JSON data.",
+      "stargazerCount": 5512,
+      "isArchived": false,
+      "isDisabled": false,
+      "pushedAt": "2026-09-07T17:18:05Z",
+      "licenseInfo": {
+        "spdxId": "MIT"
+      },
+      "latestRelease": {
+        "name": "v0.9.0",
+        "tagName": "v0.9.0",
+        "publishedAt": "2023-07-17T02:51:34Z",
+        "url": "https://github.com/PaulJuliusMartinez/jless/releases/tag/v0.9.0"
+      },
+      "readme_url": "https://github.com/PaulJuliusMartinez/jless/blob/main/README.md",
+      "advisories": [],
+      "title": "jless",
+      "category": "开源应用 · 文本与结构化数据"
+    }
+  ]
+}
