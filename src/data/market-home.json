@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-15T01:34:44.420Z",
+  "updatedAt": "2026-10-16T01:29:02.484Z",
   "transmissionChains": [
     {
       "group": "加密内部轮动",
@@ -17,29 +17,29 @@
       "expectedSign": "positive",
       "signal": 0.89,
       "windows": {
-        "short": 0.91,
+        "short": 0.92,
         "medium": 0.88,
         "long": 0.88
       },
       "statistics": {
         "short": {
-          "value": 0.91,
+          "value": 0.92,
           "samples": 20,
-          "ciLow": 0.79,
+          "ciLow": 0.81,
           "ciHigh": 0.97,
           "pValue": 0
         },
         "medium": {
           "value": 0.88,
           "samples": 60,
-          "ciLow": 0.81,
+          "ciLow": 0.8,
           "ciHigh": 0.93,
           "pValue": 0
         },
         "long": {
           "value": 0.88,
           "samples": 120,
-          "ciLow": 0.84,
+          "ciLow": 0.83,
           "ciHigh": 0.92,
           "pValue": 0
         }
@@ -55,14 +55,14 @@
         "ciLow": 0,
         "ciHigh": 0.24,
         "pValue": 0.059024,
-        "qValue": 0.532767,
+        "qValue": 0.532027,
         "evidence": "uncertain"
       },
       "shock": {
         "tail": "upper10pct",
         "horizon": 5,
         "threshold": 0.032957,
-        "currentMove": -0.017627,
+        "currentMove": 0.005462,
         "triggered": false,
         "eventSamples": 52,
         "controlSamples": 468,
@@ -71,14 +71,14 @@
         "liftPct": -0.43,
         "medianOutcome": -0.000678,
         "pValue": 0.953084,
-        "qValue": 1,
+        "qValue": 0.999791,
         "evidence": "uncertain"
       },
       "lowerShock": {
         "tail": "lower10pct",
         "horizon": 5,
         "threshold": -0.028854,
-        "currentMove": -0.017627,
+        "currentMove": 0.005462,
         "triggered": false,
         "eventSamples": 52,
         "controlSamples": 468,
@@ -87,7 +87,7 @@
         "liftPct": 1.71,
         "medianOutcome": 0.004947,
         "pValue": 0.815008,
-        "qValue": 0.960639,
+        "qValue": 0.963866,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -107,29 +107,29 @@
       "left": "vix",
       "right": "sp500",
       "expectedSign": "negative",
-      "signal": -0.73,
+      "signal": -0.75,
       "windows": {
-        "short": -0.7,
-        "medium": -0.72,
-        "long": -0.77
+        "short": -0.75,
+        "medium": -0.73,
+        "long": -0.78
       },
       "statistics": {
         "short": {
-          "value": -0.7,
+          "value": -0.75,
           "samples": 20,
-          "ciLow": -0.87,
-          "ciHigh": -0.37,
-          "pValue": 0.000337
+          "ciLow": -0.9,
+          "ciHigh": -0.47,
+          "pValue": 0.000052
         },
         "medium": {
-          "value": -0.72,
+          "value": -0.73,
           "samples": 60,
-          "ciLow": -0.82,
-          "ciHigh": -0.57,
+          "ciLow": -0.83,
+          "ciHigh": -0.58,
           "pValue": 0
         },
         "long": {
-          "value": -0.77,
+          "value": -0.78,
           "samples": 120,
           "ciLow": -0.84,
           "ciHigh": -0.69,
@@ -154,8 +154,8 @@
         "tail": "upper10pct",
         "horizon": 5,
         "threshold": 0.093462,
-        "currentMove": 0.003945,
-        "triggered": false,
+        "currentMove": 0.104781,
+        "triggered": true,
         "eventSamples": 51,
         "controlSamples": 451,
         "eventUpRatePct": 60.78,
@@ -170,7 +170,7 @@
         "tail": "lower10pct",
         "horizon": 5,
         "threshold": -0.079359,
-        "currentMove": 0.003945,
+        "currentMove": 0.104781,
         "triggered": false,
         "eventSamples": 51,
         "controlSamples": 451,
@@ -199,29 +199,29 @@
       "left": "vix",
       "right": "nasdaq",
       "expectedSign": "negative",
-      "signal": -0.68,
+      "signal": -0.71,
       "windows": {
-        "short": -0.67,
-        "medium": -0.67,
-        "long": -0.72
+        "short": -0.74,
+        "medium": -0.68,
+        "long": -0.73
       },
       "statistics": {
         "short": {
-          "value": -0.67,
+          "value": -0.74,
           "samples": 20,
-          "ciLow": -0.86,
-          "ciHigh": -0.32,
-          "pValue": 0.000876
+          "ciLow": -0.89,
+          "ciHigh": -0.45,
+          "pValue": 0.000083
         },
         "medium": {
-          "value": -0.67,
+          "value": -0.68,
           "samples": 60,
-          "ciLow": -0.79,
-          "ciHigh": -0.5,
+          "ciLow": -0.8,
+          "ciHigh": -0.52,
           "pValue": 0
         },
         "long": {
-          "value": -0.72,
+          "value": -0.73,
           "samples": 120,
           "ciLow": -0.8,
           "ciHigh": -0.63,
@@ -239,15 +239,15 @@
         "ciLow": -0.09,
         "ciHigh": 0.15,
         "pValue": 0.620005,
-        "qValue": 0.826818,
+        "qValue": 0.836293,
         "evidence": "uncertain"
       },
       "shock": {
         "tail": "upper10pct",
         "horizon": 5,
         "threshold": 0.092862,
-        "currentMove": 0.003945,
-        "triggered": false,
+        "currentMove": 0.104781,
+        "triggered": true,
         "eventSamples": 52,
         "controlSamples": 468,
         "eventUpRatePct": 69.23,
@@ -255,14 +255,14 @@
         "liftPct": 7.91,
         "medianOutcome": 0.008225,
         "pValue": 0.264638,
-        "qValue": 0.855333,
+        "qValue": 0.843082,
         "evidence": "uncertain"
       },
       "lowerShock": {
         "tail": "lower10pct",
         "horizon": 5,
         "threshold": -0.081412,
-        "currentMove": 0.003945,
+        "currentMove": 0.104781,
         "triggered": false,
         "eventSamples": 52,
         "controlSamples": 468,
@@ -271,7 +271,7 @@
         "liftPct": -0.64,
         "medianOutcome": 0.012326,
         "pValue": 0.928084,
-        "qValue": 1,
+        "qValue": 0.999791,
         "evidence": "uncertain"
       },
       "strength": "strong",
@@ -279,60 +279,60 @@
     }
   ],
   "marketBrief": {
-    "asOfDate": "2026-10-15",
+    "asOfDate": "2026-10-16",
     "disclaimer": "归因是共振线索，不是已证明的单一因果；方向展望仅为低至中置信度情景。",
     "regime": {
       "title": "信用条件收紧",
-      "summary": "全球风险压力共振+0.01σ（单日变化上涨 0.12点），圣路易斯联储金融压力-0.72（零以上为高于历史平均）；10Y–2Y曲线正斜率42bp，10Y–3M正斜率91bp；2Y−EFFR政策路径差+91bp；5Y5Y通胀预期2.34%；新兴市场HY收益率8.23%；SOFR−EFFR资金压力差+1bp。"
+      "summary": "全球风险压力共振+0.77σ（单日变化上涨 0.76点），圣路易斯联储金融压力-0.72（零以上为高于历史平均）；10Y–2Y曲线正斜率37bp，10Y–3M正斜率82bp；2Y−EFFR政策路径差+94bp；5Y5Y通胀预期2.31%；新兴市场HY收益率8.25%；SOFR−EFFR资金压力差+0bp。"
     },
     "rateRegime": {
-      "title": "政策路径预期主导长端利率",
+      "title": "长端利率波动有限",
       "dominant": "expected-rate",
-      "yieldMoveBp": -3,
+      "yieldMoveBp": -2,
       "termPremiumMoveBp": 0.35,
       "expectedRateMoveBp": 1.65,
-      "summary": "10Y收益率最近观测变化下跌 3.00bp；Kim–Wright期限溢价变化上涨 0.35bp，收益率减期限溢价得到的预期短率成分代理变化上涨 1.65bp。分量发布日期不同，归因只比较方向和相对幅度，不要求机械相加。"
+      "summary": "10Y收益率最近观测变化下跌 2.00bp；Kim–Wright期限溢价变化上涨 0.35bp，收益率减期限溢价得到的预期短率成分代理变化上涨 1.65bp。分量发布日期不同，归因只比较方向和相对幅度，不要求机械相加。"
     },
     "breadth": {
-      "title": "风险广度收缩",
-      "summary": "最近交易日有数据的六大股指跟踪池中0%上涨，股票/商品/加密十项风险跟踪池中0%上涨；5日参与率分别持平 0.00点、持平 0.00点。这是跟踪标的参与率，不是交易所成分股涨跌家数。"
+      "title": "市场参与度分化",
+      "summary": "最近交易日有数据的六大股指跟踪池中25%上涨，股票/商品/加密十项风险跟踪池中50%上涨；5日参与率分别上涨 25.00点、上涨 38.89点。这是跟踪标的参与率，不是交易所成分股涨跌家数。"
     },
     "markets": [
       {
         "id": "sp500",
         "name": "标普500",
-        "date": "2026-10-14",
-        "dailyMove": -1.11,
+        "date": "2026-10-15",
+        "dailyMove": 0.33,
         "drivers": [
           {
-            "chain": "风险广度—美股链",
-            "driver": "跨资产风险参与率（剔除标普500）",
-            "driverMove": -57.14,
-            "driverZ": -1.79,
-            "correlation": 0.31,
-            "contribution": -0.22,
+            "chain": "VIX—美股去杠杆链",
+            "driver": "VIX波动率",
+            "driverMove": 10.48,
+            "driverZ": 1.82,
+            "correlation": -0.75,
+            "contribution": -0.54,
             "effect": "headwind",
-            "text": "跨资产风险参与率（剔除标普500）下跌 57.14点（-1.79σ），结合当前ρ 0.31，对标普500的共振贡献-0.22"
+            "text": "VIX波动率上涨 10.48%（+1.82σ），结合当前ρ -0.75，对标普500的共振贡献-0.54"
           },
           {
-            "chain": "10Y−3M曲线—美股状态链",
-            "driver": "美债10Y−3M期限利差",
-            "driverMove": -4,
-            "driverZ": -0.96,
-            "correlation": -0.42,
-            "contribution": 0.19,
-            "effect": "tailwind",
-            "text": "美债10Y−3M期限利差下跌 4.00bp（-0.96σ），结合当前ρ -0.42，对标普500的共振贡献+0.19"
+            "chain": "黄金—股票状态链",
+            "driver": "黄金策略指数",
+            "driverMove": -4.68,
+            "driverZ": -1.83,
+            "correlation": 0.51,
+            "contribution": -0.37,
+            "effect": "headwind",
+            "text": "黄金策略指数下跌 4.68%（-1.83σ），结合当前ρ 0.51，对标普500的共振贡献-0.37"
           },
           {
             "chain": "信用利差—美股链",
             "driver": "美国高收益利差",
-            "driverMove": 5,
-            "driverZ": 0.89,
-            "correlation": -0.44,
-            "contribution": -0.18,
+            "driverMove": 9,
+            "driverZ": 1.69,
+            "correlation": -0.49,
+            "contribution": -0.34,
             "effect": "headwind",
-            "text": "美国高收益利差上涨 5.00bp（+0.89σ），结合当前ρ -0.44，对标普500的共振贡献-0.18"
+            "text": "美国高收益利差上涨 9.00bp（+1.69σ），结合当前ρ -0.49，对标普500的共振贡献-0.34"
           }
         ],
         "horizonOutlooks": [
@@ -340,48 +340,48 @@
             "id": "day",
             "label": "未来1日",
             "observations": 1,
-            "direction": "bearish",
-            "score": -0.58,
+            "direction": "bullish",
+            "score": 0.15,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 50.23,
+            "upProbabilityPct": 52.43,
             "historicalReturnRangePct": {
-              "low": -0.76,
-              "high": 0.87,
-              "samples": 213
+              "low": -0.31,
+              "high": 0.58,
+              "samples": 307
             },
             "ruleName": "纯动量短线（波动调整）",
             "threshold": 0.35,
             "training": {
-              "samples": 520,
-              "accuracyPct": 49.23,
+              "samples": 519,
+              "accuracyPct": 49.33,
               "accuracyIntervalPct": {
-                "low": 44.96,
-                "high": 53.52
+                "low": 45.05,
+                "high": 53.62
               },
-              "bestBaselinePct": 49.23,
+              "bestBaselinePct": 49.33,
               "liftPct": 0
             },
             "validation": {
-              "samples": 210,
-              "accuracyPct": 46.19,
+              "samples": 211,
+              "accuracyPct": 45.97,
               "accuracyIntervalPct": {
-                "low": 39.58,
-                "high": 52.94
+                "low": 39.38,
+                "high": 52.71
               },
-              "bestBaselinePct": 57.14,
-              "liftPct": -10.95
+              "bestBaselinePct": 57.35,
+              "liftPct": -11.38
             },
             "factors": [
               {
                 "name": "1观测动量",
-                "value": -0.66,
-                "text": "1个观测期变化下跌 1.11%，波动调整信号-0.66"
+                "value": 0.23,
+                "text": "1个观测期变化上涨 0.33%，波动调整信号+0.23"
               },
               {
                 "name": "5观测趋势",
-                "value": -0.33,
-                "text": "5个观测期变化下跌 1.06%，波动调整信号-0.33"
+                "value": -0.09,
+                "text": "5个观测期变化下跌 0.27%，波动调整信号-0.09"
               }
             ]
           },
@@ -390,47 +390,47 @@
             "label": "未来1周",
             "observations": 5,
             "direction": "bearish",
-            "score": -0.12,
+            "score": -0.5,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 46.48,
+            "upProbabilityPct": 53.77,
             "historicalReturnRangePct": {
-              "low": -1.87,
-              "high": 1.87,
-              "samples": 69
+              "low": -1.62,
+              "high": 2.21,
+              "samples": 104
             },
-            "ruleName": "纯动量均衡方向",
+            "ruleName": "纯动量短线方向",
             "threshold": 0.2,
             "training": {
-              "samples": 212,
-              "accuracyPct": 61.32,
+              "samples": 278,
+              "accuracyPct": 56.12,
               "accuracyIntervalPct": {
-                "low": 54.62,
-                "high": 67.62
+                "low": 50.24,
+                "high": 61.83
               },
-              "bestBaselinePct": 59.43,
-              "liftPct": 1.89
+              "bestBaselinePct": 58.27,
+              "liftPct": -2.15
             },
             "validation": {
-              "samples": 90,
-              "accuracyPct": 53.33,
+              "samples": 119,
+              "accuracyPct": 44.54,
               "accuracyIntervalPct": {
-                "low": 43.1,
-                "high": 63.29
+                "low": 35.92,
+                "high": 53.5
               },
-              "bestBaselinePct": 58.89,
-              "liftPct": -5.56
+              "bestBaselinePct": 57.14,
+              "liftPct": -12.6
             },
             "factors": [
               {
                 "name": "5观测动量",
-                "value": -0.33,
-                "text": "5个观测期变化下跌 1.06%，波动调整信号-0.33"
+                "value": -0.09,
+                "text": "5个观测期变化下跌 0.27%，波动调整信号-0.09"
               },
               {
                 "name": "21观测趋势",
-                "value": 0.27,
-                "text": "21个观测期变化上涨 1.76%，波动调整信号+0.27"
+                "value": 0.38,
+                "text": "21个观测期变化上涨 2.55%，波动调整信号+0.38"
               }
             ]
           },
@@ -442,44 +442,44 @@
             "score": 1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 63.64,
+            "upProbabilityPct": 60.47,
             "historicalReturnRangePct": {
-              "low": -0.83,
-              "high": 3.09,
-              "samples": 42
+              "low": -2.18,
+              "high": 3.07,
+              "samples": 41
             },
-            "ruleName": "纯动量趋势方向",
-            "threshold": 0.35,
+            "ruleName": "纯动量短线方向",
+            "threshold": 0.2,
             "training": {
-              "samples": 62,
-              "accuracyPct": 56.45,
+              "samples": 66,
+              "accuracyPct": 50,
               "accuracyIntervalPct": {
-                "low": 44.09,
-                "high": 68.06
+                "low": 38.27,
+                "high": 61.73
               },
-              "bestBaselinePct": 62.9,
-              "liftPct": -6.45
+              "bestBaselinePct": 62.12,
+              "liftPct": -12.12
             },
             "validation": {
               "samples": 29,
-              "accuracyPct": 65.52,
+              "accuracyPct": 41.38,
               "accuracyIntervalPct": {
-                "low": 47.34,
-                "high": 80.06
+                "low": 25.51,
+                "high": 59.26
               },
-              "bestBaselinePct": 75.86,
-              "liftPct": -10.34
+              "bestBaselinePct": 68.97,
+              "liftPct": -27.59
             },
             "factors": [
               {
                 "name": "21观测动量",
-                "value": 0.27,
-                "text": "21个观测期变化上涨 1.76%，波动调整信号+0.27"
+                "value": 0.38,
+                "text": "21个观测期变化上涨 2.55%，波动调整信号+0.38"
               },
               {
                 "name": "63观测趋势",
-                "value": 0.22,
-                "text": "63个观测期变化上涨 2.46%，波动调整信号+0.22"
+                "value": 0.34,
+                "text": "63个观测期变化上涨 3.84%，波动调整信号+0.34"
               }
             ]
           },
@@ -488,47 +488,47 @@
             "label": "未来1季度",
             "observations": 63,
             "direction": "bullish",
-            "score": 1,
+            "score": 0.44,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 69.23,
+            "upProbabilityPct": 36.36,
             "historicalReturnRangePct": {
-              "low": -0.36,
-              "high": 7.96,
-              "samples": 11
+              "low": -2.84,
+              "high": 4.31,
+              "samples": 9
             },
-            "ruleName": "纯动量趋势方向",
-            "threshold": 0.5,
+            "ruleName": "纯动量均衡（波动调整）",
+            "threshold": 0.2,
             "training": {
-              "samples": 15,
-              "accuracyPct": 66.67,
+              "samples": 11,
+              "accuracyPct": 36.36,
               "accuracyIntervalPct": {
-                "low": 41.71,
-                "high": 84.82
+                "low": 15.17,
+                "high": 64.62
               },
-              "bestBaselinePct": 66.67,
+              "bestBaselinePct": 36.36,
               "liftPct": 0
             },
             "validation": {
-              "samples": 9,
-              "accuracyPct": 88.89,
+              "samples": 8,
+              "accuracyPct": 87.5,
               "accuracyIntervalPct": {
-                "low": 56.5,
-                "high": 98.01
+                "low": 52.91,
+                "high": 97.76
               },
-              "bestBaselinePct": 88.89,
+              "bestBaselinePct": 87.5,
               "liftPct": 0
             },
             "factors": [
               {
                 "name": "63观测动量",
-                "value": 0.22,
-                "text": "63个观测期变化上涨 2.46%，波动调整信号+0.22"
+                "value": 0.34,
+                "text": "63个观测期变化上涨 3.84%，波动调整信号+0.34"
               },
               {
                 "name": "126观测趋势",
-                "value": 0.56,
-                "text": "126个观测期变化上涨 9.91%，波动调整信号+0.56"
+                "value": 0.57,
+                "text": "126个观测期变化上涨 9.98%，波动调整信号+0.57"
               }
             ]
           },
@@ -542,8 +542,8 @@
             "confidence": "watch",
             "upProbabilityPct": 66.67,
             "historicalReturnRangePct": {
-              "low": -1.75,
-              "high": 10.15,
+              "low": -1.65,
+              "high": 10.29,
               "samples": 7
             },
             "ruleName": "纯动量短线方向",
@@ -571,13 +571,13 @@
             "factors": [
               {
                 "name": "126观测动量",
-                "value": 0.56,
-                "text": "126个观测期变化上涨 9.91%，波动调整信号+0.56"
+                "value": 0.57,
+                "text": "126个观测期变化上涨 9.98%，波动调整信号+0.57"
               },
               {
                 "name": "252观测趋势",
-                "value": 0.62,
-                "text": "252个观测期变化上涨 15.99%，波动调整信号+0.62"
+                "value": 0.64,
+                "text": "252个观测期变化上涨 16.55%，波动调整信号+0.64"
               }
             ]
           },
@@ -586,13 +586,13 @@
             "label": "未来1年",
             "observations": 252,
             "direction": "bullish",
-            "score": 0.69,
+            "score": 0.71,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 66.67,
             "historicalReturnRangePct": {
-              "low": 2.5,
-              "high": 21.3,
+              "low": 1.63,
+              "high": 20.2,
               "samples": 4
             },
             "ruleName": "纯动量均衡（波动调整）",
@@ -620,13 +620,13 @@
             "factors": [
               {
                 "name": "252观测动量",
-                "value": 0.62,
-                "text": "252个观测期变化上涨 15.99%，波动调整信号+0.62"
+                "value": 0.64,
+                "text": "252个观测期变化上涨 16.55%，波动调整信号+0.64"
               },
               {
                 "name": "504观测趋势",
-                "value": 0.79,
-                "text": "504个观测期变化上涨 33.27%，波动调整信号+0.79"
+                "value": 0.8,
+                "text": "504个观测期变化上涨 33.98%，波动调整信号+0.80"
               }
             ]
           }
@@ -635,38 +635,38 @@
       {
         "id": "nasdaq",
         "name": "纳斯达克综合",
-        "date": "2026-10-13",
-        "dailyMove": -0.15,
+        "date": "2026-10-14",
+        "dailyMove": -1.88,
         "drivers": [
+          {
+            "chain": "VIX—科技股链",
+            "driver": "VIX波动率",
+            "driverMove": 10.48,
+            "driverZ": 1.82,
+            "correlation": -0.71,
+            "contribution": -0.51,
+            "effect": "headwind",
+            "text": "VIX波动率上涨 10.48%（+1.82σ），结合当前ρ -0.71，对纳斯达克综合的共振贡献-0.51"
+          },
           {
             "chain": "高收益利差—科技股链",
             "driver": "美国高收益利差",
-            "driverMove": 5,
-            "driverZ": 0.89,
-            "correlation": -0.46,
-            "contribution": -0.19,
+            "driverMove": 9,
+            "driverZ": 1.69,
+            "correlation": -0.5,
+            "contribution": -0.34,
             "effect": "headwind",
-            "text": "美国高收益利差上涨 5.00bp（+0.89σ），结合当前ρ -0.46，对纳斯达克综合的共振贡献-0.19"
+            "text": "美国高收益利差上涨 9.00bp（+1.69σ），结合当前ρ -0.50，对纳斯达克综合的共振贡献-0.34"
           },
           {
-            "chain": "利率—科技股链",
-            "driver": "美债10Y",
-            "driverMove": -3,
-            "driverZ": -0.88,
-            "correlation": -0.4,
-            "contribution": 0.17,
-            "effect": "tailwind",
-            "text": "美债10Y下跌 3.00bp（-0.88σ），结合当前ρ -0.40，对纳斯达克综合的共振贡献+0.17"
-          },
-          {
-            "chain": "全球股指广度—科技股链",
-            "driver": "全球股指参与率（剔除纳指）",
-            "driverMove": -40,
-            "driverZ": -1.06,
-            "correlation": 0.36,
+            "chain": "风险压力共振—纳指链",
+            "driver": "全球风险压力共振指数",
+            "driverMove": 0.76,
+            "driverZ": 0.73,
+            "correlation": -0.48,
             "contribution": -0.17,
             "effect": "headwind",
-            "text": "全球股指参与率（剔除纳指）下跌 40.00点（-1.06σ），结合当前ρ 0.36，对纳斯达克综合的共振贡献-0.17"
+            "text": "全球风险压力共振指数上涨 0.76点（+0.73σ），结合当前ρ -0.48，对纳斯达克综合的共振贡献-0.17"
           }
         ],
         "horizonOutlooks": [
@@ -675,25 +675,25 @@
             "label": "未来1日",
             "observations": 1,
             "direction": "bearish",
-            "score": -0.18,
+            "score": -0.65,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 52.91,
+            "upProbabilityPct": 52.68,
             "historicalReturnRangePct": {
-              "low": -1.04,
+              "low": -1.05,
               "high": 0.99,
-              "samples": 204
+              "samples": 203
             },
             "ruleName": "纯动量均衡（波动调整）",
             "threshold": 0.35,
             "training": {
-              "samples": 484,
-              "accuracyPct": 48.35,
+              "samples": 483,
+              "accuracyPct": 48.45,
               "accuracyIntervalPct": {
-                "low": 43.93,
-                "high": 52.79
+                "low": 44.02,
+                "high": 52.9
               },
-              "bestBaselinePct": 50.21,
+              "bestBaselinePct": 50.31,
               "liftPct": -1.86
             },
             "validation": {
@@ -709,13 +709,13 @@
             "factors": [
               {
                 "name": "1观测动量",
-                "value": -0.07,
-                "text": "1个观测期变化下跌 0.15%，波动调整信号-0.07"
+                "value": -0.72,
+                "text": "1个观测期变化下跌 1.88%，波动调整信号-0.72"
               },
               {
                 "name": "5观测趋势",
-                "value": -0.31,
-                "text": "5个观测期变化下跌 1.43%，波动调整信号-0.31"
+                "value": -0.58,
+                "text": "5个观测期变化下跌 3.07%，波动调整信号-0.58"
               }
             ]
           },
@@ -723,48 +723,48 @@
             "id": "week",
             "label": "未来1周",
             "observations": 5,
-            "direction": "bullish",
-            "score": 0.38,
+            "direction": "bearish",
+            "score": -0.5,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 60.11,
+            "upProbabilityPct": 49.15,
             "historicalReturnRangePct": {
-              "low": -0.84,
-              "high": 2.19,
-              "samples": 176
+              "low": -1.89,
+              "high": 2.43,
+              "samples": 116
             },
-            "ruleName": "纯动量趋势方向",
+            "ruleName": "纯动量短线方向",
             "threshold": 0.2,
             "training": {
               "samples": 279,
-              "accuracyPct": 54.12,
+              "accuracyPct": 57.71,
               "accuracyIntervalPct": {
-                "low": 48.26,
-                "high": 59.87
+                "low": 51.84,
+                "high": 63.36
               },
-              "bestBaselinePct": 56.99,
-              "liftPct": -2.87
+              "bestBaselinePct": 56.63,
+              "liftPct": 1.08
             },
             "validation": {
               "samples": 120,
-              "accuracyPct": 55,
+              "accuracyPct": 50,
               "accuracyIntervalPct": {
-                "low": 46.08,
-                "high": 63.61
+                "low": 41.19,
+                "high": 58.81
               },
-              "bestBaselinePct": 55,
-              "liftPct": 0
+              "bestBaselinePct": 61.67,
+              "liftPct": -11.67
             },
             "factors": [
               {
                 "name": "5观测动量",
-                "value": -0.31,
-                "text": "5个观测期变化下跌 1.43%，波动调整信号-0.31"
+                "value": -0.58,
+                "text": "5个观测期变化下跌 3.07%，波动调整信号-0.58"
               },
               {
                 "name": "21观测趋势",
-                "value": 0.39,
-                "text": "21个观测期变化上涨 3.89%，波动调整信号+0.39"
+                "value": 0.28,
+                "text": "21个观测期变化上涨 2.74%，波动调整信号+0.28"
               }
             ]
           },
@@ -776,44 +776,44 @@
             "score": 1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 65.22,
+            "upProbabilityPct": 69.57,
             "historicalReturnRangePct": {
-              "low": -1.08,
-              "high": 5.2,
+              "low": -1.02,
+              "high": 4.23,
               "samples": 44
             },
             "ruleName": "纯动量趋势方向",
-            "threshold": 0.35,
+            "threshold": 0.2,
             "training": {
-              "samples": 64,
-              "accuracyPct": 59.38,
+              "samples": 66,
+              "accuracyPct": 57.58,
               "accuracyIntervalPct": {
-                "low": 47.14,
-                "high": 70.54
+                "low": 45.56,
+                "high": 68.76
               },
-              "bestBaselinePct": 62.5,
-              "liftPct": -3.12
+              "bestBaselinePct": 65.15,
+              "liftPct": -7.57
             },
             "validation": {
               "samples": 29,
-              "accuracyPct": 65.52,
+              "accuracyPct": 58.62,
               "accuracyIntervalPct": {
-                "low": 47.34,
-                "high": 80.06
+                "low": 40.74,
+                "high": 74.49
               },
-              "bestBaselinePct": 75.86,
-              "liftPct": -10.34
+              "bestBaselinePct": 72.41,
+              "liftPct": -13.79
             },
             "factors": [
               {
                 "name": "21观测动量",
-                "value": 0.39,
-                "text": "21个观测期变化上涨 3.89%，波动调整信号+0.39"
+                "value": 0.28,
+                "text": "21个观测期变化上涨 2.74%，波动调整信号+0.28"
               },
               {
                 "name": "63观测趋势",
-                "value": 0.22,
-                "text": "63个观测期变化上涨 3.56%，波动调整信号+0.22"
+                "value": 0.19,
+                "text": "63个观测期变化上涨 3.13%，波动调整信号+0.19"
               }
             ]
           },
@@ -827,21 +827,21 @@
             "confidence": "watch",
             "upProbabilityPct": 71.43,
             "historicalReturnRangePct": {
-              "low": -0.17,
-              "high": 8.21,
+              "low": -0.8,
+              "high": 6.79,
               "samples": 12
             },
             "ruleName": "纯动量趋势方向",
             "threshold": 0.5,
             "training": {
-              "samples": 16,
-              "accuracyPct": 68.75,
+              "samples": 17,
+              "accuracyPct": 70.59,
               "accuracyIntervalPct": {
-                "low": 44.4,
-                "high": 85.84
+                "low": 46.87,
+                "high": 86.72
               },
-              "bestBaselinePct": 68.75,
-              "liftPct": 0
+              "bestBaselinePct": 64.71,
+              "liftPct": 5.88
             },
             "validation": {
               "samples": 8,
@@ -856,13 +856,13 @@
             "factors": [
               {
                 "name": "63观测动量",
-                "value": 0.22,
-                "text": "63个观测期变化上涨 3.56%，波动调整信号+0.22"
+                "value": 0.19,
+                "text": "63个观测期变化上涨 3.13%，波动调整信号+0.19"
               },
               {
                 "name": "126观测趋势",
-                "value": 0.58,
-                "text": "126个观测期变化上涨 15.08%，波动调整信号+0.58"
+                "value": 0.44,
+                "text": "126个观测期变化上涨 11.15%，波动调整信号+0.44"
               }
             ]
           },
@@ -876,8 +876,8 @@
             "confidence": "watch",
             "upProbabilityPct": 80,
             "historicalReturnRangePct": {
-              "low": 5.49,
-              "high": 16.58,
+              "low": 3.55,
+              "high": 15.22,
               "samples": 8
             },
             "ruleName": "纯动量短线方向",
@@ -905,13 +905,13 @@
             "factors": [
               {
                 "name": "126观测动量",
-                "value": 0.58,
-                "text": "126个观测期变化上涨 15.08%，波动调整信号+0.58"
+                "value": 0.44,
+                "text": "126个观测期变化上涨 11.15%，波动调整信号+0.44"
               },
               {
                 "name": "252观测趋势",
-                "value": 0.6,
-                "text": "252个观测期变化上涨 22.52%，波动调整信号+0.60"
+                "value": 0.49,
+                "text": "252个观测期变化上涨 17.62%，波动调整信号+0.49"
               }
             ]
           },
@@ -920,13 +920,13 @@
             "label": "未来1年",
             "observations": 252,
             "direction": "bullish",
-            "score": 0.69,
+            "score": 0.6,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 66.67,
             "historicalReturnRangePct": {
-              "low": 6.02,
-              "high": 34.81,
+              "low": 4.69,
+              "high": 35.67,
               "samples": 4
             },
             "ruleName": "纯动量均衡（波动调整）",
@@ -954,13 +954,13 @@
             "factors": [
               {
                 "name": "252观测动量",
-                "value": 0.6,
-                "text": "252个观测期变化上涨 22.52%，波动调整信号+0.60"
+                "value": 0.49,
+                "text": "252个观测期变化上涨 17.62%，波动调整信号+0.49"
               },
               {
                 "name": "504观测趋势",
-                "value": 0.8,
-                "text": "504个观测期变化上涨 49.62%，波动调整信号+0.80"
+                "value": 0.75,
+                "text": "504个观测期变化上涨 45.93%，波动调整信号+0.75"
               }
             ]
           }
@@ -969,8 +969,8 @@
       {
         "id": "shanghai",
         "name": "上证综指",
-        "date": "2026-10-14",
-        "dailyMove": -0.88,
+        "date": "2026-10-15",
+        "dailyMove": -1.59,
         "drivers": [
           {
             "chain": "USD/CNY—A股链",
@@ -985,12 +985,12 @@
           {
             "chain": "全球股指广度—A股链",
             "driver": "全球股指参与率（剔除上证综指）",
-            "driverMove": -20,
-            "driverZ": -0.48,
-            "correlation": 0.18,
-            "contribution": -0.04,
+            "driverMove": 13.33,
+            "driverZ": 0.34,
+            "correlation": 0.16,
+            "contribution": 0.03,
             "effect": "neutral",
-            "text": "全球股指参与率（剔除上证综指）下跌 20.00点（-0.48σ），结合当前ρ 0.18，对上证综指的共振贡献-0.04"
+            "text": "全球股指参与率（剔除上证综指）上涨 13.33点（+0.34σ），结合当前ρ 0.16，对上证综指的共振贡献+0.03"
           }
         ],
         "horizonOutlooks": [
@@ -1002,11 +1002,11 @@
             "score": -1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 52.58,
+            "upProbabilityPct": 53.06,
             "historicalReturnRangePct": {
               "low": -0.38,
-              "high": 0.61,
-              "samples": 95
+              "high": 0.63,
+              "samples": 96
             },
             "ruleName": "纯动量短线方向",
             "threshold": 0.2,
@@ -1022,24 +1022,24 @@
             },
             "validation": {
               "samples": 118,
-              "accuracyPct": 42.37,
+              "accuracyPct": 43.22,
               "accuracyIntervalPct": {
-                "low": 33.84,
-                "high": 51.39
+                "low": 34.64,
+                "high": 52.23
               },
-              "bestBaselinePct": 50,
-              "liftPct": -7.63
+              "bestBaselinePct": 49.15,
+              "liftPct": -5.93
             },
             "factors": [
               {
                 "name": "1观测动量",
-                "value": -0.44,
-                "text": "1个观测期变化下跌 0.88%，波动调整信号-0.44"
+                "value": -0.69,
+                "text": "1个观测期变化下跌 1.59%，波动调整信号-0.69"
               },
               {
                 "name": "5观测趋势",
-                "value": -0.43,
-                "text": "5个观测期变化下跌 1.95%，波动调整信号-0.43"
+                "value": -0.57,
+                "text": "5个观测期变化下跌 2.74%，波动调整信号-0.57"
               }
             ]
           },
@@ -1051,44 +1051,44 @@
             "score": -1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 50,
+            "upProbabilityPct": 61.9,
             "historicalReturnRangePct": {
-              "low": -1.04,
-              "high": 1.49,
-              "samples": 20
+              "low": -0.96,
+              "high": 1.71,
+              "samples": 19
             },
             "ruleName": "纯动量短线方向",
-            "threshold": 0.2,
+            "threshold": 0.35,
             "training": {
-              "samples": 51,
-              "accuracyPct": 56.86,
+              "samples": 49,
+              "accuracyPct": 51.02,
               "accuracyIntervalPct": {
-                "low": 43.27,
-                "high": 69.5
+                "low": 37.47,
+                "high": 64.43
               },
-              "bestBaselinePct": 52.94,
-              "liftPct": 3.92
+              "bestBaselinePct": 53.06,
+              "liftPct": -2.04
             },
             "validation": {
-              "samples": 23,
-              "accuracyPct": 39.13,
+              "samples": 21,
+              "accuracyPct": 42.86,
               "accuracyIntervalPct": {
-                "low": 22.16,
-                "high": 59.21
+                "low": 24.47,
+                "high": 63.45
               },
-              "bestBaselinePct": 43.48,
-              "liftPct": -4.35
+              "bestBaselinePct": 42.86,
+              "liftPct": 0
             },
             "factors": [
               {
                 "name": "5观测动量",
-                "value": -0.43,
-                "text": "5个观测期变化下跌 1.95%，波动调整信号-0.43"
+                "value": -0.57,
+                "text": "5个观测期变化下跌 2.74%，波动调整信号-0.57"
               },
               {
                 "name": "21观测趋势",
-                "value": -0.45,
-                "text": "21个观测期变化下跌 4.21%，波动调整信号-0.45"
+                "value": -0.6,
+                "text": "21个观测期变化下跌 5.91%，波动调整信号-0.60"
               }
             ]
           },
@@ -1097,7 +1097,7 @@
             "label": "未来1月",
             "observations": 21,
             "direction": "bearish",
-            "score": -0.44,
+            "score": -0.53,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 50,
@@ -1109,35 +1109,35 @@
             "ruleName": "纯动量均衡（波动调整）",
             "threshold": 0.2,
             "training": {
-              "samples": 6,
-              "accuracyPct": 50,
+              "samples": 7,
+              "accuracyPct": 57.14,
               "accuracyIntervalPct": {
-                "low": 18.76,
-                "high": 81.24
+                "low": 25.05,
+                "high": 84.18
               },
-              "bestBaselinePct": 50,
+              "bestBaselinePct": 57.14,
               "liftPct": 0
             },
             "validation": {
-              "samples": 2,
-              "accuracyPct": 0,
+              "samples": 3,
+              "accuracyPct": 33.33,
               "accuracyIntervalPct": {
-                "low": 0,
-                "high": 65.76
+                "low": 6.15,
+                "high": 79.23
               },
-              "bestBaselinePct": 50,
-              "liftPct": -50
+              "bestBaselinePct": 33.33,
+              "liftPct": 0
             },
             "factors": [
               {
                 "name": "21观测动量",
-                "value": -0.45,
-                "text": "21个观测期变化下跌 4.21%，波动调整信号-0.45"
+                "value": -0.6,
+                "text": "21个观测期变化下跌 5.91%，波动调整信号-0.60"
               },
               {
                 "name": "63观测趋势",
-                "value": -0.42,
-                "text": "63个观测期变化下跌 6.67%，波动调整信号-0.42"
+                "value": -0.45,
+                "text": "63个观测期变化下跌 7.22%，波动调整信号-0.45"
               }
             ]
           },
@@ -1146,7 +1146,7 @@
             "label": "未来1季度",
             "observations": 63,
             "direction": "bearish",
-            "score": -0.3,
+            "score": -0.4,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 50,
@@ -1180,13 +1180,13 @@
             "factors": [
               {
                 "name": "63观测动量",
-                "value": -0.42,
-                "text": "63个观测期变化下跌 6.67%，波动调整信号-0.42"
+                "value": -0.45,
+                "text": "63个观测期变化下跌 7.22%，波动调整信号-0.45"
               },
               {
                 "name": "126观测趋势",
-                "value": -0.15,
-                "text": "126个观测期变化下跌 3.16%，波动调整信号-0.15"
+                "value": -0.33,
+                "text": "126个观测期变化下跌 7.20%，波动调整信号-0.33"
               }
             ]
           },
@@ -1195,7 +1195,7 @@
             "label": "未来半年",
             "observations": 126,
             "direction": "bearish",
-            "score": -0.11,
+            "score": -0.23,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 50,
@@ -1229,13 +1229,13 @@
             "factors": [
               {
                 "name": "126观测动量",
-                "value": -0.15,
-                "text": "126个观测期变化下跌 3.16%，波动调整信号-0.15"
+                "value": -0.33,
+                "text": "126个观测期变化下跌 7.20%，波动调整信号-0.33"
               },
               {
                 "name": "252观测趋势",
-                "value": -0.05,
-                "text": "252个观测期变化下跌 1.60%，波动调整信号-0.05"
+                "value": -0.1,
+                "text": "252个观测期变化下跌 2.99%，波动调整信号-0.10"
               }
             ]
           },
@@ -1244,7 +1244,7 @@
             "label": "未来1年",
             "observations": 252,
             "direction": "bearish",
-            "score": -0.03,
+            "score": -0.06,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 50,
@@ -1278,13 +1278,13 @@
             "factors": [
               {
                 "name": "252观测动量",
-                "value": -0.05,
-                "text": "252个观测期变化下跌 1.60%，波动调整信号-0.05"
+                "value": -0.1,
+                "text": "252个观测期变化下跌 2.99%，波动调整信号-0.10"
               },
               {
                 "name": "504观测趋势",
                 "value": 0,
-                "text": "504个观测期变化上涨 12.43%，波动调整信号+0.00"
+                "text": "504个观测期变化上涨 9.72%，波动调整信号+0.00"
               }
             ]
           }
@@ -1293,8 +1293,8 @@
       {
         "id": "hangseng",
         "name": "恒生指数",
-        "date": "2026-10-15",
-        "dailyMove": -0.84,
+        "date": "2026-10-16",
+        "dailyMove": 1.08,
         "drivers": [
           {
             "chain": "USD/CNY—港股链",
@@ -1309,12 +1309,22 @@
           {
             "chain": "中国—港股链",
             "driver": "上证综指",
-            "driverMove": -0.88,
-            "driverZ": -0.9,
-            "correlation": 0.35,
-            "contribution": -0.15,
+            "driverMove": -1.59,
+            "driverZ": -1.63,
+            "correlation": 0.38,
+            "contribution": -0.26,
             "effect": "headwind",
-            "text": "上证综指下跌 0.88%（-0.90σ），结合当前ρ 0.35，对恒生指数的共振贡献-0.15"
+            "text": "上证综指下跌 1.59%（-1.63σ），结合当前ρ 0.38，对恒生指数的共振贡献-0.26"
+          },
+          {
+            "chain": "风险压力共振—恒生指数链",
+            "driver": "全球风险压力共振指数",
+            "driverMove": 0.76,
+            "driverZ": 0.73,
+            "correlation": 0.22,
+            "contribution": 0.08,
+            "effect": "tailwind",
+            "text": "全球风险压力共振指数上涨 0.76点（+0.73σ），结合当前ρ 0.22，对恒生指数的共振贡献+0.08"
           }
         ],
         "horizonOutlooks": [
@@ -1322,27 +1332,27 @@
             "id": "day",
             "label": "未来1日",
             "observations": 1,
-            "direction": "bearish",
-            "score": -0.5,
+            "direction": "bullish",
+            "score": 1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 52.78,
+            "upProbabilityPct": 53.38,
             "historicalReturnRangePct": {
-              "low": -0.86,
-              "high": 0.9,
-              "samples": 106
+              "low": -0.79,
+              "high": 0.68,
+              "samples": 131
             },
             "ruleName": "纯动量短线方向",
             "threshold": 0.35,
             "training": {
-              "samples": 236,
-              "accuracyPct": 49.58,
+              "samples": 237,
+              "accuracyPct": 49.37,
               "accuracyIntervalPct": {
-                "low": 43.26,
-                "high": 55.91
+                "low": 43.06,
+                "high": 55.69
               },
-              "bestBaselinePct": 50.85,
-              "liftPct": -1.27
+              "bestBaselinePct": 50.63,
+              "liftPct": -1.26
             },
             "validation": {
               "samples": 108,
@@ -1351,19 +1361,19 @@
                 "low": 36.3,
                 "high": 54.76
               },
-              "bestBaselinePct": 46.3,
-              "liftPct": -0.93
+              "bestBaselinePct": 47.22,
+              "liftPct": -1.85
             },
             "factors": [
               {
                 "name": "1观测动量",
-                "value": -0.43,
-                "text": "1个观测期变化下跌 0.84%，波动调整信号-0.43"
+                "value": 0.52,
+                "text": "1个观测期变化上涨 1.08%，波动调整信号+0.52"
               },
               {
                 "name": "5观测趋势",
-                "value": 0.32,
-                "text": "5个观测期变化上涨 1.37%，波动调整信号+0.32"
+                "value": 0.11,
+                "text": "5个观测期变化上涨 0.45%，波动调整信号+0.11"
               }
             ]
           },
@@ -1371,48 +1381,48 @@
             "id": "week",
             "label": "未来1周",
             "observations": 5,
-            "direction": "bullish",
-            "score": 0.06,
+            "direction": "bearish",
+            "score": -0.38,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 30,
+            "upProbabilityPct": 53.33,
             "historicalReturnRangePct": {
-              "low": -2.62,
-              "high": 0.54,
-              "samples": 18
+              "low": -1.22,
+              "high": 2.3,
+              "samples": 13
             },
-            "ruleName": "纯动量均衡（波动调整）",
-            "threshold": 0.2,
+            "ruleName": "纯动量趋势方向",
+            "threshold": 0.5,
             "training": {
-              "samples": 28,
-              "accuracyPct": 32.14,
+              "samples": 35,
+              "accuracyPct": 51.43,
               "accuracyIntervalPct": {
-                "low": 17.93,
-                "high": 50.66
+                "low": 35.57,
+                "high": 67.01
               },
-              "bestBaselinePct": 32.14,
+              "bestBaselinePct": 51.43,
               "liftPct": 0
             },
             "validation": {
-              "samples": 15,
-              "accuracyPct": 46.67,
+              "samples": 16,
+              "accuracyPct": 62.5,
               "accuracyIntervalPct": {
-                "low": 24.81,
-                "high": 69.88
+                "low": 38.64,
+                "high": 81.52
               },
-              "bestBaselinePct": 53.33,
-              "liftPct": -6.66
+              "bestBaselinePct": 50,
+              "liftPct": 12.5
             },
             "factors": [
               {
                 "name": "5观测动量",
-                "value": 0.32,
-                "text": "5个观测期变化上涨 1.37%，波动调整信号+0.32"
+                "value": 0.11,
+                "text": "5个观测期变化上涨 0.45%，波动调整信号+0.11"
               },
               {
                 "name": "21观测趋势",
-                "value": -0.26,
-                "text": "21个观测期变化下跌 2.26%，波动调整信号-0.26"
+                "value": -0.18,
+                "text": "21个观测期变化下跌 1.59%，波动调整信号-0.18"
               }
             ]
           },
@@ -1424,15 +1434,25 @@
             "score": -0.2,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 50,
+            "upProbabilityPct": 66.67,
             "historicalReturnRangePct": {
-              "low": null,
-              "high": null,
-              "samples": 0
+              "low": 3.65,
+              "high": 3.65,
+              "samples": 1
             },
             "ruleName": "纯动量均衡（波动调整）",
             "threshold": 0.2,
             "training": {
+              "samples": 5,
+              "accuracyPct": 40,
+              "accuracyIntervalPct": {
+                "low": 11.76,
+                "high": 76.93
+              },
+              "bestBaselinePct": 60,
+              "liftPct": -20
+            },
+            "validation": {
               "samples": 2,
               "accuracyPct": 50,
               "accuracyIntervalPct": {
@@ -1442,26 +1462,16 @@
               "bestBaselinePct": 50,
               "liftPct": 0
             },
-            "validation": {
-              "samples": 1,
-              "accuracyPct": 0,
-              "accuracyIntervalPct": {
-                "low": 0,
-                "high": 79.35
-              },
-              "bestBaselinePct": 100,
-              "liftPct": -100
-            },
             "factors": [
               {
                 "name": "21观测动量",
-                "value": -0.26,
-                "text": "21个观测期变化下跌 2.26%，波动调整信号-0.26"
+                "value": -0.18,
+                "text": "21个观测期变化下跌 1.59%，波动调整信号-0.18"
               },
               {
                 "name": "63观测趋势",
-                "value": -0.12,
-                "text": "63个观测期变化下跌 1.84%，波动调整信号-0.12"
+                "value": -0.22,
+                "text": "63个观测期变化下跌 3.27%，波动调整信号-0.22"
               }
             ]
           },
@@ -1470,7 +1480,7 @@
             "label": "未来1季度",
             "observations": 63,
             "direction": "bearish",
-            "score": -0.21,
+            "score": -0.28,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 50,
@@ -1482,13 +1492,13 @@
             "ruleName": "纯动量均衡（波动调整）",
             "threshold": 0.2,
             "training": {
-              "samples": 2,
-              "accuracyPct": 50,
+              "samples": 1,
+              "accuracyPct": 100,
               "accuracyIntervalPct": {
-                "low": 9.45,
-                "high": 90.55
+                "low": 20.65,
+                "high": 100
               },
-              "bestBaselinePct": 50,
+              "bestBaselinePct": 100,
               "liftPct": 0
             },
             "validation": {
@@ -1504,13 +1514,13 @@
             "factors": [
               {
                 "name": "63观测动量",
-                "value": -0.12,
-                "text": "63个观测期变化下跌 1.84%，波动调整信号-0.12"
+                "value": -0.22,
+                "text": "63个观测期变化下跌 3.27%，波动调整信号-0.22"
               },
               {
                 "name": "126观测趋势",
-                "value": -0.33,
-                "text": "126个观测期变化下跌 7.08%，波动调整信号-0.33"
+                "value": -0.36,
+                "text": "126个观测期变化下跌 7.85%，波动调整信号-0.36"
               }
             ]
           },
@@ -1553,13 +1563,13 @@
             "factors": [
               {
                 "name": "126观测动量",
-                "value": -0.33,
-                "text": "126个观测期变化下跌 7.08%，波动调整信号-0.33"
+                "value": -0.36,
+                "text": "126个观测期变化下跌 7.85%，波动调整信号-0.36"
               },
               {
                 "name": "252观测趋势",
-                "value": -0.35,
-                "text": "252个观测期变化下跌 10.56%，波动调整信号-0.35"
+                "value": -0.31,
+                "text": "252个观测期变化下跌 9.35%，波动调整信号-0.31"
               }
             ]
           },
@@ -1568,7 +1578,7 @@
             "label": "未来1年",
             "observations": 252,
             "direction": "bearish",
-            "score": -0.19,
+            "score": -0.17,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 50,
@@ -1602,13 +1612,13 @@
             "factors": [
               {
                 "name": "252观测动量",
-                "value": -0.35,
-                "text": "252个观测期变化下跌 10.56%，波动调整信号-0.35"
+                "value": -0.31,
+                "text": "252个观测期变化下跌 9.35%，波动调整信号-0.31"
               },
               {
                 "name": "504观测趋势",
                 "value": 0,
-                "text": "504个观测期变化上涨 4.80%，波动调整信号+0.00"
+                "text": "504个观测期变化上涨 6.01%，波动调整信号+0.00"
               }
             ]
           }
@@ -1617,38 +1627,38 @@
       {
         "id": "euro50",
         "name": "NASDAQ Euro 50",
-        "date": "2026-10-13",
-        "dailyMove": -0.72,
+        "date": "2026-10-14",
+        "dailyMove": 0.4,
         "drivers": [
           {
-            "chain": "美股—欧股链",
-            "driver": "标普500",
-            "driverMove": -1.11,
-            "driverZ": -1.73,
-            "correlation": 0.6,
-            "contribution": -0.42,
+            "chain": "VIX—欧洲股市链",
+            "driver": "VIX波动率",
+            "driverMove": 10.48,
+            "driverZ": 1.82,
+            "correlation": -0.42,
+            "contribution": -0.3,
             "effect": "headwind",
-            "text": "标普500下跌 1.11%（-1.73σ），结合当前ρ 0.60，对NASDAQ Euro 50的共振贡献-0.42"
-          },
-          {
-            "chain": "美元—欧洲股市链",
-            "driver": "美元广义指数",
-            "driverMove": 0.13,
-            "driverZ": 0.45,
-            "correlation": -0.47,
-            "contribution": -0.1,
-            "effect": "headwind",
-            "text": "美元广义指数上涨 0.13%（+0.45σ），结合当前ρ -0.47，对NASDAQ Euro 50的共振贡献-0.10"
+            "text": "VIX波动率上涨 10.48%（+1.82σ），结合当前ρ -0.42，对NASDAQ Euro 50的共振贡献-0.30"
           },
           {
             "chain": "风险压力共振—欧洲50链",
             "driver": "全球风险压力共振指数",
-            "driverMove": 0.12,
-            "driverZ": 0.12,
-            "correlation": -0.53,
-            "contribution": -0.03,
-            "effect": "neutral",
-            "text": "全球风险压力共振指数上涨 0.12点（+0.12σ），结合当前ρ -0.53，对NASDAQ Euro 50的共振贡献-0.03"
+            "driverMove": 0.76,
+            "driverZ": 0.73,
+            "correlation": -0.52,
+            "contribution": -0.18,
+            "effect": "headwind",
+            "text": "全球风险压力共振指数上涨 0.76点（+0.73σ），结合当前ρ -0.52，对NASDAQ Euro 50的共振贡献-0.18"
+          },
+          {
+            "chain": "美股—欧股链",
+            "driver": "标普500",
+            "driverMove": 0.33,
+            "driverZ": 0.4,
+            "correlation": 0.55,
+            "contribution": 0.11,
+            "effect": "tailwind",
+            "text": "标普500上涨 0.33%（+0.40σ），结合当前ρ 0.55，对NASDAQ Euro 50的共振贡献+0.11"
           }
         ],
         "horizonOutlooks": [
@@ -1656,48 +1666,48 @@
             "id": "day",
             "label": "未来1日",
             "observations": 1,
-            "direction": "bearish",
-            "score": -1,
+            "direction": "bullish",
+            "score": 0.75,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 55.61,
+            "upProbabilityPct": 51.75,
             "historicalReturnRangePct": {
-              "low": -0.49,
-              "high": 0.71,
-              "samples": 604
+              "low": -0.43,
+              "high": 0.58,
+              "samples": 771
             },
             "ruleName": "纯动量短线方向",
             "threshold": 0.2,
             "training": {
               "samples": 1376,
-              "accuracyPct": 45.86,
+              "accuracyPct": 45.93,
               "accuracyIntervalPct": {
-                "low": 43.24,
-                "high": 48.5
+                "low": 43.31,
+                "high": 48.57
               },
-              "bestBaselinePct": 50.44,
+              "bestBaselinePct": 50.51,
               "liftPct": -4.58
             },
             "validation": {
               "samples": 595,
-              "accuracyPct": 46.22,
+              "accuracyPct": 46.05,
               "accuracyIntervalPct": {
-                "low": 42.25,
-                "high": 50.24
+                "low": 42.08,
+                "high": 50.07
               },
-              "bestBaselinePct": 49.58,
-              "liftPct": -3.36
+              "bestBaselinePct": 49.75,
+              "liftPct": -3.7
             },
             "factors": [
               {
                 "name": "1观测动量",
-                "value": -0.43,
-                "text": "1个观测期变化下跌 0.72%，波动调整信号-0.43"
+                "value": 0.25,
+                "text": "1个观测期变化上涨 0.40%，波动调整信号+0.25"
               },
               {
                 "name": "5观测趋势",
-                "value": -0.52,
-                "text": "5个观测期变化下跌 2.00%，波动调整信号-0.52"
+                "value": -0.01,
+                "text": "5个观测期变化下跌 0.05%，波动调整信号-0.01"
               }
             ]
           },
@@ -1706,47 +1716,47 @@
             "label": "未来1周",
             "observations": 5,
             "direction": "bearish",
-            "score": -1,
+            "score": -0.25,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 51.89,
+            "upProbabilityPct": 57.8,
             "historicalReturnRangePct": {
-              "low": -1.56,
-              "high": 1.79,
-              "samples": 104
+              "low": -1.16,
+              "high": 2.02,
+              "samples": 107
             },
-            "ruleName": "纯动量趋势方向",
-            "threshold": 0.2,
+            "ruleName": "纯动量短线方向",
+            "threshold": 0.35,
             "training": {
-              "samples": 276,
-              "accuracyPct": 54.35,
+              "samples": 261,
+              "accuracyPct": 52.87,
               "accuracyIntervalPct": {
-                "low": 48.45,
-                "high": 60.12
+                "low": 46.82,
+                "high": 58.84
               },
-              "bestBaselinePct": 56.16,
-              "liftPct": -1.81
+              "bestBaselinePct": 59.39,
+              "liftPct": -6.52
             },
             "validation": {
-              "samples": 119,
-              "accuracyPct": 54.62,
+              "samples": 108,
+              "accuracyPct": 54.63,
               "accuracyIntervalPct": {
-                "low": 45.67,
-                "high": 63.28
+                "low": 45.24,
+                "high": 63.7
               },
-              "bestBaselinePct": 59.66,
-              "liftPct": -5.04
+              "bestBaselinePct": 54.63,
+              "liftPct": 0
             },
             "factors": [
               {
                 "name": "5观测动量",
-                "value": -0.52,
-                "text": "5个观测期变化下跌 2.00%，波动调整信号-0.52"
+                "value": -0.01,
+                "text": "5个观测期变化下跌 0.05%，波动调整信号-0.01"
               },
               {
                 "name": "21观测趋势",
-                "value": -0.17,
-                "text": "21个观测期变化下跌 1.25%，波动调整信号-0.17"
+                "value": -0.07,
+                "text": "21个观测期变化下跌 0.49%，波动调整信号-0.07"
               }
             ]
           },
@@ -1755,47 +1765,47 @@
             "label": "未来1月",
             "observations": 21,
             "direction": "bearish",
-            "score": -0.17,
+            "score": -1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 57.14,
+            "upProbabilityPct": 68.18,
             "historicalReturnRangePct": {
-              "low": -7.1,
-              "high": 7.26,
-              "samples": 12
+              "low": -2.63,
+              "high": 7.23,
+              "samples": 20
             },
-            "ruleName": "纯动量均衡（波动调整）",
-            "threshold": 0.2,
+            "ruleName": "纯动量趋势方向",
+            "threshold": 0.35,
             "training": {
-              "samples": 44,
-              "accuracyPct": 45.45,
+              "samples": 61,
+              "accuracyPct": 47.54,
               "accuracyIntervalPct": {
-                "low": 31.71,
-                "high": 59.93
+                "low": 35.53,
+                "high": 59.84
               },
-              "bestBaselinePct": 50,
-              "liftPct": -4.55
+              "bestBaselinePct": 60.66,
+              "liftPct": -13.12
             },
             "validation": {
-              "samples": 12,
-              "accuracyPct": 50,
+              "samples": 22,
+              "accuracyPct": 36.36,
               "accuracyIntervalPct": {
-                "low": 25.38,
-                "high": 74.62
+                "low": 19.73,
+                "high": 57.05
               },
-              "bestBaselinePct": 58.33,
-              "liftPct": -8.33
+              "bestBaselinePct": 54.55,
+              "liftPct": -18.19
             },
             "factors": [
               {
                 "name": "21观测动量",
-                "value": -0.17,
-                "text": "21个观测期变化下跌 1.25%，波动调整信号-0.17"
+                "value": -0.07,
+                "text": "21个观测期变化下跌 0.49%，波动调整信号-0.07"
               },
               {
                 "name": "63观测趋势",
-                "value": -0.17,
-                "text": "63个观测期变化下跌 2.09%，波动调整信号-0.17"
+                "value": -0.06,
+                "text": "63个观测期变化下跌 0.78%，波动调整信号-0.06"
               }
             ]
           },
@@ -1807,23 +1817,23 @@
             "score": 0.38,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 64.71,
+            "upProbabilityPct": 58.82,
             "historicalReturnRangePct": {
-              "low": -1.04,
-              "high": 8.31,
+              "low": -0.94,
+              "high": 8.35,
               "samples": 15
             },
             "ruleName": "纯动量趋势方向",
             "threshold": 0.2,
             "training": {
               "samples": 21,
-              "accuracyPct": 61.9,
+              "accuracyPct": 57.14,
               "accuracyIntervalPct": {
-                "low": 40.88,
-                "high": 79.25
+                "low": 36.55,
+                "high": 75.53
               },
-              "bestBaselinePct": 61.9,
-              "liftPct": 0
+              "bestBaselinePct": 42.86,
+              "liftPct": 14.28
             },
             "validation": {
               "samples": 10,
@@ -1832,19 +1842,19 @@
                 "low": 31.27,
                 "high": 83.18
               },
-              "bestBaselinePct": 60,
-              "liftPct": 0
+              "bestBaselinePct": 80,
+              "liftPct": -20
             },
             "factors": [
               {
                 "name": "63观测动量",
-                "value": -0.17,
-                "text": "63个观测期变化下跌 2.09%，波动调整信号-0.17"
+                "value": -0.06,
+                "text": "63个观测期变化下跌 0.78%，波动调整信号-0.06"
               },
               {
                 "name": "126观测趋势",
-                "value": 0.17,
-                "text": "126个观测期变化上涨 3.09%，波动调整信号+0.17"
+                "value": 0.25,
+                "text": "126个观测期变化上涨 4.39%，波动调整信号+0.25"
               }
             ]
           },
@@ -1858,8 +1868,8 @@
             "confidence": "watch",
             "upProbabilityPct": 66.67,
             "historicalReturnRangePct": {
-              "low": -2.97,
-              "high": 10.79,
+              "low": -2.83,
+              "high": 11.21,
               "samples": 7
             },
             "ruleName": "纯动量短线方向",
@@ -1887,13 +1897,13 @@
             "factors": [
               {
                 "name": "126观测动量",
-                "value": 0.17,
-                "text": "126个观测期变化上涨 3.09%，波动调整信号+0.17"
+                "value": 0.25,
+                "text": "126个观测期变化上涨 4.39%，波动调整信号+0.25"
               },
               {
                 "name": "252观测趋势",
-                "value": 0.33,
-                "text": "252个观测期变化上涨 8.48%，波动调整信号+0.33"
+                "value": 0.32,
+                "text": "252个观测期变化上涨 8.20%，波动调整信号+0.32"
               }
             ]
           },
@@ -1902,26 +1912,26 @@
             "label": "未来1年",
             "observations": 252,
             "direction": "bullish",
-            "score": 0.5,
+            "score": 0.49,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 25,
             "historicalReturnRangePct": {
-              "low": -9.62,
-              "high": -4.52,
+              "low": -8.97,
+              "high": -4.12,
               "samples": 2
             },
             "ruleName": "纯动量均衡（波动调整）",
             "threshold": 0.2,
             "training": {
-              "samples": 2,
+              "samples": 3,
               "accuracyPct": 0,
               "accuracyIntervalPct": {
                 "low": 0,
-                "high": 65.76
+                "high": 56.15
               },
-              "bestBaselinePct": 0,
-              "liftPct": 0
+              "bestBaselinePct": 33.33,
+              "liftPct": -33.33
             },
             "validation": {
               "samples": 2,
@@ -1936,13 +1946,13 @@
             "factors": [
               {
                 "name": "252观测动量",
-                "value": 0.33,
-                "text": "252个观测期变化上涨 8.48%，波动调整信号+0.33"
+                "value": 0.32,
+                "text": "252个观测期变化上涨 8.20%，波动调整信号+0.32"
               },
               {
                 "name": "504观测趋势",
-                "value": 0.71,
-                "text": "504个观测期变化上涨 31.08%，波动调整信号+0.71"
+                "value": 0.7,
+                "text": "504个观测期变化上涨 30.24%，波动调整信号+0.70"
               }
             ]
           }
@@ -1951,18 +1961,18 @@
       {
         "id": "nikkei",
         "name": "日经225",
-        "date": "2026-10-14",
-        "dailyMove": -0.05,
+        "date": "2026-10-15",
+        "dailyMove": -4.9,
         "drivers": [
           {
             "chain": "风险压力共振—日经225链",
             "driver": "全球风险压力共振指数",
-            "driverMove": 0.12,
-            "driverZ": 0.12,
-            "correlation": 0.24,
-            "contribution": 0.01,
-            "effect": "neutral",
-            "text": "全球风险压力共振指数上涨 0.12点（+0.12σ），结合当前ρ 0.24，对日经225的共振贡献+0.01"
+            "driverMove": 0.76,
+            "driverZ": 0.73,
+            "correlation": 0.25,
+            "contribution": 0.09,
+            "effect": "tailwind",
+            "text": "全球风险压力共振指数上涨 0.76点（+0.73σ），结合当前ρ 0.25，对日经225的共振贡献+0.09"
           }
         ],
         "horizonOutlooks": [
@@ -1971,47 +1981,47 @@
             "label": "未来1日",
             "observations": 1,
             "direction": "bearish",
-            "score": -0.69,
+            "score": -1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 53.57,
+            "upProbabilityPct": 53.65,
             "historicalReturnRangePct": {
               "low": -0.74,
               "high": 0.78,
-              "samples": 614
+              "samples": 615
             },
             "ruleName": "纯动量趋势方向",
             "threshold": 0.2,
             "training": {
               "samples": 1386,
-              "accuracyPct": 48.05,
+              "accuracyPct": 47.98,
               "accuracyIntervalPct": {
-                "low": 45.43,
-                "high": 50.68
+                "low": 45.36,
+                "high": 50.61
               },
               "bestBaselinePct": 51.3,
-              "liftPct": -3.25
+              "liftPct": -3.32
             },
             "validation": {
               "samples": 594,
-              "accuracyPct": 43.43,
+              "accuracyPct": 43.6,
               "accuracyIntervalPct": {
-                "low": 39.5,
-                "high": 47.45
+                "low": 39.67,
+                "high": 47.62
               },
-              "bestBaselinePct": 51.35,
-              "liftPct": -7.92
+              "bestBaselinePct": 51.18,
+              "liftPct": -7.58
             },
             "factors": [
               {
                 "name": "1观测动量",
-                "value": -0.01,
-                "text": "1个观测期变化下跌 0.05%，波动调整信号-0.01"
+                "value": -0.87,
+                "text": "1个观测期变化下跌 4.90%，波动调整信号-0.87"
               },
               {
                 "name": "5观测趋势",
-                "value": -0.49,
-                "text": "5个观测期变化下跌 4.16%，波动调整信号-0.49"
+                "value": -0.75,
+                "text": "5个观测期变化下跌 8.01%，波动调整信号-0.75"
               }
             ]
           },
@@ -2020,47 +2030,47 @@
             "label": "未来1周",
             "observations": 5,
             "direction": "bearish",
-            "score": -0.5,
+            "score": -1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 57.52,
+            "upProbabilityPct": 59.83,
             "historicalReturnRangePct": {
-              "low": -1.26,
-              "high": 2.04,
-              "samples": 111
+              "low": -0.67,
+              "high": 1.78,
+              "samples": 115
             },
-            "ruleName": "纯动量短线方向",
+            "ruleName": "纯动量趋势方向",
             "threshold": 0.2,
             "training": {
               "samples": 278,
-              "accuracyPct": 50.72,
+              "accuracyPct": 46.76,
               "accuracyIntervalPct": {
-                "low": 44.87,
-                "high": 56.55
+                "low": 40.98,
+                "high": 52.63
               },
-              "bestBaselinePct": 55.4,
-              "liftPct": -4.68
+              "bestBaselinePct": 54.68,
+              "liftPct": -7.92
             },
             "validation": {
-              "samples": 117,
-              "accuracyPct": 42.74,
+              "samples": 119,
+              "accuracyPct": 47.06,
               "accuracyIntervalPct": {
-                "low": 34.14,
-                "high": 51.79
+                "low": 38.32,
+                "high": 55.98
               },
-              "bestBaselinePct": 58.97,
-              "liftPct": -16.23
+              "bestBaselinePct": 54.62,
+              "liftPct": -7.56
             },
             "factors": [
               {
                 "name": "5观测动量",
-                "value": -0.49,
-                "text": "5个观测期变化下跌 4.16%，波动调整信号-0.49"
+                "value": -0.75,
+                "text": "5个观测期变化下跌 8.01%，波动调整信号-0.75"
               },
               {
                 "name": "21观测趋势",
-                "value": 0.25,
-                "text": "21个观测期变化上涨 3.99%，波动调整信号+0.25"
+                "value": -0.08,
+                "text": "21个观测期变化下跌 1.29%，波动调整信号-0.08"
               }
             ]
           },
@@ -2068,48 +2078,48 @@
             "id": "month",
             "label": "未来1月",
             "observations": 21,
-            "direction": "bullish",
-            "score": 0.75,
+            "direction": "bearish",
+            "score": -1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 56.76,
+            "upProbabilityPct": 62.5,
             "historicalReturnRangePct": {
-              "low": -2.69,
-              "high": 3.57,
-              "samples": 35
+              "low": -0.78,
+              "high": 3.77,
+              "samples": 22
             },
-            "ruleName": "纯动量短线方向",
+            "ruleName": "纯动量趋势方向",
             "threshold": 0.35,
             "training": {
               "samples": 57,
-              "accuracyPct": 50.88,
+              "accuracyPct": 52.63,
               "accuracyIntervalPct": {
-                "low": 38.26,
-                "high": 63.38
+                "low": 39.92,
+                "high": 65.01
               },
-              "bestBaselinePct": 57.89,
-              "liftPct": -7.01
+              "bestBaselinePct": 63.16,
+              "liftPct": -10.53
             },
             "validation": {
-              "samples": 25,
-              "accuracyPct": 52,
+              "samples": 29,
+              "accuracyPct": 51.72,
               "accuracyIntervalPct": {
-                "low": 33.5,
-                "high": 69.97
+                "low": 34.43,
+                "high": 68.61
               },
-              "bestBaselinePct": 68,
-              "liftPct": -16
+              "bestBaselinePct": 68.97,
+              "liftPct": -17.25
             },
             "factors": [
               {
                 "name": "21观测动量",
-                "value": 0.25,
-                "text": "21个观测期变化上涨 3.99%，波动调整信号+0.25"
+                "value": -0.08,
+                "text": "21个观测期变化下跌 1.29%，波动调整信号-0.08"
               },
               {
                 "name": "63观测趋势",
-                "value": 0,
-                "text": "63个观测期变化持平 0.00%，波动调整信号+0.00"
+                "value": -0.2,
+                "text": "63个观测期变化下跌 6.03%，波动调整信号-0.20"
               }
             ]
           },
@@ -2118,47 +2128,47 @@
             "label": "未来1季度",
             "observations": 63,
             "direction": "bullish",
-            "score": 0.69,
+            "score": 0.38,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 53.85,
+            "upProbabilityPct": 50,
             "historicalReturnRangePct": {
-              "low": -3.58,
-              "high": 5.87,
-              "samples": 11
+              "low": -2.75,
+              "high": 7.48,
+              "samples": 10
             },
             "ruleName": "纯动量趋势方向",
-            "threshold": 0.2,
+            "threshold": 0.35,
             "training": {
-              "samples": 21,
-              "accuracyPct": 52.38,
+              "samples": 19,
+              "accuracyPct": 52.63,
               "accuracyIntervalPct": {
-                "low": 32.37,
-                "high": 71.66
+                "low": 31.71,
+                "high": 72.67
               },
-              "bestBaselinePct": 38.1,
-              "liftPct": 14.28
+              "bestBaselinePct": 36.84,
+              "liftPct": 15.79
             },
             "validation": {
-              "samples": 10,
-              "accuracyPct": 80,
+              "samples": 8,
+              "accuracyPct": 75,
               "accuracyIntervalPct": {
-                "low": 49.02,
-                "high": 94.33
+                "low": 40.93,
+                "high": 92.85
               },
-              "bestBaselinePct": 80,
+              "bestBaselinePct": 75,
               "liftPct": 0
             },
             "factors": [
               {
                 "name": "63观测动量",
-                "value": 0,
-                "text": "63个观测期变化持平 0.00%，波动调整信号+0.00"
+                "value": -0.2,
+                "text": "63个观测期变化下跌 6.03%，波动调整信号-0.20"
               },
               {
                 "name": "126观测趋势",
-                "value": 0.6,
-                "text": "126个观测期变化上涨 26.79%，波动调整信号+0.60"
+                "value": 0.34,
+                "text": "126个观测期变化上涨 14.42%，波动调整信号+0.34"
               }
             ]
           },
@@ -2170,44 +2180,44 @@
             "score": 1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 75,
+            "upProbabilityPct": 71.43,
             "historicalReturnRangePct": {
-              "low": 2.16,
-              "high": 11.79,
-              "samples": 6
+              "low": 3.17,
+              "high": 14.31,
+              "samples": 5
             },
             "ruleName": "纯动量短线方向",
             "threshold": 0.2,
             "training": {
               "samples": 10,
-              "accuracyPct": 70,
+              "accuracyPct": 60,
               "accuracyIntervalPct": {
-                "low": 39.68,
-                "high": 89.22
+                "low": 31.27,
+                "high": 83.18
               },
-              "bestBaselinePct": 70,
+              "bestBaselinePct": 60,
               "liftPct": 0
             },
             "validation": {
               "samples": 5,
-              "accuracyPct": 60,
+              "accuracyPct": 40,
               "accuracyIntervalPct": {
-                "low": 23.07,
-                "high": 88.24
+                "low": 11.76,
+                "high": 76.93
               },
-              "bestBaselinePct": 80,
+              "bestBaselinePct": 60,
               "liftPct": -20
             },
             "factors": [
               {
                 "name": "126观测动量",
-                "value": 0.6,
-                "text": "126个观测期变化上涨 26.79%，波动调整信号+0.60"
+                "value": 0.34,
+                "text": "126个观测期变化上涨 14.42%，波动调整信号+0.34"
               },
               {
                 "name": "252观测趋势",
-                "value": 0.73,
-                "text": "252个观测期变化上涨 50.40%，波动调整信号+0.73"
+                "value": 0.63,
+                "text": "252个观测期变化上涨 43.38%，波动调整信号+0.63"
               }
             ]
           },
@@ -2216,13 +2226,13 @@
             "label": "未来1年",
             "observations": 252,
             "direction": "bullish",
-            "score": 0.76,
+            "score": 0.68,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 25,
             "historicalReturnRangePct": {
-              "low": -9.39,
-              "high": -9.12,
+              "low": -10.53,
+              "high": -10.33,
               "samples": 2
             },
             "ruleName": "纯动量均衡（波动调整）",
@@ -2250,13 +2260,13 @@
             "factors": [
               {
                 "name": "252观测动量",
-                "value": 0.73,
-                "text": "252个观测期变化上涨 50.40%，波动调整信号+0.73"
+                "value": 0.63,
+                "text": "252个观测期变化上涨 43.38%，波动调整信号+0.63"
               },
               {
                 "name": "504观测趋势",
-                "value": 0.8,
-                "text": "504个观测期变化上涨 85.19%，波动调整信号+0.80"
+                "value": 0.74,
+                "text": "504个观测期变化上涨 77.96%，波动调整信号+0.74"
               }
             ]
           }
@@ -2265,38 +2275,28 @@
       {
         "id": "wti",
         "name": "WTI原油",
-        "date": "2026-10-06",
-        "dailyMove": 0.11,
+        "date": "2026-10-14",
+        "dailyMove": 1.04,
         "drivers": [
+          {
+            "chain": "风险压力共振—WTI原油链",
+            "driver": "全球风险压力共振指数",
+            "driverMove": 0.76,
+            "driverZ": 0.73,
+            "correlation": 0.31,
+            "contribution": 0.11,
+            "effect": "tailwind",
+            "text": "全球风险压力共振指数上涨 0.76点（+0.73σ），结合当前ρ 0.31，对WTI原油的共振贡献+0.11"
+          },
           {
             "chain": "新兴市场HY收益率—原油链",
             "driver": "新兴市场高收益公司债有效收益率",
-            "driverMove": -2,
-            "driverZ": -0.63,
-            "correlation": 0.51,
-            "contribution": -0.16,
-            "effect": "headwind",
-            "text": "新兴市场高收益公司债有效收益率下跌 2.00bp（-0.63σ），结合当前ρ 0.51，对WTI原油的共振贡献-0.16"
-          },
-          {
-            "chain": "10Y−3M曲线—原油链",
-            "driver": "美债10Y−3M期限利差",
-            "driverMove": -4,
-            "driverZ": -0.96,
-            "correlation": 0.36,
-            "contribution": -0.16,
-            "effect": "headwind",
-            "text": "美债10Y−3M期限利差下跌 4.00bp（-0.96σ），结合当前ρ 0.36，对WTI原油的共振贡献-0.16"
-          },
-          {
-            "chain": "风险广度—原油链",
-            "driver": "跨资产风险参与率（剔除WTI）",
-            "driverMove": -50,
-            "driverZ": -1.39,
-            "correlation": -0.26,
-            "contribution": 0.16,
-            "effect": "tailwind",
-            "text": "跨资产风险参与率（剔除WTI）下跌 50.00点（-1.39σ），结合当前ρ -0.26，对WTI原油的共振贡献+0.16"
+            "driverMove": 2,
+            "driverZ": 0.12,
+            "correlation": 0.48,
+            "contribution": 0.03,
+            "effect": "neutral",
+            "text": "新兴市场高收益公司债有效收益率上涨 2.00bp（+0.12σ），结合当前ρ 0.48，对WTI原油的共振贡献+0.03"
           }
         ],
         "horizonOutlooks": [
@@ -2305,47 +2305,47 @@
             "label": "未来1日",
             "observations": 1,
             "direction": "bullish",
-            "score": 0,
+            "score": 1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 53.36,
+            "upProbabilityPct": 53.25,
             "historicalReturnRangePct": {
               "low": -1.05,
               "high": 1.39,
-              "samples": 489
+              "samples": 490
             },
             "ruleName": "纯动量趋势方向",
             "threshold": 0.5,
             "training": {
               "samples": 863,
-              "accuracyPct": 50.06,
+              "accuracyPct": 49.94,
               "accuracyIntervalPct": {
-                "low": 46.73,
-                "high": 53.39
+                "low": 46.61,
+                "high": 53.27
               },
-              "bestBaselinePct": 50.87,
-              "liftPct": -0.81
+              "bestBaselinePct": 50.64,
+              "liftPct": -0.7
             },
             "validation": {
               "samples": 377,
-              "accuracyPct": 45.62,
+              "accuracyPct": 46.15,
               "accuracyIntervalPct": {
-                "low": 40.66,
-                "high": 50.67
+                "low": 41.19,
+                "high": 51.2
               },
-              "bestBaselinePct": 50.13,
+              "bestBaselinePct": 50.66,
               "liftPct": -4.51
             },
             "factors": [
               {
                 "name": "1观测动量",
-                "value": 0.01,
-                "text": "1个观测期变化上涨 0.11%，波动调整信号+0.01"
+                "value": 0.13,
+                "text": "1个观测期变化上涨 1.04%，波动调整信号+0.13"
               },
               {
                 "name": "5观测趋势",
-                "value": 0,
-                "text": "5个观测期变化上涨 0.08%，波动调整信号+0.00"
+                "value": 0.39,
+                "text": "5个观测期变化上涨 7.25%，波动调整信号+0.39"
               }
             ]
           },
@@ -2353,48 +2353,48 @@
             "id": "week",
             "label": "未来1周",
             "observations": 5,
-            "direction": "bullish",
-            "score": 0.69,
+            "direction": "bearish",
+            "score": -0.38,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 62.04,
+            "upProbabilityPct": 49.57,
             "historicalReturnRangePct": {
-              "low": -2.14,
-              "high": 3.53,
-              "samples": 135
+              "low": -3.73,
+              "high": 2.61,
+              "samples": 115
             },
             "ruleName": "纯动量趋势方向",
             "threshold": 0.35,
             "training": {
-              "samples": 245,
-              "accuracyPct": 57.96,
+              "samples": 256,
+              "accuracyPct": 55.86,
               "accuracyIntervalPct": {
-                "low": 51.7,
-                "high": 63.97
+                "low": 49.73,
+                "high": 61.81
               },
-              "bestBaselinePct": 55.1,
-              "liftPct": 2.86
+              "bestBaselinePct": 53.52,
+              "liftPct": 2.34
             },
             "validation": {
-              "samples": 109,
-              "accuracyPct": 45.87,
+              "samples": 110,
+              "accuracyPct": 49.09,
               "accuracyIntervalPct": {
-                "low": 36.82,
-                "high": 55.21
+                "low": 39.94,
+                "high": 58.31
               },
-              "bestBaselinePct": 50.46,
-              "liftPct": -4.59
+              "bestBaselinePct": 50,
+              "liftPct": -0.91
             },
             "factors": [
               {
                 "name": "5观测动量",
-                "value": 0,
-                "text": "5个观测期变化上涨 0.08%，波动调整信号+0.00"
+                "value": 0.39,
+                "text": "5个观测期变化上涨 7.25%，波动调整信号+0.39"
               },
               {
                 "name": "21观测趋势",
-                "value": 0.1,
-                "text": "21个观测期变化上涨 3.83%，波动调整信号+0.10"
+                "value": -0.13,
+                "text": "21个观测期变化下跌 4.77%，波动调整信号-0.13"
               }
             ]
           },
@@ -2402,48 +2402,48 @@
             "id": "month",
             "label": "未来1月",
             "observations": 21,
-            "direction": "bullish",
-            "score": 1,
-            "validated": false,
-            "confidence": "watch",
-            "upProbabilityPct": 61.29,
+            "direction": "bearish",
+            "score": -0.5,
+            "validated": true,
+            "confidence": "validated",
+            "upProbabilityPct": 46.88,
             "historicalReturnRangePct": {
-              "low": -4.59,
-              "high": 8.13,
-              "samples": 29
+              "low": -9.44,
+              "high": 5.07,
+              "samples": 30
             },
-            "ruleName": "纯动量趋势方向",
-            "threshold": 0.5,
+            "ruleName": "纯动量短线方向",
+            "threshold": 0.2,
             "training": {
-              "samples": 51,
-              "accuracyPct": 56.86,
+              "samples": 66,
+              "accuracyPct": 57.58,
               "accuracyIntervalPct": {
-                "low": 43.27,
-                "high": 69.5
+                "low": 45.56,
+                "high": 68.76
               },
-              "bestBaselinePct": 49.02,
-              "liftPct": 7.84
+              "bestBaselinePct": 54.55,
+              "liftPct": 3.03
             },
             "validation": {
-              "samples": 20,
-              "accuracyPct": 50,
+              "samples": 29,
+              "accuracyPct": 55.17,
               "accuracyIntervalPct": {
-                "low": 29.93,
-                "high": 70.07
+                "low": 37.55,
+                "high": 71.59
               },
-              "bestBaselinePct": 50,
-              "liftPct": 0
+              "bestBaselinePct": 51.72,
+              "liftPct": 3.45
             },
             "factors": [
               {
                 "name": "21观测动量",
-                "value": 0.1,
-                "text": "21个观测期变化上涨 3.83%，波动调整信号+0.10"
+                "value": -0.13,
+                "text": "21个观测期变化下跌 4.77%，波动调整信号-0.13"
               },
               {
                 "name": "63观测趋势",
                 "value": 0.42,
-                "text": "63个观测期变化上涨 29.08%，波动调整信号+0.42"
+                "text": "63个观测期变化上涨 27.34%，波动调整信号+0.42"
               }
             ]
           },
@@ -2452,47 +2452,47 @@
             "label": "未来1季度",
             "observations": 63,
             "direction": "bullish",
-            "score": 0.5,
+            "score": 1,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 57.14,
+            "upProbabilityPct": 50,
             "historicalReturnRangePct": {
-              "low": -8.57,
-              "high": 16.51,
+              "low": -11.28,
+              "high": 17.09,
               "samples": 12
             },
-            "ruleName": "纯动量短线方向",
-            "threshold": 0.2,
+            "ruleName": "纯动量趋势方向",
+            "threshold": 0.35,
             "training": {
-              "samples": 21,
-              "accuracyPct": 52.38,
+              "samples": 20,
+              "accuracyPct": 50,
               "accuracyIntervalPct": {
-                "low": 32.37,
-                "high": 71.66
+                "low": 29.93,
+                "high": 70.07
               },
-              "bestBaselinePct": 47.62,
-              "liftPct": 4.76
+              "bestBaselinePct": 40,
+              "liftPct": 10
             },
             "validation": {
-              "samples": 10,
-              "accuracyPct": 20,
+              "samples": 8,
+              "accuracyPct": 50,
               "accuracyIntervalPct": {
-                "low": 5.67,
-                "high": 50.98
+                "low": 21.52,
+                "high": 78.48
               },
               "bestBaselinePct": 50,
-              "liftPct": -30
+              "liftPct": 0
             },
             "factors": [
               {
                 "name": "63观测动量",
                 "value": 0.42,
-                "text": "63个观测期变化上涨 29.08%，波动调整信号+0.42"
+                "text": "63个观测期变化上涨 27.34%，波动调整信号+0.42"
               },
               {
                 "name": "126观测趋势",
-                "value": -0.17,
-                "text": "126个观测期变化下跌 16.01%，波动调整信号-0.17"
+                "value": 0.11,
+                "text": "126个观测期变化上涨 9.53%，波动调整信号+0.11"
               }
             ]
           },
@@ -2500,18 +2500,18 @@
             "id": "halfYear",
             "label": "未来半年",
             "observations": 126,
-            "direction": "bearish",
-            "score": -0.12,
+            "direction": "bullish",
+            "score": 1,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 50,
             "historicalReturnRangePct": {
-              "low": -27.75,
-              "high": 25.52,
+              "low": -11.87,
+              "high": 25.74,
               "samples": 4
             },
-            "ruleName": "纯动量均衡方向",
-            "threshold": 0.2,
+            "ruleName": "纯动量趋势方向",
+            "threshold": 0.5,
             "training": {
               "samples": 8,
               "accuracyPct": 50,
@@ -2523,25 +2523,25 @@
               "liftPct": 0
             },
             "validation": {
-              "samples": 3,
-              "accuracyPct": 66.67,
+              "samples": 2,
+              "accuracyPct": 50,
               "accuracyIntervalPct": {
-                "low": 20.77,
-                "high": 93.85
+                "low": 9.45,
+                "high": 90.55
               },
-              "bestBaselinePct": 66.67,
+              "bestBaselinePct": 50,
               "liftPct": 0
             },
             "factors": [
               {
                 "name": "126观测动量",
-                "value": -0.17,
-                "text": "126个观测期变化下跌 16.01%，波动调整信号-0.17"
+                "value": 0.11,
+                "text": "126个观测期变化上涨 9.53%，波动调整信号+0.11"
               },
               {
                 "name": "252观测趋势",
-                "value": 0.39,
-                "text": "252个观测期变化上涨 53.76%，波动调整信号+0.39"
+                "value": 0.47,
+                "text": "252个观测期变化上涨 63.42%，波动调整信号+0.47"
               }
             ]
           },
@@ -2550,13 +2550,13 @@
             "label": "未来1年",
             "observations": 252,
             "direction": "bullish",
-            "score": 0.31,
+            "score": 0.36,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 50,
             "historicalReturnRangePct": {
-              "low": -20.6,
-              "high": 0.43,
+              "low": -17.73,
+              "high": -5.07,
               "samples": 2
             },
             "ruleName": "纯动量均衡（波动调整）",
@@ -2573,24 +2573,24 @@
             },
             "validation": {
               "samples": 2,
-              "accuracyPct": 50,
+              "accuracyPct": 100,
               "accuracyIntervalPct": {
-                "low": 9.45,
-                "high": 90.55
+                "low": 34.24,
+                "high": 100
               },
               "bestBaselinePct": 50,
-              "liftPct": 0
+              "liftPct": 50
             },
             "factors": [
               {
                 "name": "252观测动量",
-                "value": 0.39,
-                "text": "252个观测期变化上涨 53.76%，波动调整信号+0.39"
+                "value": 0.47,
+                "text": "252个观测期变化上涨 63.42%，波动调整信号+0.47"
               },
               {
                 "name": "504观测趋势",
-                "value": 0.2,
-                "text": "504个观测期变化上涨 36.67%，波动调整信号+0.20"
+                "value": 0.21,
+                "text": "504个观测期变化上涨 37.10%，波动调整信号+0.21"
               }
             ]
           }
@@ -2599,38 +2599,38 @@
       {
         "id": "gold",
         "name": "黄金策略指数",
-        "date": "2026-10-13",
-        "dailyMove": -1.44,
+        "date": "2026-10-14",
+        "dailyMove": -4.68,
         "drivers": [
-          {
-            "chain": "实际利率—黄金链",
-            "driver": "美债10Y实际利率",
-            "driverMove": -3,
-            "driverZ": -0.95,
-            "correlation": -0.38,
-            "contribution": 0.17,
-            "effect": "tailwind",
-            "text": "美债10Y实际利率下跌 3.00bp（-0.95σ），结合当前ρ -0.38，对黄金策略指数的共振贡献+0.17"
-          },
           {
             "chain": "圣路易斯金融压力—黄金链",
             "driver": "圣路易斯联储金融压力指数",
             "driverMove": -0.25,
             "driverZ": -1.65,
-            "correlation": 0.23,
-            "contribution": -0.16,
+            "correlation": 0.27,
+            "contribution": -0.18,
             "effect": "headwind",
-            "text": "圣路易斯联储金融压力指数下跌 0.25点（-1.65σ），结合当前ρ 0.23，对黄金策略指数的共振贡献-0.16"
+            "text": "圣路易斯联储金融压力指数下跌 0.25点（-1.65σ），结合当前ρ 0.27，对黄金策略指数的共振贡献-0.18"
           },
           {
-            "chain": "美元—黄金链",
-            "driver": "美元广义指数",
-            "driverMove": 0.13,
-            "driverZ": 0.45,
-            "correlation": -0.54,
-            "contribution": -0.12,
+            "chain": "实际利率—黄金链",
+            "driver": "美债10Y实际利率",
+            "driverMove": -4,
+            "driverZ": -1.2,
+            "correlation": -0.32,
+            "contribution": 0.17,
+            "effect": "tailwind",
+            "text": "美债10Y实际利率下跌 4.00bp（-1.20σ），结合当前ρ -0.32，对黄金策略指数的共振贡献+0.17"
+          },
+          {
+            "chain": "风险压力共振—黄金链",
+            "driver": "全球风险压力共振指数",
+            "driverMove": 0.76,
+            "driverZ": 0.73,
+            "correlation": -0.46,
+            "contribution": -0.16,
             "effect": "headwind",
-            "text": "美元广义指数上涨 0.13%（+0.45σ），结合当前ρ -0.54，对黄金策略指数的共振贡献-0.12"
+            "text": "全球风险压力共振指数上涨 0.76点（+0.73σ），结合当前ρ -0.46，对黄金策略指数的共振贡献-0.16"
           }
         ],
         "horizonOutlooks": [
@@ -2657,29 +2657,29 @@
                 "low": 48.88,
                 "high": 54.13
               },
-              "bestBaselinePct": 49.06,
-              "liftPct": 2.45
+              "bestBaselinePct": 49.35,
+              "liftPct": 2.16
             },
             "validation": {
               "samples": 598,
-              "accuracyPct": 50.5,
+              "accuracyPct": 50.67,
               "accuracyIntervalPct": {
-                "low": 46.5,
-                "high": 54.49
+                "low": 46.67,
+                "high": 54.66
               },
-              "bestBaselinePct": 55.02,
-              "liftPct": -4.52
+              "bestBaselinePct": 54.85,
+              "liftPct": -4.18
             },
             "factors": [
               {
                 "name": "1观测动量",
-                "value": -0.26,
-                "text": "1个观测期变化下跌 1.44%，波动调整信号-0.26"
+                "value": -0.69,
+                "text": "1个观测期变化下跌 4.68%，波动调整信号-0.69"
               },
               {
                 "name": "5观测趋势",
-                "value": -0.08,
-                "text": "5个观测期变化下跌 0.97%，波动调整信号-0.08"
+                "value": -0.21,
+                "text": "5个观测期变化下跌 2.61%，波动调整信号-0.21"
               }
             ]
           },
@@ -2688,47 +2688,47 @@
             "label": "未来1周",
             "observations": 5,
             "direction": "bearish",
-            "score": -1,
+            "score": -0.38,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 53.91,
+            "upProbabilityPct": 50.54,
             "historicalReturnRangePct": {
-              "low": -2.59,
-              "high": 3.24,
-              "samples": 126
+              "low": -2.37,
+              "high": 3.13,
+              "samples": 91
             },
-            "ruleName": "纯动量趋势方向",
+            "ruleName": "纯动量趋势（波动调整）",
             "threshold": 0.2,
             "training": {
-              "samples": 276,
-              "accuracyPct": 50.36,
+              "samples": 196,
+              "accuracyPct": 48.98,
               "accuracyIntervalPct": {
-                "low": 44.5,
-                "high": 56.22
+                "low": 42.07,
+                "high": 55.93
               },
-              "bestBaselinePct": 52.54,
-              "liftPct": -2.18
+              "bestBaselinePct": 48.98,
+              "liftPct": 0
             },
             "validation": {
-              "samples": 120,
-              "accuracyPct": 52.5,
+              "samples": 75,
+              "accuracyPct": 49.33,
               "accuracyIntervalPct": {
-                "low": 43.63,
-                "high": 61.22
+                "low": 38.33,
+                "high": 60.4
               },
-              "bestBaselinePct": 58.33,
-              "liftPct": -5.83
+              "bestBaselinePct": 62.67,
+              "liftPct": -13.34
             },
             "factors": [
               {
                 "name": "5观测动量",
-                "value": -0.08,
-                "text": "5个观测期变化下跌 0.97%，波动调整信号-0.08"
+                "value": -0.21,
+                "text": "5个观测期变化下跌 2.61%，波动调整信号-0.21"
               },
               {
                 "name": "21观测趋势",
-                "value": -0.33,
-                "text": "21个观测期变化下跌 8.49%，波动调整信号-0.33"
+                "value": -0.46,
+                "text": "21个观测期变化下跌 12.55%，波动调整信号-0.46"
               }
             ]
           },
@@ -2740,44 +2740,44 @@
             "score": -0.5,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 44.12,
+            "upProbabilityPct": 45.45,
             "historicalReturnRangePct": {
-              "low": -6.49,
-              "high": 5.56,
-              "samples": 32
+              "low": -5.92,
+              "high": 5.81,
+              "samples": 31
             },
             "ruleName": "纯动量短线方向",
             "threshold": 0.2,
             "training": {
-              "samples": 66,
-              "accuracyPct": 53.03,
+              "samples": 65,
+              "accuracyPct": 53.85,
               "accuracyIntervalPct": {
-                "low": 41.16,
-                "high": 64.57
+                "low": 41.85,
+                "high": 65.41
               },
-              "bestBaselinePct": 50,
-              "liftPct": 3.03
+              "bestBaselinePct": 53.85,
+              "liftPct": 0
             },
             "validation": {
               "samples": 29,
-              "accuracyPct": 62.07,
+              "accuracyPct": 58.62,
               "accuracyIntervalPct": {
-                "low": 44,
-                "high": 77.31
+                "low": 40.74,
+                "high": 74.49
               },
-              "bestBaselinePct": 62.07,
-              "liftPct": 0
+              "bestBaselinePct": 68.97,
+              "liftPct": -10.35
             },
             "factors": [
               {
                 "name": "21观测动量",
-                "value": -0.33,
-                "text": "21个观测期变化下跌 8.49%，波动调整信号-0.33"
+                "value": -0.46,
+                "text": "21个观测期变化下跌 12.55%，波动调整信号-0.46"
               },
               {
                 "name": "63观测趋势",
-                "value": 0.43,
-                "text": "63个观测期变化上涨 19.78%，波动调整信号+0.43"
+                "value": 0.33,
+                "text": "63个观测期变化上涨 15.18%，波动调整信号+0.33"
               }
             ]
           },
@@ -2785,48 +2785,48 @@
             "id": "quarter",
             "label": "未来1季度",
             "observations": 63,
-            "direction": "bullish",
-            "score": 0.5,
+            "direction": "bearish",
+            "score": -0.05,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 36.36,
+            "upProbabilityPct": 50,
             "historicalReturnRangePct": {
-              "low": -5.62,
-              "high": 3.1,
-              "samples": 9
+              "low": 3.65,
+              "high": 17.27,
+              "samples": 2
             },
-            "ruleName": "纯动量短线方向",
-            "threshold": 0.2,
+            "ruleName": "纯动量趋势（波动调整）",
+            "threshold": 0.35,
             "training": {
-              "samples": 21,
-              "accuracyPct": 42.86,
+              "samples": 9,
+              "accuracyPct": 44.44,
               "accuracyIntervalPct": {
-                "low": 24.47,
-                "high": 63.45
+                "low": 18.88,
+                "high": 73.34
               },
-              "bestBaselinePct": 42.86,
-              "liftPct": 0
+              "bestBaselinePct": 33.33,
+              "liftPct": 11.11
             },
             "validation": {
-              "samples": 9,
-              "accuracyPct": 88.89,
+              "samples": 5,
+              "accuracyPct": 80,
               "accuracyIntervalPct": {
-                "low": 56.5,
-                "high": 98.01
+                "low": 37.55,
+                "high": 96.38
               },
-              "bestBaselinePct": 88.89,
+              "bestBaselinePct": 80,
               "liftPct": 0
             },
             "factors": [
               {
                 "name": "63观测动量",
-                "value": 0.43,
-                "text": "63个观测期变化上涨 19.78%，波动调整信号+0.43"
+                "value": 0.33,
+                "text": "63个观测期变化上涨 15.18%，波动调整信号+0.33"
               },
               {
                 "name": "126观测趋势",
                 "value": -0.22,
-                "text": "126个观测期变化下跌 13.88%，波动调整信号-0.22"
+                "text": "126个观测期变化下跌 13.67%，波动调整信号-0.22"
               }
             ]
           },
@@ -2838,44 +2838,44 @@
             "score": 0.38,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 57.14,
+            "upProbabilityPct": 66.67,
             "historicalReturnRangePct": {
-              "low": -3.55,
-              "high": 9.77,
-              "samples": 5
+              "low": -2.89,
+              "high": 20.26,
+              "samples": 4
             },
             "ruleName": "纯动量趋势方向",
             "threshold": 0.35,
             "training": {
-              "samples": 9,
-              "accuracyPct": 66.67,
+              "samples": 8,
+              "accuracyPct": 75,
               "accuracyIntervalPct": {
-                "low": 35.42,
-                "high": 87.94
+                "low": 40.93,
+                "high": 92.85
               },
-              "bestBaselinePct": 44.44,
-              "liftPct": 22.23
+              "bestBaselinePct": 50,
+              "liftPct": 25
             },
             "validation": {
-              "samples": 5,
-              "accuracyPct": 80,
+              "samples": 4,
+              "accuracyPct": 100,
               "accuracyIntervalPct": {
-                "low": 37.55,
-                "high": 96.38
+                "low": 51.01,
+                "high": 100
               },
               "bestBaselinePct": 100,
-              "liftPct": -20
+              "liftPct": 0
             },
             "factors": [
               {
                 "name": "126观测动量",
                 "value": -0.22,
-                "text": "126个观测期变化下跌 13.88%，波动调整信号-0.22"
+                "text": "126个观测期变化下跌 13.67%，波动调整信号-0.22"
               },
               {
                 "name": "252观测趋势",
-                "value": 0.22,
-                "text": "252个观测期变化上涨 19.36%，波动调整信号+0.22"
+                "value": 0.21,
+                "text": "252个观测期变化上涨 18.75%，波动调整信号+0.21"
               }
             ]
           },
@@ -2884,13 +2884,13 @@
             "label": "未来1年",
             "observations": 252,
             "direction": "bullish",
-            "score": 0.46,
+            "score": 0.43,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 50,
             "historicalReturnRangePct": {
-              "low": -1.09,
-              "high": 18.96,
+              "low": -1.38,
+              "high": 22.56,
               "samples": 2
             },
             "ruleName": "纯动量均衡（波动调整）",
@@ -2918,13 +2918,13 @@
             "factors": [
               {
                 "name": "252观测动量",
-                "value": 0.22,
-                "text": "252个观测期变化上涨 19.36%，波动调整信号+0.22"
+                "value": 0.21,
+                "text": "252个观测期变化上涨 18.75%，波动调整信号+0.21"
               },
               {
                 "name": "504观测趋势",
-                "value": 0.77,
-                "text": "504个观测期变化上涨 125.64%，波动调整信号+0.77"
+                "value": 0.71,
+                "text": "504个观测期变化上涨 110.89%，波动调整信号+0.71"
               }
             ]
           }
@@ -2933,38 +2933,38 @@
       {
         "id": "btc",
         "name": "比特币",
-        "date": "2026-10-14",
-        "dailyMove": -1.76,
+        "date": "2026-10-15",
+        "dailyMove": 0.55,
         "drivers": [
           {
-            "chain": "风险广度—BTC链",
-            "driver": "跨资产风险参与率（剔除BTC）",
-            "driverMove": -42.86,
-            "driverZ": -1.34,
-            "correlation": 0.37,
-            "contribution": -0.22,
+            "chain": "科技股—BTC链",
+            "driver": "纳斯达克综合",
+            "driverMove": -1.88,
+            "driverZ": -1.95,
+            "correlation": 0.4,
+            "contribution": -0.3,
             "effect": "headwind",
-            "text": "跨资产风险参与率（剔除BTC）下跌 42.86点（-1.34σ），结合当前ρ 0.37，对比特币的共振贡献-0.22"
-          },
-          {
-            "chain": "SOFR−EFFR—BTC链",
-            "driver": "SOFR−EFFR资金压力差",
-            "driverMove": 2,
-            "driverZ": 1.21,
-            "correlation": -0.23,
-            "contribution": -0.12,
-            "effect": "headwind",
-            "text": "SOFR−EFFR资金压力差上涨 2.00bp（+1.21σ），结合当前ρ -0.23，对比特币的共振贡献-0.12"
+            "text": "纳斯达克综合下跌 1.88%（-1.95σ），结合当前ρ 0.40，对比特币的共振贡献-0.30"
           },
           {
             "chain": "黄金—BTC状态链",
             "driver": "黄金策略指数",
-            "driverMove": -1.44,
-            "driverZ": -0.66,
-            "correlation": 0.36,
-            "contribution": -0.11,
+            "driverMove": -4.68,
+            "driverZ": -1.83,
+            "correlation": 0.39,
+            "contribution": -0.28,
             "effect": "headwind",
-            "text": "黄金策略指数下跌 1.44%（-0.66σ），结合当前ρ 0.36，对比特币的共振贡献-0.11"
+            "text": "黄金策略指数下跌 4.68%（-1.83σ），结合当前ρ 0.39，对比特币的共振贡献-0.28"
+          },
+          {
+            "chain": "VIX—BTC风险链",
+            "driver": "VIX波动率",
+            "driverMove": 10.48,
+            "driverZ": 1.82,
+            "correlation": -0.27,
+            "contribution": -0.19,
+            "effect": "headwind",
+            "text": "VIX波动率上涨 10.48%（+1.82σ），结合当前ρ -0.27，对比特币的共振贡献-0.19"
           }
         ],
         "horizonOutlooks": [
@@ -2972,26 +2972,26 @@
             "id": "day",
             "label": "未来1日",
             "observations": 1,
-            "direction": "bearish",
-            "score": -1,
+            "direction": "bullish",
+            "score": 0.5,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 54.25,
+            "upProbabilityPct": 46.14,
             "historicalReturnRangePct": {
-              "low": -1.18,
-              "high": 1.58,
-              "samples": 610
+              "low": -1.3,
+              "high": 1.53,
+              "samples": 607
             },
             "ruleName": "纯动量短线方向",
             "threshold": 0.35,
             "training": {
               "samples": 1216,
-              "accuracyPct": 45.23,
+              "accuracyPct": 45.15,
               "accuracyIntervalPct": {
-                "low": 42.45,
-                "high": 48.04
+                "low": 42.37,
+                "high": 47.96
               },
-              "bestBaselinePct": 46.96,
+              "bestBaselinePct": 46.88,
               "liftPct": -1.73
             },
             "validation": {
@@ -3007,13 +3007,13 @@
             "factors": [
               {
                 "name": "1观测动量",
-                "value": -0.37,
-                "text": "1个观测期变化下跌 1.76%，波动调整信号-0.37"
+                "value": 0.12,
+                "text": "1个观测期变化上涨 0.55%，波动调整信号+0.12"
               },
               {
                 "name": "5观测趋势",
-                "value": -0.1,
-                "text": "5个观测期变化下跌 1.03%，波动调整信号-0.10"
+                "value": -0.09,
+                "text": "5个观测期变化下跌 0.95%，波动调整信号-0.09"
               }
             ]
           },
@@ -3022,47 +3022,47 @@
             "label": "未来1周",
             "observations": 5,
             "direction": "bearish",
-            "score": -0.14,
+            "score": -0.11,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 60.47,
+            "upProbabilityPct": 50.67,
             "historicalReturnRangePct": {
-              "low": -2.16,
-              "high": 5.86,
-              "samples": 41
+              "low": -3.57,
+              "high": 3.34,
+              "samples": 73
             },
-            "ruleName": "纯动量趋势（波动调整）",
-            "threshold": 0.35,
+            "ruleName": "纯动量均衡（波动调整）",
+            "threshold": 0.2,
             "training": {
-              "samples": 104,
-              "accuracyPct": 47.12,
+              "samples": 169,
+              "accuracyPct": 51.48,
               "accuracyIntervalPct": {
-                "low": 37.8,
-                "high": 56.64
+                "low": 44,
+                "high": 58.9
               },
-              "bestBaselinePct": 43.27,
-              "liftPct": 3.85
+              "bestBaselinePct": 48.52,
+              "liftPct": 2.96
             },
             "validation": {
-              "samples": 42,
-              "accuracyPct": 47.62,
+              "samples": 70,
+              "accuracyPct": 44.29,
               "accuracyIntervalPct": {
-                "low": 33.36,
-                "high": 62.28
+                "low": 33.25,
+                "high": 55.92
               },
-              "bestBaselinePct": 54.76,
-              "liftPct": -7.14
+              "bestBaselinePct": 42.86,
+              "liftPct": 1.43
             },
             "factors": [
               {
                 "name": "5观测动量",
-                "value": -0.1,
-                "text": "5个观测期变化下跌 1.03%，波动调整信号-0.10"
+                "value": -0.09,
+                "text": "5个观测期变化下跌 0.95%，波动调整信号-0.09"
               },
               {
                 "name": "21观测趋势",
-                "value": -0.16,
-                "text": "21个观测期变化下跌 3.27%，波动调整信号-0.16"
+                "value": -0.13,
+                "text": "21个观测期变化下跌 2.76%，波动调整信号-0.13"
               }
             ]
           },
@@ -3072,46 +3072,46 @@
             "observations": 21,
             "direction": "bullish",
             "score": 0.38,
-            "validated": false,
-            "confidence": "watch",
-            "upProbabilityPct": 59.26,
+            "validated": true,
+            "confidence": "validated",
+            "upProbabilityPct": 57.14,
             "historicalReturnRangePct": {
-              "low": -3.69,
-              "high": 11.71,
-              "samples": 25
+              "low": -4.6,
+              "high": 10.45,
+              "samples": 33
             },
             "ruleName": "纯动量趋势方向",
-            "threshold": 0.5,
+            "threshold": 0.35,
             "training": {
-              "samples": 47,
-              "accuracyPct": 57.45,
+              "samples": 64,
+              "accuracyPct": 54.69,
               "accuracyIntervalPct": {
-                "low": 43.28,
-                "high": 70.49
+                "low": 42.57,
+                "high": 66.27
               },
-              "bestBaselinePct": 48.94,
-              "liftPct": 8.51
+              "bestBaselinePct": 48.44,
+              "liftPct": 6.25
             },
             "validation": {
-              "samples": 20,
-              "accuracyPct": 60,
+              "samples": 28,
+              "accuracyPct": 53.57,
               "accuracyIntervalPct": {
-                "low": 38.66,
-                "high": 78.12
+                "low": 35.81,
+                "high": 70.47
               },
-              "bestBaselinePct": 55,
-              "liftPct": 5
+              "bestBaselinePct": 50,
+              "liftPct": 3.57
             },
             "factors": [
               {
                 "name": "21观测动量",
-                "value": -0.16,
-                "text": "21个观测期变化下跌 3.27%，波动调整信号-0.16"
+                "value": -0.13,
+                "text": "21个观测期变化下跌 2.76%，波动调整信号-0.13"
               },
               {
                 "name": "63观测趋势",
-                "value": 0.66,
-                "text": "63个观测期变化上涨 28.85%，波动调整信号+0.66"
+                "value": 0.68,
+                "text": "63个观测期变化上涨 29.58%，波动调整信号+0.68"
               }
             ]
           },
@@ -3120,47 +3120,47 @@
             "label": "未来1季度",
             "observations": 63,
             "direction": "bullish",
-            "score": 1,
+            "score": 0.57,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 66.67,
+            "upProbabilityPct": 36.36,
             "historicalReturnRangePct": {
-              "low": -1.97,
-              "high": 28.22,
-              "samples": 10
+              "low": -14.09,
+              "high": 12.07,
+              "samples": 9
             },
-            "ruleName": "纯动量短线方向",
+            "ruleName": "纯动量趋势（波动调整）",
             "threshold": 0.2,
             "training": {
-              "samples": 21,
-              "accuracyPct": 61.9,
+              "samples": 16,
+              "accuracyPct": 37.5,
               "accuracyIntervalPct": {
-                "low": 40.88,
-                "high": 79.25
+                "low": 18.48,
+                "high": 61.36
               },
-              "bestBaselinePct": 52.38,
-              "liftPct": 9.52
+              "bestBaselinePct": 37.5,
+              "liftPct": 0
             },
             "validation": {
-              "samples": 10,
-              "accuracyPct": 40,
+              "samples": 7,
+              "accuracyPct": 42.86,
               "accuracyIntervalPct": {
-                "low": 16.82,
-                "high": 68.73
+                "low": 15.82,
+                "high": 74.95
               },
-              "bestBaselinePct": 40,
-              "liftPct": 0
+              "bestBaselinePct": 57.14,
+              "liftPct": -14.28
             },
             "factors": [
               {
                 "name": "63观测动量",
-                "value": 0.66,
-                "text": "63个观测期变化上涨 28.85%，波动调整信号+0.66"
+                "value": 0.68,
+                "text": "63个观测期变化上涨 29.58%，波动调整信号+0.68"
               },
               {
                 "name": "126观测趋势",
-                "value": 0.57,
-                "text": "126个观测期变化上涨 32.68%，波动调整信号+0.57"
+                "value": 0.52,
+                "text": "126个观测期变化上涨 29.39%，波动调整信号+0.52"
               }
             ]
           },
@@ -3174,8 +3174,8 @@
             "confidence": "watch",
             "upProbabilityPct": 33.33,
             "historicalReturnRangePct": {
-              "low": -3.61,
-              "high": 13.69,
+              "low": -3.5,
+              "high": 14.56,
               "samples": 4
             },
             "ruleName": "纯动量短线方向",
@@ -3203,13 +3203,13 @@
             "factors": [
               {
                 "name": "126观测动量",
-                "value": 0.57,
-                "text": "126个观测期变化上涨 32.68%，波动调整信号+0.57"
+                "value": 0.52,
+                "text": "126个观测期变化上涨 29.39%，波动调整信号+0.52"
               },
               {
                 "name": "252观测趋势",
-                "value": 0.17,
-                "text": "252个观测期变化上涨 12.13%，波动调整信号+0.17"
+                "value": 0.38,
+                "text": "252个观测期变化上涨 28.65%，波动调整信号+0.38"
               }
             ]
           },
@@ -3217,15 +3217,15 @@
             "id": "year",
             "label": "未来1年",
             "observations": 252,
-            "direction": "bearish",
-            "score": 0,
+            "direction": "bullish",
+            "score": 0.12,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 66.67,
+            "upProbabilityPct": 25,
             "historicalReturnRangePct": {
-              "low": 25.19,
-              "high": 25.19,
-              "samples": 1
+              "low": -41.4,
+              "high": -16.52,
+              "samples": 2
             },
             "ruleName": "纯动量均衡（波动调整）",
             "threshold": 0.2,
@@ -3252,13 +3252,13 @@
             "factors": [
               {
                 "name": "252观测动量",
-                "value": 0.17,
-                "text": "252个观测期变化上涨 12.13%，波动调整信号+0.17"
+                "value": 0.38,
+                "text": "252个观测期变化上涨 28.65%，波动调整信号+0.38"
               },
               {
                 "name": "504观测趋势",
-                "value": -0.22,
-                "text": "504个观测期变化下跌 22.62%，波动调整信号-0.22"
+                "value": -0.2,
+                "text": "504个观测期变化下跌 21.04%，波动调整信号-0.20"
               }
             ]
           }
@@ -3267,38 +3267,38 @@
       {
         "id": "eth",
         "name": "以太坊",
-        "date": "2026-10-14",
-        "dailyMove": -2.99,
+        "date": "2026-10-15",
+        "dailyMove": 0.65,
         "drivers": [
           {
-            "chain": "BTC—ETH风险偏好链",
-            "driver": "比特币",
-            "driverMove": -1.76,
-            "driverZ": -0.99,
-            "correlation": 0.89,
-            "contribution": -0.41,
+            "chain": "科技股—ETH链",
+            "driver": "纳斯达克综合",
+            "driverMove": -1.88,
+            "driverZ": -1.95,
+            "correlation": 0.35,
+            "contribution": -0.26,
             "effect": "headwind",
-            "text": "比特币下跌 1.76%（-0.99σ），结合当前ρ 0.89，对以太坊的共振贡献-0.41"
+            "text": "纳斯达克综合下跌 1.88%（-1.95σ），结合当前ρ 0.35，对以太坊的共振贡献-0.26"
           },
           {
-            "chain": "实际利率—ETH链",
-            "driver": "美债10Y实际利率",
-            "driverMove": -3,
-            "driverZ": -0.95,
-            "correlation": -0.17,
-            "contribution": 0.07,
-            "effect": "tailwind",
-            "text": "美债10Y实际利率下跌 3.00bp（-0.95σ），结合当前ρ -0.17，对以太坊的共振贡献+0.07"
+            "chain": "VIX—ETH风险链",
+            "driver": "VIX波动率",
+            "driverMove": 10.48,
+            "driverZ": 1.82,
+            "correlation": -0.34,
+            "contribution": -0.24,
+            "effect": "headwind",
+            "text": "VIX波动率上涨 10.48%（+1.82σ），结合当前ρ -0.34，对以太坊的共振贡献-0.24"
           },
           {
-            "chain": "美元—ETH链",
-            "driver": "美元广义指数",
-            "driverMove": 0.13,
-            "driverZ": 0.45,
-            "correlation": -0.28,
-            "contribution": -0.06,
+            "chain": "风险压力共振—ETH链",
+            "driver": "全球风险压力共振指数",
+            "driverMove": 0.76,
+            "driverZ": 0.73,
+            "correlation": -0.26,
+            "contribution": -0.09,
             "effect": "headwind",
-            "text": "美元广义指数上涨 0.13%（+0.45σ），结合当前ρ -0.28，对以太坊的共振贡献-0.06"
+            "text": "全球风险压力共振指数上涨 0.76点（+0.73σ），结合当前ρ -0.26，对以太坊的共振贡献-0.09"
           }
         ],
         "horizonOutlooks": [
@@ -3307,47 +3307,47 @@
             "label": "未来1日",
             "observations": 1,
             "direction": "bearish",
-            "score": -1,
+            "score": -0.38,
             "validated": false,
             "confidence": "watch",
-            "upProbabilityPct": 53.45,
+            "upProbabilityPct": 53.35,
             "historicalReturnRangePct": {
               "low": -1.85,
-              "high": 2.17,
-              "samples": 606
+              "high": 2.14,
+              "samples": 669
             },
             "ruleName": "纯动量趋势方向",
-            "threshold": 0.35,
+            "threshold": 0.2,
             "training": {
-              "samples": 1275,
-              "accuracyPct": 46.59,
+              "samples": 1383,
+              "accuracyPct": 46.85,
               "accuracyIntervalPct": {
-                "low": 43.86,
-                "high": 49.33
+                "low": 44.24,
+                "high": 49.49
               },
-              "bestBaselinePct": 49.8,
-              "liftPct": -3.21
+              "bestBaselinePct": 50.25,
+              "liftPct": -3.4
             },
             "validation": {
-              "samples": 529,
-              "accuracyPct": 46.88,
+              "samples": 582,
+              "accuracyPct": 46.91,
               "accuracyIntervalPct": {
-                "low": 42.67,
-                "high": 51.14
+                "low": 42.89,
+                "high": 50.97
               },
-              "bestBaselinePct": 49.53,
-              "liftPct": -2.65
+              "bestBaselinePct": 50.52,
+              "liftPct": -3.61
             },
             "factors": [
               {
                 "name": "1观测动量",
-                "value": -0.43,
-                "text": "1个观测期变化下跌 2.99%，波动调整信号-0.43"
+                "value": 0.1,
+                "text": "1个观测期变化上涨 0.65%，波动调整信号+0.10"
               },
               {
                 "name": "5观测趋势",
                 "value": -0.17,
-                "text": "5个观测期变化下跌 2.44%，波动调整信号-0.17"
+                "text": "5个观测期变化下跌 2.57%，波动调整信号-0.17"
               }
             ]
           },
@@ -3357,46 +3357,46 @@
             "observations": 5,
             "direction": "bearish",
             "score": -1,
-            "validated": false,
-            "confidence": "watch",
-            "upProbabilityPct": 51.47,
+            "validated": true,
+            "confidence": "validated",
+            "upProbabilityPct": 53.97,
             "historicalReturnRangePct": {
-              "low": -2.76,
-              "high": 5.41,
-              "samples": 134
+              "low": -3.84,
+              "high": 5.44,
+              "samples": 124
             },
-            "ruleName": "纯动量短线方向",
-            "threshold": 0.2,
+            "ruleName": "纯动量趋势方向",
+            "threshold": 0.35,
             "training": {
-              "samples": 278,
-              "accuracyPct": 48.92,
+              "samples": 243,
+              "accuracyPct": 46.91,
               "accuracyIntervalPct": {
-                "low": 43.1,
-                "high": 54.77
+                "low": 40.74,
+                "high": 53.19
               },
-              "bestBaselinePct": 49.64,
-              "liftPct": -0.72
+              "bestBaselinePct": 43.21,
+              "liftPct": 3.7
             },
             "validation": {
-              "samples": 120,
-              "accuracyPct": 48.33,
+              "samples": 107,
+              "accuracyPct": 55.14,
               "accuracyIntervalPct": {
-                "low": 39.58,
-                "high": 57.19
+                "low": 45.7,
+                "high": 64.22
               },
-              "bestBaselinePct": 50,
-              "liftPct": -1.67
+              "bestBaselinePct": 49.53,
+              "liftPct": 5.61
             },
             "factors": [
               {
                 "name": "5观测动量",
                 "value": -0.17,
-                "text": "5个观测期变化下跌 2.44%，波动调整信号-0.17"
+                "text": "5个观测期变化下跌 2.57%，波动调整信号-0.17"
               },
               {
                 "name": "21观测趋势",
-                "value": -0.32,
-                "text": "21个观测期变化下跌 9.79%，波动调整信号-0.32"
+                "value": -0.3,
+                "text": "21个观测期变化下跌 9.33%，波动调整信号-0.30"
               }
             ]
           },
@@ -3406,46 +3406,46 @@
             "observations": 21,
             "direction": "bearish",
             "score": -0.5,
-            "validated": true,
-            "confidence": "validated",
-            "upProbabilityPct": 36.11,
+            "validated": false,
+            "confidence": "watch",
+            "upProbabilityPct": 42.42,
             "historicalReturnRangePct": {
-              "low": -9.84,
-              "high": 8.76,
-              "samples": 34
+              "low": -12.28,
+              "high": 7.87,
+              "samples": 31
             },
             "ruleName": "纯动量短线方向",
             "threshold": 0.2,
             "training": {
               "samples": 66,
-              "accuracyPct": 63.64,
+              "accuracyPct": 57.58,
               "accuracyIntervalPct": {
-                "low": 51.58,
-                "high": 74.19
+                "low": 45.56,
+                "high": 68.76
               },
-              "bestBaselinePct": 57.58,
-              "liftPct": 6.06
+              "bestBaselinePct": 54.55,
+              "liftPct": 3.03
             },
             "validation": {
               "samples": 29,
-              "accuracyPct": 58.62,
+              "accuracyPct": 55.17,
               "accuracyIntervalPct": {
-                "low": 40.74,
-                "high": 74.49
+                "low": 37.55,
+                "high": 71.59
               },
               "bestBaselinePct": 55.17,
-              "liftPct": 3.45
+              "liftPct": 0
             },
             "factors": [
               {
                 "name": "21观测动量",
-                "value": -0.32,
-                "text": "21个观测期变化下跌 9.79%，波动调整信号-0.32"
+                "value": -0.3,
+                "text": "21个观测期变化下跌 9.33%，波动调整信号-0.30"
               },
               {
                 "name": "63观测趋势",
-                "value": 0.51,
-                "text": "63个观测期变化上涨 29.12%，波动调整信号+0.51"
+                "value": 0.52,
+                "text": "63个观测期变化上涨 29.48%，波动调整信号+0.52"
               }
             ]
           },
@@ -3459,8 +3459,8 @@
             "confidence": "watch",
             "upProbabilityPct": 57.14,
             "historicalReturnRangePct": {
-              "low": -15.41,
-              "high": 10.04,
+              "low": -15.48,
+              "high": 10.74,
               "samples": 12
             },
             "ruleName": "纯动量短线方向",
@@ -3488,13 +3488,13 @@
             "factors": [
               {
                 "name": "63观测动量",
-                "value": 0.51,
-                "text": "63个观测期变化上涨 29.12%，波动调整信号+0.51"
+                "value": 0.52,
+                "text": "63个观测期变化上涨 29.48%，波动调整信号+0.52"
               },
               {
                 "name": "126观测趋势",
-                "value": 0.59,
-                "text": "126个观测期变化上涨 49.42%，波动调整信号+0.59"
+                "value": 0.56,
+                "text": "126个观测期变化上涨 46.19%，波动调整信号+0.56"
               }
             ]
           },
@@ -3503,47 +3503,47 @@
             "label": "未来半年",
             "observations": 126,
             "direction": "bullish",
-            "score": 1,
-            "validated": true,
-            "confidence": "validated",
-            "upProbabilityPct": 55.56,
+            "score": 0.49,
+            "validated": false,
+            "confidence": "watch",
+            "upProbabilityPct": 50,
             "historicalReturnRangePct": {
-              "low": -21.23,
-              "high": 44.16,
-              "samples": 7
+              "low": -28.65,
+              "high": 33.69,
+              "samples": 6
             },
-            "ruleName": "纯动量趋势方向",
+            "ruleName": "纯动量短线（波动调整）",
             "threshold": 0.2,
             "training": {
               "samples": 10,
-              "accuracyPct": 60,
+              "accuracyPct": 50,
               "accuracyIntervalPct": {
-                "low": 31.27,
-                "high": 83.18
+                "low": 23.66,
+                "high": 76.34
               },
               "bestBaselinePct": 50,
-              "liftPct": 10
+              "liftPct": 0
             },
             "validation": {
-              "samples": 4,
-              "accuracyPct": 75,
+              "samples": 3,
+              "accuracyPct": 33.33,
               "accuracyIntervalPct": {
-                "low": 30.06,
-                "high": 95.44
+                "low": 6.15,
+                "high": 79.23
               },
-              "bestBaselinePct": 25,
-              "liftPct": 50
+              "bestBaselinePct": 33.33,
+              "liftPct": 0
             },
             "factors": [
               {
                 "name": "126观测动量",
-                "value": 0.59,
-                "text": "126个观测期变化上涨 49.42%，波动调整信号+0.59"
+                "value": 0.56,
+                "text": "126个观测期变化上涨 46.19%，波动调整信号+0.56"
               },
               {
                 "name": "252观测趋势",
-                "value": 0.12,
-                "text": "252个观测期变化上涨 12.71%，波动调整信号+0.12"
+                "value": 0.28,
+                "text": "252个观测期变化上涨 29.21%，波动调整信号+0.28"
               }
             ]
           },
@@ -3552,13 +3552,13 @@
             "label": "未来1年",
             "observations": 252,
             "direction": "bullish",
-            "score": 0.04,
+            "score": 0.14,
             "validated": false,
             "confidence": "watch",
             "upProbabilityPct": 50,
             "historicalReturnRangePct": {
-              "low": -22.26,
-              "high": 38.89,
+              "low": -24.31,
+              "high": 34.9,
               "samples": 2
             },
             "ruleName": "纯动量均衡（波动调整）",
@@ -3586,13 +3586,13 @@
             "factors": [
               {
                 "name": "252观测动量",
-                "value": 0.12,
-                "text": "252个观测期变化上涨 12.71%，波动调整信号+0.12"
+                "value": 0.28,
+                "text": "252个观测期变化上涨 29.21%，波动调整信号+0.28"
               },
               {
                 "name": "504观测趋势",
-                "value": -0.05,
-                "text": "504个观测期变化下跌 7.89%，波动调整信号-0.05"
+                "value": -0.02,
+                "text": "504个观测期变化下跌 3.64%，波动调整信号-0.02"
               }
             ]
           }
