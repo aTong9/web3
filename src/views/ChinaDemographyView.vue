@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { EChartsCoreOption } from 'echarts/core'
-import { computed, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, ref, watch } from 'vue'
 import EChart from '@/components/EChart.vue'
 import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
 import { useI18n } from '@/composables/use-i18n'
@@ -14,10 +14,11 @@ import {
 } from '@/utils/china-demography'
 
 const { locale, t } = useI18n()
+const ChinaForeignBrands = defineAsyncComponent(() => import('@/components/ChinaForeignBrands.vue'))
 const key = (name: string) => t(`chinaDemography.${name}`)
 const scenarios: ChinaScenario[] = ['low', 'medium', 'high']
 const scenario = ref<ChinaScenario>('medium')
-const mode = ref<'history' | 'projection'>('history')
+const mode = ref<'history' | 'projection' | 'brands'>('history')
 const historyRange = ref<'all' | 'early' | 'estimate' | 'forecast'>('all')
 const historyPage = ref(1)
 const endYear = ref(2125)
@@ -421,7 +422,7 @@ const exportCsv = () => {
       :description="key('description')"
     >
       <template #meta>
-        <div class="hero-meta">
+        <div v-if="mode !== 'brands'" class="hero-meta">
           <span
             >{{ key('anchor') }} · {{ number(anchorData.official2025.populationWan) }}
             {{ key('peopleWan') }}</span
@@ -431,17 +432,31 @@ const exportCsv = () => {
       </template>
       <template #status>
         <div class="hero-status">
-          <small>{{ mode === 'history' ? key('historyStatus') : key('projection') }}</small>
+          <small>{{
+            mode === 'history'
+              ? key('historyStatus')
+              : mode === 'brands'
+                ? key('brandsStatus')
+                : key('projection')
+          }}</small>
           <strong>{{
             mode === 'history'
               ? key('historyStatusStrong')
-              : scenario === 'low'
-                ? key('low')
-                : scenario === 'high'
-                  ? key('high')
-                  : key('medium')
+              : mode === 'brands'
+                ? key('brandsStatusStrong')
+                : scenario === 'low'
+                  ? key('low')
+                  : scenario === 'high'
+                    ? key('high')
+                    : key('medium')
           }}</strong>
-          <span>{{ mode === 'history' ? key('historyStatusNote') : key('longHorizon') }}</span>
+          <span>{{
+            mode === 'history'
+              ? key('historyStatusNote')
+              : mode === 'brands'
+                ? key('brandsStatusNote')
+                : key('longHorizon')
+          }}</span>
         </div>
       </template>
     </ResearchPageHeader>
@@ -462,6 +477,9 @@ const exportCsv = () => {
         @click="mode = 'projection'"
       >
         {{ key('projectionTab') }}
+      </button>
+      <button type="button" role="tab" :aria-selected="mode === 'brands'" @click="mode = 'brands'">
+        {{ key('brandsTab') }}
       </button>
     </div>
 
@@ -587,7 +605,7 @@ const exportCsv = () => {
         </div>
       </section>
     </div>
-    <div v-else>
+    <div v-else-if="mode === 'projection'">
       <section class="panel controls" :aria-label="key('scenario')">
         <label
           >{{ key('scenario') }}
@@ -761,6 +779,7 @@ const exportCsv = () => {
         </div>
       </section>
     </div>
+    <ChinaForeignBrands v-else />
   </main>
 </template>
 
@@ -818,6 +837,7 @@ const exportCsv = () => {
 }
 .mode-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin: 18px 0;
 }
