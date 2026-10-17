@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-17T18:18:17.432Z",
+  "updatedAt": "2026-10-17T20:51:06.274Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -37,6 +37,22 @@
   ],
   "articles": [
     {
+      "id": "50ffba9c93137659",
+      "title": "Trump waives broad new Russia sanctions, Zelenskyy condemns it as 'wrong'",
+      "url": "https://www.cnbc.com/2026/10/17/trump-waives-russia-related-sanctions-tariffs-before-they-take-effect-.html",
+      "publishedAt": "2026-10-17T19:35:18.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "high",
+      "impactScore": 4,
+      "affectedAssets": [],
+      "translatedTitle": "特朗普放弃对俄罗斯的广泛新制裁，泽伦斯基谴责这是“错误的”",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "da1157992e09708b",
       "title": "Semiconductor market to remain solid ‘at least through next year,’ South Korea finance minister says",
       "url": "https://www.cnbc.com/2026/10/17/south-korea-semiconductor-outlook-lee-hyoung-il.html",
@@ -46,7 +62,7 @@
       "category": "technology",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [],
       "translatedTitle": "韩国财政部长表示，半导体市场将“至少在明年之前”保持稳定",
       "translationStatus": "translated",
@@ -62,7 +78,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "投资者正在购买美国各地的大片林地，这是市场上最长期的押注之一",
       "translationStatus": "translated",
@@ -167,22 +183,6 @@
         "美股"
       ],
       "translatedTitle": "伯克希尔哈撒韦股价下跌，反弹至自巴菲特表示将辞去首席执行官职务以来的最高水平",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "50ffba9c93137659",
-      "title": "Trump waives broad new Russia sanctions and tariffs under Graham Act, citing national interest",
-      "url": "https://www.cnbc.com/2026/10/17/trump-waives-russia-related-sanctions-tariffs-before-they-take-effect-.html",
-      "publishedAt": "2026-10-17T10:20:44.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "geopolitics",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 3,
-      "affectedAssets": [],
-      "translatedTitle": "特朗普以国家利益为由，根据《格雷厄姆法案》放弃对俄罗斯的广泛新制裁和关税",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
