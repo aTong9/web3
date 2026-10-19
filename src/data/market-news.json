@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-19T01:49:56.006Z",
+  "updatedAt": "2026-10-19T07:30:36.007Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -37,10 +37,60 @@
   ],
   "articles": [
     {
+      "id": "bfe2fee56f83b398",
+      "title": "OpenAI bugging suspect WhatsApp'ed Saudi royal days before arrest, feds reveal",
+      "url": "https://www.cnbc.com/2026/10/19/openai-bugging-suspect-alfozan-saudi-royal-family.html",
+      "publishedAt": "2026-10-19T06:06:58.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "联邦调查局透露， OpenAI窃听嫌疑人WhatsApp在被捕前几天窃听沙特王室",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "69afe8bb3edd9dc9",
+      "title": "Frank Elderson: From climate and nature risks to economic resilience and competitiveness",
+      "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp261019~f0a3e053de.en.html",
+      "publishedAt": "2026-10-19T06:00:00.000Z",
+      "source": "欧洲央行",
+      "sourceType": "official",
+      "category": "macro",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [],
+      "translatedTitle": "弗兰克·埃尔德森：从气候和自然风险到经济韧性和竞争力",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "ff6ea305cb46e0e2",
+      "title": "Japanese Prime Minister Takaichi rejects criticism around weak yen and high interest rates",
+      "url": "https://www.cnbc.com/2026/10/19/takaichi-weak-yen-jgb-yields.html",
+      "publishedAt": "2026-10-19T05:29:51.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 2,
+      "affectedAssets": [
+        "债券"
+      ],
+      "translatedTitle": "日本首相高市驳斥对日元疲软和高利率的批评",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "148eef8540963ed7",
-      "title": "India’s Finance Minister blames easy exits and excess liquidity for equity market's underperformance",
+      "title": "India’s Finance Minister says easy exits and excess liquidity fuel equity market's underperformance",
       "url": "https://www.cnbc.com/2026/10/18/india-ai-nifty50-sensex-investors.html",
-      "publishedAt": "2026-10-18T23:00:01.000Z",
+      "publishedAt": "2026-10-19T04:46:26.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "macro",
@@ -48,7 +98,94 @@
       "impact": "low",
       "impactScore": 0,
       "affectedAssets": [],
-      "translatedTitle": "印度财政部长将股市表现不佳归咎于轻松退出和流动性过剩",
+      "translatedTitle": "印度财政部长表示，轻松退出和流动性过剩助推股票市场表现不佳",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "85c90de902e4ecd7",
+      "title": "China's third-quarter economic growth quickens to 4.5% as exports surge, beating estimates",
+      "url": "https://www.cnbc.com/2026/10/19/chinas-economic-growth-quickens-to-4point6percent-as-exports-surge-stimulus-rolls-out.html",
+      "publishedAt": "2026-10-19T04:36:39.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [
+        "A股"
+      ],
+      "translatedTitle": "随着出口激增，中国第三季度经济增长加快至4.5% ，超过预期",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "18bdff4528f9731e",
+      "title": "Putin reportedly suggests summit with Trump and Xi to decide fate of Ukraine",
+      "url": "https://www.cnbc.com/2026/10/19/putin-trump-xi-ukraine-war-energy.html",
+      "publishedAt": "2026-10-19T03:56:03.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "据报道，普京建议与特朗普和习近平举行峰会，以决定乌克兰的命运",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "107c10422724bc00",
+      "title": "France hit by worst unrest in years as attempts to rein in government spending meet citizen ire",
+      "url": "https://www.cnbc.com/2026/10/19/france-protests-worst-in-years-unrest-macron-.html",
+      "publishedAt": "2026-10-19T03:18:51.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "法国遭遇多年来最严重的骚乱，试图控制政府支出令公民愤怒",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "408f28a6e7d9c3ef",
+      "title": "Indonesian stocks plunge to six-year low as MSCI downgrade fears mount",
+      "url": "https://www.cnbc.com/2026/10/19/indonesian-stocks-msci-downgrade-fears-mount.html",
+      "publishedAt": "2026-10-19T03:00:33.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "随着MSCI下调评级担忧加剧，印尼股市跌至六年低点",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "177821c4aacab692",
+      "title": "China's CXMT sees shares drop over 6% as investors look past chipmaker's profit turnaround",
+      "url": "https://www.cnbc.com/2026/10/19/china-cxmt-profit-outlook-shares.html",
+      "publishedAt": "2026-10-19T01:56:34.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [
+        "A股",
+        "美股"
+      ],
+      "translatedTitle": "中国的CXMT预计股价下跌超过6 ％ ，因为投资者将目光投向芯片制造商的利润转变",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -313,22 +450,6 @@
         "美股"
       ],
       "translatedTitle": "伯克希尔哈撒韦股价下跌，反弹至自巴菲特表示将辞去首席执行官职务以来的最高水平",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "e545c030814a8792",
-      "title": "Christine Lagarde: IMFC Statement",
-      "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp261017~7015ea3099.en.html",
-      "publishedAt": "2026-10-17T05:00:00.000Z",
-      "source": "欧洲央行",
-      "sourceType": "official",
-      "category": "macro",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [],
-      "translatedTitle": "Christine Lagarde ： IMFC声明",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     }
