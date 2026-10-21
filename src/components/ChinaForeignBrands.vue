@@ -38,33 +38,58 @@ const visibleBrands = computed(() => {
   )
 })
 const shownBrands = computed(() => visibleBrands.value.slice(0, shownCount.value))
+const categoryCount = (value: string) =>
+  value === 'all' ? brands.length : brands.filter((brand) => brand.category === value).length
 watch([category, query], () => {
   shownCount.value = 12
 })
+const clearFilters = () => {
+  category.value = 'all'
+  query.value = ''
+}
 </script>
 
 <template>
   <section class="brand-observer" :aria-label="key('brandsTab')">
-    <div class="intro panel">
-      <div>
-        <h2>{{ key('brandsHeading') }}</h2>
-        <p>{{ key('brandsIntro') }}</p>
+    <div class="intro">
+      <div class="summary">
+        <span
+          ><strong>{{ brands.length }}</strong> {{ key('brandsCount') }}</span
+        >
+        <span
+          ><strong>{{ categories.length - 1 }}</strong> {{ key('brandsCategoriesCount') }}</span
+        >
       </div>
-      <span>{{ key('brandsCount') }} · {{ brands.length }}</span>
     </div>
     <div class="filters panel">
-      <label>
-        {{ key('brandsCategory') }}
-        <select v-model="category">
-          <option v-for="value in categories" :key="value" :value="value">
-            {{ key(`brandsCategory_${value}`) }}
-          </option>
-        </select>
-      </label>
-      <label>
-        {{ key('brandsSearch') }}
-        <input v-model="query" type="search" :placeholder="key('brandsSearchHint')" />
-      </label>
+      <div class="search-row">
+        <label>
+          {{ key('brandsSearch') }}
+          <input v-model="query" type="search" :placeholder="key('brandsSearchHint')" />
+        </label>
+        <button
+          v-if="category !== 'all' || query"
+          class="clear"
+          type="button"
+          @click="clearFilters"
+        >
+          {{ key('brandsClear') }}
+        </button>
+      </div>
+      <div class="category-filter">
+        <p>{{ key('brandsCategory') }}</p>
+        <div class="category-list" role="group" :aria-label="key('brandsCategory')">
+          <button
+            v-for="value in categories"
+            :key="value"
+            type="button"
+            :aria-pressed="category === value"
+            @click="category = value"
+          >
+            {{ key(`brandsCategory_${value}`) }} <span>{{ categoryCount(value) }}</span>
+          </button>
+        </div>
+      </div>
     </div>
     <p class="result-count" role="status">
       {{
@@ -86,29 +111,37 @@ watch([category, query], () => {
             >{{ key('brandsWebsite') }} ↗</a
           >
         </div>
-        <dl>
-          <dt>{{ key('brandsOrigin') }}</dt>
-          <dd>{{ locale === 'zh' ? brand.originZh : brand.originEn }}</dd>
-          <dt>{{ key('brandsLayout') }}</dt>
-          <dd>{{ locale === 'zh' ? brand.layoutZh : brand.layoutEn }}</dd>
-          <dt>{{ key('brandsFit') }}</dt>
-          <dd>{{ locale === 'zh' ? brand.fitZh : brand.fitEn }}</dd>
-        </dl>
-        <div class="card-sources">
-          <span>{{ key('brandsSources') }}</span>
-          <a
-            v-for="source in brand.sources"
-            :key="source.url"
-            :href="source.url"
-            target="_blank"
-            rel="noopener noreferrer"
-            >{{ source.label }} ↗</a
-          >
+        <div class="layout">
+          <span>{{ key('brandsLayout') }}</span>
+          <p>{{ locale === 'zh' ? brand.layoutZh : brand.layoutEn }}</p>
         </div>
-        <small class="checked">{{ key('brandsChecked') }}: {{ brand.checkedAt }}</small>
+        <details>
+          <summary>{{ key('brandsDetails') }}</summary>
+          <dl>
+            <dt>{{ key('brandsOrigin') }}</dt>
+            <dd>{{ locale === 'zh' ? brand.originZh : brand.originEn }}</dd>
+            <dt>{{ key('brandsFit') }}</dt>
+            <dd>{{ locale === 'zh' ? brand.fitZh : brand.fitEn }}</dd>
+          </dl>
+          <div class="card-sources">
+            <span>{{ key('brandsSources') }}</span>
+            <a
+              v-for="source in brand.sources"
+              :key="source.url"
+              :href="source.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              >{{ source.label }} ↗</a
+            >
+          </div>
+        </details>
+        <small class="checked">{{ key('brandsChecked') }} · {{ brand.checkedAt }}</small>
       </article>
     </div>
-    <p v-else class="empty panel">{{ key('brandsEmpty') }}</p>
+    <div v-else class="empty panel">
+      <p>{{ key('brandsEmpty') }}</p>
+      <button type="button" @click="clearFilters">{{ key('brandsClear') }}</button>
+    </div>
     <button
       v-if="shownCount < visibleBrands.length"
       class="load-more"
@@ -133,48 +166,63 @@ watch([category, query], () => {
   background: var(--surface);
   box-shadow: var(--shadow);
 }
-.intro,
 .brand-top {
   display: flex;
   justify-content: space-between;
   align-items: start;
   gap: 20px;
 }
-.intro h2,
 .brand-card h3 {
   margin: 0;
 }
-.intro p,
 .boundary,
 .result-count,
 .brand-card small,
 .card-sources span {
   color: var(--muted);
 }
-.intro p,
 .boundary {
   line-height: 1.6;
 }
-.intro > span {
-  color: var(--accent);
+.intro {
+  margin-bottom: 12px;
+}
+.summary {
+  display: flex;
+  flex-shrink: 0;
+  gap: 20px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.summary span {
   white-space: nowrap;
 }
+.summary strong {
+  display: block;
+  color: var(--ink);
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
 .filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
   margin-top: 18px;
 }
-.filters label {
+.search-row {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+}
+.search-row label {
   display: grid;
   gap: 7px;
-  min-width: min(100%, 220px);
   flex: 1;
+  min-width: 0;
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
 }
-select,
 input {
   width: 100%;
   min-height: var(--control-height);
@@ -185,9 +233,48 @@ input {
   color: var(--ink);
   font: inherit;
 }
+.category-filter p {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
+}
+.category-list button,
+.clear,
+.empty button {
+  min-height: 36px;
+  padding: 6px 11px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-elevated);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.category-list button[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.category-list span {
+  margin-left: 4px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.clear,
+.empty button {
+  color: var(--accent);
+}
 .result-count {
   margin: 14px 0;
   font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 .brand-grid {
   display: grid;
@@ -197,6 +284,7 @@ input {
 .brand-card {
   display: flex;
   flex-direction: column;
+  gap: 14px;
 }
 .category {
   color: var(--accent);
@@ -214,15 +302,35 @@ input {
 .brand-top a {
   flex-shrink: 0;
   font-size: 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 8px 10px;
+  text-decoration: none;
 }
-dl {
-  margin: 18px 0;
-}
+.layout span,
 dt {
-  margin-top: 13px;
   color: var(--muted);
   font-size: 11px;
   font-weight: 700;
+}
+.layout p {
+  margin: 5px 0 0;
+  line-height: 1.55;
+}
+details {
+  border-top: 1px solid var(--border);
+  padding-top: 11px;
+}
+summary {
+  color: var(--accent);
+  font-size: 12px;
+  cursor: pointer;
+}
+dl {
+  margin: 12px 0;
+}
+dt {
+  margin-top: 13px;
 }
 dd {
   margin: 5px 0 0;
@@ -232,12 +340,12 @@ dd {
   display: flex;
   flex-wrap: wrap;
   gap: 7px 12px;
-  margin-top: auto;
   font-size: 11px;
 }
 .checked {
   display: block;
-  margin-top: 14px;
+  margin-top: auto;
+  font-variant-numeric: tabular-nums;
 }
 .boundary {
   margin: 18px 0 0;
@@ -245,6 +353,9 @@ dd {
 }
 .empty {
   color: var(--muted);
+}
+.empty p {
+  margin-top: 0;
 }
 .load-more {
   display: block;
@@ -264,6 +375,17 @@ dd {
   }
   .intro {
     flex-wrap: wrap;
+  }
+  .category-list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .category-list button {
+    flex-shrink: 0;
+  }
+  .brand-top {
+    gap: 10px;
   }
 }
 </style>

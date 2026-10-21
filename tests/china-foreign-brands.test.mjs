@@ -19,7 +19,7 @@ test('foreign brand cards have unique ids, bilingual copy and official links', (
     'hospitality',
     'leisure',
   ])
-  assert.ok(brands.length >= 125, 'retain the original 25 and add at least 100 brands')
+  assert.ok(brands.length >= 434, 'retain the existing 234 and add at least 200 brands')
   assert.equal(new Set(brands.map(({ id }) => id)).size, brands.length)
   assert.equal(new Set(brands.map(({ nameEn }) => nameEn.toLowerCase())).size, brands.length)
   for (const id of ['tesla', 'sams', 'costco', 'ikea', 'decathlon', 'uniqlo', 'apple']) {

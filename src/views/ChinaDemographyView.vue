@@ -417,9 +417,9 @@ const exportCsv = () => {
   <main class="demography-page">
     <ResearchPageHeader
       density="workbench"
-      :eyebrow="key('eyebrow')"
-      :title="key('title')"
-      :description="key('description')"
+      :eyebrow="mode === 'brands' ? key('title') : key('eyebrow')"
+      :title="mode === 'brands' ? key('brandsHeading') : key('title')"
+      :description="mode === 'brands' ? key('brandsIntro') : key('description')"
     >
       <template #meta>
         <div v-if="mode !== 'brands'" class="hero-meta">
@@ -430,33 +430,19 @@ const exportCsv = () => {
           <a :href="anchorData.sources.nbs2025" target="_blank" rel="noopener noreferrer">NBS ↗</a>
         </div>
       </template>
-      <template #status>
+      <template v-if="mode !== 'brands'" #status>
         <div class="hero-status">
-          <small>{{
-            mode === 'history'
-              ? key('historyStatus')
-              : mode === 'brands'
-                ? key('brandsStatus')
-                : key('projection')
-          }}</small>
+          <small>{{ mode === 'history' ? key('historyStatus') : key('projection') }}</small>
           <strong>{{
             mode === 'history'
               ? key('historyStatusStrong')
-              : mode === 'brands'
-                ? key('brandsStatusStrong')
-                : scenario === 'low'
-                  ? key('low')
-                  : scenario === 'high'
-                    ? key('high')
-                    : key('medium')
+              : scenario === 'low'
+                ? key('low')
+                : scenario === 'high'
+                  ? key('high')
+                  : key('medium')
           }}</strong>
-          <span>{{
-            mode === 'history'
-              ? key('historyStatusNote')
-              : mode === 'brands'
-                ? key('brandsStatusNote')
-                : key('longHorizon')
-          }}</span>
+          <span>{{ mode === 'history' ? key('historyStatusNote') : key('longHorizon') }}</span>
         </div>
       </template>
     </ResearchPageHeader>
