@@ -92,7 +92,7 @@ export const researchAssets: ResearchAsset[] = [
       date: megaCaps.updatedAt.slice(0, 10),
       source: 'Nasdaq',
       sourceUrl: stock.url,
-      stale: false,
+      stale: megaCaps.status !== 'ok',
       newsQuery: stock.symbol,
       technicalId: chartIds.has(id) ? id : null,
     }

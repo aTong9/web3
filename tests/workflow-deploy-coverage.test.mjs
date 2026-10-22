@@ -67,3 +67,25 @@ test('Reddit source failure preserves and validates fallback before reporting fa
   assert.match(deploy.jobs.build.if, /workflow_run.name == 'Update Reddit monitor'/)
   assert.match(deploy.jobs.build.if, /workflow_run.conclusion == 'failure'/)
 })
+
+test('fund workflows commit validated primary data before mixed-source projection can fail', async () => {
+  for (const filename of ['update-us-funds.yml', 'update-a-share-sectors.yml']) {
+    const workflow = await readWorkflow(filename)
+    const steps = workflow.jobs.update.steps
+    const primaryValidation = steps.findIndex(
+      (step) => step.name === 'Validate freshness and completeness',
+    )
+    const commit = steps.findIndex((step) => step.name === 'Commit primary snapshot')
+    const projection = steps.findIndex((step) => step.id === 'projection')
+    assert.ok(primaryValidation >= 0 && primaryValidation < commit && commit < projection)
+    assert.equal(steps[projection]['continue-on-error'], true)
+    assert.match(steps[projection].run, /validate:data:technical-funds/)
+    const publish = steps.find((step) => step.name === 'Commit technical projection')
+    assert.equal(publish.if, "steps.projection.outcome == 'success'")
+    const failure = steps.find((step) => step.if === "steps.projection.outcome == 'failure'")
+    assert.match(failure.run, /exit 1/)
+  }
+  const deploy = await readWorkflow('deploy.yml')
+  assert.match(deploy.jobs.build.if, /Update US fund data/)
+  assert.match(deploy.jobs.build.if, /Update A-share sector data/)
+})

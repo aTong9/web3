@@ -47,7 +47,11 @@ const fetchText = async (url) => {
 }
 
 const numberFrom = (value) => {
-  const parsed = Number(String(value ?? '').replace(/[$,%+,]/g, ''))
+  const normalized = String(value ?? '')
+    .replace(/[$,%+,]/g, '')
+    .trim()
+  if (!normalized) return null
+  const parsed = Number(normalized)
   return Number.isFinite(parsed) ? parsed : null
 }
 const round = (value, digits = 2) => {
@@ -114,15 +118,14 @@ const fetchValuation = async (symbol) => {
   const today = new Date()
   today.setUTCHours(0, 0, 0, 0)
   return {
-    trailingPe:
-      numberFrom(trailingMatch?.[1]) > 0 ? round(numberFrom(trailingMatch?.[1])) : null,
+    trailingPe: numberFrom(trailingMatch?.[1]) > 0 ? round(numberFrom(trailingMatch?.[1])) : null,
     forwardPe: numberFrom(forwardMatch?.[1]) > 0 ? round(numberFrom(forwardMatch?.[1])) : null,
     nextEarningsDate:
       earningsDate && earningsDate >= today ? earningsDate.toISOString().slice(0, 10) : null,
   }
 }
 
-const fetchEarnings = async (symbol) => {
+export const fetchEarnings = async (symbol) => {
   const [surpriseText, forecastText] = await Promise.all([
     fetchText(`https://api.nasdaq.com/api/company/${symbol}/earnings-surprise`),
     fetchText(`https://api.nasdaq.com/api/analyst/${symbol}/earnings-forecast`),
@@ -173,87 +176,92 @@ const fetchHistoricalMedian = async (symbol) => {
   }
 }
 
-const previous = await loadPrevious()
+async function updateUsMegaCaps() {
+  const previous = await loadPrevious()
 
-try {
-  const largest = await fetchLargestStocks()
-  const stocks = []
-  for (const item of largest) {
-    const previousStock = previous?.stocks?.find((stock) => stock.symbol === item.symbol)
-    const [valuationResult, historyResult, earningsResult] = await Promise.allSettled([
-      fetchValuation(item.symbol),
-      fetchHistoricalMedian(item.symbol),
-      fetchEarnings(item.symbol),
-    ])
-    const valuation =
-      valuationResult.status === 'fulfilled'
-        ? valuationResult.value
-        : {
-            trailingPe: previousStock?.trailingPe ?? null,
-            forwardPe: previousStock?.forwardPe ?? null,
-            nextEarningsDate: previousStock?.earnings?.nextEarningsDate ?? null,
-          }
-    const history =
-      historyResult.status === 'fulfilled'
-        ? historyResult.value
-        : {
-            historicalPeMedian5y: previousStock?.historicalPeMedian5y ?? null,
-            historicalYears: previousStock?.historicalYears ?? [],
-          }
-    const earnings =
-      earningsResult.status === 'fulfilled'
-        ? earningsResult.value
-        : {
-            lastReportedDate: previousStock?.earnings?.lastReportedDate ?? null,
-            lastFiscalQuarter: previousStock?.earnings?.lastFiscalQuarter ?? null,
-            lastActualEps: previousStock?.earnings?.lastActualEps ?? null,
-            lastConsensusEps: previousStock?.earnings?.lastConsensusEps ?? null,
-            lastSurprisePct: previousStock?.earnings?.lastSurprisePct ?? null,
-            lastResultReliable: previousStock?.earnings?.lastResultReliable ?? false,
-            positiveSurpriseStreak: previousStock?.earnings?.positiveSurpriseStreak ?? 0,
-            nextFiscalQuarter: previousStock?.earnings?.nextFiscalQuarter ?? null,
-            nextConsensusEps: previousStock?.earnings?.nextConsensusEps ?? null,
-            nextHighEps: previousStock?.earnings?.nextHighEps ?? null,
-            nextLowEps: previousStock?.earnings?.nextLowEps ?? null,
-            estimateCount: previousStock?.earnings?.estimateCount ?? null,
-            revisionsUp: previousStock?.earnings?.revisionsUp ?? null,
-            revisionsDown: previousStock?.earnings?.revisionsDown ?? null,
-            annualFiscalEnd: previousStock?.earnings?.annualFiscalEnd ?? null,
-            annualConsensusEps: previousStock?.earnings?.annualConsensusEps ?? null,
-          }
-    const { nextEarningsDate, ...valuationMetrics } = valuation
-    stocks.push({
-      marketCapRank: stocks.length + 1,
-      symbol: item.symbol,
-      name: item.name.replace(/ Class [A-Z] Common Stock$/i, '').replace(/ Common Stock$/i, ''),
-      marketCapUsd: round(numberFrom(item.marketCap), 0),
-      price: round(numberFrom(item.lastsale)),
-      ...valuationMetrics,
-      ...history,
-      earnings: { nextEarningsDate, ...earnings },
-      url: `https://www.nasdaq.com/market-activity/stocks/${item.symbol.toLowerCase()}`,
+  try {
+    const largest = await fetchLargestStocks()
+    const stocks = []
+    for (const item of largest) {
+      const previousStock = previous?.stocks?.find((stock) => stock.symbol === item.symbol)
+      const [valuationResult, historyResult, earningsResult] = await Promise.allSettled([
+        fetchValuation(item.symbol),
+        fetchHistoricalMedian(item.symbol),
+        fetchEarnings(item.symbol),
+      ])
+      const valuation =
+        valuationResult.status === 'fulfilled'
+          ? valuationResult.value
+          : {
+              trailingPe: previousStock?.trailingPe ?? null,
+              forwardPe: previousStock?.forwardPe ?? null,
+              nextEarningsDate: previousStock?.earnings?.nextEarningsDate ?? null,
+            }
+      const history =
+        historyResult.status === 'fulfilled'
+          ? historyResult.value
+          : {
+              historicalPeMedian5y: previousStock?.historicalPeMedian5y ?? null,
+              historicalYears: previousStock?.historicalYears ?? [],
+            }
+      const earnings =
+        earningsResult.status === 'fulfilled'
+          ? earningsResult.value
+          : {
+              lastReportedDate: previousStock?.earnings?.lastReportedDate ?? null,
+              lastFiscalQuarter: previousStock?.earnings?.lastFiscalQuarter ?? null,
+              lastActualEps: previousStock?.earnings?.lastActualEps ?? null,
+              lastConsensusEps: previousStock?.earnings?.lastConsensusEps ?? null,
+              lastSurprisePct: previousStock?.earnings?.lastSurprisePct ?? null,
+              lastResultReliable: previousStock?.earnings?.lastResultReliable ?? false,
+              positiveSurpriseStreak: previousStock?.earnings?.positiveSurpriseStreak ?? 0,
+              nextFiscalQuarter: previousStock?.earnings?.nextFiscalQuarter ?? null,
+              nextConsensusEps: previousStock?.earnings?.nextConsensusEps ?? null,
+              nextHighEps: previousStock?.earnings?.nextHighEps ?? null,
+              nextLowEps: previousStock?.earnings?.nextLowEps ?? null,
+              estimateCount: previousStock?.earnings?.estimateCount ?? null,
+              revisionsUp: previousStock?.earnings?.revisionsUp ?? null,
+              revisionsDown: previousStock?.earnings?.revisionsDown ?? null,
+              annualFiscalEnd: previousStock?.earnings?.annualFiscalEnd ?? null,
+              annualConsensusEps: previousStock?.earnings?.annualConsensusEps ?? null,
+            }
+      const { nextEarningsDate, ...valuationMetrics } = valuation
+      stocks.push({
+        marketCapRank: stocks.length + 1,
+        symbol: item.symbol,
+        name: item.name.replace(/ Class [A-Z] Common Stock$/i, '').replace(/ Common Stock$/i, ''),
+        marketCapUsd: round(numberFrom(item.marketCap), 0),
+        price: round(numberFrom(item.lastsale)),
+        ...valuationMetrics,
+        ...history,
+        earnings: { nextEarningsDate, ...earnings },
+        url: `https://www.nasdaq.com/market-activity/stocks/${item.symbol.toLowerCase()}`,
+      })
+    }
+    const output = {
+      updatedAt: new Date().toISOString(),
+      status: 'ok',
+      methodology:
+        'Nasdaq全市场普通股筛选市值大于1万亿美元的公司，按市值降序排列；当前价、Forward PE和已公布财报日期来自StockAnalysis；长期PE为CompaniesMarketCap最近5个可用年度正PE的中位数；财报结果、EPS预期和近4周修正来自Nasdaq。',
+      sources: [
+        { name: 'Nasdaq', url: 'https://www.nasdaq.com/market-activity/stocks/screener' },
+        { name: 'StockAnalysis', url: 'https://stockanalysis.com/stocks/' },
+        { name: 'CompaniesMarketCap', url: 'https://companiesmarketcap.com/' },
+      ],
+      stocks,
+    }
+    await writeJsonAtomic(outputPath, output)
+    process.stdout.write(`wrote ${stocks.length} US mega-cap valuations\n`)
+  } catch (error) {
+    if (!previous) throw error
+    await writeJsonAtomic(outputPath, {
+      ...previous,
+      status: 'stale',
+      statusMessage: `本次更新失败，保留上次数据：${error.message}`,
     })
+    process.stdout.write(`kept previous US mega-cap data: ${error.message}\n`)
   }
-  const output = {
-    updatedAt: new Date().toISOString(),
-    status: 'ok',
-    methodology:
-      'Nasdaq全市场普通股筛选市值大于1万亿美元的公司，按市值降序排列；当前价、Forward PE和已公布财报日期来自StockAnalysis；长期PE为CompaniesMarketCap最近5个可用年度正PE的中位数；财报结果、EPS预期和近4周修正来自Nasdaq。',
-    sources: [
-      { name: 'Nasdaq', url: 'https://www.nasdaq.com/market-activity/stocks/screener' },
-      { name: 'StockAnalysis', url: 'https://stockanalysis.com/stocks/' },
-      { name: 'CompaniesMarketCap', url: 'https://companiesmarketcap.com/' },
-    ],
-    stocks,
-  }
-  await writeJsonAtomic(outputPath, output)
-  process.stdout.write(`wrote ${stocks.length} US mega-cap valuations\n`)
-} catch (error) {
-  if (!previous) throw error
-  await writeJsonAtomic(outputPath, {
-    ...previous,
-    status: 'stale',
-    statusMessage: `本次更新失败，保留上次数据：${error.message}`,
-  })
-  process.stdout.write(`kept previous US mega-cap data: ${error.message}\n`)
 }
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url))
+  await updateUsMegaCaps()
