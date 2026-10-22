@@ -157,7 +157,16 @@ test('research catalog has unique IDs, real technical charts and same-instrument
   })) {
     assert.equal(researchAssets.find((asset) => asset.id === id)?.quoteSymbol, symbol, id)
   }
-  assert.equal(researchAssets.find((asset) => asset.symbol === 'BRK/A')?.quoteSymbol, 'BRK-A')
+  const megaCaps = JSON.parse(
+    readFileSync(new URL('../src/data/us-megacaps.json', import.meta.url), 'utf8'),
+  )
+  for (const stock of megaCaps.stocks) {
+    assert.equal(
+      researchAssets.find((asset) => asset.symbol === stock.symbol)?.quoteSymbol,
+      stock.symbol.replace('/', '-'),
+      stock.symbol,
+    )
+  }
 })
 
 test('review dates are real local calendar dates and only active notes can become due', () => {
