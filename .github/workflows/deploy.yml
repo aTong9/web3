@@ -28,7 +28,12 @@ concurrency:
 
 jobs:
   build:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    # Reddit failures still commit a validated stale snapshot for the UI.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success' ||
+      (github.event.workflow_run.name == 'Update Reddit monitor' &&
+       github.event.workflow_run.conclusion == 'failure')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

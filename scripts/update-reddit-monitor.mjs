@@ -8,7 +8,11 @@ const output = resolve(root, 'src/data/reddit-monitor.json')
 const fetchJson = async (url, options = {}) => {
   const response = await fetch(url, { ...options, signal: AbortSignal.timeout(20_000) })
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
-  return response.json()
+  try {
+    return await response.json()
+  } catch {
+    throw new Error('上游返回非 JSON 数据')
+  }
 }
 const nonnegative = (value) =>
   value !== null && value !== '' && Number.isFinite(Number(value)) && Number(value) >= 0
@@ -49,35 +53,41 @@ export const normalizeMentions = (payload, market) => {
   }))
 }
 
-export async function updateRedditMonitor() {
-  const previous = await readFile(output, 'utf8')
+export async function updateRedditMonitor(outputPath = output) {
+  const previous = await readFile(outputPath, 'utf8')
     .then(JSON.parse)
     .catch(() => ({ markets: {} }))
   const now = new Date().toISOString()
   const markets = {}
+  let failed = false
   for (const key of ['us', 'crypto']) {
     const sourceUrl = `https://apewisdom.io/api/v1.0/filter/all-${key === 'us' ? 'stocks' : 'crypto'}`
     try {
       const result = { rows: normalizeMentions(await fetchJson(sourceUrl), key) }
       markets[key] = { ...result, status: 'ok', updatedAt: now, sourceUrl, message: '' }
-    } catch {
+    } catch (error) {
+      failed = true
+      const reason = error instanceof Error ? error.message : '采集异常'
       const old = previous.markets[key]
       markets[key] = {
         rows: old?.rows ?? [],
         updatedAt: old?.updatedAt ?? null,
         sourceUrl,
         status: old?.rows?.length ? 'stale' : 'unavailable',
-        message: '本次采集失败，保留上次快照。',
+        message: `本次采集失败（${reason}），${old?.rows?.length ? '保留上次快照' : '暂无可用快照'}。`,
       }
-      console.warn(`${key}: source unavailable`)
+      console.warn(`${key}: source unavailable (${reason})`)
     }
   }
-  await writeJsonAtomic(output, { updatedAt: now, markets })
+  await writeJsonAtomic(outputPath, { updatedAt: now, markets })
   console.log(
     Object.entries(markets)
       .map(([key, value]) => `${key}: ${value.status}, ${value.rows.length}`)
       .join('\n'),
   )
+  return { failed }
 }
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url))
-  await updateRedditMonitor()
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const { failed } = await updateRedditMonitor()
+  if (failed) process.exitCode = 1
+}

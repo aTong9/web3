@@ -50,3 +50,20 @@ test('Electron packaging waits for tests, lint and a production build', async ()
     'npm run build',
   ])
 })
+
+test('Reddit source failure preserves and validates fallback before reporting failure and redeploying', async () => {
+  const update = await readWorkflow('update-reddit-monitor.yml')
+  const steps = update.jobs.update.steps
+  const collectIndex = steps.findIndex((step) => step.id === 'collect')
+  const testIndex = steps.findIndex(
+    (step) => step.run === 'node --test tests/reddit-monitor.test.mjs',
+  )
+  const commitIndex = steps.findIndex((step) => step.name === 'Commit snapshot')
+  const reportIndex = steps.findIndex((step) => step.if === "steps.collect.outcome == 'failure'")
+  assert.equal(steps[collectIndex]['continue-on-error'], true)
+  assert.ok(collectIndex < testIndex && testIndex < commitIndex && commitIndex < reportIndex)
+  assert.match(steps[reportIndex].run, /exit 1/)
+  const deploy = await readWorkflow('deploy.yml')
+  assert.match(deploy.jobs.build.if, /workflow_run.name == 'Update Reddit monitor'/)
+  assert.match(deploy.jobs.build.if, /workflow_run.conclusion == 'failure'/)
+})
