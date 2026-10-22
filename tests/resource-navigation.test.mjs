@@ -6,7 +6,21 @@ import { createJiti } from 'jiti'
 import { createServer } from 'vite'
 
 const jiti = createJiti(import.meta.url)
-const { createResourceMatcher, parseResourceFavorites } = jiti('../src/utils/resource-search.ts')
+const { createResourceMatcher, getLanguagePurpose, parseResourceFavorites } = jiti(
+  '../src/utils/resource-search.ts',
+)
+
+test('language categories map to one of the four purpose filters', () => {
+  const catalog = load(readFileSync('src/data/webstack.yml', 'utf8'))
+  const purposes = new Set(['课程与练习', '考试与证书', '居留与移民', '子女国籍与家庭身份'])
+  const languageTerms = catalog
+    .flatMap((taxonomy) => taxonomy.list)
+    .filter(({ term }) => term.startsWith('语言学习 · '))
+  assert.ok(languageTerms.length > 0)
+  assert.deepEqual(new Set(languageTerms.map(({ term }) => getLanguagePurpose(term))), purposes)
+  assert.ok(languageTerms.every(({ term }) => term.split(' · ').length === 3))
+  assert.equal(getLanguagePurpose('终身成长 · 阅读'), undefined)
+})
 
 test('resource search combines fields, normalizes full-width input and requires every keyword', () => {
   const matches = createResourceMatcher('  ＦＲＥＤ　 宏观  ')
@@ -50,7 +64,10 @@ test('resource catalog has unique categories and URLs with complete, safe entrie
       assert.ok(Array.isArray(links) && links.length > 0, term)
       for (const link of links) {
         assert.ok(typeof link.title === 'string' && link.title.trim(), term)
-        assert.ok(link.description === undefined || typeof link.description === 'string', link.title)
+        assert.ok(
+          link.description === undefined || typeof link.description === 'string',
+          link.title,
+        )
         assert.equal(typeof link.logo, 'string', link.title)
         const url = new URL(link.url)
         assert.ok(['https:', 'http:'].includes(url.protocol), link.title)

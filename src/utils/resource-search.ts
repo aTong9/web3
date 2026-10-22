@@ -1,5 +1,8 @@
 const normalize = (value: string) => value.normalize('NFKC').toLocaleLowerCase()
 
+export const getLanguagePurpose = (term: string) =>
+  term.startsWith('语言学习 · ') ? term.split(' · ')[1] : undefined
+
 // Words may match different fields, e.g. a category plus a site name.
 export const createResourceMatcher = (query: string) => {
   const words = normalize(query).trim().split(/\s+/).filter(Boolean)

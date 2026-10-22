@@ -4,7 +4,11 @@ import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, watch } fr
 import { navigationData } from '@/utils/data'
 import type { LifelongBookCatalog, NavLink, NavTerm } from '@/types'
 import { useI18n } from '@/composables/use-i18n'
-import { createResourceMatcher, parseResourceFavorites } from '@/utils/resource-search'
+import {
+  createResourceMatcher,
+  getLanguagePurpose,
+  parseResourceFavorites,
+} from '@/utils/resource-search'
 import bookCatalogUrl from '@/data/lifelong-books.json?url'
 
 const FAVORITES_KEY = 'finance-desk-favorites'
@@ -14,6 +18,7 @@ const ACTIVE_ALL_TERM = 'all'
 const ACTIVE_OVERVIEW_GROUP = 'overview'
 const activeTerm = ref(ACTIVE_ALL_TERM)
 const activeGroup = ref(ACTIVE_OVERVIEW_GROUP)
+const activeLanguagePurpose = ref('')
 const expandedCategories = ref(false)
 const favoritesOnly = ref(false)
 const favoriteUrls = ref<string[]>([])
@@ -24,6 +29,7 @@ const booksLoading = ref(false)
 const booksError = ref(false)
 const favoritesSaveError = ref(false)
 const searchInput = ref<HTMLInputElement | null>(null)
+const mobileCategories = ref<HTMLDetailsElement | null>(null)
 const { t } = useI18n()
 
 const terms = computed(() => navigationData.flatMap((taxonomy) => taxonomy.list))
@@ -41,7 +47,7 @@ const groupDetails: Record<string, { icon: string; description: string }> = {
   终身成长: { icon: '↗', description: '从学习、生活到长期发展的能力地图' },
   认知入口: { icon: '◉', description: '理解世界、建立判断与减少信息差' },
   全球网站: { icon: '◎', description: '跨地区的信息、服务与公共入口' },
-  语言学习: { icon: '文', description: '全球语言课程、练习资源与国际能力证书' },
+  语言学习: { icon: '文', description: '按课程、考试、居留和家庭身份查找相关资源' },
   市场资讯: { icon: '⌁', description: '市场数据、财经资讯与股票研究入口' },
   加密生态: { icon: '◈', description: '链上平台、以太坊、身份与社区工具' },
   'AI 与开发': { icon: '✦', description: '人工智能、前端开发与在线效率工具' },
@@ -122,7 +128,17 @@ const groups = computed(() => {
 })
 
 const currentGroup = computed(() => groups.value.find((group) => group.key === activeGroup.value))
-const scopedTerms = computed(() => currentGroup.value?.terms ?? terms.value)
+const languagePurposes = ['课程与练习', '考试与证书', '居留与移民', '子女国籍与家庭身份']
+const scopedTerms = computed(() => {
+  const groupTerms = currentGroup.value?.terms ?? terms.value
+  if (activeGroup.value !== '语言学习' || !activeLanguagePurpose.value || query.value.trim()) {
+    return groupTerms
+  }
+  return groupTerms.filter((term) => getLanguagePurpose(term.term) === activeLanguagePurpose.value)
+})
+const scopedResourceCount = computed(() =>
+  scopedTerms.value.reduce((total, term) => total + term.links.length, 0),
+)
 
 const filteredCategories = computed(() => {
   const matches = createResourceMatcher(categoryQuery.value)
@@ -145,7 +161,12 @@ const visibleTerms = computed(() => {
   }
 
   return scopedTerms.value
-    .filter((term) => activeTerm.value === ACTIVE_ALL_TERM || term.term === activeTerm.value)
+    .filter(
+      (term) =>
+        activeTerm.value === ACTIVE_ALL_TERM ||
+        term.term === activeTerm.value ||
+        (activeGroup.value === '语言学习' && Boolean(needle)),
+    )
     .map((term) => {
       const links = term.links.filter((link) => {
         const matchesQuery = matches(
@@ -231,17 +252,36 @@ const toggleFavorite = (link: NavLink) => {
 const selectTerm = (term: NavTerm | null) => {
   activeTerm.value = term?.term ?? ACTIVE_ALL_TERM
   contentMode.value = 'resources'
+  if (mobileCategories.value) mobileCategories.value.open = false
   if (term?.term.startsWith('终身成长 · ')) void loadBookCatalog()
   nextTick(() => document.querySelector('.content')?.scrollIntoView({ behavior: 'smooth' }))
 }
 
 const selectGroup = (group: string) => {
   activeGroup.value = group
+  activeLanguagePurpose.value = ''
   activeTerm.value = ACTIVE_ALL_TERM
   contentMode.value = 'resources'
   categoryQuery.value = ''
   expandedCategories.value = false
   nextTick(() => document.querySelector('.workspace')?.scrollIntoView({ behavior: 'smooth' }))
+}
+
+const selectLanguagePurpose = (purpose: string) => {
+  activeLanguagePurpose.value = purpose
+  activeTerm.value = ACTIVE_ALL_TERM
+  contentMode.value = 'resources'
+  categoryQuery.value = ''
+  expandedCategories.value = false
+}
+
+const searchAllResources = () => {
+  activeGroup.value = ACTIVE_OVERVIEW_GROUP
+  activeLanguagePurpose.value = ''
+  activeTerm.value = ACTIVE_ALL_TERM
+  contentMode.value = 'resources'
+  categoryQuery.value = ''
+  nextTick(() => searchInput.value?.focus())
 }
 
 const displayTermTitle = (term: string) => {
@@ -251,7 +291,9 @@ const displayTermTitle = (term: string) => {
 }
 
 const activeContext = computed(() => {
+  if (activeGroup.value === '语言学习' && query.value.trim()) return activeGroup.value
   if (activeTerm.value !== ACTIVE_ALL_TERM) return displayTermTitle(activeTerm.value)
+  if (activeLanguagePurpose.value) return activeLanguagePurpose.value
   if (activeGroup.value !== ACTIVE_OVERVIEW_GROUP) return activeGroup.value
   return t('ui.navigation.all')
 })
@@ -274,6 +316,7 @@ const resetFilters = () => {
   query.value = ''
   categoryQuery.value = ''
   activeGroup.value = ACTIVE_OVERVIEW_GROUP
+  activeLanguagePurpose.value = ''
   expandedCategories.value = false
   activeTerm.value = ACTIVE_ALL_TERM
   favoritesOnly.value = false
@@ -378,6 +421,29 @@ watch(
         </select>
       </label>
     </div>
+    <div class="search-scope">
+      <span>
+        {{
+          activeGroup === ACTIVE_OVERVIEW_GROUP
+            ? t('ui.navigation.searchingAll')
+            : activeGroup === '语言学习' && query.trim()
+              ? t('ui.navigation.searchingLanguagePurposes')
+              : activeTerm !== ACTIVE_ALL_TERM
+                ? t('ui.navigation.searchingCategory', {
+                    group: activeGroup,
+                    category: displayTermTitle(activeTerm),
+                  })
+                : t('ui.navigation.searchingGroup', { group: activeGroup })
+        }}
+      </span>
+      <button
+        v-if="activeGroup !== ACTIVE_OVERVIEW_GROUP"
+        type="button"
+        @click="searchAllResources"
+      >
+        {{ t('ui.navigation.searchAll') }} →
+      </button>
+    </div>
     <p v-if="favoritesSaveError" role="status">{{ t('ui.navigation.favoritesSaveError') }}</p>
     <nav class="group-switcher" :aria-label="t('ui.navigation.groupLabel')">
       <button
@@ -412,7 +478,32 @@ watch(
           <small>{{ scopedTerms.length }}</small>
         </div>
 
-        <label class="category-search">
+        <nav
+          v-if="activeGroup === '语言学习'"
+          class="language-purposes"
+          :aria-label="t('ui.navigation.languagePurposeLabel')"
+        >
+          <button
+            type="button"
+            :class="{ active: !activeLanguagePurpose }"
+            :aria-pressed="!activeLanguagePurpose"
+            @click="selectLanguagePurpose('')"
+          >
+            {{ t('ui.navigation.allPurposes') }}
+          </button>
+          <button
+            v-for="purpose in languagePurposes"
+            :key="purpose"
+            type="button"
+            :class="{ active: activeLanguagePurpose === purpose }"
+            :aria-pressed="activeLanguagePurpose === purpose"
+            @click="selectLanguagePurpose(purpose)"
+          >
+            {{ purpose }}
+          </button>
+        </nav>
+
+        <label class="category-search category-search--desktop">
           <span class="sr-only">{{ t('ui.navigation.categorySearch') }}</span>
           <input
             v-model="categoryQuery"
@@ -421,14 +512,14 @@ watch(
           />
         </label>
 
-        <div class="category-list">
+        <div class="category-list category-list--desktop">
           <button
             :class="{ active: activeTerm === ACTIVE_ALL_TERM }"
             :aria-pressed="activeTerm === ACTIVE_ALL_TERM"
             @click="selectTerm(null)"
           >
             <span>{{ t('ui.navigation.groupAll') }}</span>
-            <em>{{ currentGroup?.resourceCount ?? linkCount }}</em>
+            <em>{{ scopedResourceCount }}</em>
           </button>
           <button
             v-for="term in visibleCategories"
@@ -447,7 +538,7 @@ watch(
 
         <button
           v-if="!categoryQuery && filteredCategories.length > categoryPreviewLimit"
-          class="category-more"
+          class="category-more category-more--desktop"
           type="button"
           @click="expandedCategories = !expandedCategories"
         >
@@ -458,6 +549,58 @@ watch(
           }}
         </button>
 
+        <details ref="mobileCategories" class="mobile-categories">
+          <summary>
+            <span>{{ t('ui.navigation.categoryPicker') }}: {{ activeContext }}</span>
+            <small>{{ scopedTerms.length }} {{ t('ui.navigation.categoriesUnit') }}</small>
+          </summary>
+          <label class="category-search">
+            <span class="sr-only">{{ t('ui.navigation.categorySearch') }}</span>
+            <input
+              v-model="categoryQuery"
+              type="search"
+              :placeholder="t('ui.navigation.categorySearch')"
+            />
+          </label>
+          <div class="category-list">
+            <button
+              type="button"
+              :class="{ active: activeTerm === ACTIVE_ALL_TERM }"
+              :aria-pressed="activeTerm === ACTIVE_ALL_TERM"
+              @click="selectTerm(null)"
+            >
+              <span>{{ t('ui.navigation.groupAll') }}</span
+              ><em>{{ scopedResourceCount }}</em>
+            </button>
+            <button
+              v-for="term in visibleCategories"
+              :key="term.term"
+              type="button"
+              :class="{ active: activeTerm === term.term }"
+              :aria-pressed="activeTerm === term.term"
+              @click="selectTerm(term)"
+            >
+              <span>{{ displayTermTitle(term.term) }}</span
+              ><em>{{ term.links.length }}</em>
+            </button>
+            <p v-if="!filteredCategories.length" class="category-empty">
+              {{ t('ui.navigation.noCategory') }}
+            </p>
+          </div>
+          <button
+            v-if="!categoryQuery && filteredCategories.length > categoryPreviewLimit"
+            class="category-more"
+            type="button"
+            @click="expandedCategories = !expandedCategories"
+          >
+            {{
+              expandedCategories
+                ? t('ui.navigation.showLess')
+                : t('ui.navigation.showAllCategories', { count: filteredCategories.length })
+            }}
+          </button>
+        </details>
+
         <div class="sidebar-note">
           <strong>{{ t('ui.navigation.tipTitle') }}</strong>
           <p>{{ t('ui.navigation.tipText') }}</p>
@@ -465,6 +608,43 @@ watch(
       </aside>
 
       <div class="content">
+        <nav
+          v-if="activeGroup !== ACTIVE_OVERVIEW_GROUP"
+          class="resource-path"
+          :aria-label="t('ui.navigation.pathLabel')"
+        >
+          <button type="button" @click="selectGroup(ACTIVE_OVERVIEW_GROUP)">
+            {{ t('ui.navigation.overview') }}
+          </button>
+          <span aria-hidden="true">/</span>
+          <button
+            v-if="
+              (activeTerm !== ACTIVE_ALL_TERM && !(activeGroup === '语言学习' && query.trim())) ||
+              (activeLanguagePurpose && !query.trim())
+            "
+            type="button"
+            @click="selectGroup(activeGroup)"
+          >
+            {{ activeGroup }}
+          </button>
+          <strong v-else>{{ activeGroup }}</strong>
+          <template v-if="activeLanguagePurpose && !query.trim()">
+            <span aria-hidden="true">/</span>
+            <button
+              v-if="activeTerm !== ACTIVE_ALL_TERM"
+              type="button"
+              @click="selectLanguagePurpose(activeLanguagePurpose)"
+            >
+              {{ activeLanguagePurpose }}
+            </button>
+            <strong v-else>{{ activeLanguagePurpose }}</strong>
+          </template>
+          <template
+            v-if="activeTerm !== ACTIVE_ALL_TERM && !(activeGroup === '语言学习' && query.trim())"
+          >
+            <span aria-hidden="true">/</span><strong>{{ displayTermTitle(activeTerm) }}</strong>
+          </template>
+        </nav>
         <section v-if="showOverview" class="group-overview">
           <div class="overview-heading">
             <div>
@@ -501,7 +681,9 @@ watch(
             <button v-for="term in visibleCategories" :key="term.term" @click="selectTerm(term)">
               <span>
                 <strong>{{ displayTermTitle(term.term) }}</strong>
-                <small>{{ term.links[0]?.description || t('ui.navigation.openCategory') }}</small>
+                <small>{{
+                  t('ui.navigation.categoryResources', { count: term.links.length })
+                }}</small>
               </span>
               <b>{{ term.links.length }}</b>
               <span aria-hidden="true">→</span>
@@ -585,7 +767,9 @@ watch(
                     <small>{{ link.description || getHost(link.url) }}</small>
                   </span>
                   <span class="link-host">{{ getHost(link.url) }}</span>
-                  <span class="open-mark" aria-hidden="true">↗</span>
+                  <span class="open-mark" aria-hidden="true"
+                    >{{ t('ui.navigation.openSite') }} ↗</span
+                  >
                 </a>
                 <button
                   class="star-button"
@@ -654,7 +838,7 @@ watch(
         >
           <strong>{{ t('ui.navigation.noMatch') }}</strong>
           <p>{{ t('ui.navigation.noMatchTips') }}</p>
-          <button type="button" @click="resetFilters">清除筛选</button>
+          <button type="button" @click="resetFilters">{{ t('ui.navigation.clearFilters') }}</button>
         </div>
       </div>
     </div>
@@ -669,7 +853,7 @@ watch(
 .catalog-summary {
   overflow: hidden;
   position: relative;
-  padding: clamp(22px, 3vw, 36px);
+  padding: clamp(18px, 2vw, 24px);
   border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border));
   border-radius: 18px;
   background:
@@ -682,7 +866,7 @@ watch(
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
-  gap: 32px;
+  gap: 20px;
 }
 
 .catalog-summary p {
@@ -707,7 +891,7 @@ watch(
 
 .catalog-summary > div > span {
   max-width: 64ch;
-  margin-top: 12px;
+  margin-top: 7px;
   color: var(--muted);
   display: block;
   font-size: 13px;
@@ -737,7 +921,7 @@ watch(
   margin: 5px 0 0;
   color: var(--ink);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: clamp(22px, 2.4vw, 32px);
+  font-size: clamp(20px, 2vw, 27px);
   font-variant-numeric: tabular-nums;
 }
 
@@ -828,6 +1012,35 @@ watch(
   text-transform: none;
 }
 
+.language-purposes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 0 12px;
+}
+
+.language-purposes button {
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+
+.language-purposes button:hover,
+.language-purposes button.active {
+  border-color: var(--accent);
+  color: var(--ink);
+  background: var(--surface-soft);
+}
+
+.mobile-categories {
+  display: none;
+}
+
 .category-search {
   margin-bottom: 8px;
 }
@@ -871,6 +1084,18 @@ watch(
   justify-content: space-between;
   cursor: pointer;
   text-align: left;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.4;
+}
+
+.category-list button span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.category-list button em {
+  flex: 0 0 auto;
 }
 
 .category-list button:hover,
@@ -1050,12 +1275,12 @@ watch(
 
 .category-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .category-grid button {
-  min-height: 96px;
+  min-height: 82px;
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 11px;
@@ -1081,17 +1306,15 @@ watch(
 
 .category-grid strong {
   margin-bottom: 7px;
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .category-grid small {
-  overflow: hidden;
   color: var(--muted);
-  display: -webkit-box;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.45;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
 .category-grid b {
@@ -1213,6 +1436,56 @@ watch(
   z-index: 2;
   display: flex;
   gap: 12px;
+}
+
+.search-scope {
+  margin: 7px 2px 0;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.search-scope button,
+.resource-path button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.search-scope button:hover,
+.resource-path button:hover {
+  text-decoration: underline;
+}
+
+.resource-path {
+  min-width: 0;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.resource-path strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.search-scope button:focus-visible,
+.resource-path button:focus-visible,
+.mobile-categories summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .search-box {
@@ -1540,7 +1813,7 @@ watch(
   padding: 14px 16px;
   color: var(--ink);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(120px, 220px) 20px;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 190px) auto;
   align-items: center;
   gap: 16px;
   flex: 1;
@@ -1566,17 +1839,15 @@ watch(
 
 .link-copy strong {
   margin-bottom: 5px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
 }
 
 .link-copy small {
-  overflow: hidden;
   color: var(--muted);
   font-size: 12px;
-  line-height: 1.45;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .link-host {
@@ -1589,7 +1860,9 @@ watch(
 }
 
 .open-mark {
-  color: var(--muted);
+  color: var(--accent);
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .star-button {
@@ -1675,29 +1948,65 @@ watch(
 
   .sidebar-heading,
   .sidebar-note,
-  .category-search {
+  .category-search--desktop,
+  .category-list--desktop,
+  .category-more--desktop {
     display: none;
   }
 
-  .category-list {
-    min-height: 0;
-    margin: 0 calc(var(--page-gutter) * -1);
-    padding: 0 var(--page-gutter) 8px;
+  .mobile-categories {
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--surface);
+    display: block;
+  }
+
+  .mobile-categories summary {
+    min-height: 44px;
+    color: var(--ink);
     display: flex;
     align-items: center;
-    gap: 6px;
-    overflow-x: auto;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    list-style: none;
   }
 
-  .category-list button {
-    width: auto;
+  .mobile-categories summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-categories summary span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .mobile-categories summary::after {
+    content: '⌄';
+    color: var(--muted);
+  }
+
+  .mobile-categories summary small {
+    margin-left: auto;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .mobile-categories .category-search {
+    display: block;
+  }
+
+  .mobile-categories .category-list {
+    max-height: 55dvh;
+    min-height: 0;
+    margin-bottom: 8px;
+    overflow-y: auto;
+  }
+
+  .mobile-categories .category-list button {
     min-height: 44px;
-    flex: 0 0 auto;
-    gap: 8px;
-  }
-
-  .category-list button.active {
-    box-shadow: inset 0 -3px var(--accent);
   }
 
   .content {
@@ -1816,7 +2125,7 @@ watch(
 
   .link-row > a {
     padding: 13px 12px;
-    grid-template-columns: minmax(0, 1fr) 18px;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;
   }
 
@@ -1914,6 +2223,59 @@ watch(
 @media (min-width: 1200px) {
   .group-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .catalog-summary {
+    padding: 0 0 10px;
+    gap: 7px;
+  }
+  .catalog-summary p {
+    margin-bottom: 3px;
+    font-size: 10px;
+  }
+  .catalog-summary h1 {
+    font-size: 22px;
+    line-height: 1.18;
+  }
+  .catalog-summary > div > span,
+  .catalog-summary dl div:last-child {
+    display: none;
+  }
+  .catalog-summary dl {
+    padding-top: 0;
+    border-top: 0;
+    justify-content: flex-start;
+    gap: 16px;
+  }
+  .catalog-summary dl div {
+    padding-left: 0;
+    border-left: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+  }
+  .catalog-summary dd {
+    margin: 0;
+    font-size: 14px;
+  }
+  .resource-shell > .toolbar {
+    margin-bottom: 6px;
+    padding: 7px;
+    gap: 6px;
+  }
+  .resource-shell > .toolbar .search-box {
+    height: 40px;
+    min-height: 40px;
+  }
+  .favorite-filter,
+  .sort-control select {
+    min-height: 36px;
+  }
+  .search-scope {
+    margin-top: 0;
+    gap: 2px 8px;
+    font-size: 11px;
   }
 }
 </style>
