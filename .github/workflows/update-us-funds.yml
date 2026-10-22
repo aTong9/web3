@@ -22,20 +22,37 @@ jobs:
           node-version: 22
       - name: Fetch latest fund data
         run: node scripts/update-us-funds.mjs
-      - name: Refresh chart fund index
-        run: node scripts/update-technical-funds.mjs
       - name: Validate freshness and completeness
         run: npm run validate:data:us-funds
-      - name: Validate technical-fund projection
-        run: npm run validate:data:technical-funds
-      - name: Commit changed data
+      - name: Commit primary snapshot
         run: |
-          if git diff --quiet -- src/data/us-funds.json src/data/technical-funds.json; then
-            echo "No fund data changes"
+          if git diff --quiet -- src/data/us-funds.json; then
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/data/us-funds.json src/data/technical-funds.json
+          git add src/data/us-funds.json
           git commit -m "chore: update US fund data"
           git push
+      - name: Refresh and validate chart fund index
+        id: projection
+        continue-on-error: true
+        run: |
+          node scripts/update-technical-funds.mjs
+          npm run validate:data:technical-funds
+      - name: Commit technical projection
+        if: steps.projection.outcome == 'success'
+        run: |
+          if git diff --quiet -- src/data/technical-funds.json; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/technical-funds.json
+          git commit -m "chore: update technical fund projection"
+          git push
+      - name: Report projection failure
+        if: steps.projection.outcome == 'failure'
+        run: |
+          echo "::error::Primary fund snapshot was saved. Mixed-source technical projection failed validation; its previous snapshot was preserved."
+          exit 1

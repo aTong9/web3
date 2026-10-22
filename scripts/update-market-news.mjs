@@ -247,30 +247,12 @@ for (const article of rawRankedArticles) {
   }
   await new Promise((resolve) => setTimeout(resolve, 150))
 }
-const articleFingerprint = (article) =>
-  JSON.stringify({
-    id: article.id,
-    title: article.title,
-    translatedTitle: article.translatedTitle,
-    category: article.category,
-    impact: article.impact,
-    impactScore: article.impactScore,
-    affectedAssets: article.affectedAssets,
-  })
-const unchanged =
-  previous?.articles?.map(articleFingerprint).join('\n') ===
-  articles.map(articleFingerprint).join('\n')
-
-if (unchanged) {
-  console.log(`No article changes (${articles.length} retained)`)
-} else {
-  await writeJsonAtomic(outputPath, {
-    updatedAt: new Date().toISOString(),
-    source: 'GDELT、CNBC、华尔街日报与央行、监管机构公开信息源',
-    refreshMinutes: 15,
-    translationProvider,
-    sourceStatus,
-    articles,
-  })
-  console.log(`Updated ${articles.length} market-news articles`)
-}
+await writeJsonAtomic(outputPath, {
+  updatedAt: new Date().toISOString(),
+  source: 'GDELT、CNBC、华尔街日报与央行、监管机构公开信息源',
+  refreshMinutes: 15,
+  translationProvider,
+  sourceStatus,
+  articles,
+})
+console.log(`Checked ${articles.length} market-news articles`)

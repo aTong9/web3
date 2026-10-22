@@ -28,11 +28,13 @@ concurrency:
 
 jobs:
   build:
-    # Reddit failures still commit a validated stale snapshot for the UI.
+    # These workflows preserve validated primary or fallback snapshots before reporting failure.
     if: >-
       github.event_name != 'workflow_run' ||
       github.event.workflow_run.conclusion == 'success' ||
-      (github.event.workflow_run.name == 'Update Reddit monitor' &&
+      ((github.event.workflow_run.name == 'Update Reddit monitor' ||
+        github.event.workflow_run.name == 'Update US fund data' ||
+        github.event.workflow_run.name == 'Update A-share sector data') &&
        github.event.workflow_run.conclusion == 'failure')
     runs-on: ubuntu-latest
     steps:

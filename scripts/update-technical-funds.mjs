@@ -11,12 +11,18 @@ const us = JSON.parse(await readFile(usPath, 'utf8'))
 const aShare = JSON.parse(await readFile(aSharePath, 'utf8'))
 const byScale = (left, right) => (right.scaleBillionCny ?? -1) - (left.scaleBillionCny ?? -1)
 const usSelected = [
-  ...us.funds.filter((fund) => fund.venue === 'exchange').toSorted(byScale).slice(0, 3),
-  ...us.funds.filter((fund) => fund.venue === 'offExchange').toSorted(byScale).slice(0, 3),
+  ...us.funds
+    .filter((fund) => fund.venue === 'exchange')
+    .toSorted(byScale)
+    .slice(0, 3),
+  ...us.funds
+    .filter((fund) => fund.venue === 'offExchange')
+    .toSorted(byScale)
+    .slice(0, 3),
 ]
 const aShareSelected = aShare.funds.toSorted(byScale).slice(0, 6)
 
-const mapFund = (fund, market) => {
+const mapFund = (fund, market, source) => {
   const isOffExchange = fund.venue === 'offExchange'
   const history = isOffExchange && fund.navHistory?.length ? fund.navHistory : fund.priceHistory
   const points = (history ?? []).map((point) => ({
@@ -32,7 +38,7 @@ const mapFund = (fund, market) => {
     unit: '元',
     mode: 'return',
     date: latest?.date ?? fund.latestDate ?? fund.navDate ?? null,
-    stale: false,
+    stale: source.stale === true || ['stale', 'failed', 'unavailable'].includes(source.status),
     source: market === 'us-related' ? '天天基金' : '新浪行情 / 东方财富',
     sourceUrl: fund.sourceUrl,
     calendar: 'sse',
@@ -45,9 +51,7 @@ const mapFund = (fund, market) => {
       navDate: fund.navDate ?? null,
       premiumRatePct: fund.premiumRatePct ?? null,
       annualFeePct:
-        (fund.managementFeePct ?? 0) +
-        (fund.custodianFeePct ?? 0) +
-        (fund.serviceFeePct ?? 0),
+        (fund.managementFeePct ?? 0) + (fund.custodianFeePct ?? 0) + (fund.serviceFeePct ?? 0),
       dailyInvestmentLimitCny: fund.dailyInvestmentLimitCny ?? null,
       recurringInvestmentOpen: fund.recurringInvestmentOpen ?? null,
       investmentLimitHistory: (fund.investmentLimitHistory ?? []).slice(-30),
@@ -58,11 +62,18 @@ const mapFund = (fund, market) => {
 }
 
 const assets = [
-  ...usSelected.map((fund) => mapFund(fund, 'us-related')),
-  ...aShareSelected.map((fund) => mapFund(fund, 'a-share')),
+  ...usSelected.map((fund) => mapFund(fund, 'us-related', us)),
+  ...aShareSelected.map((fund) => mapFund(fund, 'a-share', aShare)),
 ].filter((asset) => asset.points.length >= 2)
+const sourceTimes = [us.updatedAt, aShare.updatedAt]
+const dataUpdatedAt = sourceTimes.every(
+  (time) => typeof time === 'string' && Number.isFinite(Date.parse(time)),
+)
+  ? sourceTimes.toSorted((left, right) => Date.parse(left) - Date.parse(right))[0]
+  : null
 const output = {
-  updatedAt: [us.updatedAt, aShare.updatedAt].filter(Boolean).toSorted().at(-1) ?? null,
+  updatedAt: new Date().toISOString(),
+  dataUpdatedAt,
   methodology:
     '美股相关场内和场外基金各按规模选取前3，A股行业ETF按规模选取前6；场外基金优先使用净值历史，场内基金使用收盘价历史。',
   assets,
