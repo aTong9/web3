@@ -19,6 +19,8 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - name: Collect daily Reddit discussion rankings
+        id: collect
+        continue-on-error: true
         run: node scripts/update-reddit-monitor.mjs
       - run: node --test tests/reddit-monitor.test.mjs
       - name: Commit snapshot
@@ -31,3 +33,8 @@ jobs:
           git add src/data/reddit-monitor.json
           git commit -m "chore: update Reddit discussion monitor"
           git push
+      - name: Report source failure after preserving snapshot
+        if: steps.collect.outcome == 'failure'
+        run: |
+          echo "::error::Reddit source collection failed. Previous successful timestamps were preserved; inspect the collector log."
+          exit 1
