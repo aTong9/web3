@@ -24,6 +24,7 @@ const mapFund = (fund, market) => {
     close: point.value,
   }))
   const latest = points[points.length - 1]
+  const date = latest?.date ?? fund.latestDate ?? fund.navDate ?? null
   return {
     id: `fund-${fund.code}`,
     name: fund.name,
@@ -31,8 +32,8 @@ const mapFund = (fund, market) => {
     series: fund.code,
     unit: '元',
     mode: 'return',
-    date: latest?.date ?? fund.latestDate ?? fund.navDate ?? null,
-    stale: false,
+    date,
+    stale: !date || !(Date.now() - Date.parse(`${date}T23:59:59.999Z`) <= 7 * 86_400_000),
     source: market === 'us-related' ? '天天基金' : '新浪行情 / 东方财富',
     sourceUrl: fund.sourceUrl,
     calendar: 'sse',

@@ -9,14 +9,17 @@ permissions:
   contents: write
 
 concurrency:
-  group: market-data-writes
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -27,13 +30,5 @@ jobs:
       - name: Validate report structure and holdings consistency
         run: npm run validate:data:norway-fund
       - name: Commit changed snapshot
-        run: |
-          if git diff --quiet -- src/data/norway-fund-snapshot.json; then
-            echo "No Norway-fund data changes"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/data/norway-fund-snapshot.json
-          git commit -m "chore: update Norway sovereign fund snapshot"
-          git push
+        run: >-
+          node scripts/commit-refreshed-data.mjs "chore: update Norway sovereign fund snapshot" src/data/norway-fund-snapshot.json

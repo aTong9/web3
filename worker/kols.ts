@@ -152,13 +152,32 @@ const syncSubscription = async (row: SubscriptionRow, env: Env & KolsEnv) => {
   try {
     const items = await fetchFeed(row, env)
     if (!items.length) throw new Error('Feed 没有有效内容')
+    const existing = await env.DB.prepare(
+      `SELECT id,url FROM kol_items WHERE owner_user_id=? AND subscription_id=?
+       AND (id IN (${items.map(() => '?').join(',')}) OR url IN (${items.map(() => '?').join(',')}))`,
+    )
+      .bind(
+        row.owner_user_id,
+        row.id,
+        ...items.map((item) => item.id),
+        ...items.map((item) => item.url),
+      )
+      .all<{ id: string; url: string }>()
+    const knownIds = new Set(existing.results.map((item) => item.id))
+    const knownUrls = new Set(existing.results.map((item) => item.url))
+    const newItems = items.filter((item) => {
+      if (knownIds.has(item.id) || knownUrls.has(item.url)) return false
+      knownIds.add(item.id)
+      knownUrls.add(item.url)
+      return true
+    })
     const insert = env.DB.prepare(
       `INSERT OR IGNORE INTO kol_items
        (owner_user_id,subscription_id,id,title,description,url,published_at,published_label,stocks_json,created_at)
        VALUES (?,?,?,?,?,?,?,?,?,?)`,
     )
     await env.DB.batch([
-      ...items.map((item) =>
+      ...newItems.map((item) =>
         insert.bind(
           row.owner_user_id,
           row.id,
@@ -177,11 +196,15 @@ const syncSubscription = async (row: SubscriptionRow, env: Env & KolsEnv) => {
          failure_count=0,next_check_at=NULL
          WHERE owner_user_id=? AND id=?`,
       ).bind(`已同步 ${items.length} 条`, now, now, row.owner_user_id, row.id),
-      env.DB.prepare(
-        `DELETE FROM kol_items WHERE rowid IN
-         (SELECT rowid FROM kol_items WHERE owner_user_id=? AND subscription_id=?
-          ORDER BY COALESCE(published_at,created_at) DESC LIMIT -1 OFFSET 100)`,
-      ).bind(row.owner_user_id, row.id),
+      ...(newItems.length
+        ? [
+            env.DB.prepare(
+              `DELETE FROM kol_items WHERE rowid IN
+               (SELECT rowid FROM kol_items WHERE owner_user_id=? AND subscription_id=?
+                ORDER BY COALESCE(published_at,created_at) DESC LIMIT -1 OFFSET 100)`,
+            ).bind(row.owner_user_id, row.id),
+          ]
+        : []),
     ])
   } catch (error) {
     const prior = await env.DB.prepare(
@@ -251,6 +274,7 @@ const headers = (request: Request, env: Env & KolsEnv) => {
     result.set('access-control-allow-origin', origin)
     result.set('access-control-allow-methods', 'GET, OPTIONS')
     result.set('access-control-allow-headers', 'Authorization, Content-Type')
+    result.set('access-control-max-age', '86400')
     result.set('vary', 'Origin')
   }
   return result

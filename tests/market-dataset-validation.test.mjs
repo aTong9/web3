@@ -425,6 +425,7 @@ test('technical-fund gate requires twelve unique recent chronological series', (
       assets: Array.from({ length: 12 }, (_, index) => ({
         id: `fund-${index}`,
         series: `F${index}`,
+        fundMetrics: { market: index < 6 ? 'us-related' : 'a-share' },
         date: '2026-08-25',
         points: fundPrices,
       })),
@@ -442,6 +443,7 @@ test('technical-fund gate rejects duplicate funds and truncated history', () => 
       assets: Array.from({ length: 12 }, (_, index) => ({
         id: 'duplicate',
         series: `F${index}`,
+        fundMetrics: { market: index < 6 ? 'us-related' : 'a-share' },
         date: '2026-08-25',
         points: [{ date: '2026-08-25', close: 1 }],
       })),
@@ -451,6 +453,59 @@ test('technical-fund gate rejects duplicate funds and truncated history', () => 
   assert.equal(result.ok, false)
   assert.ok(result.errors.some((error) => error.includes('重复')))
   assert.ok(result.errors.some((error) => error.includes('少于200条')))
+})
+
+test('technical-fund market gate only scopes freshness, not structure', () => {
+  const points = Array.from({ length: 200 }, (_, index) => ({
+    date: new Date(Date.UTC(2026, 1, 7 + index)).toISOString().slice(0, 10),
+    close: 1 + index / 100,
+  }))
+  const dataset = {
+    updatedAt: '2026-08-25T07:30:00.000Z',
+    assets: Array.from({ length: 12 }, (_, index) => ({
+      id: `fund-${index}`,
+      series: `F${index}`,
+      fundMetrics: { market: index < 6 ? 'us-related' : 'a-share' },
+      date: index < 6 ? '2026-08-01' : '2026-08-25',
+      points,
+    })),
+  }
+  const validate = (market, value = dataset) =>
+    validateDataset('technical-funds', value, now, { market })
+
+  assert.equal(validateDataset('technical-funds', dataset, now).ok, false)
+  assert.equal(validate('a-share').ok, true)
+  assert.equal(validate('us-related').ok, false)
+
+  const reversed = {
+    ...dataset,
+    assets: dataset.assets.map((asset) => ({
+      ...asset,
+      date: asset.fundMetrics.market === 'us-related' ? '2026-08-25' : '2026-08-01',
+    })),
+  }
+  assert.equal(validate('us-related', reversed).ok, true)
+  assert.equal(validate('a-share', reversed).ok, false)
+  assert.equal(validate('a-share', { ...dataset, assets: dataset.assets.slice(1) }).ok, false)
+  assert.equal(
+    validate('a-share', {
+      ...dataset,
+      assets: dataset.assets.map((asset, index) =>
+        index === 0 ? { ...asset, date: 'invalid' } : asset,
+      ),
+    }).ok,
+    false,
+  )
+  assert.equal(validate('unknown').ok, false)
+  assert.equal(
+    validate('a-share', {
+      ...dataset,
+      assets: dataset.assets.map((asset, index) =>
+        index === 0 ? { ...asset, points: points.slice(0, 3) } : asset,
+      ),
+    }).ok,
+    false,
+  )
 })
 
 test('Norway-fund gate accepts a complete official report and holdings snapshot', () => {

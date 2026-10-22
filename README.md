@@ -177,7 +177,7 @@ npm run update:a-share
   # tags: [美股, 宏观]
 ```
 
-运行 `npm run update:kols` 可手动解析；GitHub Actions 每6小时自动执行一次。YouTube 和标准
+运行 `npm run update:kols` 可手动解析；GitHub Actions 的 KOL 开发快照仅支持手动触发。YouTube 和标准
 RSS/Atom 支持内容列表同步，普通网页支持公开元数据解析。小红书、微信和B站可能限制自动抓取，
 此时页面会明确显示降级状态；配置可访问的 `feedUrl` 后可恢复完整内容同步。
 

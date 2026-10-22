@@ -9,14 +9,17 @@ permissions:
   contents: write
 
 concurrency:
-  group: market-data-writes
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -27,15 +30,7 @@ jobs:
       - name: Validate freshness and completeness
         run: npm run validate:data:a-share
       - name: Validate technical-fund projection
-        run: npm run validate:data:technical-funds
+        run: npm run validate:data:technical-funds -- --market a-share
       - name: Commit changed data
-        run: |
-          if git diff --quiet -- src/data/a-share-sectors.json src/data/technical-funds.json; then
-            echo "No sector data changes"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/data/a-share-sectors.json src/data/technical-funds.json
-          git commit -m "chore: update A-share sector data"
-          git push
+        run: >-
+          node scripts/commit-refreshed-data.mjs "chore: update A-share sector data" src/data/a-share-sectors.json src/data/technical-funds.json

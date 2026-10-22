@@ -23,13 +23,14 @@ const assertFresh = (value, now, errors, maximumMinutes = 120) => {
 const ascendingDates = (rows) =>
   rows.every((row, index) => index === 0 || row.date > rows[index - 1].date)
 
-const assertRecentDate = (value, now, maximumDays, label, errors) => {
+const assertRecentDate = (value, now, maximumDays, label, errors, checkFreshness = true) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value ?? '')) {
     errors.push(`${label}日期无效`)
     return
   }
   const ageMs = now.getTime() - Date.parse(`${value}T23:59:59.999Z`)
-  if (ageMs > maximumDays * 86_400_000) errors.push(`${label}距校验时刻超过${maximumDays}天`)
+  if (checkFreshness && ageMs > maximumDays * 86_400_000)
+    errors.push(`${label}距校验时刻超过${maximumDays}天`)
   if (ageMs < -2 * 86_400_000) errors.push(`${label}超过当前日期2天`)
 }
 
@@ -404,14 +405,27 @@ export const validateDataset = (kind, dataset, now = new Date(), related = {}) =
     )
   } else if (kind === 'technical-funds') {
     const assets = Array.isArray(dataset.assets) ? dataset.assets : []
+    if (related.market && !['us-related', 'a-share'].includes(related.market))
+      errors.push(`未知技术基金市场: ${related.market}`)
     if (assets.length !== 12) errors.push('技术基金资产数量不是12')
     const ids = new Set(assets.map((asset) => asset.id))
     if (ids.size !== assets.length || ids.has(undefined)) errors.push('技术基金ID缺失或重复')
+    for (const market of ['us-related', 'a-share']) {
+      if (assets.filter((asset) => asset.fundMetrics?.market === market).length !== 6)
+        errors.push(`${market}技术基金资产数量不是6`)
+    }
     for (const asset of assets) {
       if (!Array.isArray(asset.points) || asset.points.length < 200)
         errors.push(`${asset.series ?? '未知基金'}历史少于200条`)
       else if (!ascendingDates(asset.points)) errors.push(`${asset.series}日期未严格递增`)
-      assertRecentDate(asset.date, now, 7, asset.series ?? '未知基金', errors)
+      assertRecentDate(
+        asset.date,
+        now,
+        7,
+        asset.series ?? '未知基金',
+        errors,
+        !related.market || asset.fundMetrics?.market === related.market,
+      )
     }
     facts.push(
       ['技术基金', assets.length],
@@ -496,14 +510,22 @@ export const formatSummary = (result, file) =>
 
 const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 if (isCli) {
-  const [, , kind, file, relatedFile] = process.argv
+  const [, , kind, file, relatedFile, market] = process.argv
   if (!kind || !file)
     throw new Error('用法: node scripts/validate-market-dataset.mjs <kind> <file>')
+  if (
+    kind === 'technical-funds' &&
+    (relatedFile || market) &&
+    (relatedFile !== '--market' || !['a-share', 'us-related'].includes(market))
+  )
+    throw new Error('用法: technical-funds <file> [--market a-share|us-related]')
   const dataset = JSON.parse(await readFile(resolve(file), 'utf8'))
   const related =
     kind === 'us-indexes' && relatedFile
       ? { dailyDataset: JSON.parse(await readFile(resolve(relatedFile), 'utf8')) }
-      : {}
+      : kind === 'technical-funds' && market
+        ? { market }
+        : {}
   const result = validateDataset(kind, dataset, new Date(), related)
   const summary = formatSummary(result, file)
   process.stdout.write(`${summary}\n`)

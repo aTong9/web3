@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { readFile } from 'node:fs/promises'
+import { DatabaseSync } from 'node:sqlite'
 import { test } from 'node:test'
 
 const python = String.raw`
@@ -55,4 +56,56 @@ test('KOL retention SQL keeps the same 100 items and isolates owners', async () 
     encoding: 'utf8',
   })
   assert.equal(result.status, 0, result.stderr || result.error?.message)
+})
+
+test('KOL existing-item lookup matches ID or URL only within the subscription owner', async () => {
+  const [source, schema] = await Promise.all([
+    readFile(new URL('../worker/kols.ts', import.meta.url), 'utf8'),
+    readFile(new URL('../worker/kols-schema.sql', import.meta.url), 'utf8'),
+  ])
+  const sql = source.match(/`(SELECT id,url FROM kol_items[\s\S]*?)`/)?.[1]
+  assert.ok(sql)
+  const db = new DatabaseSync(':memory:')
+  try {
+    db.exec(schema)
+    const insertSubscription = db.prepare(
+      `INSERT INTO kol_subscriptions (owner_user_id,id,name,url,feed_url,platform)
+       VALUES (?,?,?,?,?,?)`,
+    )
+    const insertItem = db.prepare(
+      `INSERT INTO kol_items (owner_user_id,subscription_id,id,title,url,created_at)
+       VALUES (?,?,?,?,?,?)`,
+    )
+    for (const [owner, id] of [
+      ['owner-a', 'feed-a'],
+      ['owner-a', 'feed-b'],
+      ['owner-b', 'feed-a'],
+    ]) {
+      insertSubscription.run(
+        owner,
+        id,
+        id,
+        `https://${owner}.test/${id}`,
+        `https://${owner}.test/${id}.rss`,
+        'rss',
+      )
+      insertItem.run(owner, id, 'same-id', 'post', `https://${owner}.test/${id}/post`, '2026-10-22')
+    }
+    const args = [
+      'owner-a',
+      'feed-a',
+      ...Array(12).fill('same-id'),
+      ...Array(12).fill('https://other.test'),
+    ]
+    const expandedSql = sql.replaceAll("${items.map(() => '?').join(',')}", Array(12).fill('?').join(','))
+    assert.deepEqual(
+      db
+        .prepare(expandedSql)
+        .all(...args)
+        .map(({ id, url }) => ({ id, url })),
+      [{ id: 'same-id', url: 'https://owner-a.test/feed-a/post' }],
+    )
+  } finally {
+    db.close()
+  }
 })
