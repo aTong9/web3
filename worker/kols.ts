@@ -49,6 +49,20 @@ const safeUrl = (value: unknown) => {
     return null
   }
 }
+const publicUrl = (value: unknown) => {
+  const url = safeUrl(value)
+  if (!url) return null
+  const parsed = new URL(url)
+  if (
+    parsed.username ||
+    parsed.password ||
+    [...parsed.searchParams.keys()].some((key) =>
+      /token|secret|password|credential|auth|signature|api.?key|session/i.test(key),
+    )
+  )
+    return null
+  return url
+}
 const plainText = (value: unknown) =>
   String(value ?? '')
     .replace(/<[^>]*>/g, ' ')
@@ -326,14 +340,81 @@ const dataset = async (owner: string, env: Env & KolsEnv) => {
   }
 }
 
+const publicDataset = async (owner: string, env: Env & KolsEnv) => {
+  const data = await dataset(owner, env)
+  return {
+    updatedAt: data.updatedAt,
+    source: data.source,
+    kols: data.kols.flatMap((kol) => {
+      const url = publicUrl(kol.url)
+      if (!url) return []
+      return [
+        {
+          id: kol.id,
+          name: kol.name,
+          url,
+          platform: kol.platform,
+          tags: kol.tags,
+          status: kol.status,
+          statusMessage: '',
+          lastSuccessAt: kol.lastSuccessAt,
+          items: kol.items.flatMap((item, index) => {
+            const itemUrl = publicUrl(item.url)
+            return itemUrl
+              ? [
+                  {
+                    kind: item.kind,
+                    id: String(index),
+                    title: item.title,
+                    description: item.description,
+                    url: itemUrl,
+                    publishedAt: item.publishedAt,
+                    publishedLabel: item.publishedLabel,
+                    stocks: item.stocks,
+                  },
+                ]
+              : []
+          }),
+        },
+      ]
+    }),
+  }
+}
+
 export default {
   async fetch(request, env) {
     const responseHeaders = headers(request, env)
     if (request.method === 'OPTIONS')
       return new Response(null, { status: 204, headers: responseHeaders })
     try {
-      if (new URL(request.url).pathname !== '/api/kols' || request.method !== 'GET')
+      const path = new URL(request.url).pathname
+      if (!['/api/kols', '/api/kols/public'].includes(path) || request.method !== 'GET')
         return new Response('{"error":"API路径不存在"}', { status: 404, headers: responseHeaders })
+      if (path === '/api/kols/public') {
+        const owner = env.PUBLIC_KOLS_OWNER_ID?.trim()
+        if (!owner)
+          return new Response('{"error":"公开监控未配置"}', {
+            status: 503,
+            headers: responseHeaders,
+          })
+        const origin = responseHeaders.get('access-control-allow-origin') ?? ''
+        const cacheUrl = new URL(request.url)
+        cacheUrl.pathname = `/api/kols/public/cache/${encodeURIComponent(owner)}/${encodeURIComponent(origin)}`
+        cacheUrl.search = ''
+        const cacheKey = new Request(cacheUrl)
+        const cached = await caches.default.match(cacheKey)
+        if (cached) return cached
+        responseHeaders.set('cache-control', 'public, max-age=60')
+        const response = new Response(JSON.stringify(await publicDataset(owner, env)), {
+          headers: responseHeaders,
+        })
+        try {
+          await caches.default.put(cacheKey, response.clone())
+        } catch (error) {
+          console.warn('KOL public cache write failed:', error)
+        }
+        return response
+      }
       const actor = await authenticate(request, env, 'analytics.view')
       return new Response(JSON.stringify(await dataset(actor.id, env)), {
         headers: responseHeaders,

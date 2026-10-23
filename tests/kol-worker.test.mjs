@@ -17,6 +17,118 @@ test('KOL Worker rejects unauthenticated private reads before touching D1', asyn
   assert.equal(response.status, 401)
 })
 
+test('KOL public read requires a configured owner before touching D1', async () => {
+  const response = await worker.fetch(
+    new Request('https://kols.test/api/kols/public?owner=someone'),
+    {
+      ALLOWED_ORIGINS: '',
+      DB: {
+        prepare: () => {
+          throw new Error('DB should not be read')
+        },
+      },
+    },
+  )
+  assert.equal(response.status, 503)
+})
+
+test('KOL public read is owner fixed, filtered, and cached by allowed origin', async () => {
+  const previousCaches = globalThis.caches
+  const cache = new Map()
+  globalThis.caches = {
+    default: {
+      async match(key) {
+        return cache.get(key.url)?.clone()
+      },
+      async put(key, value) {
+        cache.set(key.url, value.clone())
+      },
+    },
+  }
+  const owners = []
+  const env = {
+    PUBLIC_KOLS_OWNER_ID: 'public-owner',
+    ALLOWED_ORIGINS: 'https://app.test,https://second.test',
+    DB: {
+      prepare(sql) {
+        return {
+          bind(owner) {
+            owners.push(owner)
+            return {
+              async all() {
+                return {
+                  results: sql.includes('kol_subscriptions')
+                    ? [
+                        {
+                          id: 'kol-1',
+                          name: 'Public KOL',
+                          url: 'https://example.com/profile',
+                          feed_url: 'https://feed.test/?token=secret',
+                          platform: 'rss',
+                          tags_json: '[]',
+                          status: 'stale',
+                          status_message: 'secret sync error',
+                          checked_at: '2026-10-23T00:00:00Z',
+                          last_success_at: null,
+                        },
+                      ]
+                    : [
+                        {
+                          subscription_id: 'kol-1',
+                          id: 'secret item id',
+                          title: 'Post',
+                          description: 'Text',
+                          url: 'https://example.com/post',
+                          published_at: null,
+                          published_label: null,
+                          stocks_json: '[]',
+                        },
+                        {
+                          subscription_id: 'kol-1',
+                          id: 'bad',
+                          title: 'Bad',
+                          description: '',
+                          url: 'https://example.com/?api_key=secret',
+                          published_at: null,
+                          published_label: null,
+                          stocks_json: '[]',
+                        },
+                      ],
+                }
+              },
+            }
+          },
+        }
+      },
+    },
+  }
+  try {
+    const request = (origin, query = '') =>
+      new Request(`https://kols.test/api/kols/public${query}`, {
+        headers: { Origin: origin, Authorization: 'Bearer irrelevant' },
+      })
+    const first = await worker.fetch(request('https://app.test', '?owner=attacker'), env)
+    assert.equal(first.status, 200)
+    assert.equal(first.headers.get('access-control-allow-origin'), 'https://app.test')
+    assert.equal(first.headers.get('cache-control'), 'public, max-age=60')
+    const body = await first.json()
+    assert.equal(body.kols.length, 1)
+    assert.equal(body.kols[0].items.length, 1)
+    assert.equal(body.kols[0].statusMessage, '')
+    assert.equal(body.kols[0].feedUrl, undefined)
+    assert.equal(body.kols[0].items[0].id, '0')
+    assert.ok(!JSON.stringify(body).includes('secret'))
+    await worker.fetch(request('https://app.test', '?owner=another'), env)
+    assert.deepEqual(owners, ['public-owner', 'public-owner'])
+    const second = await worker.fetch(request('https://second.test'), env)
+    assert.equal(second.headers.get('access-control-allow-origin'), 'https://second.test')
+    assert.deepEqual(owners, ['public-owner', 'public-owner', 'public-owner', 'public-owner'])
+  } finally {
+    if (previousCaches === undefined) delete globalThis.caches
+    else globalThis.caches = previousCaches
+  }
+})
+
 test('KOL Worker parses RSS and JSON Feed as safe dated content', async () => {
   const rss = `<?xml version="1.0"?><rss version="2.0"><channel><title>Feed</title><item><guid>one</guid><title>Post</title><link>https://example.com/post</link><pubDate>Tue, 29 Sep 2026 00:00:00 GMT</pubDate></item><item><title>Bad</title><link>javascript:alert(1)</link></item></channel></rss>`
   const xmlItems = await parseFeed(rss)

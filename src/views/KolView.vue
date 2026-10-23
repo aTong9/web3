@@ -16,7 +16,6 @@ const { t, locale } = useI18n()
 
 const checking = ref(false)
 const refreshError = ref(false)
-const needsLogin = ref(false)
 const localFallback = ref(false)
 const isDev = import.meta.env.DEV
 let timer: number | undefined
@@ -113,29 +112,28 @@ const refresh = async () => {
     dataset.value = { updatedAt: '', source: '', kols: [] }
     localFallback.value = false
   }
-  if ((!token || !user.value) && !isDev) {
-    needsLogin.value = true
-    return
-  }
   const epoch = authEpoch
   checking.value = true
   refreshError.value = false
-  needsLogin.value = !token || !user.value
   const requestController = new AbortController()
   controller = requestController
   const timeout = window.setTimeout(() => requestController.abort(), 15_000)
   try {
-    if (!token || !user.value) throw new Error('Authentication required')
-    const response = await fetch(`${apiBase}/api/kols`, {
+    let response = await fetch(`${apiBase}/api/kols${token && user.value ? '' : '/public'}`, {
       cache: 'no-store',
       signal: requestController.signal,
-      headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+      headers:
+        token && user.value
+          ? { Authorization: `Bearer ${token}`, Accept: 'application/json' }
+          : { Accept: 'application/json' },
     })
     if (epoch !== authEpoch || localStorage.getItem('market-admin-session') !== token) return
-    if (response.status === 401 || response.status === 403) {
-      needsLogin.value = true
-      dataset.value = { updatedAt: '', source: '', kols: [] }
-    }
+    if (response.status === 401 || response.status === 403)
+      response = await fetch(`${apiBase}/api/kols/public`, {
+        cache: 'no-store',
+        signal: requestController.signal,
+        headers: { Accept: 'application/json' },
+      })
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     const latest = validateLatest(await response.json())
     if (epoch !== authEpoch || localStorage.getItem('market-admin-session') !== token) return
@@ -179,7 +177,7 @@ const refreshIfVisible = () => {
 onMounted(() => {
   stopAuthWatch = watch(
     user,
-    (current) => {
+    () => {
       authEpoch += 1
       sessionToken = localStorage.getItem('market-admin-session')
       controller?.abort()
@@ -187,8 +185,7 @@ onMounted(() => {
       checking.value = false
       dataset.value = { updatedAt: '', source: '', kols: [] }
       localFallback.value = false
-      needsLogin.value = !current
-      if (current || isDev) void refresh()
+      void refresh()
     },
     { immediate: true },
   )
@@ -369,9 +366,6 @@ const formatDate = (value: string | null) => {
         {{ isDev ? t('kol.devSync') : t('kol.sync') }}</span
       >
       <span v-if="checking">{{ t('kol.checking') }}</span>
-      <span v-else-if="needsLogin">{{
-        t(localFallback ? 'kol.localLoginFallback' : 'kol.loginRequired')
-      }}</span>
       <span v-else-if="localFallback">{{ t('kol.localFallback') }}</span>
       <span v-else-if="refreshError">{{ t('kol.checkFailed') }}</span>
       <button :disabled="checking" @click="refresh">{{ t('kol.checkNow') }}</button>
@@ -540,7 +534,7 @@ const formatDate = (value: string | null) => {
               <p v-if="kol.platform === 'x' && kol.status !== 'ok'" class="status-message">
                 {{ t('kol.xNeedsCredentials') }}
               </p>
-              <p class="status-message">{{ kol.statusMessage }}</p>
+              <p v-if="kol.statusMessage" class="status-message">{{ kol.statusMessage }}</p>
               <a
                 v-for="item in matchingContent(kol)"
                 :key="item.id"
