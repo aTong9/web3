@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-23T21:42:29.498Z",
+  "updatedAt": "2026-10-24T00:04:31.753Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -37,6 +37,59 @@
   ],
   "articles": [
     {
+      "id": "f3fd3d15be024cc7",
+      "title": "Moody's holds steady on France's credit rating as country grapples with turmoil and higher yields",
+      "url": "https://www.cnbc.com/2026/10/23/moodys-holds-steady-on-frances-credit-rating-as-country-grapples-with-turmoil-and-higher-yields.html",
+      "publishedAt": "2026-10-23T22:49:42.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "债券",
+        "原油"
+      ],
+      "translatedTitle": "随着法国陷入动荡和收益率上升，穆迪对法国的信用评级保持稳定",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "8b2cc1f3b31682b2",
+      "title": "Turmoil hits AI build-out as neoclouds face pressure, credit risks mount and Solidigm pulls IPO",
+      "url": "https://www.cnbc.com/2026/10/23/ai-turmoil-neoclouds-struggle-credit-risks-jump-solidigm-pulls-ipo.html",
+      "publishedAt": "2026-10-23T22:49:04.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "原油"
+      ],
+      "translatedTitle": "随着新云面临压力、信用风险加剧以及Solidigm拉动IPO ，动荡打击了人工智能的扩张",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "b6655876ef5a72b3",
+      "title": "Trump's executive order targets mortgage insurance, refinance costs. What it means for borrowers",
+      "url": "https://www.cnbc.com/2026/10/23/trump-mortgage-executive-order-costs.html",
+      "publishedAt": "2026-10-23T22:27:06.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "特朗普的行政命令针对抵押贷款保险、再融资成本。对借款人意味着什么",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "95f575c79d8e47fb",
       "title": "Trump dropping some Canada tariffs but 'replacing' them with other products",
       "url": "https://www.cnbc.com/2026/10/23/trump-tariffs-canada-susan-collins.html",
@@ -45,8 +98,8 @@
       "sourceType": "media",
       "category": "geopolitics",
       "language": "English",
-      "impact": "high",
-      "impactScore": 4,
+      "impact": "medium",
+      "impactScore": 3,
       "affectedAssets": [],
       "translatedTitle": "特朗普放弃一些加拿大关税，但用其他产品“替换”它们",
       "translationStatus": "translated",
@@ -62,7 +115,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "在寻找Starlink替代品的过程中，乌克兰与诺基亚和卫星制造商ICEYE合作",
       "translationStatus": "translated",
@@ -78,7 +131,7 @@
       "category": "technology",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "债券"
       ],
@@ -96,7 +149,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "债券"
       ],
@@ -114,27 +167,11 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "A股"
       ],
       "translatedTitle": "黄牛为北京以外的苹果iPhone Duo买家提供数百项额外服务",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "b6655876ef5a72b3",
-      "title": "Trump's executive order targets mortgage insurance, refinance costs. What it means for borrowers",
-      "url": "https://www.cnbc.com/2026/10/23/trump-mortgage-executive-order-costs.html",
-      "publishedAt": "2026-10-23T19:53:13.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "特朗普的行政命令针对抵押贷款保险、再融资成本。对借款人意味着什么",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -148,7 +185,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "马斯克的SpaceX仍在限制乌克兰的Starlink ，收费正在上升",
       "translationStatus": "translated",
@@ -353,22 +390,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "807e7821a1565709",
-      "title": "Defense giant Saab sees orders triple after Gripen fighter jet deal with Ukraine",
-      "url": "https://www.cnbc.com/2026/10/23/saab-q3-earnings-figther-jet-maker-beats-expectations-as-orders-triple.html",
-      "publishedAt": "2026-10-23T16:26:17.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "国防巨头萨博与乌克兰达成鹰狮战斗机协议后订单增加三倍",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "400254d6d58e05b6",
       "title": "TikTok U.S. hunts for multiple gigawatts of computing capacity, sources tell CNBC",
       "url": "https://www.cnbc.com/2026/10/23/tiktok-us-compute-capacity.html",
@@ -549,22 +570,6 @@
       "impactScore": 2,
       "affectedAssets": [],
       "translatedTitle": "欧洲央行消费者预期调查结果– 2026年9月",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "9cc953d3eea9d848",
-      "title": "Meta’s deal to keep Zuckerberg in California adds fuel to wealth tax debate ahead of election",
-      "url": "https://www.cnbc.com/2026/10/22/meta-mark-zuckerberg-california-billionaire-tax.html",
-      "publishedAt": "2026-10-22T22:21:08.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "Meta将扎克伯格留在加利福尼亚州的交易为大选前的财富税辩论增添了动力",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     }
