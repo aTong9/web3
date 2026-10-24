@@ -8,6 +8,7 @@ import anchorData from '@/data/china-demography.json'
 import {
   CHINA_HISTORICAL_YEARS,
   DEFAULT_CHINA_HOUSING_ASSUMPTIONS,
+  estimateChinaGraduatesWan,
   projectChinaDemography,
   type ChinaHousingAssumptions,
   type ChinaScenario,
@@ -59,6 +60,9 @@ const updateAssumption = (field: (typeof assumptionFields)[number], event: Event
   }
 }
 const rows = computed(() => projectChinaDemography(scenario.value, assumptions.value))
+const graduateEstimate2026Wan =
+  CHINA_HISTORICAL_YEARS.find((row) => row.year === 2026)?.graduateEstimate2026Wan ?? null
+const projectedGraduateWan = (year: number) => estimateChinaGraduatesWan(year, rows.value)
 const displayed = computed(() => rows.value.filter((row) => row.year <= endYear.value))
 const selectedYear = computed(() => displayed.value[displayed.value.length - 1])
 const pageCount = computed(() => Math.ceil(rows.value.length / pageSize))
@@ -304,6 +308,8 @@ const exportHistoryCsv = () => {
       'birthsWan',
       'deathsWan',
       'naturalChangeWan',
+      'universityGraduatesWan',
+      'universityGraduatesBasis',
       'netMigrationWan',
       'residentialUnitsWan',
       'residentialFloorAreaBillionM2',
@@ -318,6 +324,12 @@ const exportHistoryCsv = () => {
       row.birthsWan,
       row.deathsWan,
       row.birthsWan === null || row.deathsWan === null ? null : row.birthsWan - row.deathsWan,
+      row.graduatesTotalWan ?? row.graduateEstimate2026Wan,
+      row.graduatesTotalWan !== null
+        ? 'actual: undergraduate/junior college + postgraduate'
+        : row.graduateEstimate2026Wan !== null
+          ? 'estimated 2026 graduating cohort'
+          : '',
       row.netMigrationWan,
       row.residentialUnitsWan,
       row.residentialFloorAreaBillionM2,
@@ -342,6 +354,8 @@ const exportCsv = () => {
     'deathsWan',
     'netMigrationWan',
     'naturalChangeWan',
+    'universityGraduatesWan',
+    'universityGraduatesBasis',
     'age0to15Wan',
     'age16to59Wan',
     'age60to64Wan',
@@ -376,6 +390,12 @@ const exportCsv = () => {
         row.deathsWan,
         row.netMigrationWan,
         row.birthsWan - row.deathsWan,
+        row.year === 2026
+          ? (graduateEstimate2026Wan ?? '')
+          : (projectedGraduateWan(row.year) ?? ''),
+        row.year === 2026
+          ? 'estimated 2026 graduating cohort'
+          : 'model: births 22 years earlier, calibrated to 2025 actual graduates',
         row.age0to15Wan,
         row.age16to59Wan,
         row.age60to64Wan,
@@ -511,6 +531,7 @@ const exportCsv = () => {
                 <th>{{ key('births') }}</th>
                 <th>{{ key('deaths') }}</th>
                 <th>{{ key('naturalChange') }}</th>
+                <th class="graduates-column">{{ key('universityGraduates') }}</th>
                 <th>{{ key('historicalHousingStock') }}</th>
                 <th>{{ key('area') }}</th>
               </tr>
@@ -539,6 +560,15 @@ const exportCsv = () => {
                         : row.birthsWan - row.deathsWan,
                     )
                   }}
+                </td>
+                <td class="graduates-column">
+                  {{
+                    historyNumber(
+                      row.graduatesTotalWan ?? row.graduateEstimate2026Wan,
+                      row.graduateEstimate2026Wan === null ? 2 : 0,
+                    )
+                  }}
+                  <small v-if="row.graduateEstimate2026Wan !== null">{{ key('estimated') }}</small>
                 </td>
                 <td>{{ key('unavailable') }}</td>
                 <td>{{ key('unavailable') }}</td>
@@ -690,6 +720,7 @@ const exportCsv = () => {
           <div>
             <h2>{{ key('modelRows') }}</h2>
             <p>{{ key('projection') }} · {{ key('unitWan') }}</p>
+            <p>{{ key('graduateProjectionNote') }}</p>
           </div>
           <button type="button" @click="exportCsv">{{ key('export') }}</button>
         </div>
@@ -703,6 +734,7 @@ const exportCsv = () => {
                 <th>{{ key('births') }}</th>
                 <th>{{ key('deaths') }}</th>
                 <th>{{ key('naturalChange') }}</th>
+                <th class="graduates-column">{{ key('universityGraduates') }}</th>
                 <th>{{ key('age16to59') }}</th>
                 <th>{{ key('age65Plus') }}</th>
                 <th>{{ key('urbanization') }}</th>
@@ -723,6 +755,16 @@ const exportCsv = () => {
                 <td>{{ number(row.birthsWan) }}</td>
                 <td>{{ number(row.deathsWan) }}</td>
                 <td>{{ number(row.birthsWan - row.deathsWan) }}</td>
+                <td class="graduates-column">
+                  {{
+                    historyNumber(
+                      row.year === 2026 ? graduateEstimate2026Wan : projectedGraduateWan(row.year),
+                      row.year === 2026 ? 0 : 2,
+                    )
+                  }}
+                  <small v-if="row.year === 2026">{{ key('estimated') }}</small>
+                  <small v-else>{{ key('modeled') }}</small>
+                </td>
                 <td>{{ number(row.age16to59Wan) }}</td>
                 <td>{{ number(row.age65PlusWan) }}</td>
                 <td>{{ number(row.urbanizationPercent, 1) }}%</td>
@@ -956,6 +998,9 @@ thead th {
   font-weight: 700;
 }
 tbody th {
+  text-align: left;
+}
+.graduates-column {
   text-align: left;
 }
 .pagination {

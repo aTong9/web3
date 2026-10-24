@@ -1,6 +1,7 @@
 import demographyData from '@/data/china-demography.json'
 import earlyData from '@/data/china-demography-early.json'
 import historyData from '@/data/china-demography-history.json'
+import graduateData from '@/data/china-graduates.json'
 
 export type ChinaScenario = 'low' | 'medium' | 'high'
 
@@ -18,6 +19,8 @@ export interface ChinaHistoricalYear {
   netMigrationWan: number | null
   residentialUnitsWan: null
   residentialFloorAreaBillionM2: null
+  graduatesTotalWan: number | null
+  graduateEstimate2026Wan: number | null
 }
 
 /** MPD stocks are midyear; WPP stocks are 1 January. Flows cover the calendar year. */
@@ -27,6 +30,7 @@ export const CHINA_HISTORICAL_YEARS: ChinaHistoricalYear[] = Array.from(
     const year = 1900 + index
     const source = historyData.find((row) => row.year === year)
     const earlySource = earlyData.find((row) => row.year === year)
+    const graduates = graduateData.actual.find((row) => row.year === year)
     return {
       year,
       basis: source
@@ -41,6 +45,11 @@ export const CHINA_HISTORICAL_YEARS: ChinaHistoricalYear[] = Array.from(
       netMigrationWan: source?.netMigrationWan ?? null,
       residentialUnitsWan: null,
       residentialFloorAreaBillionM2: null,
+      graduatesTotalWan: graduates
+        ? Number((graduates.undergraduateWan + graduates.postgraduateWan).toFixed(2))
+        : null,
+      graduateEstimate2026Wan:
+        year === graduateData.estimated2026.year ? graduateData.estimated2026.estimateWan : null,
     }
   },
 )
@@ -82,6 +91,31 @@ export interface ChinaAnnualProjection {
   unitsRetiredWan: number
   residentialFloorAreaBillionM2: number
   unitsMinusHouseholdsWan: number
+}
+
+/** Illustrative graduation count, calibrated to the 2025 actual and births 22 years earlier. */
+export function estimateChinaGraduatesWan(
+  year: number,
+  projectedYears: Pick<ChinaAnnualProjection, 'year' | 'birthsWan'>[],
+): number | null {
+  if (year < 2027 || year > 2125) return null
+  const birthsYear = year - 22
+  const birthsWan =
+    birthsYear <= 2026
+      ? CHINA_HISTORICAL_YEARS.find((row) => row.year === birthsYear)?.birthsWan
+      : projectedYears.find((row) => row.year === birthsYear)?.birthsWan
+  const anchorBirthsWan = CHINA_HISTORICAL_YEARS.find((row) => row.year === 2003)?.birthsWan
+  const anchorGraduatesWan = CHINA_HISTORICAL_YEARS.find(
+    (row) => row.year === 2025,
+  )?.graduatesTotalWan
+  if (
+    birthsWan == null ||
+    anchorBirthsWan == null ||
+    anchorBirthsWan <= 0 ||
+    anchorGraduatesWan == null
+  )
+    return null
+  return Number(((birthsWan * anchorGraduatesWan) / anchorBirthsWan).toFixed(2))
 }
 
 export const CHINA_DEMOGRAPHY_SOURCES = demographyData.sources

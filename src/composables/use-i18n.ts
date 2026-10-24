@@ -455,7 +455,7 @@ const messages: Record<Locale, DictionaryNode> = {
       historySummary: '历史数据按资料原口径展示。2025 年国家统计局实绩保留在上方独立锚点。',
       historicalRows: '逐年历史表',
       historyTableNote:
-        '人口、出生、死亡单位为万人；住宅套数为万套，面积为十亿平方米。空缺表示无可比数据。',
+        '人口、出生、死亡及毕业人数单位为万人；住宅套数为万套，面积为十亿平方米。毕业人数 2000—2025 年为本专科加研究生毕业人次，2026 年为不同口径的预计规模；空缺表示无可比数据。',
       historyExport: '导出当前范围 CSV',
       historyPopulationChart: '历史人口估计与预测',
       populationTime: '人口时点',
@@ -471,6 +471,11 @@ const messages: Record<Locale, DictionaryNode> = {
         'MPD 与 WPP 的地区、版本和人口时点可能不同，1949/1950 年不能直接当作连续年度变化。MPD 的 Sources 表列出 Broadberry、Guan、Li (2018) 与 Xu 等 (2017) 等中国研究；这里不将它们逐一归因于每年人口值。MPD 数据引用 Bolt 与 van Zanden (2020)。',
       historyHousingNote:
         '尚无可核实且可比的全国逐年住宅套数及面积存量序列；历史表与 CSV 留空，不把未来住房模型反填为历史。1900—1949 年出生、死亡及净迁移亦留空。',
+      universityGraduates: '大学生毕业人数（万人）',
+      estimated: '（预计）',
+      modeled: '（估算）',
+      graduateProjectionNote:
+        '2027 年起按 22 年前出生人数、以 2025 年毕业规模校准估算；非官方预测，也不等于真实大学入学率。',
       anchor: '2025 官方锚点',
       projection: '2026—2125 情景推演',
       longHorizon: '2100 年后属于超长期假设，误差可能显著放大。',
@@ -2882,7 +2887,7 @@ const messages: Record<Locale, DictionaryNode> = {
         'Each source keeps its original basis. The 2025 NBS observation remains a separate anchor above.',
       historicalRows: 'Annual historical table',
       historyTableNote:
-        'Population, births and deaths are in 10,000 people; units in 10,000 homes; area in billion m². Missing means no comparable data.',
+        'Population, births, deaths and graduates are in 10,000 people; housing units in 10,000 homes; area in billion m². Graduates in 2000–2025 add undergraduate / junior college and postgraduate counts; 2026 is a different-basis estimate. Missing means no comparable data.',
       historyExport: 'Export current range CSV',
       historyPopulationChart: 'Historical population estimates and forecasts',
       populationTime: 'Population date',
@@ -2898,6 +2903,11 @@ const messages: Record<Locale, DictionaryNode> = {
         'MPD and WPP may differ in geography, vintage and population date; the 1949/1950 boundary is not an observed annual change. MPD Sources lists China research by Broadberry, Guan and Li (2018) and Xu et al. (2017); these are not assigned to individual annual population cells here. MPD data citation: Bolt and van Zanden (2020).',
       historyHousingNote:
         'A comparable verified national annual series of residential units and floor area is unavailable here, so history and CSV remain blank. Births, deaths and net migration in 1900–1949 are also blank.',
+      universityGraduates: 'University graduates (10,000)',
+      estimated: ' (estimated)',
+      modeled: ' (modeled)',
+      graduateProjectionNote:
+        'From 2027, estimated from births 22 years earlier and calibrated to 2025 graduates. This is not an official forecast or an actual university enrollment rate.',
       anchor: 'Official 2025 anchor',
       projection: '2026–2125 scenario model',
       longHorizon: 'After 2100 is an ultra-long horizon; uncertainty can grow substantially.',

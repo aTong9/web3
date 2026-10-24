@@ -4,17 +4,65 @@ import { createJiti } from 'jiti'
 import source from '../src/data/china-demography.json' with { type: 'json' }
 import earlySource from '../src/data/china-demography-early.json' with { type: 'json' }
 import historySource from '../src/data/china-demography-history.json' with { type: 'json' }
+import graduateSource from '../src/data/china-graduates.json' with { type: 'json' }
 
 const jiti = createJiti(import.meta.url, {
   alias: { '@': new URL('../src', import.meta.url).pathname },
+})
+
+test('graduate series uses sourced actuals and keeps the 2026 estimate separate', () => {
+  assert.equal(graduateSource.actual.length, 26)
+  assert.deepEqual(
+    graduateSource.actual.map(({ year }) => year),
+    Array.from({ length: 26 }, (_, index) => 2000 + index),
+  )
+  for (const sourceRow of graduateSource.actual) {
+    const row = CHINA_HISTORICAL_YEARS[sourceRow.year - 1900]
+    assert.equal(
+      row.graduatesTotalWan,
+      Number((sourceRow.undergraduateWan + sourceRow.postgraduateWan).toFixed(2)),
+    )
+    assert.match(sourceRow.undergraduateSourceUrl, /^https:\/\/www\.(moe|stats)\.gov\.cn\//)
+    assert.match(sourceRow.postgraduateSourceUrl, /^https:\/\/www\.moe\.gov\.cn\//)
+    assert.equal(row.graduateEstimate2026Wan, null)
+  }
+  assert.equal(CHINA_HISTORICAL_YEARS[100].graduatesTotalWan, 100.86)
+  assert.equal(CHINA_HISTORICAL_YEARS[125].graduatesTotalWan, 1221.75)
+  for (const year of [2021, 2022, 2023]) {
+    assert.match(graduateSource.actual[year - 2000].undergraduateSourceUrl, /stats\.gov\.cn/)
+  }
+  for (const row of CHINA_HISTORICAL_YEARS.slice(0, 100)) {
+    assert.equal(row.graduatesTotalWan, null)
+  }
+  const estimate = CHINA_HISTORICAL_YEARS[126]
+  assert.equal(estimate.graduatesTotalWan, null)
+  assert.equal(estimate.graduateEstimate2026Wan, 1270)
+  assert.match(graduateSource.estimated2026.sourceUrl, /^https:\/\/www\.moe\.gov\.cn\//)
 })
 const {
   CHINA_HISTORICAL_YEARS,
   CHINA_2025_OFFICIAL,
   CHINA_2025_HOUSEHOLD_SAMPLE,
   DEFAULT_CHINA_HOUSING_ASSUMPTIONS,
+  estimateChinaGraduatesWan,
   projectChinaDemography,
 } = jiti('../src/utils/china-demography.ts')
+
+test('22-year graduate model uses historical then current-scenario births', () => {
+  const low = projectChinaDemography('low')
+  const high = projectChinaDemography('high')
+  const ratio = 1221.75 / CHINA_HISTORICAL_YEARS[103].birthsWan
+  assert.equal(estimateChinaGraduatesWan(2026, low), null)
+  assert.equal(CHINA_HISTORICAL_YEARS[126].graduateEstimate2026Wan, 1270)
+  assert.equal(
+    estimateChinaGraduatesWan(2027, low),
+    Number((CHINA_HISTORICAL_YEARS[105].birthsWan * ratio).toFixed(2)),
+  )
+  assert.equal(estimateChinaGraduatesWan(2027, low), estimateChinaGraduatesWan(2027, high))
+  assert.equal(estimateChinaGraduatesWan(2049, low), Number((low[1].birthsWan * ratio).toFixed(2)))
+  assert.notEqual(estimateChinaGraduatesWan(2049, low), estimateChinaGraduatesWan(2049, high))
+  assert.equal(estimateChinaGraduatesWan(2125, low), Number((low[77].birthsWan * ratio).toFixed(2)))
+})
 
 test('1900–2026 history keeps source periods and unavailable fields distinct', () => {
   assert.equal(CHINA_HISTORICAL_YEARS.length, 127)
