@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-25T13:52:50.846Z",
+  "updatedAt": "2026-10-25T17:31:04.718Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,12 +7,12 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
-      "status": "failed",
-      "message": "Error: 404 https://www.federalreserve.gov/feeds/press_all.xml"
+      "status": "ok",
+      "message": ""
     },
     {
       "source": "欧洲央行",
@@ -37,6 +37,72 @@
   ],
   "articles": [
     {
+      "id": "5888c5be6e2345aa",
+      "title": "Audi defends plans for a $4 billion Georgia plant amid VW restructuring, tariffs",
+      "url": "https://www.cnbc.com/2026/10/25/audi-georgia-us-plant-tariffs-volkswagen.html",
+      "publishedAt": "2026-10-25T16:42:42.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "high",
+      "impactScore": 4,
+      "affectedAssets": [],
+      "translatedTitle": "在大众重组和关税期间，奥迪为40 $ Georgia工厂的计划辩护",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "f12e9bf2ffd646c5",
+      "title": "Here are 4 big things we're watching in the stock market this week",
+      "url": "https://www.cnbc.com/investingclub/2026/10/25/here-are-4-big-things-were-watching-in-the-stock-market-this-week.html",
+      "publishedAt": "2026-10-25T14:58:26.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "以下是我们本周在股市上看到的4件大事",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "5d419e1e250b77bf",
+      "title": "In pictures: Initially peaceful protests across France over inequality again descend into violence",
+      "url": "https://www.cnbc.com/2026/10/25/france-protests-paris-cost-of-living-inequality.html",
+      "publishedAt": "2026-10-25T14:14:23.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "图片：最初，法国各地因不平等而发生的和平抗议再次演变为暴力",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "30d5c4cc978d3d23",
+      "title": "I paid off $11,000 of credit card debt in 18 months while still traveling, shopping and living my life",
+      "url": "https://www.cnbc.com/make-it/2026/10/25/pay-off-credit-card-debt.html",
+      "publishedAt": "2026-10-25T14:00:01.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "我在18个月内还清了$ 11,000的信用卡债务，同时仍在旅行、购物和生活",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "bfabd481a2164039",
       "title": "Saudi Arabia says it intercepted missiles and drones from Iran-backed Houthis",
       "url": "https://www.cnbc.com/2026/10/25/saudi-arabia-houthi-missile-drone-interceptions.html",
@@ -46,9 +112,25 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "沙特阿拉伯表示，它拦截了来自伊朗支持的胡塞武装的导弹和无人机",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "f9322246c01bc1ee",
+      "title": "Should you travel together? Ask these questions before booking: 'It'll save you time, money and disappointment'",
+      "url": "https://www.cnbc.com/make-it/2026/10/25/travel-compatibility-questions.html",
+      "publishedAt": "2026-10-25T13:38:01.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "你们应该一起旅行吗？在预订前询问以下问题：「这将为您节省时间、金钱和失望」",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -62,7 +144,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "民主党人和共和党人最害怕对方的是什么： CNBC调查有答案",
       "translationStatus": "translated",
@@ -78,7 +160,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "Marc Lore's Wonder在考虑IPO时押注德克萨斯州、自动化和用户建造的餐厅",
       "translationStatus": "translated",
@@ -147,24 +229,6 @@
         "美股"
       ],
       "translatedTitle": "生物技术股正在飙升。投资者如何发挥新药创新热潮的作用",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "d7bfe1174f3e36cf",
-      "title": "AI funding fears rattle Wall Street. Here's how we're adjusting our portfolio",
-      "url": "https://www.cnbc.com/investingclub/2026/10/24/ai-funding-fears-rattle-wall-street-heres-how-were-adjusting-our-portfolio.html",
-      "publishedAt": "2026-10-24T16:14:00.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "人工智能融资让华尔街忧心忡忡。以下是我们调整产品组合的方式",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -416,22 +480,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "508371583d1b8c61",
-      "title": "In hunt for Starlink alternative, Ukraine partners with Nokia and satellite maker ICEYE",
-      "url": "https://www.cnbc.com/2026/10/23/ukraine-partners-with-nokia-and-iceye-for-starlink-alternative.html",
-      "publishedAt": "2026-10-23T20:52:23.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "在寻找Starlink替代品的过程中，乌克兰与诺基亚和卫星制造商ICEYE合作",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "d9071f651d591d29",
       "title": "Trump says he ordered DOJ suit to block Alaska Senate race certification if Republican loses",
       "url": "https://www.cnbc.com/2026/10/23/alaska-senate-election-doj-lawsuit-sullivan.html",
@@ -466,22 +514,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "e406db6a9c154f83",
-      "title": "Musk's SpaceX is still restricting Starlink in Ukraine and the toll is rising",
-      "url": "https://www.cnbc.com/2026/10/23/ukraine-says-starlink-restrictions-remain-despite-trump-assurances.html",
-      "publishedAt": "2026-10-23T19:50:26.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "马斯克的SpaceX仍在限制乌克兰的Starlink ，收费正在上升",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "abad5562ed3da9e2",
       "title": "Corruption is voters' top issue ahead of midterm election, CNBC survey shows",
       "url": "https://www.cnbc.com/2026/10/23/corruption-midterm-election-cnbc-poll-trump.html",
@@ -494,74 +526,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "腐败是中期选举前选民的首要问题， CNBC调查显示",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "38207e7fb8ba67ff",
-      "title": "Meta shares are down 9% this week. Here's why Mike Khouw is buying now",
-      "url": "https://www.cnbc.com/2026/10/23/meta-shares-rough-week-mike-khouw-is-buying.html",
-      "publishedAt": "2026-10-23T19:25:18.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "Meta股价本周下跌9%。这就是Mike Khouw现在购买",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "0bf52164d3482b8c",
-      "title": "AI's 'Black October': Critical PHP flaws set off global security scramble",
-      "url": "https://www.cnbc.com/2026/10/23/php-vulnerabilities-ai-cybersecurity.html",
-      "publishedAt": "2026-10-23T16:55:37.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "人工智能的“黑色十月” ： PHP的关键缺陷引发了全球安全争夺战",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "400254d6d58e05b6",
-      "title": "TikTok U.S. hunts for multiple gigawatts of computing capacity, sources tell CNBC",
-      "url": "https://www.cnbc.com/2026/10/23/tiktok-us-compute-capacity.html",
-      "publishedAt": "2026-10-23T15:35:36.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "消息人士告诉CNBC ， TikTok美国正在寻找数千兆瓦的计算能力",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "b74f7652e7222abe",
-      "title": "SEC Announces Fiscal Year 2027 Examination Priorities",
-      "url": "https://www.sec.gov/newsroom/press-releases/2026-109-sec-announces-fiscal-year-2027-examination-priorities",
-      "publishedAt": "2026-10-23T14:10:00.000Z",
-      "source": "美国证监会",
-      "sourceType": "official",
-      "category": "equities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "美国证券交易委员会宣布2027财年考试优先事项",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     }
