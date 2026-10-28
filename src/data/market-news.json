@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-28T01:45:22.614Z",
+  "updatedAt": "2026-10-28T07:32:05.611Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "TypeError: fetch failed"
+      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
     },
     {
       "source": "美联储",
@@ -37,10 +37,10 @@
   ],
   "articles": [
     {
-      "id": "2c6e15bb8737305f",
-      "title": "SK Hynix announces over $25 billion in dividends and buyback as third-quarter profit beats estimates",
-      "url": "https://www.cnbc.com/2026/10/28/sk-hynix-third-quarter-profit.html",
-      "publishedAt": "2026-10-28T01:25:18.000Z",
+      "id": "a288098db29439aa",
+      "title": "Israel election appears to have no clear winner with Netanyahu, opponent Eisenkot far short of majorities",
+      "url": "https://www.cnbc.com/2026/10/28/israel-election-netanyahu-trump-gaza-.html",
+      "publishedAt": "2026-10-28T07:29:41.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "macro",
@@ -48,15 +48,15 @@
       "impact": "low",
       "impactScore": 1,
       "affectedAssets": [],
-      "translatedTitle": "SK海力士宣布超过250亿美元的股息和回购，第三季度利润超过预期",
+      "translatedTitle": "以色列大选似乎没有明显的胜利者，内塔尼亚胡，对手艾森科特远远低于多数",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
     {
-      "id": "ea0ec7319b84efba",
-      "title": "Anthropic's IPO is risky business",
-      "url": "https://www.cnbc.com/2026/10/27/anthropic-five-surprising-risks-s1.html",
-      "publishedAt": "2026-10-28T00:43:59.000Z",
+      "id": "8605e1f0b2aa66a1",
+      "title": "UBS pre-tax profits jump 27% in third quarter to $3.59 billion as wealth inflows surge",
+      "url": "https://www.cnbc.com/2026/10/28/ubs-earnings-third-quarter.html",
+      "publishedAt": "2026-10-28T07:23:56.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "macro",
@@ -64,7 +64,129 @@
       "impact": "low",
       "impactScore": 1,
       "affectedAssets": [],
-      "translatedTitle": "Anthropic的IPO是有风险的业务",
+      "translatedTitle": "随着财富流入激增，瑞银第三季度税前利润增长27%至35.9亿美元（ $ ）",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "2c6e15bb8737305f",
+      "title": "SK Hynix shares jump 11% after record quarterly profit, outperforming broader market",
+      "url": "https://www.cnbc.com/2026/10/28/sk-hynix-third-quarter-profit.html",
+      "publishedAt": "2026-10-28T06:56:49.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "SK海力士股价在创纪录的季度利润后上涨11% ，跑赢大盘",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "b6b3a5c5e5dbbb16",
+      "title": "Oil prices rise as Houthi attacks on Saudi Arabian refinery raise supply worries",
+      "url": "https://www.cnbc.com/2026/10/28/oil-price-today-wti-brent-hormuz.html",
+      "publishedAt": "2026-10-28T05:52:51.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "medium",
+      "impactScore": 3,
+      "affectedAssets": [
+        "原油"
+      ],
+      "translatedTitle": "随着胡塞武装对沙特阿拉伯炼油厂的袭击引发供应担忧，油价上涨",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "76e75034fc337c57",
+      "title": "Meta- and Google-backed Jio Platforms’ shares soar over 21% on trading debut after record IPO",
+      "url": "https://www.cnbc.com/2026/10/28/jio-ipo-india-listing-.html",
+      "publishedAt": "2026-10-28T05:16:41.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "Meta和Google支持的Jio Platforms股价在创纪录的IPO后首次上市时飙升超过21 ％",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "4bbbdae6577f0ae2",
+      "title": "Trump jokes $5,000 would buy 'a hamburger and maybe a small dessert' at Mar-a-Lago as cost of living looms over midterms",
+      "url": "https://www.cnbc.com/2026/10/28/trump-jokes-5000-cash-would-buy-hamburger-and-dessert-at-mar-a-lago.html",
+      "publishedAt": "2026-10-28T04:29:20.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "特朗普开玩笑说， 5000 $将在Mar-a-Lago购买“一个汉堡包，也许还有一个小甜点” ，因为生活费用在中期逼近",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "49a399eaafb098c1",
+      "title": "Kylian Mbappé faces China backlash as sponsors cut ties over viral meme",
+      "url": "https://www.cnbc.com/2026/10/28/china-mbappe-football-sponsor-meme-controversy.html",
+      "publishedAt": "2026-10-28T03:33:53.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [
+        "A股"
+      ],
+      "translatedTitle": "Kylian Mbappé面临中国的强烈反对，因为赞助商切断了与病毒模因的联系",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "fd752cf53463e709",
+      "title": "Trump says Iran war will end 'when I want it to' as costs reportedly balloon to $47 billion",
+      "url": "https://www.cnbc.com/2026/10/28/us-iran-war-trump-hormuz-costs-centcom.html",
+      "publishedAt": "2026-10-28T03:02:44.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "特朗普表示，伊朗战争将在“我想要的时候”结束，据报道，成本激增至470亿美元（ $ 470亿）",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "5dae7befe13b2e0c",
+      "title": "Labubu-maker Pop Mart's shares extend declines as third-quarter sales plunge",
+      "url": "https://www.cnbc.com/2026/10/28/labubu-pop-mart-third-quarter-earnings.html",
+      "publishedAt": "2026-10-28T02:57:36.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "随着第三季度销售额的暴跌， Labubu制造商Pop Mart的股价继续下跌",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -78,7 +200,7 @@
       "category": "equities",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "美股"
       ],
@@ -96,7 +218,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "大陪审团拒绝司法部起诉前特朗普WH助手Cassidy Hutchinson ：报告",
       "translationStatus": "translated",
@@ -270,40 +392,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "3db2030ec1e8ac92",
-      "title": "JetBlue stock surges as company outlook calms investors",
-      "url": "https://www.cnbc.com/2026/10/26/jetblue-jblu-3q-2026-earnings.html",
-      "publishedAt": "2026-10-27T20:13:21.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "随着公司前景让投资者平静下来，捷蓝航空股票飙升",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "fc22cc8da0e0b113",
-      "title": "Oracle integrates ChatGPT, Codex into apps and expands cloud chip lineup",
-      "url": "https://www.cnbc.com/2026/10/27/oracle-openai-chatgpt-codex-google-tpus.html",
-      "publishedAt": "2026-10-27T19:51:41.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "甲骨文将ChatGPT、Codex集成到应用程序中并扩展云芯片阵容",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "e2eef927ee00fef6",
       "title": "Neil Young sues Trump committee for $10M for playing 'Rockin' in the Free World' at rally",
       "url": "https://www.cnbc.com/2026/10/27/neil-young-trump-lawsuit-song-copyright-free-world.html",
@@ -372,22 +460,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "fa3f1327294add2a",
-      "title": "GLP-1 drug coverage is being dropped by employer plans: What to know about 2027 weight-loss options",
-      "url": "https://www.cnbc.com/2026/10/27/glp1-drug-coverage-weight-loss-options.html",
-      "publishedAt": "2026-10-27T17:57:57.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "雇主计划正在放弃GLP-1药物保险：关于2027年减肥方案的了解",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "6d891a80f7d91698",
       "title": "Honda warns 50% Canada auto tariffs would be catastrophic for industry",
       "url": "https://www.cnbc.com/2026/10/27/honda-warns-50percent-canada-auto-tariffs-would-be-catastrophic.html",
@@ -404,22 +476,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "9c2aabe5af398bf0",
-      "title": "Judge blasts prosecutors, refuses to sign new criminal complaint against ex-FBI officials",
-      "url": "https://www.cnbc.com/2026/10/27/fbi-hunter-biden-congress-charges-doj.html",
-      "publishedAt": "2026-10-27T17:39:35.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "法官抨击检察官，拒绝签署针对前联邦调查局官员的新刑事诉讼",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "83ac5bbc452ae31d",
       "title": "Anthropic's IPO could be 'speculative fiction' or a 'generational moment' — investors are split",
       "url": "https://www.cnbc.com/2026/10/27/-anthropic-ipo-investors-growth-losses-s-1.html",
@@ -432,54 +488,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "Anthropic的IPO可能是“投机虚构”或“代际时刻” —投资者分裂",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "c91e0bf1a3b7da1e",
-      "title": "As holiday shopping approaches, seasonal hiring gives 'mixed signals,' experts say",
-      "url": "https://www.cnbc.com/make-it/2026/10/27/seasonal-hiring-2026-holiday-jobs.html",
-      "publishedAt": "2026-10-27T16:40:57.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "专家说，随着假日购物的临近，季节性招聘发出了“混合信号”",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "b283d1ecbc759140",
-      "title": "A rising wealth tide lifts all yachts",
-      "url": "https://www.cnbc.com/2026/10/27/a-rising-wealth-tide-lifts-all-yachts.html",
-      "publishedAt": "2026-10-27T14:29:29.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "不断上升的财富潮汐提升了所有游艇",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "16113b705e6bff15",
-      "title": "Nvidia, AMD to invest $4 billion in Meta as tech giants deepen AI partnership",
-      "url": "https://www.cnbc.com/2026/10/27/nvidia-invest-meta.html",
-      "publishedAt": "2026-10-27T14:19:36.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "随着科技巨头深化人工智能合作伙伴关系，英伟达和AMD将向Meta投资40 $",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -564,22 +572,6 @@
       "impactScore": 2,
       "affectedAssets": [],
       "translatedTitle": "企业融资准入调查：贷款条件收紧",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "4aa2eb3e52ea81d3",
-      "title": "Frank Elderson: Taking action for nature – investing in economic resilience and prosperity",
-      "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp261026~d903d7ad85.en.html",
-      "publishedAt": "2026-10-26T05:00:00.000Z",
-      "source": "欧洲央行",
-      "sourceType": "official",
-      "category": "macro",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [],
-      "translatedTitle": "弗兰克·埃尔德森（ Frank Elderson ） ：为自然采取行动–投资于经济韧性和繁荣",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     }
