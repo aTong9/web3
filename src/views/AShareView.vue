@@ -7,6 +7,7 @@ import FundResearchWorkbench from '@/components/FundResearchWorkbench.vue'
 import type { AShareFund, AShareSectorDataset, SectorKind, SectorPeriod } from '@/types'
 import HotStocksPanel from '@/components/HotStocksPanel.vue'
 import { useI18n } from '@/composables/use-i18n'
+import { loadAShareSectorDataset } from '@/utils/market-dataset-loading'
 import type { FundResearchItem } from '@/utils/fund-research'
 
 type Scope = 'all' | SectorKind
@@ -123,8 +124,7 @@ const loadDataset = async () => {
   dataLoading.value = true
   dataError.value = false
   try {
-    const module = await import('@/data/a-share-sectors.json')
-    dataset.value = module.default as AShareSectorDataset
+    dataset.value = await loadAShareSectorDataset()
   } catch (error) {
     dataError.value = true
     console.warn('A-share sector dataset failed to load:', error)

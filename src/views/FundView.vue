@@ -8,6 +8,7 @@ import type { FundVenue, UsFund, UsFundDataset } from '@/types'
 import HotStocksPanel from '@/components/HotStocksPanel.vue'
 import UsMegaCapsPanel from '@/components/UsMegaCapsPanel.vue'
 import { useI18n } from '@/composables/use-i18n'
+import { loadUsFundDataset } from '@/utils/market-dataset-loading'
 import type { FundResearchItem } from '@/utils/fund-research'
 
 type SortKey = 'scale' | 'fee' | 'premium' | 'firstYearCost'
@@ -95,8 +96,7 @@ const loadDataset = async () => {
   dataLoading.value = true
   dataError.value = false
   try {
-    const module = await import('@/data/us-funds.json')
-    dataset.value = module.default as UsFundDataset
+    dataset.value = await loadUsFundDataset()
   } catch (error) {
     dataError.value = true
     console.warn('US fund dataset failed to load:', error)
