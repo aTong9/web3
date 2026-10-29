@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import { DatabaseSync } from 'node:sqlite'
 import test from 'node:test'
 
-test('covering evaluation index preserves hourly samples, null outcomes and validation windows', () => {
+test('completed evaluation indexes preserve hourly samples, null outcomes and validation windows', () => {
   const db = new DatabaseSync(':memory:')
   db.exec(`CREATE TABLE btc_auto_signal_history (
     id INTEGER PRIMARY KEY, signal_model_version TEXT, observed_at TEXT,
@@ -55,11 +55,26 @@ test('covering evaluation index preserves hourly samples, null outcomes and vali
       'utf8',
     ),
   )
+  db.exec(
+    fs.readFileSync(
+      new URL('../worker/migrations/0038_btc_auto_completed_evaluation_indexes.sql', import.meta.url),
+      'utf8',
+    ),
+  )
   queries.forEach((q, i) => {
     assert.deepEqual(db.prepare(q).get(params[i]), before[i])
     const plan = db.prepare('EXPLAIN QUERY PLAN ' + q).all(params[i])
+    const expectedIndex = [
+      'btc_auto_comparison_completed_idx',
+      'btc_auto_signal_evaluation_idx',
+      'btc_auto_consensus_completed_idx',
+    ][i]
     assert.ok(
-      plan.some((row) => row.detail.includes('COVERING INDEX btc_auto_signal_evaluation_idx')),
+      plan.some((row) =>
+        row.detail.includes(`COVERING INDEX ${expectedIndex}`) &&
+        (i === 1 || row.detail.startsWith('SEARCH s ')),
+      ),
+      JSON.stringify(plan),
     )
   })
   const baseline = JSON.parse(
