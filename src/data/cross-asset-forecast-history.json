@@ -1,1942 +1,6 @@
 {
-  "updatedAt": "2026-10-29T02:31:45.185Z",
+  "updatedAt": "2026-10-30T02:41:09.790Z",
   "records": [
-    {
-      "marketId": "shanghai",
-      "marketName": "上证综指",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "week",
-      "horizonObservations": 5,
-      "bias": "bearish",
-      "score": -0.04,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "5观测动量",
-          "driver": "5观测动量",
-          "driverZ": -0.04,
-          "contribution": -0.04
-        },
-        {
-          "chain": "21观测趋势",
-          "driver": "21观测趋势",
-          "driverZ": -0.03,
-          "contribution": -0.03
-        }
-      ],
-      "resolvedAt": "2026-09-18T01:19:38.857Z",
-      "outcomeDate": "2026-09-17",
-      "realizedMove": -1.49,
-      "directionCorrect": true,
-      "brierLoss": 0.25
-    },
-    {
-      "marketId": "shanghai",
-      "marketName": "上证综指",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "month",
-      "horizonObservations": 21,
-      "bias": "bearish",
-      "score": -0.08,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "21观测动量",
-          "driver": "21观测动量",
-          "driverZ": -0.03,
-          "contribution": -0.03
-        },
-        {
-          "chain": "63观测趋势",
-          "driver": "63观测趋势",
-          "driverZ": -0.14,
-          "contribution": -0.14
-        }
-      ],
-      "resolvedAt": "2026-10-20T01:53:44.068Z",
-      "outcomeDate": "2026-10-19",
-      "realizedMove": -5.17,
-      "directionCorrect": true,
-      "brierLoss": 0.25
-    },
-    {
-      "marketId": "shanghai",
-      "marketName": "上证综指",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "quarter",
-      "horizonObservations": 63,
-      "bias": "bearish",
-      "score": -0.17,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "63观测动量",
-          "driver": "63观测动量",
-          "driverZ": -0.14,
-          "contribution": -0.14
-        },
-        {
-          "chain": "126观测趋势",
-          "driver": "126观测趋势",
-          "driverZ": -0.2,
-          "contribution": -0.2
-        }
-      ]
-    },
-    {
-      "marketId": "shanghai",
-      "marketName": "上证综指",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "halfYear",
-      "horizonObservations": 126,
-      "bias": "bearish",
-      "score": -0.07,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "126观测动量",
-          "driver": "126观测动量",
-          "driverZ": -0.2,
-          "contribution": -0.2
-        },
-        {
-          "chain": "252观测趋势",
-          "driver": "252观测趋势",
-          "driverZ": 0.1,
-          "contribution": 0.1
-        }
-      ]
-    },
-    {
-      "marketId": "shanghai",
-      "marketName": "上证综指",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "year",
-      "horizonObservations": 252,
-      "bias": "bullish",
-      "score": 0.06,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "252观测动量",
-          "driver": "252观测动量",
-          "driverZ": 0.1,
-          "contribution": 0.1
-        },
-        {
-          "chain": "504观测趋势",
-          "driver": "504观测趋势",
-          "driverZ": 0,
-          "contribution": 0
-        }
-      ]
-    },
-    {
-      "marketId": "hangseng",
-      "marketName": "恒生指数",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "day",
-      "horizonObservations": 1,
-      "bias": "bearish",
-      "score": -1,
-      "upProbabilityPct": 52.14,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量短线方向",
-      "ruleName": "纯动量短线方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "1观测动量",
-          "driver": "1观测动量",
-          "driverZ": -0.52,
-          "contribution": -0.52
-        },
-        {
-          "chain": "5观测趋势",
-          "driver": "5观测趋势",
-          "driverZ": -0.2,
-          "contribution": -0.2
-        }
-      ],
-      "resolvedAt": "2026-09-12T01:11:43.889Z",
-      "outcomeDate": "2026-09-11",
-      "realizedMove": -0.6,
-      "directionCorrect": true,
-      "brierLoss": 0.2719
-    },
-    {
-      "marketId": "hangseng",
-      "marketName": "恒生指数",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "week",
-      "horizonObservations": 5,
-      "bias": "bearish",
-      "score": -0.19,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量趋势（波动调整）",
-      "ruleName": "纯动量趋势（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "5观测动量",
-          "driver": "5观测动量",
-          "driverZ": -0.2,
-          "contribution": -0.2
-        },
-        {
-          "chain": "21观测趋势",
-          "driver": "21观测趋势",
-          "driverZ": -0.19,
-          "contribution": -0.19
-        }
-      ],
-      "resolvedAt": "2026-09-17T01:30:02.539Z",
-      "outcomeDate": "2026-09-17",
-      "realizedMove": -1.9,
-      "directionCorrect": true,
-      "brierLoss": 0.25
-    },
-    {
-      "marketId": "hangseng",
-      "marketName": "恒生指数",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "month",
-      "horizonObservations": 21,
-      "bias": "bearish",
-      "score": -0.03,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "21观测动量",
-          "driver": "21观测动量",
-          "driverZ": -0.19,
-          "contribution": -0.19
-        },
-        {
-          "chain": "63观测趋势",
-          "driver": "63观测趋势",
-          "driverZ": 0.16,
-          "contribution": 0.16
-        }
-      ],
-      "resolvedAt": "2026-10-13T03:37:23.581Z",
-      "outcomeDate": "2026-10-12",
-      "realizedMove": -2.74,
-      "directionCorrect": true,
-      "brierLoss": 0.25
-    },
-    {
-      "marketId": "hangseng",
-      "marketName": "恒生指数",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "quarter",
-      "horizonObservations": 63,
-      "bias": "bullish",
-      "score": 0.06,
-      "upProbabilityPct": 75,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "63观测动量",
-          "driver": "63观测动量",
-          "driverZ": 0.16,
-          "contribution": 0.16
-        },
-        {
-          "chain": "126观测趋势",
-          "driver": "126观测趋势",
-          "driverZ": -0.07,
-          "contribution": -0.07
-        }
-      ]
-    },
-    {
-      "marketId": "hangseng",
-      "marketName": "恒生指数",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "halfYear",
-      "horizonObservations": 126,
-      "bias": "bearish",
-      "score": -0.07,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "126观测动量",
-          "driver": "126观测动量",
-          "driverZ": -0.07,
-          "contribution": -0.07
-        },
-        {
-          "chain": "252观测趋势",
-          "driver": "252观测趋势",
-          "driverZ": -0.07,
-          "contribution": -0.07
-        }
-      ]
-    },
-    {
-      "marketId": "hangseng",
-      "marketName": "恒生指数",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "year",
-      "horizonObservations": 252,
-      "bias": "bearish",
-      "score": -0.04,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "252观测动量",
-          "driver": "252观测动量",
-          "driverZ": -0.07,
-          "contribution": -0.07
-        },
-        {
-          "chain": "504观测趋势",
-          "driver": "504观测趋势",
-          "driverZ": 0,
-          "contribution": 0
-        }
-      ]
-    },
-    {
-      "marketId": "euro50",
-      "marketName": "NASDAQ Euro 50",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "day",
-      "horizonObservations": 1,
-      "bias": "bearish",
-      "score": -1,
-      "upProbabilityPct": 55.56,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量短线方向",
-      "ruleName": "纯动量短线方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "1观测动量",
-          "driver": "1观测动量",
-          "driverZ": -0.75,
-          "contribution": -0.75
-        },
-        {
-          "chain": "5观测趋势",
-          "driver": "5观测趋势",
-          "driverZ": -0.16,
-          "contribution": -0.16
-        }
-      ],
-      "resolvedAt": "2026-09-12T01:11:43.889Z",
-      "outcomeDate": "2026-09-10",
-      "realizedMove": -0.69,
-      "directionCorrect": true,
-      "brierLoss": 0.3087
-    },
-    {
-      "marketId": "euro50",
-      "marketName": "NASDAQ Euro 50",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "week",
-      "horizonObservations": 5,
-      "bias": "bearish",
-      "score": -1,
-      "upProbabilityPct": 57.55,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量短线方向",
-      "ruleName": "纯动量短线方向",
-      "threshold": 0.35,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "5观测动量",
-          "driver": "5观测动量",
-          "driverZ": -0.16,
-          "contribution": -0.16
-        },
-        {
-          "chain": "21观测趋势",
-          "driver": "21观测趋势",
-          "driverZ": -0.47,
-          "contribution": -0.47
-        }
-      ],
-      "resolvedAt": "2026-09-18T01:19:38.858Z",
-      "outcomeDate": "2026-09-16",
-      "realizedMove": -0.94,
-      "directionCorrect": true,
-      "brierLoss": 0.3312
-    },
-    {
-      "marketId": "euro50",
-      "marketName": "NASDAQ Euro 50",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "month",
-      "horizonObservations": 21,
-      "bias": "bearish",
-      "score": -0.21,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.5,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "21观测动量",
-          "driver": "21观测动量",
-          "driverZ": -0.47,
-          "contribution": -0.47
-        },
-        {
-          "chain": "63观测趋势",
-          "driver": "63观测趋势",
-          "driverZ": 0.14,
-          "contribution": 0.14
-        }
-      ],
-      "resolvedAt": "2026-10-10T02:23:55.259Z",
-      "outcomeDate": "2026-10-08",
-      "realizedMove": -2.68,
-      "directionCorrect": true,
-      "brierLoss": 0.25
-    },
-    {
-      "marketId": "euro50",
-      "marketName": "NASDAQ Euro 50",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "quarter",
-      "horizonObservations": 63,
-      "bias": "bullish",
-      "score": 1,
-      "upProbabilityPct": 69.23,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量趋势方向",
-      "ruleName": "纯动量趋势方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "63观测动量",
-          "driver": "63观测动量",
-          "driverZ": 0.14,
-          "contribution": 0.14
-        },
-        {
-          "chain": "126观测趋势",
-          "driver": "126观测趋势",
-          "driverZ": 0.48,
-          "contribution": 0.48
-        }
-      ]
-    },
-    {
-      "marketId": "euro50",
-      "marketName": "NASDAQ Euro 50",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "halfYear",
-      "horizonObservations": 126,
-      "bias": "bullish",
-      "score": 1,
-      "upProbabilityPct": 55.56,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量短线方向",
-      "ruleName": "纯动量短线方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "126观测动量",
-          "driver": "126观测动量",
-          "driverZ": 0.48,
-          "contribution": 0.48
-        },
-        {
-          "chain": "252观测趋势",
-          "driver": "252观测趋势",
-          "driverZ": 0.56,
-          "contribution": 0.56
-        }
-      ]
-    },
-    {
-      "marketId": "euro50",
-      "marketName": "NASDAQ Euro 50",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "year",
-      "horizonObservations": 252,
-      "bias": "bullish",
-      "score": 0.61,
-      "upProbabilityPct": 25,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "252观测动量",
-          "driver": "252观测动量",
-          "driverZ": 0.56,
-          "contribution": 0.56
-        },
-        {
-          "chain": "504观测趋势",
-          "driver": "504观测趋势",
-          "driverZ": 0.69,
-          "contribution": 0.69
-        }
-      ]
-    },
-    {
-      "marketId": "nikkei",
-      "marketName": "日经225",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "day",
-      "horizonObservations": 1,
-      "bias": "bullish",
-      "score": 1,
-      "upProbabilityPct": 52.88,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量趋势方向",
-      "ruleName": "纯动量趋势方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "1观测动量",
-          "driver": "1观测动量",
-          "driverZ": 0.05,
-          "contribution": 0.05
-        },
-        {
-          "chain": "5观测趋势",
-          "driver": "5观测趋势",
-          "driverZ": 0.19,
-          "contribution": 0.19
-        }
-      ],
-      "resolvedAt": "2026-09-12T01:11:43.889Z",
-      "outcomeDate": "2026-09-11",
-      "realizedMove": -1.93,
-      "directionCorrect": false,
-      "brierLoss": 0.2796
-    },
-    {
-      "marketId": "nikkei",
-      "marketName": "日经225",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "week",
-      "horizonObservations": 5,
-      "bias": "bullish",
-      "score": 0.5,
-      "upProbabilityPct": 58.58,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量短线方向",
-      "ruleName": "纯动量短线方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "5观测动量",
-          "driver": "5观测动量",
-          "driverZ": 0.19,
-          "contribution": 0.19
-        },
-        {
-          "chain": "21观测趋势",
-          "driver": "21观测趋势",
-          "driverZ": -0.19,
-          "contribution": -0.19
-        }
-      ],
-      "resolvedAt": "2026-09-18T01:19:38.858Z",
-      "outcomeDate": "2026-09-17",
-      "realizedMove": -1.74,
-      "directionCorrect": false,
-      "brierLoss": 0.3432
-    },
-    {
-      "marketId": "nikkei",
-      "marketName": "日经225",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "month",
-      "horizonObservations": 21,
-      "bias": "bullish",
-      "score": 0.38,
-      "upProbabilityPct": 62.16,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量趋势方向",
-      "ruleName": "纯动量趋势方向",
-      "threshold": 0.35,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "21观测动量",
-          "driver": "21观测动量",
-          "driverZ": -0.19,
-          "contribution": -0.19
-        },
-        {
-          "chain": "63观测趋势",
-          "driver": "63观测趋势",
-          "driverZ": 0.05,
-          "contribution": 0.05
-        }
-      ],
-      "resolvedAt": "2026-10-16T01:27:00.534Z",
-      "outcomeDate": "2026-10-15",
-      "realizedMove": -1.29,
-      "directionCorrect": false,
-      "brierLoss": 0.3864
-    },
-    {
-      "marketId": "nikkei",
-      "marketName": "日经225",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "quarter",
-      "horizonObservations": 63,
-      "bias": "bullish",
-      "score": 0.25,
-      "upProbabilityPct": 41.67,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "63观测动量",
-          "driver": "63观测动量",
-          "driverZ": 0.05,
-          "contribution": 0.05
-        },
-        {
-          "chain": "126观测趋势",
-          "driver": "126观测趋势",
-          "driverZ": 0.5,
-          "contribution": 0.5
-        }
-      ]
-    },
-    {
-      "marketId": "nikkei",
-      "marketName": "日经225",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "halfYear",
-      "horizonObservations": 126,
-      "bias": "bullish",
-      "score": 1,
-      "upProbabilityPct": 16.67,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡方向",
-      "ruleName": "纯动量均衡方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "126观测动量",
-          "driver": "126观测动量",
-          "driverZ": 0.5,
-          "contribution": 0.5
-        },
-        {
-          "chain": "252观测趋势",
-          "driver": "252观测趋势",
-          "driverZ": 0.7,
-          "contribution": 0.7
-        }
-      ]
-    },
-    {
-      "marketId": "nikkei",
-      "marketName": "日经225",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "year",
-      "horizonObservations": 252,
-      "bias": "bullish",
-      "score": 0.69,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "252观测动量",
-          "driver": "252观测动量",
-          "driverZ": 0.7,
-          "contribution": 0.7
-        },
-        {
-          "chain": "504观测趋势",
-          "driver": "504观测趋势",
-          "driverZ": 0.68,
-          "contribution": 0.68
-        }
-      ]
-    },
-    {
-      "marketId": "wti",
-      "marketName": "WTI原油",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "day",
-      "horizonObservations": 1,
-      "bias": "bullish",
-      "score": 1,
-      "upProbabilityPct": 53.31,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量趋势方向",
-      "ruleName": "纯动量趋势方向",
-      "threshold": 0.5,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "1观测动量",
-          "driver": "1观测动量",
-          "driverZ": 0.46,
-          "contribution": 0.46
-        },
-        {
-          "chain": "5观测趋势",
-          "driver": "5观测趋势",
-          "driverZ": 0.41,
-          "contribution": 0.41
-        }
-      ],
-      "resolvedAt": "2026-09-17T01:30:02.539Z",
-      "outcomeDate": "2026-09-10",
-      "realizedMove": 6.49,
-      "directionCorrect": true,
-      "brierLoss": 0.218
-    },
-    {
-      "marketId": "wti",
-      "marketName": "WTI原油",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "week",
-      "horizonObservations": 5,
-      "bias": "bullish",
-      "score": 1,
-      "upProbabilityPct": 61.54,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量趋势方向",
-      "ruleName": "纯动量趋势方向",
-      "threshold": 0.35,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "5观测动量",
-          "driver": "5观测动量",
-          "driverZ": 0.41,
-          "contribution": 0.41
-        },
-        {
-          "chain": "21观测趋势",
-          "driver": "21观测趋势",
-          "driverZ": 0.49,
-          "contribution": 0.49
-        }
-      ],
-      "resolvedAt": "2026-09-24T01:28:36.571Z",
-      "outcomeDate": "2026-09-16",
-      "realizedMove": 6.54,
-      "directionCorrect": true,
-      "brierLoss": 0.1479
-    },
-    {
-      "marketId": "wti",
-      "marketName": "WTI原油",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "month",
-      "horizonObservations": 21,
-      "bias": "bullish",
-      "score": 1,
-      "upProbabilityPct": 60.53,
-      "probabilityValidated": true,
-      "directionGateEligible": true,
-      "ruleId": "纯动量短线方向",
-      "ruleName": "纯动量短线方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "21观测动量",
-          "driver": "21观测动量",
-          "driverZ": 0.49,
-          "contribution": 0.49
-        },
-        {
-          "chain": "63观测趋势",
-          "driver": "63观测趋势",
-          "driverZ": 0.11,
-          "contribution": 0.11
-        }
-      ],
-      "resolvedAt": "2026-10-16T01:27:00.534Z",
-      "outcomeDate": "2026-10-08",
-      "realizedMove": 1.03,
-      "directionCorrect": true,
-      "brierLoss": 0.1558
-    },
-    {
-      "marketId": "wti",
-      "marketName": "WTI原油",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "quarter",
-      "horizonObservations": 63,
-      "bias": "bullish",
-      "score": 1,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量趋势方向",
-      "ruleName": "纯动量趋势方向",
-      "threshold": 0.5,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "63观测动量",
-          "driver": "63观测动量",
-          "driverZ": 0.11,
-          "contribution": 0.11
-        },
-        {
-          "chain": "126观测趋势",
-          "driver": "126观测趋势",
-          "driverZ": 0.22,
-          "contribution": 0.22
-        }
-      ]
-    },
-    {
-      "marketId": "wti",
-      "marketName": "WTI原油",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "halfYear",
-      "horizonObservations": 126,
-      "bias": "bullish",
-      "score": 0.28,
-      "upProbabilityPct": 57.14,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量短线（波动调整）",
-      "ruleName": "纯动量短线（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "126观测动量",
-          "driver": "126观测动量",
-          "driverZ": 0.22,
-          "contribution": 0.22
-        },
-        {
-          "chain": "252观测趋势",
-          "driver": "252观测趋势",
-          "driverZ": 0.47,
-          "contribution": 0.47
-        }
-      ]
-    },
-    {
-      "marketId": "wti",
-      "marketName": "WTI原油",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "year",
-      "horizonObservations": 252,
-      "bias": "bullish",
-      "score": 0.35,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "252观测动量",
-          "driver": "252观测动量",
-          "driverZ": 0.47,
-          "contribution": 0.47
-        },
-        {
-          "chain": "504观测趋势",
-          "driver": "504观测趋势",
-          "driverZ": 0.19,
-          "contribution": 0.19
-        }
-      ]
-    },
-    {
-      "marketId": "gold",
-      "marketName": "黄金策略指数",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "day",
-      "horizonObservations": 1,
-      "bias": "bullish",
-      "score": 1,
-      "upProbabilityPct": 54.25,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量短线方向",
-      "ruleName": "纯动量短线方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "1观测动量",
-          "driver": "1观测动量",
-          "driverZ": 0.15,
-          "contribution": 0.15
-        },
-        {
-          "chain": "5观测趋势",
-          "driver": "5观测趋势",
-          "driverZ": 0.19,
-          "contribution": 0.19
-        }
-      ],
-      "resolvedAt": "2026-09-12T01:11:43.889Z",
-      "outcomeDate": "2026-09-10",
-      "realizedMove": -3.16,
-      "directionCorrect": false,
-      "brierLoss": 0.2943
-    },
-    {
-      "marketId": "gold",
-      "marketName": "黄金策略指数",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "week",
-      "horizonObservations": 5,
-      "bias": "bullish",
-      "score": 0.33,
-      "upProbabilityPct": 49.52,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量趋势（波动调整）",
-      "ruleName": "纯动量趋势（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "5观测动量",
-          "driver": "5观测动量",
-          "driverZ": 0.19,
-          "contribution": 0.19
-        },
-        {
-          "chain": "21观测趋势",
-          "driver": "21观测趋势",
-          "driverZ": 0.39,
-          "contribution": 0.39
-        }
-      ],
-      "resolvedAt": "2026-09-18T01:19:38.858Z",
-      "outcomeDate": "2026-09-16",
-      "realizedMove": -6.68,
-      "directionCorrect": false,
-      "brierLoss": 0.2452
-    },
-    {
-      "marketId": "gold",
-      "marketName": "黄金策略指数",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "month",
-      "horizonObservations": 21,
-      "bias": "bullish",
-      "score": 0.45,
-      "upProbabilityPct": 57.14,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量趋势（波动调整）",
-      "ruleName": "纯动量趋势（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "21观测动量",
-          "driver": "21观测动量",
-          "driverZ": 0.39,
-          "contribution": 0.39
-        },
-        {
-          "chain": "63观测趋势",
-          "driver": "63观测趋势",
-          "driverZ": 0.48,
-          "contribution": 0.48
-        }
-      ],
-      "resolvedAt": "2026-10-10T02:23:55.260Z",
-      "outcomeDate": "2026-10-08",
-      "realizedMove": -14.78,
-      "directionCorrect": false,
-      "brierLoss": 0.3265
-    },
-    {
-      "marketId": "gold",
-      "marketName": "黄金策略指数",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "quarter",
-      "horizonObservations": 63,
-      "bias": "bullish",
-      "score": 1,
-      "upProbabilityPct": 46.15,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量短线方向",
-      "ruleName": "纯动量短线方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "63观测动量",
-          "driver": "63观测动量",
-          "driverZ": 0.48,
-          "contribution": 0.48
-        },
-        {
-          "chain": "126观测趋势",
-          "driver": "126观测趋势",
-          "driverZ": 0.06,
-          "contribution": 0.06
-        }
-      ]
-    },
-    {
-      "marketId": "gold",
-      "marketName": "黄金策略指数",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "halfYear",
-      "horizonObservations": 126,
-      "bias": "bullish",
-      "score": 1,
-      "upProbabilityPct": 71.43,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量趋势方向",
-      "ruleName": "纯动量趋势方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "126观测动量",
-          "driver": "126观测动量",
-          "driverZ": 0.06,
-          "contribution": 0.06
-        },
-        {
-          "chain": "252观测趋势",
-          "driver": "252观测趋势",
-          "driverZ": 0.38,
-          "contribution": 0.38
-        }
-      ]
-    },
-    {
-      "marketId": "gold",
-      "marketName": "黄金策略指数",
-      "marketDate": "2026-09-09",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "year",
-      "horizonObservations": 252,
-      "bias": "bullish",
-      "score": 0.59,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "252观测动量",
-          "driver": "252观测动量",
-          "driverZ": 0.38,
-          "contribution": 0.38
-        },
-        {
-          "chain": "504观测趋势",
-          "driver": "504观测趋势",
-          "driverZ": 0.85,
-          "contribution": 0.85
-        }
-      ]
-    },
-    {
-      "marketId": "btc",
-      "marketName": "比特币",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "day",
-      "horizonObservations": 1,
-      "bias": "bearish",
-      "score": -1,
-      "upProbabilityPct": 54.16,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量短线方向",
-      "ruleName": "纯动量短线方向",
-      "threshold": 0.35,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "1观测动量",
-          "driver": "1观测动量",
-          "driverZ": -0.47,
-          "contribution": -0.47
-        },
-        {
-          "chain": "5观测趋势",
-          "driver": "5观测趋势",
-          "driverZ": -0.41,
-          "contribution": -0.41
-        }
-      ],
-      "resolvedAt": "2026-09-12T01:11:43.889Z",
-      "outcomeDate": "2026-09-11",
-      "realizedMove": 0.8,
-      "directionCorrect": false,
-      "brierLoss": 0.2101
-    },
-    {
-      "marketId": "btc",
-      "marketName": "比特币",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "week",
-      "horizonObservations": 5,
-      "bias": "bullish",
-      "score": 0.38,
-      "upProbabilityPct": 51.7,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量趋势方向",
-      "ruleName": "纯动量趋势方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "5观测动量",
-          "driver": "5观测动量",
-          "driverZ": -0.41,
-          "contribution": -0.41
-        },
-        {
-          "chain": "21观测趋势",
-          "driver": "21观测趋势",
-          "driverZ": 0.25,
-          "contribution": 0.25
-        }
-      ],
-      "resolvedAt": "2026-09-16T01:28:45.457Z",
-      "outcomeDate": "2026-09-15",
-      "realizedMove": -1.32,
-      "directionCorrect": false,
-      "brierLoss": 0.2673
-    },
-    {
-      "marketId": "btc",
-      "marketName": "比特币",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "month",
-      "horizonObservations": 21,
-      "bias": "bullish",
-      "score": 1,
-      "upProbabilityPct": 51.43,
-      "probabilityValidated": true,
-      "directionGateEligible": true,
-      "ruleId": "纯动量短线方向",
-      "ruleName": "纯动量短线方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "21观测动量",
-          "driver": "21观测动量",
-          "driverZ": 0.25,
-          "contribution": 0.25
-        },
-        {
-          "chain": "63观测趋势",
-          "driver": "63观测趋势",
-          "driverZ": 0.58,
-          "contribution": 0.58
-        }
-      ],
-      "resolvedAt": "2026-10-02T02:19:08.482Z",
-      "outcomeDate": "2026-10-01",
-      "realizedMove": 10.56,
-      "directionCorrect": true,
-      "brierLoss": 0.2359
-    },
-    {
-      "marketId": "btc",
-      "marketName": "比特币",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "quarter",
-      "horizonObservations": 63,
-      "bias": "bullish",
-      "score": 0.5,
-      "upProbabilityPct": 46.15,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量短线方向",
-      "ruleName": "纯动量短线方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "63观测动量",
-          "driver": "63观测动量",
-          "driverZ": 0.58,
-          "contribution": 0.58
-        },
-        {
-          "chain": "126观测趋势",
-          "driver": "126观测趋势",
-          "driverZ": -0.09,
-          "contribution": -0.09
-        }
-      ]
-    },
-    {
-      "marketId": "btc",
-      "marketName": "比特币",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "halfYear",
-      "horizonObservations": 126,
-      "bias": "bearish",
-      "score": -0.17,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量趋势（波动调整）",
-      "ruleName": "纯动量趋势（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "126观测动量",
-          "driver": "126观测动量",
-          "driverZ": -0.09,
-          "contribution": -0.09
-        },
-        {
-          "chain": "252观测趋势",
-          "driver": "252观测趋势",
-          "driverZ": -0.2,
-          "contribution": -0.2
-        }
-      ]
-    },
-    {
-      "marketId": "btc",
-      "marketName": "比特币",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "year",
-      "horizonObservations": 252,
-      "bias": "bearish",
-      "score": -0.2,
-      "upProbabilityPct": 66.67,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "252观测动量",
-          "driver": "252观测动量",
-          "driverZ": -0.2,
-          "contribution": -0.2
-        },
-        {
-          "chain": "504观测趋势",
-          "driver": "504观测趋势",
-          "driverZ": -0.2,
-          "contribution": -0.2
-        }
-      ]
-    },
-    {
-      "marketId": "eth",
-      "marketName": "以太坊",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "day",
-      "horizonObservations": 1,
-      "bias": "bearish",
-      "score": -1,
-      "upProbabilityPct": 53.32,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量趋势方向",
-      "ruleName": "纯动量趋势方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "1观测动量",
-          "driver": "1观测动量",
-          "driverZ": -0.17,
-          "contribution": -0.17
-        },
-        {
-          "chain": "5观测趋势",
-          "driver": "5观测趋势",
-          "driverZ": -0.11,
-          "contribution": -0.11
-        }
-      ],
-      "resolvedAt": "2026-09-12T01:11:43.890Z",
-      "outcomeDate": "2026-09-11",
-      "realizedMove": 3.04,
-      "directionCorrect": false,
-      "brierLoss": 0.2179
-    },
-    {
-      "marketId": "eth",
-      "marketName": "以太坊",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "week",
-      "horizonObservations": 5,
-      "bias": "bullish",
-      "score": 0.38,
-      "upProbabilityPct": 50.78,
-      "probabilityValidated": true,
-      "directionGateEligible": true,
-      "ruleId": "纯动量趋势方向",
-      "ruleName": "纯动量趋势方向",
-      "threshold": 0.35,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "5观测动量",
-          "driver": "5观测动量",
-          "driverZ": -0.11,
-          "contribution": -0.11
-        },
-        {
-          "chain": "21观测趋势",
-          "driver": "21观测趋势",
-          "driverZ": 0.17,
-          "contribution": 0.17
-        }
-      ],
-      "resolvedAt": "2026-09-16T01:28:45.458Z",
-      "outcomeDate": "2026-09-15",
-      "realizedMove": -1.69,
-      "directionCorrect": false,
-      "brierLoss": 0.2579
-    },
-    {
-      "marketId": "eth",
-      "marketName": "以太坊",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "month",
-      "horizonObservations": 21,
-      "bias": "bullish",
-      "score": 1,
-      "upProbabilityPct": 46.15,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量趋势方向",
-      "ruleName": "纯动量趋势方向",
-      "threshold": 0.35,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "21观测动量",
-          "driver": "21观测动量",
-          "driverZ": 0.17,
-          "contribution": 0.17
-        },
-        {
-          "chain": "63观测趋势",
-          "driver": "63观测趋势",
-          "driverZ": 0.67,
-          "contribution": 0.67
-        }
-      ],
-      "resolvedAt": "2026-10-02T02:19:08.482Z",
-      "outcomeDate": "2026-10-01",
-      "realizedMove": 10.67,
-      "directionCorrect": true,
-      "brierLoss": 0.29
-    },
-    {
-      "marketId": "eth",
-      "marketName": "以太坊",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "quarter",
-      "horizonObservations": 63,
-      "bias": "bullish",
-      "score": 1,
-      "upProbabilityPct": 64.29,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量短线方向",
-      "ruleName": "纯动量短线方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "63观测动量",
-          "driver": "63观测动量",
-          "driverZ": 0.67,
-          "contribution": 0.67
-        },
-        {
-          "chain": "126观测趋势",
-          "driver": "126观测趋势",
-          "driverZ": 0.09,
-          "contribution": 0.09
-        }
-      ]
-    },
-    {
-      "marketId": "eth",
-      "marketName": "以太坊",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "halfYear",
-      "horizonObservations": 126,
-      "bias": "bullish",
-      "score": 0.02,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量短线（波动调整）",
-      "ruleName": "纯动量短线（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "126观测动量",
-          "driver": "126观测动量",
-          "driverZ": 0.09,
-          "contribution": 0.09
-        },
-        {
-          "chain": "252观测趋势",
-          "driver": "252观测趋势",
-          "driverZ": -0.19,
-          "contribution": -0.19
-        }
-      ]
-    },
-    {
-      "marketId": "eth",
-      "marketName": "以太坊",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-11T01:12:22.167Z",
-      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
-      "forecastTrack": "homepage-momentum",
-      "horizonId": "year",
-      "horizonObservations": 252,
-      "bias": "bullish",
-      "score": 0.01,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "纯动量均衡（波动调整）",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "horizon-momentum",
-      "predictiveDrivers": [
-        {
-          "chain": "252观测动量",
-          "driver": "252观测动量",
-          "driverZ": -0.19,
-          "contribution": -0.19
-        },
-        {
-          "chain": "504观测趋势",
-          "driver": "504观测趋势",
-          "driverZ": 0.26,
-          "contribution": 0.26
-        }
-      ]
-    },
-    {
-      "marketId": "sp500",
-      "marketName": "标普500",
-      "marketDate": "2026-09-11",
-      "recordedAt": "2026-09-12T01:13:39.862Z",
-      "modelVersion": "cross-asset-v1.5-rate-decomposition",
-      "horizonObservations": 5,
-      "bias": "neutral",
-      "score": -0.07,
-      "upProbabilityPct": 60,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "momentumPersistentDirection",
-      "ruleName": "纯动量趋势方向",
-      "threshold": 0.35,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "all-regimes",
-      "predictiveDrivers": [
-        {
-          "chain": "金融条件—美股链",
-          "driver": "芝加哥联储金融条件指数",
-          "driverZ": -0.42,
-          "contribution": 0.04
-        }
-      ],
-      "resolvedAt": "2026-09-22T01:38:13.167Z",
-      "outcomeDate": "2026-09-18",
-      "realizedMove": -0.08,
-      "directionCorrect": null,
-      "brierLoss": 0.36
-    },
-    {
-      "marketId": "nasdaq",
-      "marketName": "纳斯达克综合",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-12T01:13:39.862Z",
-      "modelVersion": "cross-asset-v1.5-rate-decomposition",
-      "horizonObservations": 5,
-      "bias": "neutral",
-      "score": -0.03,
-      "upProbabilityPct": 45.45,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "momentumPersistentNormalized",
-      "ruleName": "纯动量趋势（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "all-regimes",
-      "predictiveDrivers": [],
-      "resolvedAt": "2026-09-19T01:14:58.603Z",
-      "outcomeDate": "2026-09-17",
-      "realizedMove": 1.29,
-      "directionCorrect": null,
-      "brierLoss": 0.2976
-    },
-    {
-      "marketId": "shanghai",
-      "marketName": "上证综指",
-      "marketDate": "2026-09-11",
-      "recordedAt": "2026-09-12T01:13:39.862Z",
-      "modelVersion": "cross-asset-v1.5-rate-decomposition",
-      "horizonObservations": 5,
-      "bias": "neutral",
-      "score": -0.19,
-      "upProbabilityPct": 60,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "momentumBalancedDirection",
-      "ruleName": "纯动量均衡方向",
-      "threshold": 0.5,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "all-regimes",
-      "predictiveDrivers": [],
-      "resolvedAt": "2026-09-19T01:14:58.603Z",
-      "outcomeDate": "2026-09-18",
-      "realizedMove": 0.61,
-      "directionCorrect": null,
-      "brierLoss": 0.16
-    },
-    {
-      "marketId": "hangseng",
-      "marketName": "恒生指数",
-      "marketDate": "2026-09-11",
-      "recordedAt": "2026-09-12T01:13:39.862Z",
-      "modelVersion": "cross-asset-v1.5-rate-decomposition",
-      "horizonObservations": 5,
-      "bias": "neutral",
-      "score": -0.08,
-      "upProbabilityPct": 59.09,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "momentumFastDirection",
-      "ruleName": "纯动量短线方向",
-      "threshold": 0.35,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "all-regimes",
-      "predictiveDrivers": [],
-      "resolvedAt": "2026-09-19T01:14:58.603Z",
-      "outcomeDate": "2026-09-18",
-      "realizedMove": -0.22,
-      "directionCorrect": null,
-      "brierLoss": 0.3492
-    },
-    {
-      "marketId": "euro50",
-      "marketName": "NASDAQ Euro 50",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-12T01:13:39.862Z",
-      "modelVersion": "cross-asset-v1.5-rate-decomposition",
-      "horizonObservations": 5,
-      "bias": "neutral",
-      "score": -0.02,
-      "upProbabilityPct": 46.67,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "momentumBalancedNormalized",
-      "ruleName": "纯动量均衡（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "all-regimes",
-      "predictiveDrivers": [],
-      "resolvedAt": "2026-09-19T01:14:58.603Z",
-      "outcomeDate": "2026-09-17",
-      "realizedMove": 0.63,
-      "directionCorrect": null,
-      "brierLoss": 0.2844
-    },
-    {
-      "marketId": "nikkei",
-      "marketName": "日经225",
-      "marketDate": "2026-09-11",
-      "recordedAt": "2026-09-12T01:13:39.862Z",
-      "modelVersion": "cross-asset-v1.5-rate-decomposition",
-      "horizonObservations": 5,
-      "bias": "neutral",
-      "score": -0.03,
-      "upProbabilityPct": 50,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "fastDirection",
-      "ruleName": "短线方向",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "macro-regime",
-      "predictiveDrivers": [],
-      "resolvedAt": "2026-09-19T01:14:58.603Z",
-      "outcomeDate": "2026-09-18",
-      "realizedMove": 1.57,
-      "directionCorrect": null,
-      "brierLoss": 0.25
-    },
-    {
-      "marketId": "gold",
-      "marketName": "黄金策略指数",
-      "marketDate": "2026-09-10",
-      "recordedAt": "2026-09-12T01:13:39.862Z",
-      "modelVersion": "cross-asset-v1.5-rate-decomposition",
-      "horizonObservations": 5,
-      "bias": "neutral",
-      "score": 0,
-      "upProbabilityPct": 57.14,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "balancedNormalized",
-      "ruleName": "均衡动量（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "all-regimes",
-      "predictiveDrivers": [],
-      "resolvedAt": "2026-09-19T01:14:58.603Z",
-      "outcomeDate": "2026-09-17",
-      "realizedMove": -1.06,
-      "directionCorrect": null,
-      "brierLoss": 0.3265
-    },
-    {
-      "marketId": "btc",
-      "marketName": "比特币",
-      "marketDate": "2026-09-11",
-      "recordedAt": "2026-09-12T01:13:39.862Z",
-      "modelVersion": "cross-asset-v1.5-rate-decomposition",
-      "horizonObservations": 5,
-      "bias": "neutral",
-      "score": -0.11,
-      "upProbabilityPct": 47.62,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "balancedNormalized",
-      "ruleName": "均衡动量（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "all-regimes",
-      "predictiveDrivers": [],
-      "resolvedAt": "2026-09-17T01:30:02.540Z",
-      "outcomeDate": "2026-09-16",
-      "realizedMove": -1.38,
-      "directionCorrect": null,
-      "brierLoss": 0.2268
-    },
-    {
-      "marketId": "eth",
-      "marketName": "以太坊",
-      "marketDate": "2026-09-11",
-      "recordedAt": "2026-09-12T01:13:39.862Z",
-      "modelVersion": "cross-asset-v1.5-rate-decomposition",
-      "horizonObservations": 5,
-      "bias": "neutral",
-      "score": 0,
-      "upProbabilityPct": 45.45,
-      "probabilityValidated": false,
-      "directionGateEligible": false,
-      "ruleId": "momentumPersistentNormalized",
-      "ruleName": "纯动量趋势（波动调整）",
-      "threshold": 0.2,
-      "macroRegime": "再通胀增长",
-      "probabilitySource": "all-regimes",
-      "predictiveDrivers": [],
-      "resolvedAt": "2026-09-17T01:30:02.540Z",
-      "outcomeDate": "2026-09-16",
-      "realizedMove": -3.99,
-      "directionCorrect": null,
-      "brierLoss": 0.2066
-    },
     {
       "marketId": "sp500",
       "marketName": "标普500",
@@ -17069,7 +15133,12 @@
           "driverZ": -0.25,
           "contribution": -0.25
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.154Z",
+      "outcomeDate": "2026-10-29",
+      "realizedMove": -7.61,
+      "directionCorrect": true,
+      "brierLoss": 0.25
     },
     {
       "marketId": "shanghai",
@@ -25346,7 +23415,12 @@
           "driverZ": 0.38,
           "contribution": 0.38
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.156Z",
+      "outcomeDate": "2026-10-30",
+      "realizedMove": -5.37,
+      "directionCorrect": true,
+      "brierLoss": 0.4445
     },
     {
       "marketId": "hangseng",
@@ -27963,7 +26037,12 @@
           "driverZ": -0.34,
           "contribution": -0.34
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.157Z",
+      "outcomeDate": "2026-10-29",
+      "realizedMove": -1.26,
+      "directionCorrect": true,
+      "brierLoss": 0.4011
     },
     {
       "marketId": "nikkei",
@@ -29278,7 +27357,12 @@
           "driverZ": 0.13,
           "contribution": 0.13
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.157Z",
+      "outcomeDate": "2026-10-28",
+      "realizedMove": -0.92,
+      "directionCorrect": false,
+      "brierLoss": 0.3787
     },
     {
       "marketId": "nasdaq",
@@ -29706,7 +27790,12 @@
           "driverZ": -0.05,
           "contribution": -0.05
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.158Z",
+      "outcomeDate": "2026-10-28",
+      "realizedMove": -2.45,
+      "directionCorrect": true,
+      "brierLoss": 0.2244
     },
     {
       "marketId": "euro50",
@@ -30348,7 +28437,12 @@
           "driverZ": 0.26,
           "contribution": 0.26
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.158Z",
+      "outcomeDate": "2026-10-28",
+      "realizedMove": -6.88,
+      "directionCorrect": true,
+      "brierLoss": 0.25
     },
     {
       "marketId": "gold",
@@ -42326,7 +40420,12 @@
           "driverZ": 0.64,
           "contribution": 0.64
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.162Z",
+      "outcomeDate": "2026-10-29",
+      "realizedMove": -4.55,
+      "directionCorrect": false,
+      "brierLoss": 0.29
     },
     {
       "marketId": "btc",
@@ -42540,7 +40639,12 @@
           "driverZ": 0.53,
           "contribution": 0.53
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.162Z",
+      "outcomeDate": "2026-10-29",
+      "realizedMove": -9.01,
+      "directionCorrect": false,
+      "brierLoss": 0.3402
     },
     {
       "marketId": "eth",
@@ -58218,7 +56322,12 @@
       "threshold": 0.2,
       "macroRegime": "再通胀增长",
       "probabilitySource": "all-regimes",
-      "predictiveDrivers": []
+      "predictiveDrivers": [],
+      "resolvedAt": "2026-10-30T02:39:40.167Z",
+      "outcomeDate": "2026-10-28",
+      "realizedMove": -0.57,
+      "directionCorrect": null,
+      "brierLoss": 0.2976
     },
     {
       "marketId": "shanghai",
@@ -58237,7 +56346,12 @@
       "threshold": 0.2,
       "macroRegime": "金发姑娘",
       "probabilitySource": "all-regimes",
-      "predictiveDrivers": []
+      "predictiveDrivers": [],
+      "resolvedAt": "2026-10-30T02:39:40.167Z",
+      "outcomeDate": "2026-10-29",
+      "realizedMove": -0.18,
+      "directionCorrect": null,
+      "brierLoss": 0.4225
     },
     {
       "marketId": "hangseng",
@@ -58256,7 +56370,12 @@
       "threshold": 0.2,
       "macroRegime": "金发姑娘",
       "probabilitySource": "all-regimes",
-      "predictiveDrivers": []
+      "predictiveDrivers": [],
+      "resolvedAt": "2026-10-30T02:39:40.167Z",
+      "outcomeDate": "2026-10-30",
+      "realizedMove": 0.49,
+      "directionCorrect": null,
+      "brierLoss": 0.1736
     },
     {
       "marketId": "euro50",
@@ -58275,7 +56394,12 @@
       "threshold": 0.35,
       "macroRegime": "再通胀增长",
       "probabilitySource": "macro-regime",
-      "predictiveDrivers": []
+      "predictiveDrivers": [],
+      "resolvedAt": "2026-10-30T02:39:40.167Z",
+      "outcomeDate": "2026-10-28",
+      "realizedMove": -0.52,
+      "directionCorrect": null,
+      "brierLoss": 0.36
     },
     {
       "marketId": "nikkei",
@@ -58294,7 +56418,12 @@
       "threshold": 0.2,
       "macroRegime": "金发姑娘",
       "probabilitySource": "all-regimes",
-      "predictiveDrivers": []
+      "predictiveDrivers": [],
+      "resolvedAt": "2026-10-30T02:39:40.167Z",
+      "outcomeDate": "2026-10-29",
+      "realizedMove": 2.78,
+      "directionCorrect": null,
+      "brierLoss": 0.2318
     },
     {
       "marketId": "wti",
@@ -58337,7 +56466,12 @@
       "threshold": 0.2,
       "macroRegime": "再通胀增长",
       "probabilitySource": "all-regimes",
-      "predictiveDrivers": []
+      "predictiveDrivers": [],
+      "resolvedAt": "2026-10-30T02:39:40.168Z",
+      "outcomeDate": "2026-10-28",
+      "realizedMove": -3.98,
+      "directionCorrect": null,
+      "brierLoss": 0.3164
     },
     {
       "marketId": "btc",
@@ -58672,7 +56806,12 @@
           "driverZ": -0.2,
           "contribution": -0.2
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.168Z",
+      "outcomeDate": "2026-10-28",
+      "realizedMove": -0.57,
+      "directionCorrect": true,
+      "brierLoss": 0.2374
     },
     {
       "marketId": "nasdaq",
@@ -58881,7 +57020,12 @@
           "driverZ": -0.62,
           "contribution": -0.62
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.168Z",
+      "outcomeDate": "2026-10-29",
+      "realizedMove": -0.18,
+      "directionCorrect": true,
+      "brierLoss": 0.4225
     },
     {
       "marketId": "shanghai",
@@ -59090,7 +57234,12 @@
           "driverZ": -0.74,
           "contribution": -0.74
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.168Z",
+      "outcomeDate": "2026-10-30",
+      "realizedMove": 0.49,
+      "directionCorrect": false,
+      "brierLoss": 0.1736
     },
     {
       "marketId": "hangseng",
@@ -59299,7 +57448,12 @@
           "driverZ": -0.25,
           "contribution": -0.25
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.168Z",
+      "outcomeDate": "2026-10-28",
+      "realizedMove": -0.52,
+      "directionCorrect": false,
+      "brierLoss": 0.3631
     },
     {
       "marketId": "euro50",
@@ -59508,7 +57662,12 @@
           "driverZ": -0.12,
           "contribution": -0.12
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.168Z",
+      "outcomeDate": "2026-10-29",
+      "realizedMove": 2.78,
+      "directionCorrect": false,
+      "brierLoss": 0.1586
     },
     {
       "marketId": "nikkei",
@@ -59931,7 +58090,12 @@
           "driverZ": -0.44,
           "contribution": -0.44
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.168Z",
+      "outcomeDate": "2026-10-28",
+      "realizedMove": -3.98,
+      "directionCorrect": true,
+      "brierLoss": 0.2554
     },
     {
       "marketId": "gold",
@@ -66671,7 +64835,12 @@
           "driverZ": 0.04,
           "contribution": 0.04
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.173Z",
+      "outcomeDate": "2026-10-28",
+      "realizedMove": 0.27,
+      "directionCorrect": true,
+      "brierLoss": 0.2256
     },
     {
       "marketId": "nasdaq",
@@ -66875,7 +65044,12 @@
           "driverZ": -0.23,
           "contribution": -0.23
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.173Z",
+      "outcomeDate": "2026-10-29",
+      "realizedMove": -0.82,
+      "directionCorrect": false,
+      "brierLoss": 0.3793
     },
     {
       "marketId": "shanghai",
@@ -67079,7 +65253,12 @@
           "driverZ": 0.13,
           "contribution": 0.13
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.173Z",
+      "outcomeDate": "2026-10-30",
+      "realizedMove": 1.08,
+      "directionCorrect": false,
+      "brierLoss": 0.2149
     },
     {
       "marketId": "hangseng",
@@ -67283,7 +65462,12 @@
           "driverZ": 0.23,
           "contribution": 0.23
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.173Z",
+      "outcomeDate": "2026-10-28",
+      "realizedMove": 0.18,
+      "directionCorrect": true,
+      "brierLoss": 0.2359
     },
     {
       "marketId": "euro50",
@@ -67487,7 +65671,12 @@
           "driverZ": -0.14,
           "contribution": -0.14
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.174Z",
+      "outcomeDate": "2026-10-29",
+      "realizedMove": 1.1,
+      "directionCorrect": false,
+      "brierLoss": 0.2118
     },
     {
       "marketId": "nikkei",
@@ -67895,7 +66084,12 @@
           "driverZ": -0.34,
           "contribution": -0.34
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.174Z",
+      "outcomeDate": "2026-10-28",
+      "realizedMove": 0.53,
+      "directionCorrect": true,
+      "brierLoss": 0.2218
     },
     {
       "marketId": "gold",
@@ -68099,7 +66293,12 @@
           "driverZ": 0.03,
           "contribution": 0.03
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.174Z",
+      "outcomeDate": "2026-10-29",
+      "realizedMove": -4.05,
+      "directionCorrect": false,
+      "brierLoss": 0.2128
     },
     {
       "marketId": "btc",
@@ -68303,7 +66502,12 @@
           "driverZ": -0.12,
           "contribution": -0.12
         }
-      ]
+      ],
+      "resolvedAt": "2026-10-30T02:39:40.174Z",
+      "outcomeDate": "2026-10-29",
+      "realizedMove": -4.55,
+      "directionCorrect": true,
+      "brierLoss": 0.2826
     },
     {
       "marketId": "eth",
@@ -68472,6 +66676,1790 @@
           "driver": "504观测趋势",
           "driverZ": -0.12,
           "contribution": -0.12
+        }
+      ]
+    },
+    {
+      "marketId": "nasdaq",
+      "marketName": "纳斯达克综合",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-v1.5-rate-decomposition",
+      "horizonObservations": 5,
+      "bias": "neutral",
+      "score": -0.03,
+      "upProbabilityPct": 52.17,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "momentumPersistentDirection",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "all-regimes",
+      "predictiveDrivers": []
+    },
+    {
+      "marketId": "shanghai",
+      "marketName": "上证综指",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-v1.5-rate-decomposition",
+      "horizonObservations": 5,
+      "bias": "neutral",
+      "score": -0.02,
+      "upProbabilityPct": 50,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "momentumFastDirection",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "macro-regime",
+      "predictiveDrivers": []
+    },
+    {
+      "marketId": "hangseng",
+      "marketName": "恒生指数",
+      "marketDate": "2026-10-30",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-v1.5-rate-decomposition",
+      "horizonObservations": 5,
+      "bias": "neutral",
+      "score": 0,
+      "upProbabilityPct": 54.55,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "momentumBalancedNormalized",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "all-regimes",
+      "predictiveDrivers": []
+    },
+    {
+      "marketId": "euro50",
+      "marketName": "NASDAQ Euro 50",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-v1.5-rate-decomposition",
+      "horizonObservations": 5,
+      "bias": "neutral",
+      "score": -0.01,
+      "upProbabilityPct": 33.33,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "momentumPersistentNormalized",
+      "ruleName": "纯动量趋势（波动调整）",
+      "threshold": 0.35,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "all-regimes",
+      "predictiveDrivers": []
+    },
+    {
+      "marketId": "nikkei",
+      "marketName": "日经225",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-v1.5-rate-decomposition",
+      "horizonObservations": 5,
+      "bias": "neutral",
+      "score": 0.01,
+      "upProbabilityPct": 50,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "fastDirection",
+      "ruleName": "短线方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "macro-regime",
+      "predictiveDrivers": []
+    },
+    {
+      "marketId": "gold",
+      "marketName": "黄金策略指数",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-v1.5-rate-decomposition",
+      "horizonObservations": 5,
+      "bias": "neutral",
+      "score": -0.03,
+      "upProbabilityPct": 62.5,
+      "probabilityValidated": true,
+      "directionGateEligible": false,
+      "ruleId": "momentumPersistentDirection",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "all-regimes",
+      "predictiveDrivers": []
+    },
+    {
+      "marketId": "btc",
+      "marketName": "比特币",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-v1.5-rate-decomposition",
+      "horizonObservations": 5,
+      "bias": "neutral",
+      "score": -0.04,
+      "upProbabilityPct": 37.5,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "persistentNormalized",
+      "ruleName": "趋势延续（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "all-regimes",
+      "predictiveDrivers": []
+    },
+    {
+      "marketId": "eth",
+      "marketName": "以太坊",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-v1.5-rate-decomposition",
+      "horizonObservations": 5,
+      "bias": "neutral",
+      "score": -0.1,
+      "upProbabilityPct": 28.57,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "momentumPersistentDirection",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "macro-regime",
+      "predictiveDrivers": []
+    },
+    {
+      "marketId": "nasdaq",
+      "marketName": "纳斯达克综合",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "day",
+      "horizonObservations": 1,
+      "bias": "bearish",
+      "score": -0.38,
+      "upProbabilityPct": 55.25,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量趋势方向",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.35,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "1观测动量",
+          "driver": "1观测动量",
+          "driverZ": 0.14,
+          "contribution": 0.14
+        },
+        {
+          "chain": "5观测趋势",
+          "driver": "5观测趋势",
+          "driverZ": -0.13,
+          "contribution": -0.13
+        }
+      ]
+    },
+    {
+      "marketId": "nasdaq",
+      "marketName": "纳斯达克综合",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "week",
+      "horizonObservations": 5,
+      "bias": "bearish",
+      "score": -1,
+      "upProbabilityPct": 48.72,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "5观测动量",
+          "driver": "5观测动量",
+          "driverZ": -0.13,
+          "contribution": -0.13
+        },
+        {
+          "chain": "21观测趋势",
+          "driver": "21观测趋势",
+          "driverZ": -0.1,
+          "contribution": -0.1
+        }
+      ]
+    },
+    {
+      "marketId": "nasdaq",
+      "marketName": "纳斯达克综合",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "month",
+      "horizonObservations": 21,
+      "bias": "bearish",
+      "score": -0.12,
+      "upProbabilityPct": 47.06,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡方向",
+      "ruleName": "纯动量均衡方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "21观测动量",
+          "driver": "21观测动量",
+          "driverZ": -0.1,
+          "contribution": -0.1
+        },
+        {
+          "chain": "63观测趋势",
+          "driver": "63观测趋势",
+          "driverZ": 0.35,
+          "contribution": 0.35
+        }
+      ]
+    },
+    {
+      "marketId": "nasdaq",
+      "marketName": "纳斯达克综合",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "quarter",
+      "horizonObservations": 63,
+      "bias": "bullish",
+      "score": 0.34,
+      "upProbabilityPct": 64.29,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量趋势（波动调整）",
+      "ruleName": "纯动量趋势（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "63观测动量",
+          "driver": "63观测动量",
+          "driverZ": 0.35,
+          "contribution": 0.35
+        },
+        {
+          "chain": "126观测趋势",
+          "driver": "126观测趋势",
+          "driverZ": 0.33,
+          "contribution": 0.33
+        }
+      ]
+    },
+    {
+      "marketId": "nasdaq",
+      "marketName": "纳斯达克综合",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "halfYear",
+      "horizonObservations": 126,
+      "bias": "bullish",
+      "score": 1,
+      "upProbabilityPct": 80,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量趋势方向",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "126观测动量",
+          "driver": "126观测动量",
+          "driverZ": 0.33,
+          "contribution": 0.33
+        },
+        {
+          "chain": "252观测趋势",
+          "driver": "252观测趋势",
+          "driverZ": 0.37,
+          "contribution": 0.37
+        }
+      ]
+    },
+    {
+      "marketId": "nasdaq",
+      "marketName": "纳斯达克综合",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "year",
+      "horizonObservations": 252,
+      "bias": "bullish",
+      "score": 0.55,
+      "upProbabilityPct": 66.67,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "252观测动量",
+          "driver": "252观测动量",
+          "driverZ": 0.37,
+          "contribution": 0.37
+        },
+        {
+          "chain": "504观测趋势",
+          "driver": "504观测趋势",
+          "driverZ": 0.77,
+          "contribution": 0.77
+        }
+      ]
+    },
+    {
+      "marketId": "shanghai",
+      "marketName": "上证综指",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "day",
+      "horizonObservations": 1,
+      "bias": "bearish",
+      "score": -1,
+      "upProbabilityPct": 54.26,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "1观测动量",
+          "driver": "1观测动量",
+          "driverZ": -0.47,
+          "contribution": -0.47
+        },
+        {
+          "chain": "5观测趋势",
+          "driver": "5观测趋势",
+          "driverZ": -0.05,
+          "contribution": -0.05
+        }
+      ]
+    },
+    {
+      "marketId": "shanghai",
+      "marketName": "上证综指",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "week",
+      "horizonObservations": 5,
+      "bias": "bearish",
+      "score": -1,
+      "upProbabilityPct": 68.42,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "5观测动量",
+          "driver": "5观测动量",
+          "driverZ": -0.05,
+          "contribution": -0.05
+        },
+        {
+          "chain": "21观测趋势",
+          "driver": "21观测趋势",
+          "driverZ": -0.78,
+          "contribution": -0.78
+        }
+      ]
+    },
+    {
+      "marketId": "shanghai",
+      "marketName": "上证综指",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "month",
+      "horizonObservations": 21,
+      "bias": "bearish",
+      "score": -0.58,
+      "upProbabilityPct": 66.67,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "21观测动量",
+          "driver": "21观测动量",
+          "driverZ": -0.78,
+          "contribution": -0.78
+        },
+        {
+          "chain": "63观测趋势",
+          "driver": "63观测趋势",
+          "driverZ": -0.33,
+          "contribution": -0.33
+        }
+      ]
+    },
+    {
+      "marketId": "shanghai",
+      "marketName": "上证综指",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "quarter",
+      "horizonObservations": 63,
+      "bias": "bearish",
+      "score": -0.43,
+      "upProbabilityPct": 50,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "63观测动量",
+          "driver": "63观测动量",
+          "driverZ": -0.33,
+          "contribution": -0.33
+        },
+        {
+          "chain": "126观测趋势",
+          "driver": "126观测趋势",
+          "driverZ": -0.55,
+          "contribution": -0.55
+        }
+      ]
+    },
+    {
+      "marketId": "shanghai",
+      "marketName": "上证综指",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "halfYear",
+      "horizonObservations": 126,
+      "bias": "bearish",
+      "score": -0.42,
+      "upProbabilityPct": 50,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "126观测动量",
+          "driver": "126观测动量",
+          "driverZ": -0.55,
+          "contribution": -0.55
+        },
+        {
+          "chain": "252观测趋势",
+          "driver": "252观测趋势",
+          "driverZ": -0.26,
+          "contribution": -0.26
+        }
+      ]
+    },
+    {
+      "marketId": "shanghai",
+      "marketName": "上证综指",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "year",
+      "horizonObservations": 252,
+      "bias": "bearish",
+      "score": -0.14,
+      "upProbabilityPct": 50,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "252观测动量",
+          "driver": "252观测动量",
+          "driverZ": -0.26,
+          "contribution": -0.26
+        },
+        {
+          "chain": "504观测趋势",
+          "driver": "504观测趋势",
+          "driverZ": 0,
+          "contribution": 0
+        }
+      ]
+    },
+    {
+      "marketId": "hangseng",
+      "marketName": "恒生指数",
+      "marketDate": "2026-10-30",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "day",
+      "horizonObservations": 1,
+      "bias": "bullish",
+      "score": 1,
+      "upProbabilityPct": 51.15,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.35,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "1观测动量",
+          "driver": "1观测动量",
+          "driverZ": 0.51,
+          "contribution": 0.51
+        },
+        {
+          "chain": "5观测趋势",
+          "driver": "5观测趋势",
+          "driverZ": 0.11,
+          "contribution": 0.11
+        }
+      ]
+    },
+    {
+      "marketId": "hangseng",
+      "marketName": "恒生指数",
+      "marketDate": "2026-10-30",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "week",
+      "horizonObservations": 5,
+      "bias": "bearish",
+      "score": -0.18,
+      "upProbabilityPct": 54.55,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "5观测动量",
+          "driver": "5观测动量",
+          "driverZ": 0.11,
+          "contribution": 0.11
+        },
+        {
+          "chain": "21观测趋势",
+          "driver": "21观测趋势",
+          "driverZ": -0.54,
+          "contribution": -0.54
+        }
+      ]
+    },
+    {
+      "marketId": "hangseng",
+      "marketName": "恒生指数",
+      "marketDate": "2026-10-30",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "month",
+      "horizonObservations": 21,
+      "bias": "bearish",
+      "score": -0.56,
+      "upProbabilityPct": 66.67,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "21观测动量",
+          "driver": "21观测动量",
+          "driverZ": -0.54,
+          "contribution": -0.54
+        },
+        {
+          "chain": "63观测趋势",
+          "driver": "63观测趋势",
+          "driverZ": -0.59,
+          "contribution": -0.59
+        }
+      ]
+    },
+    {
+      "marketId": "hangseng",
+      "marketName": "恒生指数",
+      "marketDate": "2026-10-30",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "quarter",
+      "horizonObservations": 63,
+      "bias": "bearish",
+      "score": -0.54,
+      "upProbabilityPct": 50,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "63观测动量",
+          "driver": "63观测动量",
+          "driverZ": -0.59,
+          "contribution": -0.59
+        },
+        {
+          "chain": "126观测趋势",
+          "driver": "126观测趋势",
+          "driverZ": -0.47,
+          "contribution": -0.47
+        }
+      ]
+    },
+    {
+      "marketId": "hangseng",
+      "marketName": "恒生指数",
+      "marketDate": "2026-10-30",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "halfYear",
+      "horizonObservations": 126,
+      "bias": "bearish",
+      "score": -0.42,
+      "upProbabilityPct": 50,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "126观测动量",
+          "driver": "126观测动量",
+          "driverZ": -0.47,
+          "contribution": -0.47
+        },
+        {
+          "chain": "252观测趋势",
+          "driver": "252观测趋势",
+          "driverZ": -0.34,
+          "contribution": -0.34
+        }
+      ]
+    },
+    {
+      "marketId": "hangseng",
+      "marketName": "恒生指数",
+      "marketDate": "2026-10-30",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "year",
+      "horizonObservations": 252,
+      "bias": "bearish",
+      "score": -0.19,
+      "upProbabilityPct": 50,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "252观测动量",
+          "driver": "252观测动量",
+          "driverZ": -0.34,
+          "contribution": -0.34
+        },
+        {
+          "chain": "504观测趋势",
+          "driver": "504观测趋势",
+          "driverZ": 0,
+          "contribution": 0
+        }
+      ]
+    },
+    {
+      "marketId": "euro50",
+      "marketName": "NASDAQ Euro 50",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "day",
+      "horizonObservations": 1,
+      "bias": "bullish",
+      "score": 0.5,
+      "upProbabilityPct": 51.43,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "1观测动量",
+          "driver": "1观测动量",
+          "driverZ": 0.12,
+          "contribution": 0.12
+        },
+        {
+          "chain": "5观测趋势",
+          "driver": "5观测趋势",
+          "driverZ": -0.15,
+          "contribution": -0.15
+        }
+      ]
+    },
+    {
+      "marketId": "euro50",
+      "marketName": "NASDAQ Euro 50",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "week",
+      "horizonObservations": 5,
+      "bias": "bearish",
+      "score": -1,
+      "upProbabilityPct": 58.18,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.35,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "5观测动量",
+          "driver": "5观测动量",
+          "driverZ": -0.15,
+          "contribution": -0.15
+        },
+        {
+          "chain": "21观测趋势",
+          "driver": "21观测趋势",
+          "driverZ": -0.34,
+          "contribution": -0.34
+        }
+      ]
+    },
+    {
+      "marketId": "euro50",
+      "marketName": "NASDAQ Euro 50",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "month",
+      "horizonObservations": 21,
+      "bias": "bearish",
+      "score": -1,
+      "upProbabilityPct": 47.62,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量趋势方向",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "21观测动量",
+          "driver": "21观测动量",
+          "driverZ": -0.34,
+          "contribution": -0.34
+        },
+        {
+          "chain": "63观测趋势",
+          "driver": "63观测趋势",
+          "driverZ": -0.23,
+          "contribution": -0.23
+        }
+      ]
+    },
+    {
+      "marketId": "euro50",
+      "marketName": "NASDAQ Euro 50",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "quarter",
+      "horizonObservations": 63,
+      "bias": "bullish",
+      "score": 0.38,
+      "upProbabilityPct": 62.5,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量趋势方向",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "63观测动量",
+          "driver": "63观测动量",
+          "driverZ": -0.23,
+          "contribution": -0.23
+        },
+        {
+          "chain": "126观测趋势",
+          "driver": "126观测趋势",
+          "driverZ": 0.28,
+          "contribution": 0.28
+        }
+      ]
+    },
+    {
+      "marketId": "euro50",
+      "marketName": "NASDAQ Euro 50",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "halfYear",
+      "horizonObservations": 126,
+      "bias": "bullish",
+      "score": 1,
+      "upProbabilityPct": 62.5,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.35,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "126观测动量",
+          "driver": "126观测动量",
+          "driverZ": 0.28,
+          "contribution": 0.28
+        },
+        {
+          "chain": "252观测趋势",
+          "driver": "252观测趋势",
+          "driverZ": 0.35,
+          "contribution": 0.35
+        }
+      ]
+    },
+    {
+      "marketId": "euro50",
+      "marketName": "NASDAQ Euro 50",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "year",
+      "horizonObservations": 252,
+      "bias": "bullish",
+      "score": 0.52,
+      "upProbabilityPct": 25,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "252观测动量",
+          "driver": "252观测动量",
+          "driverZ": 0.35,
+          "contribution": 0.35
+        },
+        {
+          "chain": "504观测趋势",
+          "driver": "504观测趋势",
+          "driverZ": 0.74,
+          "contribution": 0.74
+        }
+      ]
+    },
+    {
+      "marketId": "nikkei",
+      "marketName": "日经225",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "day",
+      "horizonObservations": 1,
+      "bias": "bullish",
+      "score": 1,
+      "upProbabilityPct": 52.45,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量趋势方向",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "1观测动量",
+          "driver": "1观测动量",
+          "driverZ": 0.33,
+          "contribution": 0.33
+        },
+        {
+          "chain": "5观测趋势",
+          "driver": "5观测趋势",
+          "driverZ": 0.37,
+          "contribution": 0.37
+        }
+      ]
+    },
+    {
+      "marketId": "nikkei",
+      "marketName": "日经225",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "week",
+      "horizonObservations": 5,
+      "bias": "bearish",
+      "score": -0.38,
+      "upProbabilityPct": 59.66,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量趋势方向",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "5观测动量",
+          "driver": "5观测动量",
+          "driverZ": 0.37,
+          "contribution": 0.37
+        },
+        {
+          "chain": "21观测趋势",
+          "driver": "21观测趋势",
+          "driverZ": -0.08,
+          "contribution": -0.08
+        }
+      ]
+    },
+    {
+      "marketId": "nikkei",
+      "marketName": "日经225",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "month",
+      "horizonObservations": 21,
+      "bias": "bearish",
+      "score": -0.31,
+      "upProbabilityPct": 64.29,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量趋势方向",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.35,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "21观测动量",
+          "driver": "21观测动量",
+          "driverZ": -0.08,
+          "contribution": -0.08
+        },
+        {
+          "chain": "63观测趋势",
+          "driver": "63观测趋势",
+          "driverZ": -0.02,
+          "contribution": -0.02
+        }
+      ]
+    },
+    {
+      "marketId": "nikkei",
+      "marketName": "日经225",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "quarter",
+      "horizonObservations": 63,
+      "bias": "bullish",
+      "score": 0.69,
+      "upProbabilityPct": 53.85,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量趋势方向",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.35,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "63观测动量",
+          "driver": "63观测动量",
+          "driverZ": -0.02,
+          "contribution": -0.02
+        },
+        {
+          "chain": "126观测趋势",
+          "driver": "126观测趋势",
+          "driverZ": 0.23,
+          "contribution": 0.23
+        }
+      ]
+    },
+    {
+      "marketId": "nikkei",
+      "marketName": "日经225",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "halfYear",
+      "horizonObservations": 126,
+      "bias": "bullish",
+      "score": 1,
+      "upProbabilityPct": 57.14,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡方向",
+      "ruleName": "纯动量均衡方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "126观测动量",
+          "driver": "126观测动量",
+          "driverZ": 0.23,
+          "contribution": 0.23
+        },
+        {
+          "chain": "252观测趋势",
+          "driver": "252观测趋势",
+          "driverZ": 0.6,
+          "contribution": 0.6
+        }
+      ]
+    },
+    {
+      "marketId": "nikkei",
+      "marketName": "日经225",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "year",
+      "horizonObservations": 252,
+      "bias": "bullish",
+      "score": 0.67,
+      "upProbabilityPct": 40,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "252观测动量",
+          "driver": "252观测动量",
+          "driverZ": 0.6,
+          "contribution": 0.6
+        },
+        {
+          "chain": "504观测趋势",
+          "driver": "504观测趋势",
+          "driverZ": 0.75,
+          "contribution": 0.75
+        }
+      ]
+    },
+    {
+      "marketId": "gold",
+      "marketName": "黄金策略指数",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "day",
+      "horizonObservations": 1,
+      "bias": "bullish",
+      "score": 0.5,
+      "upProbabilityPct": 53.74,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "1观测动量",
+          "driver": "1观测动量",
+          "driverZ": 0.1,
+          "contribution": 0.1
+        },
+        {
+          "chain": "5观测趋势",
+          "driver": "5观测趋势",
+          "driverZ": -0.31,
+          "contribution": -0.31
+        }
+      ]
+    },
+    {
+      "marketId": "gold",
+      "marketName": "黄金策略指数",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "week",
+      "horizonObservations": 5,
+      "bias": "bearish",
+      "score": -0.28,
+      "upProbabilityPct": 50.54,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量趋势（波动调整）",
+      "ruleName": "纯动量趋势（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "5观测动量",
+          "driver": "5观测动量",
+          "driverZ": -0.31,
+          "contribution": -0.31
+        },
+        {
+          "chain": "21观测趋势",
+          "driver": "21观测趋势",
+          "driverZ": -0.27,
+          "contribution": -0.27
+        }
+      ]
+    },
+    {
+      "marketId": "gold",
+      "marketName": "黄金策略指数",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "month",
+      "horizonObservations": 21,
+      "bias": "bullish",
+      "score": 0.38,
+      "upProbabilityPct": 51.61,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量趋势方向",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.5,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "21观测动量",
+          "driver": "21观测动量",
+          "driverZ": -0.27,
+          "contribution": -0.27
+        },
+        {
+          "chain": "63观测趋势",
+          "driver": "63观测趋势",
+          "driverZ": 0.22,
+          "contribution": 0.22
+        }
+      ]
+    },
+    {
+      "marketId": "gold",
+      "marketName": "黄金策略指数",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "quarter",
+      "horizonObservations": 63,
+      "bias": "bearish",
+      "score": -0.38,
+      "upProbabilityPct": 50,
+      "probabilityValidated": true,
+      "directionGateEligible": true,
+      "ruleId": "纯动量趋势方向",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "63观测动量",
+          "driver": "63观测动量",
+          "driverZ": 0.22,
+          "contribution": 0.22
+        },
+        {
+          "chain": "126观测趋势",
+          "driver": "126观测趋势",
+          "driverZ": -0.1,
+          "contribution": -0.1
+        }
+      ]
+    },
+    {
+      "marketId": "gold",
+      "marketName": "黄金策略指数",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.789Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "halfYear",
+      "horizonObservations": 126,
+      "bias": "bearish",
+      "score": -0.12,
+      "upProbabilityPct": 50,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡方向",
+      "ruleName": "纯动量均衡方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "126观测动量",
+          "driver": "126观测动量",
+          "driverZ": -0.1,
+          "contribution": -0.1
+        },
+        {
+          "chain": "252观测趋势",
+          "driver": "252观测趋势",
+          "driverZ": 0.11,
+          "contribution": 0.11
+        }
+      ]
+    },
+    {
+      "marketId": "gold",
+      "marketName": "黄金策略指数",
+      "marketDate": "2026-10-28",
+      "recordedAt": "2026-10-30T02:41:09.790Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "year",
+      "horizonObservations": 252,
+      "bias": "bullish",
+      "score": 0.4,
+      "upProbabilityPct": 50,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "252观测动量",
+          "driver": "252观测动量",
+          "driverZ": 0.11,
+          "contribution": 0.11
+        },
+        {
+          "chain": "504观测趋势",
+          "driver": "504观测趋势",
+          "driverZ": 0.75,
+          "contribution": 0.75
+        }
+      ]
+    },
+    {
+      "marketId": "btc",
+      "marketName": "比特币",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.790Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "day",
+      "horizonObservations": 1,
+      "bias": "bearish",
+      "score": -1,
+      "upProbabilityPct": 53.66,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.35,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "1观测动量",
+          "driver": "1观测动量",
+          "driverZ": -0.8,
+          "contribution": -0.8
+        },
+        {
+          "chain": "5观测趋势",
+          "driver": "5观测趋势",
+          "driverZ": -0.39,
+          "contribution": -0.39
+        }
+      ]
+    },
+    {
+      "marketId": "btc",
+      "marketName": "比特币",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.790Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "week",
+      "horizonObservations": 5,
+      "bias": "bearish",
+      "score": -0.3,
+      "upProbabilityPct": 68.42,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量趋势（波动调整）",
+      "ruleName": "纯动量趋势（波动调整）",
+      "threshold": 0.5,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "5观测动量",
+          "driver": "5观测动量",
+          "driverZ": -0.39,
+          "contribution": -0.39
+        },
+        {
+          "chain": "21观测趋势",
+          "driver": "21观测趋势",
+          "driverZ": -0.26,
+          "contribution": -0.26
+        }
+      ]
+    },
+    {
+      "marketId": "btc",
+      "marketName": "比特币",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.790Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "month",
+      "horizonObservations": 21,
+      "bias": "bearish",
+      "score": -1,
+      "upProbabilityPct": 54.84,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "21观测动量",
+          "driver": "21观测动量",
+          "driverZ": -0.26,
+          "contribution": -0.26
+        },
+        {
+          "chain": "63观测趋势",
+          "driver": "63观测趋势",
+          "driverZ": -0.1,
+          "contribution": -0.1
+        }
+      ]
+    },
+    {
+      "marketId": "btc",
+      "marketName": "比特币",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.790Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "quarter",
+      "horizonObservations": 63,
+      "bias": "bullish",
+      "score": 0.38,
+      "upProbabilityPct": 53.85,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量趋势方向",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.35,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "63观测动量",
+          "driver": "63观测动量",
+          "driverZ": -0.1,
+          "contribution": -0.1
+        },
+        {
+          "chain": "126观测趋势",
+          "driver": "126观测趋势",
+          "driverZ": 0.63,
+          "contribution": 0.63
+        }
+      ]
+    },
+    {
+      "marketId": "btc",
+      "marketName": "比特币",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.790Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "halfYear",
+      "horizonObservations": 126,
+      "bias": "bullish",
+      "score": 1,
+      "upProbabilityPct": 75,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "126观测动量",
+          "driver": "126观测动量",
+          "driverZ": 0.63,
+          "contribution": 0.63
+        },
+        {
+          "chain": "252观测趋势",
+          "driver": "252观测趋势",
+          "driverZ": 0.27,
+          "contribution": 0.27
+        }
+      ]
+    },
+    {
+      "marketId": "btc",
+      "marketName": "比特币",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.790Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "year",
+      "horizonObservations": 252,
+      "bias": "bullish",
+      "score": 0.01,
+      "upProbabilityPct": 25,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "252观测动量",
+          "driver": "252观测动量",
+          "driverZ": 0.27,
+          "contribution": 0.27
+        },
+        {
+          "chain": "504观测趋势",
+          "driver": "504观测趋势",
+          "driverZ": -0.31,
+          "contribution": -0.31
+        }
+      ]
+    },
+    {
+      "marketId": "eth",
+      "marketName": "以太坊",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.790Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "day",
+      "horizonObservations": 1,
+      "bias": "bearish",
+      "score": -1,
+      "upProbabilityPct": 53.16,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量趋势方向",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "1观测动量",
+          "driver": "1观测动量",
+          "driverZ": -0.79,
+          "contribution": -0.79
+        },
+        {
+          "chain": "5观测趋势",
+          "driver": "5观测趋势",
+          "driverZ": -0.43,
+          "contribution": -0.43
+        }
+      ]
+    },
+    {
+      "marketId": "eth",
+      "marketName": "以太坊",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.790Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "week",
+      "horizonObservations": 5,
+      "bias": "bearish",
+      "score": -1,
+      "upProbabilityPct": 51.68,
+      "probabilityValidated": true,
+      "directionGateEligible": true,
+      "ruleId": "纯动量趋势方向",
+      "ruleName": "纯动量趋势方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "5观测动量",
+          "driver": "5观测动量",
+          "driverZ": -0.43,
+          "contribution": -0.43
+        },
+        {
+          "chain": "21观测趋势",
+          "driver": "21观测趋势",
+          "driverZ": -0.44,
+          "contribution": -0.44
+        }
+      ]
+    },
+    {
+      "marketId": "eth",
+      "marketName": "以太坊",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.790Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "month",
+      "horizonObservations": 21,
+      "bias": "bearish",
+      "score": -1,
+      "upProbabilityPct": 42.86,
+      "probabilityValidated": true,
+      "directionGateEligible": true,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "21观测动量",
+          "driver": "21观测动量",
+          "driverZ": -0.44,
+          "contribution": -0.44
+        },
+        {
+          "chain": "63观测趋势",
+          "driver": "63观测趋势",
+          "driverZ": -0.3,
+          "contribution": -0.3
+        }
+      ]
+    },
+    {
+      "marketId": "eth",
+      "marketName": "以太坊",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.790Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "quarter",
+      "horizonObservations": 63,
+      "bias": "bearish",
+      "score": -0.5,
+      "upProbabilityPct": 46.15,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线方向",
+      "ruleName": "纯动量短线方向",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "63观测动量",
+          "driver": "63观测动量",
+          "driverZ": -0.3,
+          "contribution": -0.3
+        },
+        {
+          "chain": "126观测趋势",
+          "driver": "126观测趋势",
+          "driverZ": 0.73,
+          "contribution": 0.73
+        }
+      ]
+    },
+    {
+      "marketId": "eth",
+      "marketName": "以太坊",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.790Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "halfYear",
+      "horizonObservations": 126,
+      "bias": "bullish",
+      "score": 0.6,
+      "upProbabilityPct": 42.86,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量短线（波动调整）",
+      "ruleName": "纯动量短线（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "126观测动量",
+          "driver": "126观测动量",
+          "driverZ": 0.73,
+          "contribution": 0.73
+        },
+        {
+          "chain": "252观测趋势",
+          "driver": "252观测趋势",
+          "driverZ": 0.22,
+          "contribution": 0.22
+        }
+      ]
+    },
+    {
+      "marketId": "eth",
+      "marketName": "以太坊",
+      "marketDate": "2026-10-29",
+      "recordedAt": "2026-10-30T02:41:09.790Z",
+      "modelVersion": "cross-asset-home-v1.0-multi-horizon",
+      "forecastTrack": "homepage-momentum",
+      "horizonId": "year",
+      "horizonObservations": 252,
+      "bias": "bullish",
+      "score": 0.06,
+      "upProbabilityPct": 25,
+      "probabilityValidated": false,
+      "directionGateEligible": false,
+      "ruleId": "纯动量均衡（波动调整）",
+      "ruleName": "纯动量均衡（波动调整）",
+      "threshold": 0.2,
+      "macroRegime": "再通胀增长",
+      "probabilitySource": "horizon-momentum",
+      "predictiveDrivers": [
+        {
+          "chain": "252观测动量",
+          "driver": "252观测动量",
+          "driverZ": 0.22,
+          "contribution": 0.22
+        },
+        {
+          "chain": "504观测趋势",
+          "driver": "504观测趋势",
+          "driverZ": -0.13,
+          "contribution": -0.13
         }
       ]
     }
