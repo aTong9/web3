@@ -157,11 +157,11 @@ const percent = (value: number) => `${decimal(value)}%`
         <input v-model.number="unitsPerHousehold" type="number" min="0.01" step="0.01" />
       </label>
     </div>
-    <details class="more-filters">
-      <summary>
-        {{ english ? 'More filters' : '更多筛选' }}
+    <section class="more-filters" :aria-label="english ? 'Filters' : '筛选条件'">
+      <h3>
+        {{ english ? 'Filters' : '筛选条件' }}
         <span v-if="activeFilters">({{ activeFilters }})</span>
-      </summary>
+      </h3>
       <div class="city-controls filter-controls">
         <label>
           {{ english ? 'Population' : '人口规模' }}
@@ -241,7 +241,7 @@ const percent = (value: number) => `${decimal(value)}%`
             : '“数据完整”指 GDP、城镇收入、二手房价、租金和可比人口变化均有数据。'
         }}
       </p>
-    </details>
+    </section>
     <button
       v-if="activeFilters || search || province"
       type="button"
@@ -601,10 +601,10 @@ const percent = (value: number) => `${decimal(value)}%`
 .reset-filters {
   margin-bottom: 18px;
 }
-.more-filters summary {
-  width: fit-content;
+.more-filters h3 {
+  margin: 0;
+  font-size: 14px;
   color: var(--accent);
-  cursor: pointer;
   font-weight: 700;
 }
 .filter-controls {
