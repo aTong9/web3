@@ -16,10 +16,13 @@ import {
 
 const { locale, t } = useI18n()
 const ChinaForeignBrands = defineAsyncComponent(() => import('@/components/ChinaForeignBrands.vue'))
+const ChinaCityPopulation = defineAsyncComponent(
+  () => import('@/components/ChinaCityPopulation.vue'),
+)
 const key = (name: string) => t(`chinaDemography.${name}`)
 const scenarios: ChinaScenario[] = ['low', 'medium', 'high']
 const scenario = ref<ChinaScenario>('medium')
-const mode = ref<'history' | 'projection' | 'brands'>('history')
+const mode = ref<'history' | 'projection' | 'brands' | 'cities'>('history')
 const historyRange = ref<'all' | 'early' | 'estimate' | 'forecast'>('all')
 const historyPage = ref(1)
 const endYear = ref(2125)
@@ -438,11 +441,27 @@ const exportCsv = () => {
     <ResearchPageHeader
       density="workbench"
       :eyebrow="mode === 'brands' ? key('title') : key('eyebrow')"
-      :title="mode === 'brands' ? key('brandsHeading') : key('title')"
-      :description="mode === 'brands' ? key('brandsIntro') : key('description')"
+      :title="
+        mode === 'cities'
+          ? locale === 'zh'
+            ? '全国城市人口排名'
+            : 'China city population ranking'
+          : mode === 'brands'
+            ? key('brandsHeading')
+            : key('title')
+      "
+      :description="
+        mode === 'cities'
+          ? locale === 'zh'
+            ? '按 2020 年第七次人口普查行政区划口径的常住人口，从多到少排列。'
+            : 'Resident population by 2020 census administrative divisions, ranked largest first.'
+          : mode === 'brands'
+            ? key('brandsIntro')
+            : key('description')
+      "
     >
       <template #meta>
-        <div v-if="mode !== 'brands'" class="hero-meta">
+        <div v-if="mode !== 'brands' && mode !== 'cities'" class="hero-meta">
           <span
             >{{ key('anchor') }} · {{ number(anchorData.official2025.populationWan) }}
             {{ key('peopleWan') }}</span
@@ -450,7 +469,7 @@ const exportCsv = () => {
           <a :href="anchorData.sources.nbs2025" target="_blank" rel="noopener noreferrer">NBS ↗</a>
         </div>
       </template>
-      <template v-if="mode !== 'brands'" #status>
+      <template v-if="mode !== 'brands' && mode !== 'cities'" #status>
         <div class="hero-status">
           <small>{{ mode === 'history' ? key('historyStatus') : key('projection') }}</small>
           <strong>{{
@@ -483,6 +502,9 @@ const exportCsv = () => {
         @click="mode = 'projection'"
       >
         {{ key('projectionTab') }}
+      </button>
+      <button type="button" role="tab" :aria-selected="mode === 'cities'" @click="mode = 'cities'">
+        {{ locale === 'zh' ? '城市人口排名' : 'City population' }}
       </button>
       <button type="button" role="tab" :aria-selected="mode === 'brands'" @click="mode = 'brands'">
         {{ key('brandsTab') }}
@@ -807,6 +829,7 @@ const exportCsv = () => {
         </div>
       </section>
     </div>
+    <ChinaCityPopulation v-else-if="mode === 'cities'" />
     <ChinaForeignBrands v-else />
   </main>
 </template>

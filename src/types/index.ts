@@ -2616,3 +2616,5 @@ export type * from './learning-paths'
 
 export type * from './portfolio-review'
 export type * from './reminders'
+
+export type * from './notion-library'

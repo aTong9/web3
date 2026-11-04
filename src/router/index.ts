@@ -11,6 +11,20 @@ const router = createRouter({
       : createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/notion-library',
+      name: 'notion-library',
+      component: () => import('../views/NotionLibraryView.vue'),
+      meta: {
+        titleKey: 'ui.routes.notionLibrary.title',
+        descriptionKey: 'ui.routes.notionLibrary.description',
+      },
+    },
+    {
+      path: '/million-action-plan',
+      name: 'million-action-plan',
+      redirect: { path: '/notion-library', query: { chapter: 'wealth' } },
+    },
+    {
       path: '/reminders',
       name: 'reminders',
       component: () => import('../views/ReminderCenterView.vue'),

@@ -31,6 +31,8 @@ const messages: Record<Locale, DictionaryNode> = {
         reminders: '统一提醒',
         eventCalendar: '事件日历',
         personalFinance: '个人资产与 FIRE',
+        millionPlan: '50万—100万行动清单',
+        notionLibrary: 'Notion 分类总结',
         dataHealth: '数据健康中心',
         incomeLedger: '增收实践账本',
         learningPaths: '专题学习路线',
@@ -85,6 +87,14 @@ const messages: Record<Locale, DictionaryNode> = {
         lightLabel: '浅色',
       },
       routes: {
+        notionLibrary: {
+          title: 'Notion 分类总结',
+          description: '按主题合并的正文、结论与行动清单',
+        },
+        millionPlan: {
+          title: '50万—100万行动清单',
+          description: '资金区间、账户门槛与生活工作计划',
+        },
         portfolioReview: { title: '组合复盘', description: '配置、外部资金流与估算收益回撤' },
         reminders: { title: '统一提醒', description: '事件计划与研究笔记复查待办' },
         eventCalendar: { title: '事件日历', description: '宏观发布计划与公司财报日期' },
@@ -2251,6 +2261,8 @@ const messages: Record<Locale, DictionaryNode> = {
         reminders: 'Reminder center',
         eventCalendar: 'Event calendar',
         personalFinance: 'Personal finance & FIRE',
+        millionPlan: 'RMB 500K–1M action plan',
+        notionLibrary: 'Notion library',
         dataHealth: 'Data health',
         incomeLedger: 'Income practice ledger',
         learningPaths: 'Learning paths',
@@ -2299,6 +2311,14 @@ const messages: Record<Locale, DictionaryNode> = {
         englishShort: 'EN',
       },
       routes: {
+        notionLibrary: {
+          title: 'Notion library',
+          description: 'Local snapshots of notes, ideas and plans',
+        },
+        millionPlan: {
+          title: 'RMB 500K–1M action plan',
+          description: 'Eligibility, travel benefits and household priorities',
+        },
         portfolioReview: {
           title: 'Portfolio review',
           description: 'Allocation, external cash flows and estimated performance',

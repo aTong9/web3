@@ -17,6 +17,7 @@ const groups = computed(() => [
     items: [
       { title: 'ui.nav.marketPage', to: '/' },
       { title: 'ui.nav.researchWorkspace', to: '/research-workspace' },
+      { title: 'ui.nav.notionLibrary', to: '/notion-library' },
       { title: 'ui.nav.personalFinance', to: '/personal-finance' },
       { title: 'ui.nav.portfolioReview', to: '/portfolio-review' },
       { title: 'ui.nav.reminders', to: '/reminders' },
