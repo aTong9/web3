@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import type { NotionLibrary } from '@/types'
 import ResearchPageHeader from '@/components/research/ResearchPageHeader.vue'
@@ -7,6 +7,8 @@ import NotionWorkProducts from '@/components/research/NotionWorkProducts.vue'
 import NotionWealthPlan from '@/components/research/NotionWealthPlan.vue'
 import wealthPlan from '@/data/million-action-plan.json'
 import { useLocalRecord } from '@/composables/use-local-record'
+import { useAuth } from '@/composables/use-auth'
+import { adminApi } from '@/utils/admin-api'
 import {
   emptyNotionLibrary,
   integrateNotionWealthSection,
@@ -16,11 +18,200 @@ import {
   parseNotionLibrary,
 } from '@/utils/notion-library'
 
-const { record, error, save, reload } = useLocalRecord(
-  'market-desk-notion-library-v1',
-  emptyNotionLibrary,
-  parseNotionLibrary,
+const {
+  record: localRecord,
+  error: localError,
+  save: saveLocal,
+  reload,
+} = useLocalRecord('market-desk-notion-library-v1', emptyNotionLibrary, parseNotionLibrary)
+const { user: accountUser, restore } = useAuth()
+const localFileMode = import.meta.env.DEV
+const user = computed(() => (localFileMode ? null : accountUser.value))
+const fileRecord = shallowRef<NotionLibrary>(emptyNotionLibrary())
+const fileMessage = ref('正在读取本地 JSON…')
+onMounted(async () => {
+  if (!localFileMode) return
+  try {
+    const response = await fetch(`${import.meta.env.BASE_URL}__local/notion-library.json`, {
+      cache: 'no-store',
+    })
+    if (!response.ok) throw new Error('Local JSON unavailable')
+    fileRecord.value = parseNotionLibrary(await response.text())
+    fileMessage.value = '已读取本地 JSON；刷新页面会重新读取文件。'
+  } catch {
+    fileMessage.value = '本地 JSON 读取失败，请检查 .local-data/notion/notion-library.json。'
+  }
+})
+const cloudRecord = shallowRef<NotionLibrary>(emptyNotionLibrary())
+const cloudRevision = ref(0)
+const cloudLoading = ref(false)
+const cloudReady = ref(false)
+const cloudDirty = ref(false)
+const cloudMessage = ref('')
+const pending = ref<NotionLibrary | null>(null)
+const message = ref('')
+const noteMessage = ref('')
+let cloudGeneration = 0
+let cloudToken: string | null = null
+const invalidateCloud = () => {
+  cloudGeneration++
+  cloudToken = null
+  cloudRecord.value = emptyNotionLibrary()
+  cloudRevision.value = 0
+  cloudDirty.value = false
+  cloudReady.value = false
+  cloudLoading.value = false
+  pending.value = null
+  message.value = ''
+  noteMessage.value = ''
+  cloudMessage.value = '登录状态已变化，请刷新页面重新载入账号资料。'
+}
+const onSessionChange = (event: StorageEvent) => {
+  if (
+    (event.key === 'market-admin-session' || event.key === null) &&
+    localStorage.getItem('market-admin-session') !== cloudToken
+  )
+    invalidateCloud()
+}
+onMounted(() => {
+  window.addEventListener('storage', onSessionChange)
+  if (cloudToken && localStorage.getItem('market-admin-session') !== cloudToken) invalidateCloud()
+})
+onUnmounted(() => window.removeEventListener('storage', onSessionChange))
+const record = computed(() =>
+  localFileMode ? fileRecord.value : user.value ? cloudRecord.value : localRecord.value,
 )
+const error = computed(() => (localFileMode || user.value ? null : localError.value))
+const save = (next: NotionLibrary) => {
+  if (localFileMode) {
+    try {
+      fileRecord.value = parseNotionLibrary(JSON.stringify(next))
+      fileMessage.value = '本页有修改，请导出 JSON 保存；刷新后重新读取原文件。'
+      return true
+    } catch {
+      return false
+    }
+  }
+  if (!user.value) return saveLocal(next)
+  if (!cloudReady.value) return false
+  if (!cloudToken || localStorage.getItem('market-admin-session') !== cloudToken) {
+    invalidateCloud()
+    return false
+  }
+  try {
+    cloudRecord.value = parseNotionLibrary(JSON.stringify(next))
+    cloudDirty.value = true
+    cloudMessage.value = '当前修改仅在本页，尚未保存到账号。'
+    return true
+  } catch {
+    cloudMessage.value = '修改格式无效，账号资料未更改。'
+    return false
+  }
+}
+watch(
+  () => user.value,
+  async (account) => {
+    const generation = ++cloudGeneration
+    const id = account?.id
+    const token = localStorage.getItem('market-admin-session')
+    cloudToken = token
+    pending.value = null
+    message.value = ''
+    noteMessage.value = ''
+    cloudRecord.value = emptyNotionLibrary()
+    cloudRevision.value = 0
+    cloudDirty.value = false
+    cloudReady.value = false
+    cloudLoading.value = false
+    cloudMessage.value = ''
+    if (!id || !token) return
+    cloudLoading.value = true
+    try {
+      const result = await adminApi.notionLibrary(token)
+      if (
+        cloudGeneration !== generation ||
+        user.value?.id !== id ||
+        localStorage.getItem('market-admin-session') !== token
+      )
+        return
+      cloudRecord.value = result.library
+        ? parseNotionLibrary(JSON.stringify(result.library))
+        : emptyNotionLibrary()
+      cloudRevision.value = result.revision
+      cloudReady.value = true
+      cloudMessage.value = result.library
+        ? '已载入账号资料。'
+        : '账号尚无资料。可手动上传本机旧资料或导入备份。'
+    } catch {
+      if (
+        cloudGeneration === generation &&
+        user.value?.id === id &&
+        localStorage.getItem('market-admin-session') === token
+      )
+        cloudMessage.value = '账号资料读取失败，请刷新页面重试。'
+    } finally {
+      if (
+        cloudGeneration === generation &&
+        user.value?.id === id &&
+        localStorage.getItem('market-admin-session') === token
+      )
+        cloudLoading.value = false
+    }
+  },
+  { immediate: true },
+)
+if (!localFileMode) void restore()
+const saveToAccount = async () => {
+  const id = user.value?.id
+  if (!id || !cloudReady.value || cloudLoading.value) return
+  const token = cloudToken
+  if (!token || localStorage.getItem('market-admin-session') !== token) {
+    invalidateCloud()
+    return
+  }
+  const generation = cloudGeneration
+  cloudLoading.value = true
+  const snapshot = cloudRecord.value
+  try {
+    const result = await adminApi.saveNotionLibrary(snapshot, cloudRevision.value, token)
+    if (
+      cloudGeneration !== generation ||
+      user.value?.id !== id ||
+      localStorage.getItem('market-admin-session') !== token
+    )
+      return
+    cloudRevision.value = result.revision
+    cloudDirty.value = cloudRecord.value !== snapshot
+    cloudMessage.value = cloudDirty.value
+      ? '旧修改已保存；本页仍有新修改待保存。'
+      : '已保存到账号，登录同一账号的浏览器可读取。'
+  } catch (caught) {
+    if (
+      cloudGeneration === generation &&
+      user.value?.id === id &&
+      localStorage.getItem('market-admin-session') === token
+    )
+      cloudMessage.value = caught instanceof Error ? caught.message : '保存失败，当前修改仍在本页。'
+  } finally {
+    if (
+      cloudGeneration === generation &&
+      user.value?.id === id &&
+      localStorage.getItem('market-admin-session') === token
+    )
+      cloudLoading.value = false
+  }
+}
+const uploadLocalToAccount = () => {
+  if (
+    !user.value ||
+    !cloudReady.value ||
+    cloudRevision.value !== 0 ||
+    !localRecord.value.entries.length
+  )
+    return
+  if (save(localRecord.value))
+    cloudMessage.value = '已将本机旧资料放入当前页；请点击“保存到账号”完成上传。'
+}
 const query = ref('')
 const category = ref('')
 const route = useRoute()
@@ -60,7 +251,6 @@ const workCounts = computed(() => ({
   input: workProducts.value.filter((item) => item.status === 'needs-input').length,
   verification: workProducts.value.filter((item) => item.status === 'needs-verification').length,
 }))
-const noteMessage = ref('')
 const saveWorkNote = (sectionId: string, id: string, notes: string) => {
   const next: NotionLibrary = JSON.parse(JSON.stringify(record.value))
   const item = next.report?.sections
@@ -69,7 +259,11 @@ const saveWorkNote = (sectionId: string, id: string, notes: string) => {
   if (!item) return
   item.notes = notes
   noteMessage.value = save(next)
-    ? '补充已保存在当前浏览器。'
+    ? localFileMode
+      ? '补充保留在本页，请导出 JSON 保存。'
+      : user.value
+        ? '补充待保存到账号。'
+        : '补充已保存在当前浏览器。'
     : '保存失败，输入仍保留。请先导出备份并处理下方存储错误。'
 }
 
@@ -101,8 +295,6 @@ const reportSections = computed(() => {
   )
 })
 const sourceEntry = (id: string) => record.value.entries.find((entry) => entry.id === id)
-const pending = ref<NotionLibrary | null>(null)
-const message = ref('')
 const visible = computed(() =>
   filterNotionEntries(record.value.entries, category.value, query.value),
 )
@@ -116,23 +308,30 @@ const previewImport = async (event: Event) => {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   if (!file) return
+  const generation = cloudGeneration
+  const accountId = user.value?.id
+  const token = cloudToken
   pending.value = null
   try {
     if (file.size > 2_000_000) throw new Error('Import too large')
-    pending.value = parseNotionLibrary(await file.text())
+    const parsed = parseNotionLibrary(await file.text())
+    if (cloudGeneration !== generation || user.value?.id !== accountId || cloudToken !== token)
+      return
+    pending.value = parsed
     message.value =
       '文件已校验。新总结会替换现有正文、执行材料和本人补充，导入前请导出备份；其他来源条目保留。'
   } catch {
-    message.value = '文件格式无效或超过2MB，原有资料未更改。'
+    if (cloudGeneration === generation && user.value?.id === accountId && cloudToken === token)
+      message.value = '文件格式无效或超过2MB，原有资料未更改。'
   } finally {
     input.value = ''
   }
 }
 const applyImport = () => {
-  if (!pending.value) return
+  if (!pending.value || (user.value && !cloudReady.value)) return
   try {
     if (save(mergeNotionLibrary(record.value, pending.value))) {
-      message.value = `已保存${record.value.entries.length}条来源资料${record.value.report ? '及分类总结正文' : ''}。`
+      message.value = `已载入${record.value.entries.length}条来源资料${record.value.report ? '及分类总结正文' : ''}${user.value ? '；请点击“保存到账号”完成同步' : '，并保存在当前浏览器'}。`
       pending.value = null
     } else message.value = '保存失败，待导入内容仍保留。请处理存储错误后重试。'
   } catch {
@@ -161,9 +360,29 @@ const exportLibrary = () => {
       variant="plain"
     >
       <template #status
-        ><small>当前浏览器资料</small><b>{{ record.entries.length }} 条</b></template
+        ><small>{{ localFileMode ? '本地 JSON 资料' : user ? '账号资料' : '当前浏览器资料' }}</small
+        ><b>{{ record.entries.length }} 条</b></template
       >
     </ResearchPageHeader>
+    <section class="sync-bar" aria-label="账号同步">
+      <p v-if="localFileMode" role="status">{{ fileMessage }}</p>
+      <p v-else-if="user" role="status">
+        {{
+          cloudLoading
+            ? '账号资料处理中…'
+            : cloudMessage || (cloudDirty ? '有修改尚未保存到账号。' : '账号资料已载入。')
+        }}
+      </p>
+      <p v-else>当前资料仅在此浏览器。请通过账号菜单登录同一账号，在其他浏览器读取账号资料。</p>
+      <button
+        v-if="user"
+        type="button"
+        :disabled="!cloudReady || cloudLoading || !cloudDirty"
+        @click="saveToAccount"
+      >
+        保存到账号
+      </button>
+    </section>
     <section v-if="record.report" class="report-intro" aria-label="Notion内容总览">
       <small>NOTION WORKSPACE · {{ record.importedAt.slice(0, 10) }}</small>
       <h2>{{ workProducts.length ? '从笔记到行动，每一步都有落点。' : record.report.title }}</h2>
@@ -212,7 +431,7 @@ const exportLibrary = () => {
           分类正文
         </button>
       </div>
-      <p>按主题选择 · 补充信息会随备份导出</p>
+      <p>按主题选择 · 补充信息会随备份导出{{ user ? '；修改后请保存到账号' : '' }}</p>
     </section>
     <p v-if="noteMessage" class="note-message" role="status">{{ noteMessage }}</p>
     <div ref="readerStart" class="reader-layout">
@@ -324,7 +543,14 @@ const exportLibrary = () => {
       <section class="storage-panel">
         <div>
           <h2>你的整理快照</h2>
-          <p>
+          <p v-if="localFileMode">
+            数据来自 .local-data/notion/notion-library.json。导入或补充仅改变当前页，请导出 JSON
+            并替换本地文件以保留修改。
+          </p>
+          <p v-else-if="user">
+            账号资料仅登录本人可读取；修改后请手动保存到账号。这里不会自动同步 Notion。
+          </p>
+          <p v-else>
             资料只保存在当前浏览器；不会随网站发布，也不会自动同步
             Notion。换设备或清理浏览器前，请导出备份。该存储未加密，同一浏览器的使用者可访问。
           </p>
@@ -336,8 +562,19 @@ const exportLibrary = () => {
               accept=".json,application/json"
               aria-label="导入Notion整理文件"
               @change="previewImport" /></label
-          ><button type="button" :disabled="!record.entries.length" @click="exportLibrary">
+          ><button
+            type="button"
+            :disabled="!record.entries.length && !record.report"
+            @click="exportLibrary"
+          >
             导出备份
+          </button>
+          <button
+            v-if="user && cloudReady && cloudRevision === 0 && localRecord.entries.length"
+            type="button"
+            @click="uploadLocalToAccount"
+          >
+            将本机旧资料载入当前账号
           </button>
         </div>
       </section>
@@ -349,7 +586,8 @@ const exportLibrary = () => {
           >
         </h2>
         <p>{{ pending.coverage }}</p>
-        <button type="button" :disabled="!!error" @click="applyImport">确认合并导入</button
+        <button type="button" :disabled="!!error || (!!user && !cloudReady)" @click="applyImport">
+          确认合并导入</button
         ><button type="button" @click="pending = null">取消</button>
       </section>
       <p v-if="message" role="status">{{ message }}</p>
@@ -437,6 +675,24 @@ const exportLibrary = () => {
 </template>
 
 <style scoped>
+.sync-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius);
+  background: var(--surface);
+}
+.sync-bar p {
+  margin: 0;
+  color: var(--muted);
+}
+.sync-bar button {
+  flex-shrink: 0;
+}
 .report-intro,
 .report-limits {
   padding: 24px;

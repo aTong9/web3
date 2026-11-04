@@ -17,6 +17,31 @@ interface KolSubscriptionInput {
   tags?: string[]
 }
 
+const localNotionPlugin = (): Plugin => ({
+  name: 'local-notion-json',
+  configureServer(server) {
+    server.middlewares.use('/web3/__local/notion-library.json', async (request, response) => {
+      response.setHeader('Cache-Control', 'no-store')
+      if (request.method !== 'GET') {
+        response.statusCode = 405
+        response.end()
+        return
+      }
+      try {
+        const content = await readFile(
+          resolve(server.config.root, '.local-data/notion/notion-library.json'),
+          'utf8',
+        )
+        response.setHeader('Content-Type', 'application/json; charset=utf-8')
+        response.end(content)
+      } catch {
+        response.statusCode = 404
+        response.end('Local Notion JSON unavailable')
+      }
+    })
+  },
+})
+
 const runKolUpdate = (projectRoot: string) =>
   new Promise<string>((resolve, reject) => {
     const child = spawn(process.execPath, ['scripts/update-kols.mjs'], {
@@ -140,6 +165,7 @@ const webstackPlugin = (): Plugin => {
 export default defineConfig({
   plugins: [
     vue(),
+    localNotionPlugin(),
     dataHealthPlugin(),
     webstackPlugin(),
     vueDevTools(),

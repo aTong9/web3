@@ -18,6 +18,7 @@ import type {
   UsMegaCapDataset,
 } from '../src/types/index'
 import { buildQuantDashboard } from '../src/utils/quant-signals'
+import { loadNotionLibrary, saveNotionLibrary, NotionLibrarySyncError } from './notion-library-sync'
 import {
   closeContractPaperTrade,
   createContractPaperTrade,
@@ -1290,6 +1291,18 @@ const handleApi = async (request: Request, env: Env) => {
     await logout(request, env)
     return json(request, env, { ok: true })
   }
+  if (url.pathname === '/api/notion-library' && request.method === 'GET') {
+    const user = await authenticate(request, env)
+    return json(request, env, await loadNotionLibrary(env, user.id))
+  }
+  if (url.pathname === '/api/notion-library' && request.method === 'PUT') {
+    const user = await authenticate(request, env)
+    return json(
+      request,
+      env,
+      await saveNotionLibrary(env, user.id, await requestJson(request, 2_100_000)),
+    )
+  }
   if (url.pathname === '/api/analytics/config' && request.method === 'GET') {
     return json(request, env, await analyticsConfig(env))
   }
@@ -1567,7 +1580,12 @@ export default {
       }
       return await handleApi(request, env)
     } catch (error) {
-      const status = error instanceof HttpError || error instanceof AuthError ? error.status : 500
+      const status =
+        error instanceof HttpError ||
+        error instanceof AuthError ||
+        error instanceof NotionLibrarySyncError
+          ? error.status
+          : 500
       const message = error instanceof Error ? error.message : '未知错误'
       console.error(JSON.stringify({ event: 'request_failed', requestId, status, message }))
       return json(
