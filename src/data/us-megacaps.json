@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-05T02:38:51.365Z",
+  "updatedAt": "2026-11-05T18:05:17.169Z",
   "status": "ok",
   "methodology": "Nasdaq全市场普通股筛选市值大于1万亿美元的公司，按市值降序排列；当前价、Forward PE和已公布财报日期来自StockAnalysis；长期PE为CompaniesMarketCap最近5个可用年度正PE的中位数；财报结果、EPS预期和近4周修正来自Nasdaq。",
   "sources": [
@@ -19,12 +19,64 @@
   "stocks": [
     {
       "marketCapRank": 1,
+      "symbol": "AAPL",
+      "name": "Apple Inc.",
+      "marketCapUsd": 5079142930820,
+      "price": 349.51,
+      "trailingPe": 38.46,
+      "forwardPe": 36.55,
+      "historicalPeMedian5y": 29.6,
+      "historicalYears": [
+        {
+          "year": 2025,
+          "pe": 34.3
+        },
+        {
+          "year": 2024,
+          "pe": 39.5
+        },
+        {
+          "year": 2023,
+          "pe": 29.6
+        },
+        {
+          "year": 2022,
+          "pe": 21.6
+        },
+        {
+          "year": 2021,
+          "pe": 28.6
+        }
+      ],
+      "earnings": {
+        "nextEarningsDate": null,
+        "lastReportedDate": "11/2/2026",
+        "lastFiscalQuarter": "Sep 2026",
+        "lastActualEps": 2.05,
+        "lastConsensusEps": 1.98,
+        "lastSurprisePct": 3.54,
+        "lastResultReliable": true,
+        "positiveSurpriseStreak": 4,
+        "nextFiscalQuarter": "Dec 2026",
+        "nextConsensusEps": 2.93,
+        "nextHighEps": 3.18,
+        "nextLowEps": 2.81,
+        "estimateCount": 9,
+        "revisionsUp": 3,
+        "revisionsDown": 2,
+        "annualFiscalEnd": "Sep 2027",
+        "annualConsensusEps": 9.64
+      },
+      "url": "https://www.nasdaq.com/market-activity/stocks/aapl"
+    },
+    {
+      "marketCapRank": 2,
       "symbol": "NVDA",
       "name": "NVIDIA Corporation",
-      "marketCapUsd": 4981229000000,
-      "price": 206.69,
-      "trailingPe": 25.31,
-      "forwardPe": 16.55,
+      "marketCapUsd": 4823133000000,
+      "price": 200.13,
+      "trailingPe": 23.42,
+      "forwardPe": 15.31,
       "historicalPeMedian5y": 65.1,
       "historicalYears": [
         {
@@ -70,65 +122,13 @@
       "url": "https://www.nasdaq.com/market-activity/stocks/nvda"
     },
     {
-      "marketCapRank": 2,
-      "symbol": "AAPL",
-      "name": "Apple Inc.",
-      "marketCapUsd": 4843808342000,
-      "price": 331.9,
-      "trailingPe": 38.93,
-      "forwardPe": 37,
-      "historicalPeMedian5y": 29.6,
-      "historicalYears": [
-        {
-          "year": 2025,
-          "pe": 34.3
-        },
-        {
-          "year": 2024,
-          "pe": 39.5
-        },
-        {
-          "year": 2023,
-          "pe": 29.6
-        },
-        {
-          "year": 2022,
-          "pe": 21.6
-        },
-        {
-          "year": 2021,
-          "pe": 28.6
-        }
-      ],
-      "earnings": {
-        "nextEarningsDate": null,
-        "lastReportedDate": "11/2/2026",
-        "lastFiscalQuarter": "Sep 2026",
-        "lastActualEps": 2.05,
-        "lastConsensusEps": 1.98,
-        "lastSurprisePct": 3.54,
-        "lastResultReliable": true,
-        "positiveSurpriseStreak": 4,
-        "nextFiscalQuarter": "Dec 2026",
-        "nextConsensusEps": 2.87,
-        "nextHighEps": 3.04,
-        "nextLowEps": 2.68,
-        "estimateCount": 7,
-        "revisionsUp": 0,
-        "revisionsDown": 3,
-        "annualFiscalEnd": "Sep 2027",
-        "annualConsensusEps": 9.61
-      },
-      "url": "https://www.nasdaq.com/market-activity/stocks/aapl"
-    },
-    {
       "marketCapRank": 3,
       "symbol": "MSFT",
       "name": "Microsoft Corporation",
-      "marketCapUsd": 3868973099646,
-      "price": 520.99,
-      "trailingPe": 29.02,
-      "forwardPe": 26.78,
+      "marketCapUsd": 4127478932002,
+      "price": 555.8,
+      "trailingPe": 28.35,
+      "forwardPe": 26.14,
       "historicalPeMedian5y": 33.4,
       "historicalYears": [
         {
@@ -169,7 +169,7 @@
         "revisionsUp": 6,
         "revisionsDown": 4,
         "annualFiscalEnd": "Jun 2027",
-        "annualConsensusEps": 19.86
+        "annualConsensusEps": 19.89
       },
       "url": "https://www.nasdaq.com/market-activity/stocks/msft"
     },
@@ -177,10 +177,10 @@
       "marketCapRank": 4,
       "symbol": "GOOGL",
       "name": "Alphabet Inc.",
-      "marketCapUsd": 3442688820000,
-      "price": 280.03,
-      "trailingPe": 15.08,
-      "forwardPe": 20.96,
+      "marketCapUsd": 3552105420000,
+      "price": 288.93,
+      "trailingPe": 14.87,
+      "forwardPe": 20.66,
       "historicalPeMedian5y": null,
       "historicalYears": [],
       "earnings": {
@@ -208,10 +208,10 @@
       "marketCapRank": 5,
       "symbol": "AMZN",
       "name": "Amazon.com Inc.",
-      "marketCapUsd": 2710745641931,
-      "price": 250.69,
-      "trailingPe": 21.5,
-      "forwardPe": 26.86,
+      "marketCapUsd": 2876619183545,
+      "price": 266.03,
+      "trailingPe": 20.95,
+      "forwardPe": 26.18,
       "historicalPeMedian5y": 50.6,
       "historicalYears": [
         {
@@ -260,10 +260,10 @@
       "marketCapRank": 6,
       "symbol": "TSM",
       "name": "Taiwan Semiconductor Manufacturing Company Ltd.",
-      "marketCapUsd": 2099497185139,
-      "price": 404.8,
-      "trailingPe": 26.65,
-      "forwardPe": 18.85,
+      "marketCapUsd": 2052559315758,
+      "price": 395.75,
+      "trailingPe": 24.42,
+      "forwardPe": 17.26,
       "historicalPeMedian5y": 27.2,
       "historicalYears": [
         {
@@ -312,10 +312,10 @@
       "marketCapRank": 7,
       "symbol": "SPCX",
       "name": "Space Exploration Technologies Corp.",
-      "marketCapUsd": 1919140112719,
-      "price": 141.31,
+      "marketCapUsd": 1845938179327,
+      "price": 135.92,
       "trailingPe": null,
-      "forwardPe": 44.96,
+      "forwardPe": 40.89,
       "historicalPeMedian5y": null,
       "historicalYears": [],
       "earnings": {
@@ -343,10 +343,10 @@
       "marketCapRank": 8,
       "symbol": "META",
       "name": "Meta Platforms Inc.",
-      "marketCapUsd": 1587502505351,
-      "price": 621.03,
-      "trailingPe": 21.48,
-      "forwardPe": 19.12,
+      "marketCapUsd": 1610431989390,
+      "price": 630,
+      "trailingPe": 20.79,
+      "forwardPe": 18.48,
       "historicalPeMedian5y": 23.8,
       "historicalYears": [
         {
@@ -395,10 +395,10 @@
       "marketCapRank": 9,
       "symbol": "AVGO",
       "name": "Broadcom Inc.",
-      "marketCapUsd": 1585465687062,
-      "price": 332.13,
-      "trailingPe": 41.56,
-      "forwardPe": 18.71,
+      "marketCapUsd": 1553721048460,
+      "price": 325.48,
+      "trailingPe": 38.49,
+      "forwardPe": 17.32,
       "historicalPeMedian5y": 39.4,
       "historicalYears": [
         {
@@ -447,10 +447,10 @@
       "marketCapRank": 10,
       "symbol": "TSLA",
       "name": "Tesla Inc.",
-      "marketCapUsd": 1575174041481,
-      "price": 398.5,
-      "trailingPe": 423.31,
-      "forwardPe": 180.23,
+      "marketCapUsd": 1522562833220,
+      "price": 385.19,
+      "trailingPe": 377.75,
+      "forwardPe": 160.83,
       "historicalPeMedian5y": 181,
       "historicalYears": [
         {
@@ -499,10 +499,10 @@
       "marketCapRank": 11,
       "symbol": "LLY",
       "name": "Eli Lilly and Company",
-      "marketCapUsd": 1325867231791,
-      "price": 1409.38,
-      "trailingPe": 46.02,
-      "forwardPe": 30.15,
+      "marketCapUsd": 1333967046508,
+      "price": 1417.99,
+      "trailingPe": 45.25,
+      "forwardPe": 29.62,
       "historicalPeMedian5y": 53.3,
       "historicalYears": [
         {
@@ -551,8 +551,8 @@
       "marketCapRank": 12,
       "symbol": "BRK/A",
       "name": "Berkshire Hathaway Inc.",
-      "marketCapUsd": 1230305394144,
-      "price": 836445.13,
+      "marketCapUsd": 1278631886064,
+      "price": 869300.76,
       "trailingPe": null,
       "forwardPe": null,
       "historicalPeMedian5y": null,
@@ -577,6 +577,58 @@
         "annualConsensusEps": null
       },
       "url": "https://www.nasdaq.com/market-activity/stocks/brk/a"
+    },
+    {
+      "marketCapRank": 13,
+      "symbol": "WMT",
+      "name": "Walmart Inc.",
+      "marketCapUsd": 1024802001950,
+      "price": 129.17,
+      "trailingPe": 46.64,
+      "forwardPe": 42.86,
+      "historicalPeMedian5y": 39,
+      "historicalYears": [
+        {
+          "year": 2025,
+          "pe": 39
+        },
+        {
+          "year": 2024,
+          "pe": 36.8
+        },
+        {
+          "year": 2023,
+          "pe": 25.6
+        },
+        {
+          "year": 2022,
+          "pe": 42
+        },
+        {
+          "year": 2021,
+          "pe": 47.9
+        }
+      ],
+      "earnings": {
+        "nextEarningsDate": "2026-11-19",
+        "lastReportedDate": "8/20/2026",
+        "lastFiscalQuarter": "Jul 2026",
+        "lastActualEps": 0.81,
+        "lastConsensusEps": 0.73,
+        "lastSurprisePct": 10.96,
+        "lastResultReliable": true,
+        "positiveSurpriseStreak": 4,
+        "nextFiscalQuarter": "Oct 2026",
+        "nextConsensusEps": 0.64,
+        "nextHighEps": 0.66,
+        "nextLowEps": 0.62,
+        "estimateCount": 12,
+        "revisionsUp": 1,
+        "revisionsDown": 0,
+        "annualFiscalEnd": "Jan 2027",
+        "annualConsensusEps": 2.88
+      },
+      "url": "https://www.nasdaq.com/market-activity/stocks/wmt"
     }
   ]
 }
