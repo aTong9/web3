@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-11T02:52:41.103Z",
-  "asOfDate": "2026-11-11",
+  "updatedAt": "2026-11-12T03:53:49.959Z",
+  "asOfDate": "2026-11-12",
   "markets": [
     {
       "id": "sp500",
@@ -9,21 +9,11 @@
       "dailyMove": -0.38,
       "dailyAttribution": {
         "alignment": "diverging",
-        "netContribution": 1.41,
-        "alignedDrivers": 0,
+        "netContribution": 0.36,
+        "alignedDrivers": 1,
         "totalDrivers": 3
       },
       "drivers": [
-        {
-          "chain": "VIX—美股去杠杆链",
-          "driver": "VIX波动率",
-          "driverMove": -22.31,
-          "driverZ": -2.1,
-          "correlation": -0.91,
-          "contribution": 0.71,
-          "effect": "tailwind",
-          "text": "VIX波动率下跌 22.31%（-2.10σ），结合当前ρ -0.91，对标普500的共振贡献+0.71"
-        },
         {
           "chain": "信用利差—美股链",
           "driver": "美国高收益利差",
@@ -37,37 +27,37 @@
         {
           "chain": "黄金—股票状态链",
           "driver": "黄金策略指数",
-          "driverMove": 4.54,
-          "driverZ": 1.67,
+          "driverMove": -4.51,
+          "driverZ": -1.6,
           "correlation": 0.43,
-          "contribution": 0.29,
+          "contribution": -0.29,
+          "effect": "headwind",
+          "text": "黄金策略指数下跌 4.51%（-1.60σ），结合当前ρ 0.43，对标普500的共振贡献-0.29"
+        },
+        {
+          "chain": "风险压力共振—标普500链",
+          "driver": "全球风险压力共振指数",
+          "driverMove": -0.9,
+          "driverZ": -0.72,
+          "correlation": -0.69,
+          "contribution": 0.24,
           "effect": "tailwind",
-          "text": "黄金策略指数上涨 4.54%（+1.67σ），结合当前ρ 0.43，对标普500的共振贡献+0.29"
+          "text": "全球风险压力共振指数下跌 0.90点（-0.72σ），结合当前ρ -0.69，对标普500的共振贡献+0.24"
         }
       ]
     },
     {
       "id": "nasdaq",
       "name": "纳斯达克综合",
-      "date": "2026-11-09",
-      "dailyMove": 2.74,
+      "date": "2026-11-10",
+      "dailyMove": -0.74,
       "dailyAttribution": {
-        "alignment": "confirming",
-        "netContribution": 1.35,
-        "alignedDrivers": 3,
+        "alignment": "diverging",
+        "netContribution": 0.52,
+        "alignedDrivers": 1,
         "totalDrivers": 3
       },
       "drivers": [
-        {
-          "chain": "VIX—科技股链",
-          "driver": "VIX波动率",
-          "driverMove": -22.31,
-          "driverZ": -2.1,
-          "correlation": -0.87,
-          "contribution": 0.68,
-          "effect": "tailwind",
-          "text": "VIX波动率下跌 22.31%（-2.10σ），结合当前ρ -0.87，对纳斯达克综合的共振贡献+0.68"
-        },
         {
           "chain": "高收益利差—科技股链",
           "driver": "美国高收益利差",
@@ -87,17 +77,27 @@
           "contribution": 0.23,
           "effect": "tailwind",
           "text": "全球风险压力共振指数下跌 0.90点（-0.72σ），结合当前ρ -0.67，对纳斯达克综合的共振贡献+0.23"
+        },
+        {
+          "chain": "5Y5Y通胀预期—科技股链",
+          "driver": "美国5Y5Y远期通胀预期",
+          "driverMove": -4,
+          "driverZ": -1.42,
+          "correlation": 0.24,
+          "contribution": -0.15,
+          "effect": "headwind",
+          "text": "美国5Y5Y远期通胀预期下跌 4.00bp（-1.42σ），结合当前ρ 0.24，对纳斯达克综合的共振贡献-0.15"
         }
       ]
     },
     {
       "id": "shanghai",
       "name": "上证综指",
-      "date": "2026-11-10",
-      "dailyMove": 0.08,
+      "date": "2026-11-11",
+      "dailyMove": 0.46,
       "dailyAttribution": {
         "alignment": "insufficient",
-        "netContribution": -0.03,
+        "netContribution": -0.04,
         "alignedDrivers": 0,
         "totalDrivers": 1
       },
@@ -105,12 +105,12 @@
         {
           "chain": "全球股指广度—A股链",
           "driver": "全球股指参与率（剔除上证综指）",
-          "driverMove": -13.33,
-          "driverZ": -0.35,
+          "driverMove": -20,
+          "driverZ": -0.51,
           "correlation": 0.15,
-          "contribution": -0.03,
+          "contribution": -0.04,
           "effect": "neutral",
-          "text": "全球股指参与率（剔除上证综指）下跌 13.33点（-0.35σ），结合当前ρ 0.15，对上证综指的共振贡献-0.03"
+          "text": "全球股指参与率（剔除上证综指）下跌 20.00点（-0.51σ），结合当前ρ 0.15，对上证综指的共振贡献-0.04"
         }
       ]
     }
@@ -176,7 +176,7 @@
       "right": "btc",
       "status": "confirming",
       "strength": "strong",
-      "signal": 0.54,
+      "signal": 0.55,
       "interpretation": "纳指与BTC收益相关性"
     },
     {
@@ -198,6 +198,15 @@
       "interpretation": "纳指收益与ETH后续收益关系"
     },
     {
+      "title": "风险广度—美股链",
+      "left": "riskbreadth_ex_sp500",
+      "right": "sp500",
+      "status": "confirming",
+      "strength": "medium",
+      "signal": 0.44,
+      "interpretation": "十项跟踪资产上涨参与率变化与标普后续收益关系"
+    },
+    {
       "title": "黄金—股票状态链",
       "left": "gold",
       "right": "sp500",
@@ -207,22 +216,22 @@
       "interpretation": "负相关偏传统避险；正相关可能是流动性或通胀共同驱动"
     },
     {
-      "title": "风险广度—美股链",
-      "left": "riskbreadth_ex_sp500",
-      "right": "sp500",
-      "status": "confirming",
-      "strength": "medium",
-      "signal": 0.43,
-      "interpretation": "十项跟踪资产上涨参与率变化与标普后续收益关系"
-    },
-    {
       "title": "中国—港股链",
       "left": "shanghai",
       "right": "hangseng",
       "status": "confirming",
       "strength": "medium",
-      "signal": 0.41,
+      "signal": 0.39,
       "interpretation": "上证综指与恒生指数收益相关性"
+    },
+    {
+      "title": "全球股指广度—标普链",
+      "left": "globalbreadth_ex_sp500",
+      "right": "sp500",
+      "status": "confirming",
+      "strength": "medium",
+      "signal": 0.37,
+      "interpretation": "六大股指上涨参与率变化与标普后续收益关系；不是美股成分股上涨家数"
     },
     {
       "title": "全球股指广度—科技股链",
@@ -232,15 +241,6 @@
       "strength": "medium",
       "signal": 0.37,
       "interpretation": "六大股指上涨参与率变化与纳指后续收益关系"
-    },
-    {
-      "title": "全球股指广度—标普链",
-      "left": "globalbreadth_ex_sp500",
-      "right": "sp500",
-      "status": "confirming",
-      "strength": "medium",
-      "signal": 0.36,
-      "interpretation": "六大股指上涨参与率变化与标普后续收益关系；不是美股成分股上涨家数"
     },
     {
       "title": "原油—美股增长链",
@@ -275,7 +275,7 @@
       "right": "nasdaq",
       "status": "confirming",
       "strength": "medium",
-      "signal": -0.27,
+      "signal": -0.28,
       "interpretation": "Kim–Wright三因子模型估计的10Y零息债期限溢价变化与目标后续变化关系"
     },
     {
@@ -302,7 +302,7 @@
       "right": "nasdaq",
       "status": "diverging",
       "strength": "weak",
-      "signal": 0.23,
+      "signal": 0.24,
       "interpretation": "5Y5Y远期通胀预期变化与纳指后续收益关系"
     },
     {
@@ -311,7 +311,7 @@
       "right": "nasdaq",
       "status": "confirming",
       "strength": "weak",
-      "signal": -0.22,
+      "signal": -0.23,
       "interpretation": "10Y恒定期限收益率减Kim–Wright期限溢价的透明代理；不是可直接观测的政策预期"
     },
     {
@@ -432,6 +432,15 @@
       "interpretation": "逆回购下降不必然直接流入股市，仅作流动性状态线索"
     },
     {
+      "title": "政策路径差—科技股链",
+      "left": "policygap",
+      "right": "nasdaq",
+      "status": "dormant",
+      "strength": "weak",
+      "signal": 0.1,
+      "interpretation": "2Y−EFFR差值变化与纳指后续收益关系"
+    },
+    {
       "title": "圣路易斯金融压力—标普500链",
       "left": "stlfsi",
       "right": "sp500",
@@ -457,15 +466,6 @@
       "strength": "weak",
       "signal": 0.08,
       "interpretation": "SOFR−EFFR差值变化与标普500后续收益关系；日常微幅变化可能无效"
-    },
-    {
-      "title": "政策路径差—科技股链",
-      "left": "policygap",
-      "right": "nasdaq",
-      "status": "dormant",
-      "strength": "weak",
-      "signal": 0.07,
-      "interpretation": "2Y−EFFR差值变化与纳指后续收益关系"
     },
     {
       "title": "10Y−3M曲线—美股状态链",
@@ -504,6 +504,15 @@
       "interpretation": "银行准备金周变化与纳指后续收益关系"
     },
     {
+      "title": "SOFR−EFFR—科技股链",
+      "left": "fundingspread",
+      "right": "nasdaq",
+      "status": "dormant",
+      "strength": "weak",
+      "signal": 0.04,
+      "interpretation": "SOFR−EFFR差值变化与纳指后续收益关系"
+    },
+    {
       "title": "美联储资产—美股流动性链",
       "left": "fedassets",
       "right": "sp500",
@@ -529,15 +538,6 @@
       "strength": "weak",
       "signal": 0.01,
       "interpretation": "NFCI周变化与标普500收益相关性；负相关符合收紧传导"
-    },
-    {
-      "title": "SOFR−EFFR—科技股链",
-      "left": "fundingspread",
-      "right": "nasdaq",
-      "status": "dormant",
-      "strength": "weak",
-      "signal": -0.01,
-      "interpretation": "SOFR−EFFR差值变化与纳指后续收益关系"
     },
     {
       "title": "铜—A股周期链",
