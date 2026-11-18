@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-17T21:22:21.179Z",
+  "updatedAt": "2026-11-18T03:04:23.358Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -37,10 +37,26 @@
   ],
   "articles": [
     {
-      "id": "32c2628ba7ee7805",
-      "title": "Widespread outages hit banks, air travel, the NSA and Apple, disrupting seemingly everything",
-      "url": "https://www.cnbc.com/2026/11/17/apple-microsoft-faa-jpmorgan-outages.html",
-      "publishedAt": "2026-11-17T21:20:47.000Z",
+      "id": "88c202caa782d636",
+      "title": "JPMorgan is working on AI agent transactions that don’t involve humans",
+      "url": "https://www.cnbc.com/2026/11/18/jpmorgan-hyundai-card-ai-agents-payments.html",
+      "publishedAt": "2026-11-18T02:52:51.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "摩根大通正在研究不涉及人类的AI代理交易",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "a64d8f6f24e9bacc",
+      "title": "Zelenskyy says Starshield speed curbs still in place over 'occupied territories' of Ukraine",
+      "url": "https://www.cnbc.com/2026/11/18/ukraine-starshield-starlink-musk-spacex.html",
+      "publishedAt": "2026-11-18T02:50:16.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "macro",
@@ -48,7 +64,157 @@
       "impact": "low",
       "impactScore": 1,
       "affectedAssets": [],
+      "translatedTitle": "泽连斯基表示，乌克兰“被占领领土”上的Starshield限速措施仍在实施中",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "de562b503322b962",
+      "title": "China’s Xi calls for removing trade and investment barriers ahead of his meeting with Trump and Putin",
+      "url": "https://www.cnbc.com/2026/11/18/china-xi-trade-investment-barriers.html",
+      "publishedAt": "2026-11-18T02:23:20.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "A股"
+      ],
+      "translatedTitle": "习近平在与特朗普和普京会晤前呼吁消除贸易和投资壁垒",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "7fca0e24e6f30576",
+      "title": "LeBron James sues startup over viral AI ad allegedly exploiting his likeness",
+      "url": "https://www.cnbc.com/2026/11/18/lebron-james-startup-ai-lawsuit.html",
+      "publishedAt": "2026-11-18T02:02:02.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "technology",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "勒布朗·詹姆斯起诉一家初创公司，指控其利用人工智能技术制作的病毒式广告涉嫌侵犯肖像权。",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "42cab5ea23d45f3a",
+      "title": "OpenAI bugging case defendant Alfozan set for trial in January",
+      "url": "https://www.cnbc.com/2026/11/17/openai-spy-alfozan-trial-saudi.html",
+      "publishedAt": "2026-11-18T01:31:37.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "OpenAI窃听案被告Alfozan将于1月受审",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "77154ded1f31ea0a",
+      "title": "Three things to watch as Trump, Xi and Putin meet in China",
+      "url": "https://www.cnbc.com/2026/11/18/apec-trump-xi-putin-shenzhen.html",
+      "publishedAt": "2026-11-18T01:23:29.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "A股"
+      ],
+      "translatedTitle": "特朗普、习近平和普京在中国会晤时需要关注的三件事",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "8401cf87df8e2afb",
+      "title": "Nvidia takes positive step forward with stronger sales outlook. Here’s our thoughts on the stock",
+      "url": "https://www.cnbc.com/investingclub/2026/11/17/nvidia-takes-positive-step-forward-with-stronger-sales-outlook-heres-our-thoughts-on-the-stock.html",
+      "publishedAt": "2026-11-18T01:18:41.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "equities",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "美股"
+      ],
+      "translatedTitle": "英伟达迈出积极步伐，销售前景更加乐观。以下是我们对该股的看法",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "66d74eefcb23f371",
+      "title": "Japan exports in October surge 20.5%, beating estimates on robust chip shipments",
+      "url": "https://www.cnbc.com/2026/11/18/japan-exports-october-imports-chips.html",
+      "publishedAt": "2026-11-18T00:35:31.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "10月份日本出口额飙升20.5%，强劲的芯片出货量超出预期",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "65047d2bef1bd6a4",
+      "title": "Nike lays out financial goals ahead of first investor day in 9 years",
+      "url": "https://www.cnbc.com/2026/11/17/nike-investor-day-elliott-hill.html",
+      "publishedAt": "2026-11-17T22:17:44.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "耐克在9年来首次投资者日之前公布财务目标",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "32c2628ba7ee7805",
+      "title": "Widespread outages hit banks, air travel, the NSA and Apple, disrupting seemingly everything",
+      "url": "https://www.cnbc.com/2026/11/17/apple-microsoft-faa-jpmorgan-outages.html",
+      "publishedAt": "2026-11-17T22:03:57.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
       "translatedTitle": "大范围的停电影响了银行、航空旅行、美国国家安全局和苹果公司，似乎扰乱了一切。",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "5e39bb37b737a778",
+      "title": "U.S. officially loses measles elimination status amid ongoing outbreaks",
+      "url": "https://www.cnbc.com/2026/11/17/us-measles-elimination-status.html",
+      "publishedAt": "2026-11-17T22:02:05.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "美国因持续爆发麻疹疫情而正式失去麻疹消除国地位",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -62,7 +228,7 @@
       "category": "equities",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [
         "美股"
       ],
@@ -80,7 +246,7 @@
       "category": "equities",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [
         "美股"
       ],
@@ -98,7 +264,7 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "FAA在停飞后暂停安装新路由器",
       "translationStatus": "translated",
@@ -114,7 +280,7 @@
       "category": "equities",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "美股"
       ],
@@ -132,7 +298,7 @@
       "category": "technology",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
+      "impactScore": 0,
       "affectedAssets": [
         "美股"
       ],
@@ -150,7 +316,7 @@
       "category": "equities",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [
         "美股"
       ],
@@ -168,25 +334,9 @@
       "category": "macro",
       "language": "English",
       "impact": "low",
-      "impactScore": 1,
-      "affectedAssets": [],
-      "translatedTitle": "应CFTC要求，Kalshi下架有争议的特朗普“提及”市场",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "d97ed0c1bbfd3934",
-      "title": "Trump has arrived in Asia. Here’s what he said about Iran and Deutsche Bank",
-      "url": "https://www.cnbc.com/2026/11/17/trump-iran-asia-trip-china.html",
-      "publishedAt": "2026-11-17T19:16:20.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
       "impactScore": 0,
       "affectedAssets": [],
-      "translatedTitle": "特朗普抵达亚洲。以下是他对伊朗和德意志银行的看法",
+      "translatedTitle": "应CFTC要求，Kalshi下架有争议的特朗普“提及”市场",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -203,22 +353,6 @@
       "impactScore": 2,
       "affectedAssets": [],
       "translatedTitle": "菲利普·R·莱恩：货币政策沟通的实践与科学：欧洲央行的经验",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "5e39bb37b737a778",
-      "title": "U.S. officially loses measles elimination status amid ongoing outbreaks",
-      "url": "https://www.cnbc.com/2026/11/17/us-measles-elimination-status.html",
-      "publishedAt": "2026-11-17T18:10:16.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "美国因持续爆发麻疹疫情而正式失去麻疹消除国地位",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -255,22 +389,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "65047d2bef1bd6a4",
-      "title": "Nike lays out financial goals ahead of first investor day in 9 years",
-      "url": "https://www.cnbc.com/2026/11/17/nike-investor-day-elliott-hill.html",
-      "publishedAt": "2026-11-17T17:02:34.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "耐克在9年来首次投资者日之前公布财务目标",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "c076b92eee065022",
       "title": "Jensen Huang's Nvidia exit exposes succession and governance risks for companies and boards",
       "url": "https://www.cnbc.com/2026/11/17/nvidia-jensen-huang-succession-board-lessons.html",
@@ -283,22 +401,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "Jensen Huang从Nvidia离职凸显了公司和董事会的继任和治理风险",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "8c1ef7e8c246b1da",
-      "title": "Disney beats fourth-quarter estimates, targets $3 billion in savings through cost-cutting efforts",
-      "url": "https://www.cnbc.com/2026/11/17/disney-dis-earnings-q-2026.html",
-      "publishedAt": "2026-11-17T16:40:25.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "迪士尼第四季度业绩超预期，计划通过削减成本实现30亿美元的节约",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -371,24 +473,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "e12cc7917ed3db56",
-      "title": "Deutsche Bank shares sink as whistleblowers reveal Epstein payments, Trump tax leak, Russia bets",
-      "url": "https://www.cnbc.com/2026/11/17/deutsche-bank-leak-epstein-trump.html",
-      "publishedAt": "2026-11-17T14:24:10.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "德意志银行股价大跌，原因是举报人揭露了爱泼斯坦的付款、特朗普的税务泄露以及对俄罗斯的押注",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "81371a81f5e27287",
       "title": "Republicans outspent Democrats for first time in over a decade in record 2026 midterm election political ad blitz",
       "url": "https://www.cnbc.com/2026/11/17/2026-election-political-ad-spending.html",
@@ -401,22 +485,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "在2026年创纪录的中期选举政治广告大战中，共和党人在十多年来首次在支出上超过了民主党人。",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "347b6a04b15629f7",
-      "title": "Demis Hassabis’ AI company raises $5 billion, months after he left as Google DeepMind CEO",
-      "url": "https://www.cnbc.com/2026/11/17/isomorphic-labs-series-c-ai-drug-discovery-.html",
-      "publishedAt": "2026-11-17T13:58:07.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "Demis Hassabis 的人工智能公司在离任谷歌 DeepMind 首席执行官数月后筹集了 50 亿美元",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -439,56 +507,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "0a612e5418aa73a5",
-      "title": "Roth 401(k) matches are 'surging,' report finds. What workers should know",
-      "url": "https://www.cnbc.com/2026/11/17/roth-401k-employer-match.html",
-      "publishedAt": "2026-11-17T13:15:01.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "报告显示，罗斯401(k)匹配金正在“激增”。劳动者应知事项",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "65366757a88e13be",
-      "title": "Investors look to Nvidia's earnings and Anthropic's IPO to refresh the tech rally",
-      "url": "https://www.cnbc.com/2026/11/17/nvidia-earnings-anthropic-ipo-tech-rally.html",
-      "publishedAt": "2026-11-17T13:11:40.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 2,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "投资者期待英伟达的财报和Anthropic的IPO能提振科技股行情",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "9a6087f7ddac3240",
-      "title": "Ukraine damages Putin’s prized Crimea bridge as Zelenskyy lauds ‘unprecedented operation’",
-      "url": "https://www.cnbc.com/2026/11/17/kerch-bridge-ukraine-russia-putin-kyiv.html",
-      "publishedAt": "2026-11-17T12:48:14.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "乌克兰摧毁了普京珍视的克里米亚大桥，泽连斯基称赞这是一次“前所未有的行动”",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "f5b40b49f970fe24",
       "title": "Trump’s accounts traded up to $97.5 million in Nvidia as Huang gained White House access",
       "url": "https://www.cnbc.com/2026/11/16/trump-nvidia-stock-trades-jensen-huang.html",
@@ -501,24 +519,6 @@
       "impactScore": 0,
       "affectedAssets": [],
       "translatedTitle": "在黄仁勋获得白宫准入后，特朗普的账户在英伟达的交易额高达9750万美元",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "e0912a6cf8de6bbd",
-      "title": "Nvidia warns chip buyers of legal risks tied to China AI access, sources tell CNBC",
-      "url": "https://www.cnbc.com/2026/11/17/nvidia-china-cloud-ai-chip-access.html",
-      "publishedAt": "2026-11-17T07:07:35.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "technology",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "A股"
-      ],
-      "translatedTitle": "消息人士告诉CNBC，英伟达警告芯片买家，使用中国人工智能存在法律风险",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
