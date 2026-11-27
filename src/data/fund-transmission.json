@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-26T05:10:13.122Z",
-  "asOfDate": "2026-11-26",
+  "updatedAt": "2026-11-27T05:07:35.232Z",
+  "asOfDate": "2026-11-27",
   "markets": [
     {
       "id": "sp500",
@@ -9,11 +9,21 @@
       "dailyMove": -0.5,
       "dailyAttribution": {
         "alignment": "confirming",
-        "netContribution": -0.87,
-        "alignedDrivers": 3,
+        "netContribution": -0.25,
+        "alignedDrivers": 2,
         "totalDrivers": 3
       },
       "drivers": [
+        {
+          "chain": "全球股指广度—标普链",
+          "driver": "全球股指参与率（剔除标普500）",
+          "driverMove": 100,
+          "driverZ": 2.48,
+          "correlation": 0.47,
+          "contribution": 0.4,
+          "effect": "tailwind",
+          "text": "全球股指参与率（剔除标普500）上涨 100.00点（+2.48σ），结合当前ρ 0.47，对标普500的共振贡献+0.40"
+        },
         {
           "chain": "风险压力共振—标普500链",
           "driver": "全球风险压力共振指数",
@@ -33,16 +43,6 @@
           "contribution": -0.32,
           "effect": "headwind",
           "text": "美国高收益利差上涨 9.00bp（+0.95σ），结合当前ρ -0.72，对标普500的共振贡献-0.32"
-        },
-        {
-          "chain": "全球股指广度—标普链",
-          "driver": "全球股指参与率（剔除标普500）",
-          "driverMove": -40,
-          "driverZ": -1.01,
-          "correlation": 0.47,
-          "contribution": -0.22,
-          "effect": "headwind",
-          "text": "全球股指参与率（剔除标普500）下跌 40.00点（-1.01σ），结合当前ρ 0.47，对标普500的共振贡献-0.22"
         }
       ]
     },
@@ -53,11 +53,21 @@
       "dailyMove": -0.62,
       "dailyAttribution": {
         "alignment": "confirming",
-        "netContribution": -0.89,
-        "alignedDrivers": 3,
+        "netContribution": -0.25,
+        "alignedDrivers": 2,
         "totalDrivers": 3
       },
       "drivers": [
+        {
+          "chain": "全球股指广度—科技股链",
+          "driver": "全球股指参与率（剔除纳指）",
+          "driverMove": 100,
+          "driverZ": 2.61,
+          "correlation": 0.48,
+          "contribution": 0.41,
+          "effect": "tailwind",
+          "text": "全球股指参与率（剔除纳指）上涨 100.00点（+2.61σ），结合当前ρ 0.48，对纳斯达克综合的共振贡献+0.41"
+        },
         {
           "chain": "高收益利差—科技股链",
           "driver": "美国高收益利差",
@@ -77,28 +87,18 @@
           "contribution": -0.33,
           "effect": "headwind",
           "text": "全球风险压力共振指数上涨 1.52点（+1.23σ），结合当前ρ -0.60，对纳斯达克综合的共振贡献-0.33"
-        },
-        {
-          "chain": "全球股指广度—科技股链",
-          "driver": "全球股指参与率（剔除纳指）",
-          "driverMove": -40,
-          "driverZ": -1.07,
-          "correlation": 0.48,
-          "contribution": -0.23,
-          "effect": "headwind",
-          "text": "全球股指参与率（剔除纳指）下跌 40.00点（-1.07σ），结合当前ρ 0.48，对纳斯达克综合的共振贡献-0.23"
         }
       ]
     },
     {
       "id": "shanghai",
       "name": "上证综指",
-      "date": "2026-11-25",
-      "dailyMove": -2.03,
+      "date": "2026-11-26",
+      "dailyMove": 0.01,
       "dailyAttribution": {
-        "alignment": "confirming",
+        "alignment": "diverging",
         "netContribution": -0.17,
-        "alignedDrivers": 2,
+        "alignedDrivers": 0,
         "totalDrivers": 2
       },
       "drivers": [
@@ -445,8 +445,8 @@
       "title": "美联储资产—科技股流动性链",
       "left": "fedassets",
       "right": "nasdaq",
-      "status": "dormant",
-      "strength": "weak",
+      "status": "unavailable",
+      "strength": "unavailable",
       "signal": 0.1,
       "interpretation": "美联储总资产周变化与纳指后续收益关系"
     },
@@ -454,8 +454,8 @@
       "title": "美联储资产—美股流动性链",
       "left": "fedassets",
       "right": "sp500",
-      "status": "dormant",
-      "strength": "weak",
+      "status": "unavailable",
+      "strength": "unavailable",
       "signal": 0.09,
       "interpretation": "美联储总资产周变化与标普500收益的共振和领先统计"
     },
