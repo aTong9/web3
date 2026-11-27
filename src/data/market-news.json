@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-26T21:57:53.956Z",
+  "updatedAt": "2026-11-27T04:04:05.379Z",
   "source": "GDELT、CNBC、华尔街日报与央行、监管机构公开信息源",
   "refreshMinutes": 15,
   "translationProvider": "MyMemory",
@@ -7,7 +7,7 @@
     {
       "source": "GDELT · global",
       "status": "failed",
-      "message": "Error: 429 https://api.gdeltproject.org/api/v2/doc/doc?query=%28inflation+OR+%22interest+rate%22+OR+sanctions+OR+tariff+OR+war+OR+stocks+OR+earnings+OR+bankruptcy+OR+oil+OR+OPEC+OR+gold+OR+semiconductor+OR+antitrust%29&mode=ArtList&maxrecords=50&format=json&sort=DateDesc&timespan=24h"
+      "message": "TypeError: fetch failed"
     },
     {
       "source": "美联储",
@@ -37,6 +37,56 @@
   ],
   "articles": [
     {
+      "id": "123ab3511f36f9d9",
+      "title": "Two Italians killed in Kuwait drone attack; Trump says Iran war ends ‘whenever I want it’",
+      "url": "https://www.cnbc.com/2026/11/27/us-iran-war-trump-hormuz-italian-killed-trump.html",
+      "publishedAt": "2026-11-27T03:30:23.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "geopolitics",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [],
+      "translatedTitle": "科威特无人机袭击造成两名意大利人丧生；特朗普称“只要我想”，伊朗战争就会结束",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "5d28a5ddaa2745f4",
+      "title": "China industrial profits growth surges to a 5-month high of 20.1% in October",
+      "url": "https://www.cnbc.com/2026/11/27/china-industrial-profits-october.html",
+      "publishedAt": "2026-11-27T02:04:09.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 1,
+      "affectedAssets": [
+        "A股"
+      ],
+      "translatedTitle": "10月份中国工业利润增长率飙升至20.1%，创5个月新高",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "696d2fc65b524f59",
+      "title": "Sovereign wealth funds are acting more like private equity giants — and inheriting their risks",
+      "url": "https://www.cnbc.com/2026/11/27/swf-private-equity-risks.html",
+      "publishedAt": "2026-11-27T00:22:29.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "主权财富基金的行为更像私募股权巨头，并继承了它们的风险",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
       "id": "0b6e4500df564aeb",
       "title": "Trump demands probe into ‘record setting error’ after third-quarter GDP data gets massive revision higher",
       "url": "https://www.cnbc.com/2026/11/26/trump-gdp-revision-investigation.html",
@@ -46,7 +96,7 @@
       "category": "macro",
       "language": "English",
       "impact": "medium",
-      "impactScore": 3,
+      "impactScore": 2,
       "affectedAssets": [],
       "translatedTitle": "在第三季度GDP数据大幅上调后，特朗普要求调查“创纪录的错误”",
       "translationStatus": "translated",
@@ -83,6 +133,24 @@
         "原油"
       ],
       "translatedTitle": "半导体芯片是“新石油”。原因如下",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "84279315ce6baa68",
+      "title": "Nvidia chip buyers told to rule out Chinese renters to purchase GPUs, sources say",
+      "url": "https://www.cnbc.com/2026/11/26/neoclouds-nvidia-china-ai.html",
+      "publishedAt": "2026-11-26T17:04:54.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [
+        "A股"
+      ],
+      "translatedTitle": "消息人士称，英伟达芯片买家被告知要排除中国租用商购买GPU",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -203,24 +271,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "62bdeb72533b2d8c",
-      "title": "Global stocks rally as investors shrug off U.S. tariffs and AI jitters to 'fish for bargains'",
-      "url": "https://www.cnbc.com/2026/11/26/stock-markets-today-.html",
-      "publishedAt": "2026-11-26T12:22:25.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "geopolitics",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 3,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "随着投资者对美国关税和人工智能的担忧情绪消散，转而“寻找廉价股”，全球股市出现反弹。",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "47ecbd36a31487ed",
       "title": "Switzerland’s biggest bank set for showdown with lawmakers as capital fight intensifies amid crisis planning",
       "url": "https://www.cnbc.com/2026/11/26/ubs-swiss-capital-rules-finma-crisis-plan.html",
@@ -337,22 +387,6 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "f82391e30c2a8d5c",
-      "title": "North Korea's Kim calls for nuclear arsenal expansion, says status 'will never change'",
-      "url": "https://www.cnbc.com/2026/11/26/north-korea-kim-nuclear-weapons-expansion.html",
-      "publishedAt": "2026-11-26T05:50:34.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "high",
-      "impactScore": 5,
-      "affectedAssets": [],
-      "translatedTitle": "朝鲜的金正恩呼吁扩大核武库，并表示这一地位“永远不会改变”",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
       "id": "385b5e5811acc0e9",
       "title": "How Trump’s latest tariff moves hand India an edge over rival Asian exporters",
       "url": "https://www.cnbc.com/2026/11/26/trump-us-tariff-india-trade.html",
@@ -365,22 +399,6 @@
       "impactScore": 3,
       "affectedAssets": [],
       "translatedTitle": "特朗普的最新关税举措如何使印度在与亚洲出口国竞争中占据优势",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "06446319850a1738",
-      "title": "Judge blocks FCC early-renewal process for Disney-owned ABC stations, for now",
-      "url": "https://www.cnbc.com/2026/11/26/fcc-disney-abc-stations-judge-block.html",
-      "publishedAt": "2026-11-26T04:00:15.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "macro",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [],
-      "translatedTitle": "法官暂时叫停了联邦通信委员会对迪士尼旗下ABC电视台的提前续约流程",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -419,28 +437,10 @@
       "translationProvider": "MyMemory"
     },
     {
-      "id": "30bbabbe7e34d32a",
-      "title": "K-beauty stocks rally as Korean brands top Amazon bestseller lists globally ahead of Black Friday",
-      "url": "https://www.cnbc.com/2026/11/26/k-beauty-firms-amazon-sales-black-friday.html",
-      "publishedAt": "2026-11-26T03:09:47.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "equities",
-      "language": "English",
-      "impact": "low",
-      "impactScore": 0,
-      "affectedAssets": [
-        "美股"
-      ],
-      "translatedTitle": "在黑色星期五到来之前，韩国品牌在全球亚马逊畅销榜上名列前茅，K-beauty（韩国美妆）的股票应声上涨。",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "a26b51ba227a6222",
-      "title": "Vance says he was assured Jensen Huang was not under DOJ investigation",
-      "url": "https://www.cnbc.com/2026/11/25/vance-jensen-huang-nvidia-doj-investigation.html",
-      "publishedAt": "2026-11-25T21:00:08.000Z",
+      "id": "e8d27b8fff6efbdb",
+      "title": "Inside India newsletter: Roaring economy, foreign investors’ return and now record auto sales",
+      "url": "https://www.cnbc.com/2026/11/26/india-auto-slaes-economy-suzuki-hyundai-toyota.html",
+      "publishedAt": "2026-11-26T00:12:16.000Z",
       "source": "CNBC",
       "sourceType": "media",
       "category": "macro",
@@ -448,7 +448,23 @@
       "impact": "low",
       "impactScore": 0,
       "affectedAssets": [],
-      "translatedTitle": "万斯表示，他已得到保证，Jensen Huang未受到司法部调查",
+      "translatedTitle": "Inside India通讯：经济蓬勃发展、外国投资者回归，以及如今的创纪录汽车销量",
+      "translationStatus": "translated",
+      "translationProvider": "MyMemory"
+    },
+    {
+      "id": "eaea116a1d6c6b7f",
+      "title": "Liesman: Why Greenspan could bet on productivity — and Warsh needs to hike",
+      "url": "https://www.cnbc.com/2026/11/25/kevin-warsh-greenspan-fed-rates-ai-inflation.html",
+      "publishedAt": "2026-11-25T21:56:43.000Z",
+      "source": "CNBC",
+      "sourceType": "media",
+      "category": "macro",
+      "language": "English",
+      "impact": "low",
+      "impactScore": 0,
+      "affectedAssets": [],
+      "translatedTitle": "Liesman：为什么格林斯潘可以押注生产力——而沃什需要加息",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
@@ -553,24 +569,6 @@
         "美股"
       ],
       "translatedTitle": "Anthropic 的股票在 IPO 后表现不佳。这对于人工智能行业为何至关重要",
-      "translationStatus": "translated",
-      "translationProvider": "MyMemory"
-    },
-    {
-      "id": "1e67f5e53bf4997b",
-      "title": "U.S. proposes new tariffs on 14 trading partners, including China and the EU",
-      "url": "https://www.cnbc.com/2026/11/25/us-tariffs-trump-section-301.html",
-      "publishedAt": "2026-11-25T16:02:52.000Z",
-      "source": "CNBC",
-      "sourceType": "media",
-      "category": "geopolitics",
-      "language": "English",
-      "impact": "medium",
-      "impactScore": 3,
-      "affectedAssets": [
-        "A股"
-      ],
-      "translatedTitle": "美国提议对包括中国和欧盟在内的14个贸易伙伴征收新关税",
       "translationStatus": "translated",
       "translationProvider": "MyMemory"
     },
